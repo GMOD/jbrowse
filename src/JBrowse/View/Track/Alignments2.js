@@ -1,7 +1,7 @@
 define( [
             'dojo/_base/declare',
             'dojo/_base/array',
-            'dojo/promise/all',
+            'dijit/MenuItem',
             'JBrowse/Util',
             'JBrowse/View/Track/CanvasFeatures',
             'JBrowse/View/Track/_AlignmentsMixin'
@@ -9,7 +9,7 @@ define( [
         function(
             declare,
             array,
-            all,
+            MenuItem,
             Util,
             CanvasFeatureTrack,
             AlignmentsMixin
@@ -33,7 +33,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 hideUnmapped: true,
                 hideUnsplicedReads: false,
                 hideMissingMatepairs: false,
-                hideForwardStrand: false,
+                hideForwardStrant: false,
                 hideReverseStrand: false,
                 useXS: false,
                 useReverseTemplate: false,
@@ -59,29 +59,18 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
         var thisB = this;
         var displayOptions = [];
 
+        var m = {
+            type: 'dijit/Menu',
+            label: 'Pair options',
+            children: []
+        }
+        var c = {
+            type: 'dijit/Menu',
+            label: 'Color options',
+            children: []
+        }
 
-        if(this.config.useReverseTemplateOption) {
-            displayOptions.push({
-                label: 'Use reversed template',
-                type: 'dijit/CheckedMenuItem',
-                checked: this.config.useReverseTemplate,
-                onClick: function(event) {
-                    thisB.config.useReverseTemplate = this.get('checked');
-                    thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
-                }
-            });
-        }
-        if(this.config.useXSOption) {
-            displayOptions.push({
-                label: 'Use XS',
-                type: 'dijit/CheckedMenuItem',
-                checked: this.config.useXS,
-                onClick: function(event) {
-                    thisB.config.useXS = this.get('checked');
-                    thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
-                }
-            });
-        }
+
 
         displayOptions.push({
             label: 'View coverage',
@@ -102,8 +91,20 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
+        displayOptions.push(m)
 
-        displayOptions.push({
+        c.children.push({
+            label: 'Color by XS tag (RNA-seq strandedness)',
+            type: 'dijit/CheckedMenuItem',
+            checked: this.config.useXS,
+            onClick: function(event) {
+                thisB.config.useXS = this.get('checked');
+                thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
+            }
+        });
+
+
+        m.children.push({
             label: 'View as pairs',
             onClick: function(event) {
                 thisB.config.viewAsPairs = true
@@ -113,7 +114,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             }
         });
 
-        displayOptions.push({
+        m.children.push({
             label: 'View paired arcs',
             onClick: function(event) {
                 thisB.config.viewAsPairs = true
@@ -122,7 +123,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
-        displayOptions.push({
+        m.children.push({
             label: 'View pairs as read cloud',
             onClick: function(event) {
                 thisB.config.viewAsPairs = true
@@ -131,7 +132,17 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
-        displayOptions.push({
+
+        m.children.push({
+            label: 'Flip mate pair (RNA-seq strandedness)',
+            type: 'dijit/CheckedMenuItem',
+            checked: this.config.useReverseTemplate,
+            onClick: function(event) {
+                thisB.config.useReverseTemplate = this.get('checked');
+                thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
+            }
+        });
+        c.children.push({
             label: 'Color by pair orientation and insert size',
             type: 'dijit/CheckedMenuItem',
             checked: this.config.colorByOrientation,
@@ -140,7 +151,8 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
-        return all([ this.inherited(arguments), this._alignmentsFilterTrackMenuOptions(), displayOptions ])
+
+        return Promise.all([ this.inherited(arguments), this._alignmentsFilterTrackMenuOptions(), displayOptions ])
             .then( function( options ) {
                        var o = options.shift();
                        options.unshift({ type: 'dijit/MenuSeparator' } );
