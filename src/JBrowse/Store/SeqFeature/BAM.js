@@ -222,6 +222,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
             .then(records => {
                 if(query.viewAsPairs) {
                     const recs = records.map(f => this._bamRecordToFeature(f))
+                    recs.forEach(r => this.insertSizeCache.insertFeat(r))
                     this.pairFeatures(query, recs, featCallback, endCallback, errorCallback)
                 } else {
                     for(let i = 0; i < records.length; i++) {

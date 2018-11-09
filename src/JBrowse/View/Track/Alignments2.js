@@ -61,12 +61,12 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
 
         var m = {
             type: 'dijit/Menu',
-            label: 'Pair options',
+            label: 'Track visualization options',
             children: []
         }
         var c = {
             type: 'dijit/Menu',
-            label: 'Color options',
+            label: 'Coloring options',
             children: []
         }
 

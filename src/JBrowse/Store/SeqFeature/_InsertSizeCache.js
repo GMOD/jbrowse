@@ -24,14 +24,14 @@ return declare(null, {
     },
 
     insertFeat(feat) {
-        this.featureCache[feat.get('name')] = feat
+        this.featureCache[feat.get('name')] = Math.abs(feat.get('template_length'))
     },
 
     getInsertSizeStats() {
         if(Object.keys(this.featureCache).length > this.insertStatsCacheMin) {
             var total = Object.keys(this.featureCache).length
             var tlens = Object.entries(this.featureCache)
-                .map(([k, v]) => Math.abs(v.get('template_length')))
+                .map(([k, v]) => Math.abs(v))
                 .filter(tlen => tlen < this.insertMaxSize)
                 .sort((a, b) => a - b)
             var sum = tlens.reduce((a, b) => a + b, 0)
