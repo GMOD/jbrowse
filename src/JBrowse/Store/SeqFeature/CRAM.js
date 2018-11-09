@@ -85,6 +85,7 @@ define( [
             'JBrowse/Store/DeferredFeaturesMixin',
             'JBrowse/Store/SeqFeature/GlobalStatsEstimationMixin',
             'JBrowse/Store/SeqFeature/_PairCache',
+            'JBrowse/Store/SeqFeature/_InsertSizeCache',
             'JBrowse/Model/XHRBlob',
             'JBrowse/Model/SimpleFeature',
         ],
@@ -97,6 +98,7 @@ define( [
             DeferredFeaturesMixin,
             GlobalStatsEstimationMixin,
             PairCache,
+            InsertSizeCache,
             XHRBlob,
             SimpleFeature,
         ) {
@@ -169,6 +171,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
             })
 
         this.storeTimeout = args.storeTimeout || 3000;
+        this.insertSizeCache = new InsertSizeCache(args);
     },
 
     // process the parsed SAM header from the cram file
@@ -294,10 +297,13 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
             .then(records => {
                 if(query.viewAsPairs) {
                     const recs = records.map(f => this._cramRecordToFeature(f))
+                    recs.forEach(r => this.insertSizeCache.insertFeat(r))
                     this.pairFeatures(query, recs, featCallback, endCallback, errorCallback)
                 } else {
                     for(let i = 0; i < records.length; i++) {
-                        featCallback(this._cramRecordToFeature(records[i]))
+                        let feat = this._cramRecordToFeature(records[i])
+                        this.insertSizeCache.insertFeat(feat);
+                        featCallback(feat)
                     }
                 }
                 endCallback()
@@ -308,6 +314,10 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
 
                 errorCallback(err)
             })
+    },
+
+    getInsertSizeStats() {
+        return this.insertSizeCache.getInsertSizeStats()
     },
 
     _cramRecordToFeature(record) {
