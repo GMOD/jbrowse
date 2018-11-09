@@ -255,6 +255,7 @@ return declare( null, {
     },
 
     _valToString: function( val ) {
+        if ( !val ) return ''
         if( lang.isArray( val ) ) {
             return array.map( val, lang.hitch( this,'_valToString') ).join(' ');
         }
