@@ -59,6 +59,10 @@
  * Fix issue where JBrowse Desktop was not able to access remote files (issue
    #1234, pull #1245, @cmdcolin)
 
+ * Fix issue where the Hierarchical track selector contained a bunch of blank
+   whitespace. Thanks to @nathanhaigh for reporting! (issue #1240, pull #1253,
+   @cmdcolin)
+
 # Release 1.15.4     2018-10-05 13:02:55 UTC
 
 ## Minor improvements
