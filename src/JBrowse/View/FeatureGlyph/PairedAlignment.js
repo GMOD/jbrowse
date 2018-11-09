@@ -65,7 +65,7 @@ _defaultConfig() {
         readCloudLog: true,
         readCloudStretch: 20,
         style: {
-            connectorColor: PairUtils.colorAlignmentArc,
+            connectorColor: PairUtils.colorConnector,
             connectorThickness: 1,
         }
     });

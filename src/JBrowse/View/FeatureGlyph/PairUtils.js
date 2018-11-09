@@ -4,32 +4,19 @@ define( [
 function(Util) {
 
 var PairUtils = {
-    colorAlignment( feature, path, glyph, track ) {
+    colorAlignment(feature, score, glyph, track) {
         var strand = feature.get('strand');
         if (Math.abs(strand) != 1 && strand != '+' && strand != '-') {
             return track.colorForBase('reference');
         }
         else if (track.config.colorByOrientation) {
-            if (track.upperPercentile < Math.abs(feature.get('template_length'))) {
-                return 'red'
-            } else if (track.lowerPercentile > Math.abs(feature.get('template_length'))) {
-                return 'pink'
-            }
-            const type = Util.orientationTypes[track.config.orientationType]
-            const orientation = type[feature.get('pair_orientation')]
-            const map = {
-                'LR': 'color_pair_lr',
-                'RR': 'color_pair_rr',
-                'RL': 'color_pair_rl',
-                'LL': 'color_pair_ll'
-            };
-            return glyph.getStyle(feature, map[orientation] || 'color_nostrand');
+            return PairUtils.colorByOrientation(feature, score, glyph, track)
         }
         else if (track.config.useXS) {
             var xs = feature.get('xs')
             var strand = {
-                '-':'color_rev_strand',
-                '+':'color_fwd_strand'
+                '-': 'color_rev_strand',
+                '+': 'color_fwd_strand'
             };
             if (!strand[xs]) {
                 strand = 'color_nostrand';
@@ -80,25 +67,43 @@ var PairUtils = {
               ? glyph.getStyle( feature, 'color_fwd_strand' )
               : glyph.getStyle( feature, 'color_rev_strand' );
     },
-    colorAlignmentArc( feature, score, glyph, track ) {
-         if (track.config.colorByOrientation) {
-            if (track.upperPercentile < Math.abs(feature.get('template_length'))) {
-                return 'red'
-            } else if (track.lowerPercentile > Math.abs(feature.get('template_length'))) {
-                return 'pink'
-            }
-            const type = Util.orientationTypes[track.config.orientationType]
-            const orientation = type[feature.get('pair_orientation')]
-            const map = {
-                'LR': 'color_pair_lr',
-                'RR': 'color_pair_rr',
-                'RL': 'color_pair_rl',
-                'LL': 'color_pair_ll'
-            };
-            return glyph.getStyle(feature, map[orientation] || 'color_nostrand');
-        }
 
+    colorByOrientation(feature, score, glyph, track)  {
+        if (track.upperPercentile < Math.abs(feature.get('template_length'))) {
+            return 'red'
+        } else if (track.lowerPercentile > Math.abs(feature.get('template_length'))) {
+            return 'pink'
+        }
+        const type = Util.orientationTypes[track.config.orientationType]
+        const orientation = type[feature.get('pair_orientation')]
+        const map = {
+            'LR': 'color_pair_lr',
+            'RR': 'color_pair_rr',
+            'RL': 'color_pair_rl',
+            'LL': 'color_pair_ll'
+        };
+        return glyph.getStyle(feature, map[orientation] || 'color_nostrand');
+
+    },
+
+    colorByInsertDistance(feature, score, glyph, track) {
         return 'hsl(' + Math.abs(score / 10) + ',50%,50%)';
+    },
+
+    colorArcs(feature, score, glyph, track) {
+        if (track.config.colorByOrientation) {
+            return PairUtils.colorByOrientation(feature, score, glyph, track)
+        } else {
+            return PairUtils.colorByInsertDistance(feature, score, glyph, track)
+        }
+    },
+
+    colorConnector(feature, score, glyph, track) {
+        if (track.config.colorByOrientation) {
+            return PairUtils.colorByOrientation(feature, score, glyph, track)
+        } else {
+            return 'black'
+        }
     }
 };
 

@@ -17,7 +17,7 @@ function(
         _defaultConfig: function() {
             return this._mergeConfigs(lang.clone(this.inherited(arguments)), {
                 style: {
-                    color: PairUtils.colorAlignmentArc,
+                    color: PairUtils.colorArcs,
                     color_pair_lr: 'grey',
                     color_pair_rr: 'navy',
                     color_pair_rl: 'teal',
