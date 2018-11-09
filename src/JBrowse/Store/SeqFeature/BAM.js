@@ -73,6 +73,7 @@ define( [
             'JBrowse/Store/DeferredFeaturesMixin',
             'JBrowse/Store/SeqFeature/IndexedStatsEstimationMixin',
             'JBrowse/Store/SeqFeature/_PairCache',
+            'JBrowse/Store/SeqFeature/_InsertSizeCache',
             'JBrowse/Model/XHRBlob',
             'JBrowse/Model/SimpleFeature',
         ],
@@ -85,6 +86,7 @@ define( [
             DeferredFeaturesMixin,
             IndexedStatsEstimationMixin,
             PairCache,
+            InsertSizeCache,
             XHRBlob,
             SimpleFeature
         ) {
@@ -150,6 +152,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
             })
 
         this.storeTimeout = args.storeTimeout || 3000;
+        this.insertSizeCache = new InsertSizeCache(args);
     },
 
     // process the parsed SAM header from the bam file
@@ -222,6 +225,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
                     this.pairFeatures(query, recs, featCallback, endCallback, errorCallback)
                 } else {
                     for(let i = 0; i < records.length; i++) {
+                        this.insertSizeCache.insertFeat(records[i]);
                         featCallback(this._bamRecordToFeature(records[i]))
                     }
                 }
@@ -229,6 +233,10 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
             }).catch(errorCallback)
     },
 
+
+    getInsertSizeStats() {
+        return this.insertSizeCache.getInsertSizeStats()
+    },
 
     _bamRecordToFeature(record) {
         return new BamSlightlyLazyFeature(record, this)

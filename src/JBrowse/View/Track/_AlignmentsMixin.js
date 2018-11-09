@@ -216,7 +216,7 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                 hideMissingMatepairs: {
                     desc: 'Hide reads with missing mate pairs',
                     func: function( f ) {
-                        return ! ( f.get('multi_segment_template') && ! f.get('multi_segment_all_aligned') );
+                        return ! ( f.get('multi_segment_template') && f.get('multi_segment_next_segment_unmapped') );
                     }
                 },
                 hideUnmapped: {

@@ -71,8 +71,13 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
         }
 
 
+        displayOptions.push(m)
+        displayOptions.push(c)
 
-        displayOptions.push({
+
+
+
+        m.children.push({
             label: 'View coverage',
             onClick: function(event) {
                 thisB.config.type = 'JBrowse/View/Track/SNPCoverage'
@@ -82,8 +87,8 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             }
         });
 
-        displayOptions.push({
-            label: 'View normal',
+        m.children.push({
+            label: 'View normal alignments',
             onClick: function(event) {
                 thisB.config.viewAsPairs = false
                 thisB.config.readCloud = false
@@ -91,21 +96,9 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
-        displayOptions.push(m)
-
-        c.children.push({
-            label: 'Color by XS tag (RNA-seq strandedness)',
-            type: 'dijit/CheckedMenuItem',
-            checked: this.config.useXS,
-            onClick: function(event) {
-                thisB.config.useXS = this.get('checked');
-                thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
-            }
-        });
-
 
         m.children.push({
-            label: 'View as pairs',
+            label: 'View alignments as pairs',
             onClick: function(event) {
                 thisB.config.viewAsPairs = true
                 thisB.config.readCloud = false
@@ -124,7 +117,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             }
         });
         m.children.push({
-            label: 'View pairs as read cloud',
+            label: 'View paired read cloud',
             onClick: function(event) {
                 thisB.config.viewAsPairs = true
                 thisB.config.readCloud = true
@@ -133,8 +126,17 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             }
         });
 
-        m.children.push({
-            label: 'Flip mate pair (RNA-seq strandedness)',
+        c.children.push({
+            label: 'Color by XS tag (RNA-seq strandedness)',
+            type: 'dijit/CheckedMenuItem',
+            checked: this.config.useXS,
+            onClick: function(event) {
+                thisB.config.useXS = this.get('checked');
+                thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
+            }
+        });
+        c.children.push({
+            label: 'Color mate pair as flipped (RNA-seq strandedness)',
             type: 'dijit/CheckedMenuItem',
             checked: this.config.useReverseTemplate,
             onClick: function(event) {
@@ -175,14 +177,14 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
     },
 
     fillFeatures: function( args ) {
-        if(this.config.viewAsPairs) {
+        if(this.config.viewAsPairs || this.config.colorByOrientation) {
             let supermethod = this.getInherited(arguments)
             var min = args.leftBase
             var max = args.rightBase
             var len = Math.max(min - max, 4000)
             const region = {
                 ref: this.refSeq.name,
-                start: Math.max( 0, min ),
+                start: Math.max(0, min),
                 end: max,
                 viewAsPairs: true
             }
@@ -190,10 +192,9 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             const min = Math.max(0, region.start - len*30)
             const max = region.end + len*30
             this.store.getFeatures({ ref: this.refSeq.name, start: min, end: max, viewAsPairs: true }, () => { /* do nothing */}, () => {
-                var stats = this.store.getStatsForPairCache()
+                var stats = this.store.getInsertSizeStats()
                 this.upperPercentile = stats.upper
                 this.lowerPercentile = stats.lower
-                this.avgPercentile = stats.avg
                 let f = args.finishCallback
                 args.finishCallback = () => {
                     f()
