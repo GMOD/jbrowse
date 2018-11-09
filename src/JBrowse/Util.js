@@ -41,6 +41,10 @@ Util = {
         return str.toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     },
 
+    unescapeHTML: function( str ) {
+        return str.toString().replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+    },
+
     /**
      * Fast, simple class-maker, used for classes that need speed more
      * than they need dojo.declare's nice features.
