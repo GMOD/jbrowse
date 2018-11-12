@@ -55,6 +55,7 @@
     "babel-loader": "^7.1.4",
     "babel-polyfill": "^6.26.0",
     "babel-preset-es2015-without-strict": "^0.0.4",
+    "buffer-crc32": "^0.2.13",
     "clean-webpack-plugin": "^0.1.18",
     "copy-webpack-plugin": "4.1.1",
     "css-loader": "^0.28.10",
