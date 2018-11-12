@@ -1,18 +1,18 @@
 define([
            'dojo/_base/declare',
-           'dojo/_base/array',
            'dojo/_base/lang',
            'JBrowse/Util/FastPromise',
            'JBrowse/View/FeatureGlyph',
-           './_FeatureLabelMixin'
-       ],
+           './_FeatureLabelMixin',
+           'JBrowse/Util',
+        ],
        function(
            declare,
-           array,
            lang,
            FastPromise,
            FeatureGlyph,
-           FeatureLabelMixin
+           FeatureLabelMixin,
+           Util,
        ) {
 
 
@@ -327,7 +327,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin], {
                 if (clearTop) context.clearRect(labelLeft,clearTop,fLabelRecord.w,fLabelRecord.h)
 
                 context.fillText(
-                    fLabelRecord.text,
+                    Util.unescapeHTML(fLabelRecord.text),
                     labelLeft,
                     labelTop
                 )

@@ -208,11 +208,11 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
                         thisB._fillRectMod( context, 0, varTop, canvas.width, varHeight );
                         context.font = '12px sans-serif';
                         if( plusminus > 0 ) {
-                            context.fillText( '+'+label, 2, varTop );
-                            context.fillText( '-'+label, 2, varTop+varHeight );
+                            context.fillText( Util.unescapeHTML( '+'+label ), 2, varTop );
+                            context.fillText( Util.unescapeHTML( '-'+label ), 2, varTop+varHeight );
                         }
                         else {
-                            context.fillText( label, 2, varTop );
+                            context.fillText( Util.unescapeHTML( label ), 2, varTop );
                         }
                     };
 

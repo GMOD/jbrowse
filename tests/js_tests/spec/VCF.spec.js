@@ -62,7 +62,7 @@ describe('VCF store', function() {
                           );
          runs(function() {
                   expect(features.length).toEqual( 7 );
-                  expect(features[2].get('alternative_alleles').values).toEqual([ "TC", "<*>" ]);
+                  expect(features[2].get('alternative_alleles').values).toEqual([ "TC", "&lt;*&gt;" ]);
          });
 
 
@@ -122,7 +122,7 @@ describe('VCF store', function() {
                           );
          runs(function() {
                   expect(features.length).toEqual( 37 );
-                  expect(features[0].get('alternative_alleles').values).toEqual([ '<NON_REF>' ]);
+                  expect(features[0].get('alternative_alleles').values).toEqual([ '&lt;NON_REF&gt;' ]);
          });
   });
 
@@ -191,7 +191,7 @@ describe('VCF store', function() {
             start: 1206810422,
             end: 1206810423,
             seq_id: '1',
-            description: 'SNV T -> A',
+            description: 'SNV T -&gt; A',
             type: 'SNV',
             reference_allele: 'T',
             score: 25,

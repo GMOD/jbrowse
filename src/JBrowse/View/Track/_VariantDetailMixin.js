@@ -43,7 +43,7 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
     },
     renderDetailValue: function( parent, title, val, f, class_ ) {
         if(title == "alternative_alleles") {
-            val = Util.escapeHTML(val.join(','));
+            val = val.join(',');
         }
         return this.inherited(arguments, [parent,title,val,f,class_]);
     },
@@ -115,7 +115,7 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
                                    })(),
                     renderCell: {
                         "GT": function( field, value, node, options ) {
-                            thisB.renderDetailValue( node, '', Util.escapeHTML(value), f, '' );
+                            thisB.renderDetailValue( node, '', value, f, '' );
                         }
                     }
                 }
@@ -141,7 +141,9 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
 
     _mungeGenotypeVal: function( values, alt, underlyingRefSeq ) {
         // handle the GT field specially, translating the genotype indexes into the actual ALT strings
-        var value_parse = values[0];
+        let value_parse;
+        if (values === null) value_parse = '.';
+        else value_parse = values[0];
 
         var splitter = (value_parse.match(/[\|\/]/g)||[])[0]; // only accept | and / splitters since . can mean no call
         alt = alt[0].split(','); // force split on alt alleles
@@ -163,7 +165,9 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
         for( var gname in genotypes ) {
             if( genotypes.hasOwnProperty( gname ) ) {
                 // increment the appropriate count
-                var gt = genotypes[gname].GT.values[0].split(/\||\//);
+                var gtVals = genotypes[gname].GT.values
+                if (gtVals === null) gtVals = ['.']
+                var gt = gtVals[0].split(/\||\//);
                 if( lang.isArray( gt ) ) {
                     // if all zero, non-variant/hom-ref
                     if( array.every( gt, function( g ) { return parseInt(g) == 0; }) ) {
