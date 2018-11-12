@@ -33,11 +33,11 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 hideUnmapped: true,
                 hideUnsplicedReads: false,
                 hideMissingMatepairs: false,
-                hideForwardStrant: false,
+                hideForwardStrand: false,
                 hideReverseStrand: false,
                 useXS: false,
+                useTS: false,
                 useReverseTemplate: false,
-                useXSOption: true,
                 useReverseTemplateOption: true,
                 viewAsPairs: false,
                 readCloud: false,
@@ -132,6 +132,16 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             checked: this.config.useXS,
             onClick: function(event) {
                 thisB.config.useXS = this.get('checked');
+                thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
+            }
+        });
+
+        c.children.push({
+            label: 'Color by TS tag (RNA-seq strandedness)',
+            type: 'dijit/CheckedMenuItem',
+            checked: this.config.useTS,
+            onClick: function(event) {
+                thisB.config.useTS = this.get('checked');
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });

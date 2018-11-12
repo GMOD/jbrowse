@@ -3,14 +3,14 @@ define( [
 ],
 function(Util) {
 
-var PairUtils = {
+var AlignmentColoring = {
     colorAlignment(feature, score, glyph, track) {
         var strand = feature.get('strand');
         if (Math.abs(strand) != 1 && strand != '+' && strand != '-') {
             return track.colorForBase('reference');
         }
         else if (track.config.colorByOrientation) {
-            return PairUtils.colorByOrientation(feature, score, glyph, track)
+            return AlignmentColoring.colorByOrientation(feature, score, glyph, track)
         }
         else if (track.config.useXS) {
             var xs = feature.get('xs')
@@ -92,21 +92,21 @@ var PairUtils = {
 
     colorArcs(feature, score, glyph, track) {
         if (track.config.colorByOrientation) {
-            return PairUtils.colorByOrientation(feature, score, glyph, track)
+            return AlignmentColoring.colorByOrientation(feature, score, glyph, track)
         } else {
-            return PairUtils.colorByInsertDistance(feature, score, glyph, track)
+            return AlignmentColoring.colorByInsertDistance(feature, score, glyph, track)
         }
     },
 
     colorConnector(feature, score, glyph, track) {
         if (track.config.colorByOrientation) {
-            return PairUtils.colorByOrientation(feature, score, glyph, track)
+            return AlignmentColoring.colorByOrientation(feature, score, glyph, track)
         } else {
             return 'black'
         }
     }
 };
 
-return PairUtils;
+return AlignmentColoring;
 
 });

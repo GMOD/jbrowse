@@ -2,14 +2,14 @@ define([
            'dojo/_base/declare',
            'dojo/_base/array',
            'JBrowse/View/FeatureGlyph/Box',
-           'JBrowse/View/FeatureGlyph/PairUtils',
+           'JBrowse/View/FeatureGlyph/AlignmentColoring',
            'JBrowse/Store/SeqFeature/_MismatchesMixin'
        ],
        function(
            declare,
            array,
            BoxGlyph,
-           PairUtils,
+           AlignmentColoring,
            MismatchesMixin
        ) {
 
@@ -32,7 +32,7 @@ return declare( [BoxGlyph,MismatchesMixin], {
             {
                 //maxFeatureScreenDensity: 400
                 style: {
-                    color: PairUtils.colorAlignment,
+                    color: AlignmentColoring.colorAlignment,
                     color_fwd_strand_not_proper: '#ECC8C8',
                     color_rev_strand_not_proper: '#BEBED8',
                     color_fwd_strand: '#EC8B8B',

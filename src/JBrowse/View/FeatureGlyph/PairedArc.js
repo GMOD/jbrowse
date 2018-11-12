@@ -3,21 +3,21 @@ define([
     'dojo/_base/array',
     'dojo/_base/lang',
     'JBrowse/View/FeatureGlyph/Box',
-    'JBrowse/View/FeatureGlyph/PairUtils'
+    'JBrowse/View/FeatureGlyph/AlignmentColoring'
 ],
 function(
     declare,
     array,
     lang,
     FeatureGlyph,
-    PairUtils
+    AlignmentColoring
 ) {
     return declare(FeatureGlyph, {
 
         _defaultConfig: function() {
             return this._mergeConfigs(lang.clone(this.inherited(arguments)), {
                 style: {
-                    color: PairUtils.colorArcs,
+                    color: AlignmentColoring.colorArcs,
                     color_pair_lr: 'grey',
                     color_pair_rr: 'navy',
                     color_pair_rl: 'teal',
