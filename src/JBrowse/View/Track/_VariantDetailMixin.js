@@ -115,7 +115,7 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
                                    })(),
                     renderCell: {
                         "GT": function( field, value, node, options ) {
-                            thisB.renderDetailValue( node, '', Util.escapeHTML(value), f, '' );
+                            thisB.renderDetailValue( node, '', value, f, '' );
                         }
                     }
                 }
