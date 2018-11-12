@@ -65,7 +65,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
             })
 
         // start our global stats estimation
-        this.indexedData.featureCount('nonexistent')
+        this.indexedData.lineCount('nonexistent')
             .then(
                 () => {
                     this._deferred.features.resolve({ success: true })
@@ -83,7 +83,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
     },
 
     _getFeatures(query, featureCallback, finishedCallback, errorCallback, allowRedispatch = true) {
-        this.indexedData.featureCount('nonexistent').then(
+        this.indexedData.lineCount('nonexistent').then(
             () => {
                 const lines = []
                 this.indexedData.getLines(

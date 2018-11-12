@@ -34,9 +34,8 @@ return declare( null, {
         return this.data.getHeaderBuffer()
     },
 
-    featureCount(ref) {
-        const regularizeReferenceName = this.browser.regularizeReferenceName(ref)
-        return this.data.lineCount(regularizeReferenceName);
+    lineCount(ref) {
+        return this.data.lineCount(ref);
     },
 
     getLines( ref, min, max, itemCallback, finishCallback, errorCallback ) {

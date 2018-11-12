@@ -18,7 +18,7 @@ return declare( GlobalStats, {
         refseq = refseq || this.refSeq
         let featCount
         if (this.indexedData) {
-            featCount = await this.indexedData.featureCount(refseq.name)
+            featCount = await this.indexedData.lineCount(this.browser.regularizeReferenceName(refseq.name))
         } else if (this.bam) {
             const chr = this.browser.regularizeReferenceName(refseq.name)
             const chrId = this.bam.chrToIndex && this.bam.chrToIndex[chr]

@@ -68,11 +68,6 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
             renameRefSeqs: n => this.browser.regularizeReferenceName(n)
         });
 
-        this.indexedData.featureCount = ref => {
-            const regularizeReferenceName = this.browser.regularizeReferenceName(ref)
-            return this.indexedData.lineCount(regularizeReferenceName);
-        };
-
         this.getParser()
             .then( function( parser ) {
                        thisB._deferred.features.resolve({success:true});
