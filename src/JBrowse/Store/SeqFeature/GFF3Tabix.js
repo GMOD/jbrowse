@@ -1,4 +1,5 @@
 const gff = cjsRequire('@gmod/gff').default
+const crc32 = cjsRequire('buffer-crc32')
 
 define([
            'dojo/_base/declare',
@@ -90,7 +91,12 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
                     query.ref || this.refSeq.name,
                     query.start,
                     query.end,
-                    line => lines.push(line),
+                    line => {
+                        if(line.fields) {
+                            line.lineHash = crc32.unsigned(line.fields.join(''))
+                        }
+                        lines.push(line)
+                    },
                     () => {
                         // If this is the first fetch (allowRedispatch is true), check whether
                         // any of the features protrude out of the queried range.
@@ -121,10 +127,11 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
                                 // make a new feature callback to only return top-level features
                                 // in the original query range
                                 let newFeatureCallback = feature => {
-                                    if (feature.get('start') < query.end && feature.get('end') > query.start)
+                                    if (feature.get('start') < query.end && feature.get('end') > query.start) {
                                         featureCallback(feature)
+                                    }
                                 }
-                                this._getFeatures(newQuery,newFeatureCallback,finishedCallback,errorCallback,false)
+                                this._getFeatures(newQuery, newFeatureCallback, finishedCallback, errorCallback, false)
                                 return
                             }
                         }
@@ -132,14 +139,14 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
                         // decorate each of the lines with a _fileOffset attribute
                         const gff3 = lines
                             .map(lineRecord => {
-                                // add a fileOffset attr to each gff3 line sayings its offset in
+                                // add a lineHash attr to each gff3 line sayings its offset in
                                 // the file, we can use this later to synthesize a unique ID for
                                 // features that don't have one
                                 if (lineRecord.fields[8] &&  lineRecord.fields[8] !== '.') {
-                                     if (!lineRecord.fields[8].includes('_tabixFileOffset'))
-                                        lineRecord.fields[8] += `;_tabixFileOffset=${lineRecord.fileOffset}`
+                                     if (!lineRecord.fields[8].includes('_lineHash'))
+                                        lineRecord.fields[8] += `;_lineHash=${lineRecord.lineHash}`
                                 } else {
-                                    lineRecord.fields[8] = `_tabixFileOffset=${lineRecord.fileOffset}`
+                                    lineRecord.fields[8] = `_lineHash=${lineRecord.lineHash}`
                                 }
                                 return lineRecord.fields.join('\t')
                             })
@@ -181,9 +188,9 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
             f[b] = data.attributes[a]
             if(f[b].length == 1) f[b] = f[b][0]
         }
-        f.uniqueID = `offset-${f._tabixfileoffset}`
+        f.uniqueID = `offset-${f._linehash}`
 
-        delete f._tabixfileoffset
+        delete f._linehash
         delete f.attributes
         // the SimpleFeature constructor takes care of recursively inflating subfeatures
         if (data.child_features && data.child_features.length) {
@@ -208,7 +215,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
     _formatFeatures( featureLocs ) {
         const features = []
         featureLocs.forEach((featureLoc, locIndex) => {
-            let ids = featureLoc.attributes.ID || [`offset-${featureLoc.attributes._tabixFileOffset[0]}`]
+            let ids = featureLoc.attributes.ID || [`offset-${featureLoc.attributes._lineHash[0]}`]
             ids.forEach((id,idIndex) => {
                 var f = new SimpleFeature({
                     data: this._featureData( featureLoc ),

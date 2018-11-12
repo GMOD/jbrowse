@@ -63,6 +63,9 @@
    whitespace. Thanks to @nathanhaigh for reporting! (issue #1240, pull #1253,
    @cmdcolin)
 
+ * Fixed issue where whitespace surrounding GFF3 attributes and attribute names
+   was incorporated (issue #1221, pull #1254, @cmdcolin)
+
 # Release 1.15.4     2018-10-05 13:02:55 UTC
 
 ## Minor improvements
