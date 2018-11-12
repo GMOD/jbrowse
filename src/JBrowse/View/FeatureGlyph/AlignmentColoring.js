@@ -23,6 +23,17 @@ var AlignmentColoring = {
             }
             return glyph.getStyle(feature, strand[xs]);
         }
+        else if (track.config.useTS) {
+            var ts = feature.get('ts')
+            var strand = {
+                '-': 'color_rev_strand',
+                '+': 'color_fwd_strand'
+            };
+            if (!strand[ts]) {
+                strand = 'color_nostrand';
+            }
+            return glyph.getStyle(feature, strand[ts]);
+        }
         else if (feature.get('multi_segment_template')) {
             var revflag = feature.get('multi_segment_first');
             if (feature.get('multi_segment_all_correctly_aligned')) {

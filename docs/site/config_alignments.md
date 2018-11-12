@@ -55,7 +55,8 @@ The above track template infers that the storeClass is a BAM store. Not all trac
 |`hideReverseStrand`|Hide all reads from the reverse strand. Default: false|
 |`useReverseTemplate`|Use an algorithm for reversing the template of paired-end reads so that they appear on the same strand. Default: false. Added in 1.11.6|
 |`useReverseTemplateOption`|Present a checkbox to the user for changing the "Use reverse template" option. Default: true. Added in 1.11.6|
-|`useXS`|Use an algorithm for only coloring reads when the XS tag indicates strandedness. Default: false. Added in 1.11.6|
+|`useXS`|Color reads when the XS tag indicates strandedness. Default: false. Added in 1.11.6|
+|`useTS`|Color reads when the TS tag indicates strandedness. Default: false. Added in 1.16.0|
 |`useXSOption`|Present a checkbox to the user for changing the "Use XS" option. Default: true. Added in 1.11.6|
 |`cacheMismatches`|Cache mismatch calculations so that long reads are faster to browser. Default: false. Added in 1.12.3|
 |`renderAlignments`|Add a text display of the BAM alignment on a single line in the View details popup. Default: false|
