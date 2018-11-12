@@ -21,6 +21,30 @@ return declare( WiggleXYPlot,
                 autoscale: 'local'
             }
         );
+    },
+
+
+    _trackMenuOptions: function() {
+        var thisB = this;
+        var displayOptions = [];
+
+
+        displayOptions.push({
+            label: 'View alignments',
+            onClick: function(event) {
+                thisB.config.type = 'JBrowse/View/Track/Alignments2'
+                thisB.config._oldSnpCoverageHeight = thisB.config.style.height
+                thisB.config.style.height = thisB.config._oldAlignmentsHeight
+                thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
+            }
+        });
+
+        return Promise.all([ this.inherited(arguments), displayOptions ])
+            .then( function( options ) {
+                       var o = options.shift();
+                       options.unshift({ type: 'dijit/MenuSeparator' } );
+                       return o.concat.apply( o, options );
+                   });
     }
 });
 });

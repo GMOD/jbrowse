@@ -78,16 +78,6 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
 
 
         m.children.push({
-            label: 'View coverage',
-            onClick: function(event) {
-                thisB.config.type = 'JBrowse/View/Track/SNPCoverage'
-                thisB.config._oldAlignmentsHeight = thisB.config.style.height
-                thisB.config.style.height = thisB.config._oldSnpCoverageHeight
-                thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
-            }
-        });
-
-        m.children.push({
             label: 'View normal alignments',
             onClick: function(event) {
                 thisB.config.viewAsPairs = false
@@ -98,7 +88,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
         });
 
         m.children.push({
-            label: 'View alignments as pairs',
+            label: 'View as pairs',
             onClick: function(event) {
                 thisB.config.viewAsPairs = true
                 thisB.config.readCloud = false
@@ -107,6 +97,25 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             }
         });
 
+        m.children.push({
+            label: 'View coverage with SNP',
+            onClick: function(event) {
+                thisB.config.type = 'JBrowse/View/Track/SNPCoverage'
+                thisB.config._oldAlignmentsHeight = thisB.config.style.height
+                thisB.config.style.height = thisB.config._oldSnpCoverageHeight
+                thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
+            }
+        });
+
+        m.children.push({
+            label: 'View plain coverage',
+            onClick: function(event) {
+                thisB.config.type = 'JBrowse/View/Track/FeatureCoverage'
+                thisB.config._oldAlignmentsHeight = thisB.config.style.height
+                thisB.config.style.height = thisB.config._oldSnpCoverageHeight
+                thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
+            }
+        });
         m.children.push({
             label: 'View paired arcs',
             onClick: function(event) {
