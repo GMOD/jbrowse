@@ -82,6 +82,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             label: 'View as unpaired',
             onClick: function(event) {
                 thisB.config.viewAsPairs = false
+                thisB.config.viewAsSpans = false
                 thisB.config.readCloud = false
                 thisB.config.glyph = 'JBrowse/View/FeatureGlyph/Alignment'
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
@@ -92,6 +93,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             label: 'View as pairs',
             onClick: function(event) {
                 thisB.config.viewAsPairs = true
+                thisB.config.viewAsSpans = false
                 thisB.config.readCloud = false
                 thisB.config.glyph = 'JBrowse/View/FeatureGlyph/PairedAlignment'
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
@@ -102,6 +104,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             label: 'View as arcs',
             onClick: function(event) {
                 thisB.config.viewAsSpans = true
+                thisB.config.viewAsPairs = false
                 thisB.config.glyph = 'JBrowse/View/FeatureGlyph/PairedArc'
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
@@ -110,6 +113,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             label: 'View as read cloud',
             onClick: function(event) {
                 thisB.config.viewAsPairs = true
+                thisB.config.viewAsSpans = false
                 thisB.config.readCloud = true
                 thisB.config.glyph = 'JBrowse/View/FeatureGlyph/PairedAlignment'
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);

@@ -80,7 +80,9 @@ var AlignmentColoring = {
     },
 
     colorByOrientation(feature, score, glyph, track)  {
-        if (track.upperPercentile < Math.abs(feature.get('template_length'))) {
+        if (feature.get('seq_id') != feature.get('next_seq_id')) {
+            return 'orange'
+        } else if (track.upperPercentile < Math.abs(feature.get('template_length'))) {
             return 'red'
         } else if (track.lowerPercentile > Math.abs(feature.get('template_length'))) {
             return 'pink'
