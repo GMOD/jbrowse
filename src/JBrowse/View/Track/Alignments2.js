@@ -209,6 +209,10 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
     },
 
     fillFeatures: function( args ) {
+        const errorCallback = e => {
+            this._handleError(e, args)
+            finishCallback(e)
+        }
         if(this.config.viewAsPairs || this.config.viewAsSpans || this.config.colorByOrientation) {
             let supermethod = this.getInherited(arguments)
             var min = args.leftBase
@@ -242,6 +246,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 }
                 supermethod.call(this, args)
             }, e => {
+                errorCallback(e)
                 console.error(e)
             })
         } else {
