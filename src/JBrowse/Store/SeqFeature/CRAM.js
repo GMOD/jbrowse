@@ -36,8 +36,9 @@ class CramSlightlyLazyFeature {
     _get_unmapped() { return this.record.isSegmentUnmapped()}
     _get_template_length() { return this.record.templateLength || this.record.templateSize}
     _get_next_seq_id() { return this.record.mate ? this._store._refIdToName(this.record.mate.sequenceId) : undefined }
+    _get_next_pos() { return this.record.mate ? this.record.mate.alignmentStart : undefined }
     _get_next_segment_position() { return this.record.mate
-        ? ( this._store._refIdToName(this.record.mate.sequenceId)+':'+this.record.mate.alignmentStart) : undefined}
+        ? ( this._store._refIdToName(this.record.mate.sequenceId)+':'+this.record.mate.alignmentStart) : undefined }
     _get_tags() { return this.record.tags }
     _get_seq() { return this.record.getReadBases() }
 
@@ -85,6 +86,7 @@ define( [
             'JBrowse/Store/DeferredFeaturesMixin',
             'JBrowse/Store/SeqFeature/GlobalStatsEstimationMixin',
             'JBrowse/Store/SeqFeature/_PairCache',
+            'JBrowse/Store/SeqFeature/_SpanCache',
             'JBrowse/Store/SeqFeature/_InsertSizeCache',
             'JBrowse/Model/XHRBlob',
             'JBrowse/Model/SimpleFeature',
@@ -98,12 +100,13 @@ define( [
             DeferredFeaturesMixin,
             GlobalStatsEstimationMixin,
             PairCache,
+            SpanCache,
             InsertSizeCache,
             XHRBlob,
             SimpleFeature,
         ) {
 
-return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, GlobalStatsEstimationMixin, PairCache ],
+return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, GlobalStatsEstimationMixin ],
 
 /**
  * @lends JBrowse.Store.SeqFeature.CRAM
@@ -172,6 +175,8 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
 
         this.storeTimeout = args.storeTimeout || 3000;
         this.insertSizeCache = new InsertSizeCache(args);
+        this.pairCache = new PairCache(args);
+        this.spanCache = new SpanCache(args);
     },
 
     // process the parsed SAM header from the cram file

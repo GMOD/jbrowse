@@ -26,7 +26,8 @@ class BamSlightlyLazyFeature {
     _get_multi_segment_next_segment_reversed() { return this.record.isMateReverseComplemented()}
     _get_pair_orientation() { return this.record.getPairOrientation()}
     _get_unmapped() { return this.record.isSegmentUnmapped()}
-    _get_next_seq_id() { return this._store._refIdToName(this.record._next_refid()) }
+    _get_next_seq_id() { return this.record.isPaired() ? this._store._refIdToName(this.record._next_refid()) : undefined }
+    _get_next_pos() { return this.record.isPaired() ? this.record._next_pos() : undefined }
     _get_next_segment_position() { return this.record.isPaired()
         ? ( this._store._refIdToName(this.record._next_refid())+':'+(this.record._next_pos()+1)) : undefined}
     _get_tags() { return this.record._tags() }
@@ -73,6 +74,7 @@ define( [
             'JBrowse/Store/DeferredFeaturesMixin',
             'JBrowse/Store/SeqFeature/IndexedStatsEstimationMixin',
             'JBrowse/Store/SeqFeature/_PairCache',
+            'JBrowse/Store/SeqFeature/_SpanCache',
             'JBrowse/Store/SeqFeature/_InsertSizeCache',
             'JBrowse/Model/XHRBlob',
             'JBrowse/Model/SimpleFeature',
@@ -86,12 +88,13 @@ define( [
             DeferredFeaturesMixin,
             IndexedStatsEstimationMixin,
             PairCache,
+            SpanCache,
             InsertSizeCache,
             XHRBlob,
             SimpleFeature
         ) {
 
-return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, IndexedStatsEstimationMixin, PairCache ], {
+return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, IndexedStatsEstimationMixin ], {
     constructor( args ) {
 
         let dataBlob
@@ -153,6 +156,8 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
 
         this.storeTimeout = args.storeTimeout || 3000;
         this.insertSizeCache = new InsertSizeCache(args);
+        this.pairCache = new PairCache(args);
+        this.spanCache = new SpanCache(args);
     },
 
     // process the parsed SAM header from the bam file
@@ -218,12 +223,16 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
         seqName = this.browser.regularizeReferenceName( seqName );
         const pairCache = {};
 
-        this.bam.getRecordsForRange(seqName, query.start, query.end, {viewAsPairs: query.viewAsPairs})
+        this.bam.getRecordsForRange(seqName, query.start, query.end, { viewAsPairs: query.viewAsPairs, viewAsSpans: query.viewAsSpans })
             .then(records => {
                 if(query.viewAsPairs) {
                     const recs = records.map(f => this._bamRecordToFeature(f))
                     recs.forEach(r => this.insertSizeCache.insertFeat(r))
-                    this.pairFeatures(query, recs, featCallback, endCallback, errorCallback)
+                    this.pairCache.pairFeatures(query, recs, featCallback, endCallback, errorCallback)
+                } else if(query.viewAsSpans) {
+                    const recs = records.map(f => this._bamRecordToFeature(f))
+                    recs.forEach(r => this.insertSizeCache.insertFeat(r))
+                    this.spanCache.pairFeatures(query, recs, featCallback, endCallback, errorCallback)
                 } else {
                     for(let i = 0; i < records.length; i++) {
                         this.insertSizeCache.insertFeat(records[i]);
@@ -237,6 +246,11 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
 
     getInsertSizeStats() {
         return this.insertSizeCache.getInsertSizeStats()
+    },
+
+    cleanFeatureCache() {
+        this.pairCache.cleanFeatureCache()
+        this.spanCache.cleanFeatureCache()
     },
 
     _bamRecordToFeature(record) {
