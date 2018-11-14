@@ -209,6 +209,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
     },
 
     fillFeatures: function( args ) {
+        const finishCallback = args.finishCallback
         const errorCallback = e => {
             this._handleError(e, args)
             finishCallback(e)
