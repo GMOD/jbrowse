@@ -78,7 +78,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
 
 
         m.children.push({
-            label: 'View normal alignments',
+            label: 'View as unpaired',
             onClick: function(event) {
                 thisB.config.viewAsPairs = false
                 thisB.config.readCloud = false
@@ -98,7 +98,25 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
         });
 
         m.children.push({
-            label: 'View coverage with SNP',
+            label: 'View as arcs',
+            onClick: function(event) {
+                thisB.config.viewAsSpans = true
+                thisB.config.glyph = 'JBrowse/View/FeatureGlyph/PairedArc'
+                thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
+            }
+        });
+        m.children.push({
+            label: 'View as read cloud',
+            onClick: function(event) {
+                thisB.config.viewAsPairs = true
+                thisB.config.readCloud = true
+                thisB.config.glyph = 'JBrowse/View/FeatureGlyph/PairedAlignment'
+                thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
+            }
+        });
+
+        m.children.push({
+            label: 'View SNP coverage',
             onClick: function(event) {
                 thisB.config.type = 'JBrowse/View/Track/SNPCoverage'
                 thisB.config._oldAlignmentsHeight = thisB.config.style.height
@@ -108,7 +126,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
         });
 
         m.children.push({
-            label: 'View plain coverage',
+            label: 'View feature coverage',
             onClick: function(event) {
                 thisB.config.type = 'JBrowse/View/Track/FeatureCoverage'
                 thisB.config._oldAlignmentsHeight = thisB.config.style.height
@@ -116,25 +134,6 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
-        m.children.push({
-            label: 'View paired arcs',
-            onClick: function(event) {
-                thisB.config.viewAsPairs = true
-                thisB.config.readCloud = true
-                thisB.config.glyph = 'JBrowse/View/FeatureGlyph/PairedArc'
-                thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
-            }
-        });
-        m.children.push({
-            label: 'View paired read cloud',
-            onClick: function(event) {
-                thisB.config.viewAsPairs = true
-                thisB.config.readCloud = true
-                thisB.config.glyph = 'JBrowse/View/FeatureGlyph/PairedAlignment'
-                thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
-            }
-        });
-
         c.children.push({
             label: 'Color by XS tag (RNA-seq strandedness)',
             type: 'dijit/CheckedMenuItem',

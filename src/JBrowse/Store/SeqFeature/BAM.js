@@ -248,9 +248,9 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
         return this.insertSizeCache.getInsertSizeStats()
     },
 
-    cleanFeatureCache() {
-        this.pairCache.cleanFeatureCache()
-        this.spanCache.cleanFeatureCache()
+    cleanFeatureCache(query) {
+        this.pairCache.cleanFeatureCache(query)
+        this.spanCache.cleanFeatureCache(query)
     },
 
     _bamRecordToFeature(record) {

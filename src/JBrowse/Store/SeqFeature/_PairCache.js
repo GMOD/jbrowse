@@ -33,12 +33,10 @@ function canBePaired(alignment) {
 define( [
             'dojo/_base/declare',
             'JBrowse/Util',
-            'JBrowse/Model/SimpleFeature',
         ],
         function(
             declare,
             Util,
-            SimpleFeature
         ) {
 
 return declare(null, {

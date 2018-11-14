@@ -399,7 +399,8 @@ return declare(
             end:   args.rightBase,
             basesPerSpan: basesPerBin,
             basesPerBin: basesPerBin,
-            viewAsPairs: this.config.viewAsPairs
+            viewAsPairs: this.config.viewAsPairs,
+            viewAsSpans: this.config.viewAsSpans
         }
 
         const handleError = this._handleError.bind(this)
