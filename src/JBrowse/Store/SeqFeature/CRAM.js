@@ -303,7 +303,11 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                 if(query.viewAsPairs) {
                     const recs = records.map(f => this._cramRecordToFeature(f))
                     recs.forEach(r => this.insertSizeCache.insertFeat(r))
-                    this.pairFeatures(query, recs, featCallback, endCallback, errorCallback)
+                    this.pairCache.pairFeatures(query, recs, featCallback, endCallback, errorCallback)
+                } else if(query.viewAsSpans) {
+                    const recs = records.map(f => this._cramRecordToFeature(f))
+                    recs.forEach(r => this.insertSizeCache.insertFeat(r))
+                    this.spanCache.pairFeatures(query, recs, featCallback, endCallback, errorCallback)
                 } else {
                     for(let i = 0; i < records.length; i++) {
                         let feat = this._cramRecordToFeature(records[i])

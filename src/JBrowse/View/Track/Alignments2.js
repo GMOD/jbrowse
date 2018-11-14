@@ -40,6 +40,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 useReverseTemplate: false,
                 useReverseTemplateOption: true,
                 viewAsPairs: false,
+                viewAsSpans: false,
                 readCloud: false,
 
                 histograms: {
@@ -195,7 +196,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
     },
 
     fillFeatures: function( args ) {
-        if(this.config.viewAsPairs || this.config.colorByOrientation) {
+        if(this.config.viewAsPairs || this.config.viewAsSpans || this.config.colorByOrientation) {
             let supermethod = this.getInherited(arguments)
             var min = args.leftBase
             var max = args.rightBase
@@ -209,7 +210,13 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
 
             const min = Math.max(0, region.start - len*30)
             const max = region.end + len*30
-            this.store.getFeatures({ ref: this.refSeq.name, start: min, end: max, viewAsPairs: true }, () => { /* do nothing */}, () => {
+            this.store.getFeatures({
+                ref: this.refSeq.name,
+                start: min,
+                end: max,
+                viewAsPairs: this.config.viewAsPairs,
+                viewAsASpans: this.config.viewAsSpans
+            }, () => { /* do nothing */}, () => {
                 var stats = this.store.getInsertSizeStats()
                 this.upperPercentile = stats.upper
                 this.lowerPercentile = stats.lower
