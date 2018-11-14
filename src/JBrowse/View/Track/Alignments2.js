@@ -215,18 +215,17 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
         }
         if(this.config.viewAsPairs || this.config.viewAsSpans || this.config.colorByOrientation) {
             let supermethod = this.getInherited(arguments)
-            var min = args.leftBase
-            var max = args.rightBase
-            var len = Math.max(min - max, 4000)
+            const len = Math.max(args.rightBase - args.leftBase, 4000)
             const region = {
                 ref: this.refSeq.name,
-                start: Math.max(0, min),
-                end: max,
+                start: Math.max(0, args.leftBase),
+                end: args.rightBase,
                 viewAsPairs: true
             }
 
-            const min = Math.max(0, region.start - len*30)
-            const max = region.end + len*30
+            const min = Math.max(0, region.start - len * 30)
+            const max = region.end + len * 30
+            console.log('initializing with',min,max)
             this.store.getFeatures({
                 ref: this.refSeq.name,
                 start: min,
@@ -242,7 +241,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                     f()
                     setTimeout(() => {
                         this.store.cleanFeatureCache({ ref: this.refSeq.name, start: min, end: max })
-                    }, 1000)
+                    }, 100000)
                 }
                 supermethod.call(this, args)
             }, e => {
