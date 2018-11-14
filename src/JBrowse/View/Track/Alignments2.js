@@ -223,8 +223,8 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 viewAsPairs: true
             }
 
-            const min = Math.max(0, region.start - len * 30)
-            const max = region.end + len * 30
+            const min = Math.max(0, region.start - len * 10)
+            const max = region.end + len * 10
             console.log('initializing with',min,max)
             this.store.getFeatures({
                 ref: this.refSeq.name,
@@ -241,7 +241,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                     f()
                     setTimeout(() => {
                         this.store.cleanFeatureCache({ ref: this.refSeq.name, start: min, end: max })
-                    }, 100000)
+                    }, 10000)
                 }
                 supermethod.call(this, args)
             }, e => {

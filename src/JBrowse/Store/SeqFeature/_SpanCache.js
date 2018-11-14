@@ -59,7 +59,7 @@ return declare(null, {
             }
         }
         Object.entries(this.featureCache).forEach(([k, v]) => {
-            if(v._get('end') > query.start && v._get('start') < query.end) {
+            if(v._get('end') > query.start || v._get('start') < query.end) {
                 featCallback(v)
             }
         })
