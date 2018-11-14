@@ -148,6 +148,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                 index: new CraiIndex({filehandle: indexBlob}),
                 seqFetch: this._seqFetch.bind(this),
                 checkSequenceMD5: false,
+                fetchSizeLimit: args.fetchSizeLimit || 60000000
             })
 
             cramIndexedFilesCache.set(cacheKey, this.cram)
