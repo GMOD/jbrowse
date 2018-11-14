@@ -42,6 +42,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 viewAsPairs: false,
                 viewAsSpans: false,
                 readCloud: false,
+                showInterchromosomalArcs: true,
 
                 histograms: {
                     description: 'coverage depth',
@@ -62,12 +63,12 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
 
         var m = {
             type: 'dijit/Menu',
-            label: 'Track visualization options',
+            label: 'Track visualization types',
             children: []
         }
         var c = {
             type: 'dijit/Menu',
-            label: 'Coloring options',
+            label: 'Drawing options',
             children: []
         }
 
@@ -176,7 +177,15 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
-
+        c.children.push({
+            label: 'Show interchromosomal',
+            type: 'dijit/CheckedMenuItem',
+            checked: this.config.showInterchromosomalArcs,
+            onClick: function(event) {
+                thisB.config.showInterchromosomalArcs = this.get('checked');
+                thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
+            }
+        });
         return Promise.all([ this.inherited(arguments), this._alignmentsFilterTrackMenuOptions(), displayOptions ])
             .then( function( options ) {
                        var o = options.shift();

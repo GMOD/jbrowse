@@ -39,9 +39,11 @@ function(
             context.beginPath()
             context.strokeStyle = this.getConf('style.color', [fRect.f, r.span, this, this.track])
 
-            if (fRect.f.get('seq_id') != fRect.f.get('next_seq_id')) {
-                context.moveTo(r.drawFrom, 0)
-                context.lineTo(r.drawFrom, 1000)
+            if (fRect.f.get('seq_id') !== fRect.f.get('next_seq_id')) {
+                if (this.track.config.showInterchromosomalArcs) {
+                    context.moveTo(r.drawFrom, 0)
+                    context.lineTo(r.drawFrom, 1000)
+                }
             } else {
                 context.arc(r.drawTo + r.r, 0, Math.abs(r.r), 0, Math.PI)
             }
