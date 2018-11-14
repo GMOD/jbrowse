@@ -211,6 +211,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
     fillFeatures: function( args ) {
         const finishCallback = args.finishCallback
         const errorCallback = e => {
+            console.error(e)
             this._handleError(e, args)
             finishCallback(e)
         }
@@ -226,29 +227,30 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
 
             const min = Math.max(0, region.start - len * 10)
             const max = region.end + len * 10
-            console.log('initializing with',min,max)
-            this.store.getFeatures({
-                ref: this.refSeq.name,
-                start: min,
-                end: max,
-                viewAsPairs: this.config.viewAsPairs,
-                viewAsASpans: this.config.viewAsSpans
-            }, () => { /* do nothing */}, () => {
-                var stats = this.store.getInsertSizeStats()
-                this.upperPercentile = stats.upper
-                this.lowerPercentile = stats.lower
-                let f = args.finishCallback
-                args.finishCallback = () => {
-                    f()
-                    setTimeout(() => {
-                        this.store.cleanFeatureCache({ ref: this.refSeq.name, start: min, end: max })
-                    }, 10000)
-                }
-                supermethod.call(this, args)
-            }, e => {
-                errorCallback(e)
-                console.error(e)
+            this.initialCachePromise = this.initialCachePromise || new Promise((resolve, reject) => {
+                this.store.getFeatures({
+                    ref: this.refSeq.name,
+                    start: min,
+                    end: max,
+                    viewAsPairs: this.config.viewAsPairs,
+                    viewAsSpans: this.config.viewAsSpans
+                }, () => { /* do nothing */}, () => {
+                    var stats = this.store.getInsertSizeStats()
+                    this.upperPercentile = stats.upper
+                    this.lowerPercentile = stats.lower
+                    let f = args.finishCallback
+                    args.finishCallback = () => {
+                        f()
+                        setTimeout(() => {
+                            this.store.cleanFeatureCache({ ref: this.refSeq.name, start: min, end: max })
+                        }, 10000)
+                    }
+                    resolve()
+                }, reject)
             })
+            this.initialCachePromise.then(() => {
+                supermethod.call(this, args)
+            }, errorCallback)
         } else {
             this.inherited(arguments);
         }

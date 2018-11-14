@@ -1,7 +1,8 @@
 class SpanFeature {
     constructor(feat) {
+
         this.start = Math.min(feat._get('start'), feat._get('next_pos'))
-        this.end = Math.max(feat._get('end'), feat._get('next_pos')+feat._get('end')-feat._get('start'))
+        this.end = Math.max(feat._get('end'), feat._get('next_pos') + 100)
         this.feat = feat
     }
     id() {
@@ -23,6 +24,7 @@ class SpanFeature {
     children() {}
 }
 
+
 function canBePaired(alignment) {
     return alignment.get('multi_segment_template') &&
         !alignment.get('multi_segment_next_segment_unmapped') &&
@@ -30,23 +32,21 @@ function canBePaired(alignment) {
         !(alignment.get('secondary_alignment') || alignment.get('supplementary_alignment'))
 }
 
-define( [
-            'dojo/_base/declare',
-            'JBrowse/Util',
-        ],
-        function(
-            declare,
-            Util,
-        ) {
+define([
+    'dojo/_base/declare',
+    'JBrowse/Util',
+],
+function(
+    declare,
+    Util
+) {
 
 return declare(null, {
     constructor(args) {
         this.featureCache = {}
     },
 
-
-    // called by getFeatures from the DeferredFeaturesMixin
-    pairFeatures(query, records, featCallback, endCallback, errorCallback, featTransform) {
+    pairFeatures(query, records, featCallback, errorCallback) {
         for(let i = 0; i < records.length; i++) {
             let feat
             if (canBePaired(records[i])) {
@@ -59,7 +59,7 @@ return declare(null, {
             }
         }
         Object.entries(this.featureCache).forEach(([k, v]) => {
-            if(v._get('end') > query.start || v._get('start') < query.end) {
+            if (Util.intersect(v._get('start'), v._get('end'), query.start, query.end)) {
                 featCallback(v)
             }
         })
@@ -68,7 +68,7 @@ return declare(null, {
 
     cleanFeatureCache(query) {
         Object.entries(this.featureCache).forEach(([k, v]) => {
-            if((v._get('end') < query.start) || (v._get('start') > query.end)) {
+            if (!Util.intersect(v._get('start'), v._get('end'), query.start, query.end)) {
                 delete this.featureCache[k]
             }
         })

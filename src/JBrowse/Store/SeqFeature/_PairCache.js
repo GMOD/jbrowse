@@ -45,8 +45,7 @@ return declare(null, {
     },
 
 
-    // called by getFeatures from the DeferredFeaturesMixin
-    pairFeatures(query, records, featCallback, endCallback, errorCallback, featTransform) {
+    pairFeatures(query, records, featCallback, errorCallback) {
         const pairCache = {};
         for(let i = 0; i < records.length; i++) {
             let feat
@@ -84,7 +83,7 @@ return declare(null, {
             }
         }
         Object.entries(this.featureCache).forEach(([k, v]) => {
-            if(v._get('end') > query.start && v._get('start') < query.end) {
+            if(Util.intersect(v._get('start'), v._get('end'), query.start, query.end)) {
                 featCallback(v)
             }
         })
@@ -93,7 +92,7 @@ return declare(null, {
 
     cleanFeatureCache(query) {
         Object.entries(this.featureCache).forEach(([k, v]) => {
-            if((v._get('end') < query.start) || (v._get('start') > query.end)) {
+            if(!Util.intersect(v._get('start'), v._get('end'), query.start, query.end)) {
                 delete this.featureCache[k]
             }
         })
