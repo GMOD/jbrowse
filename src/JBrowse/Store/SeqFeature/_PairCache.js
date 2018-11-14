@@ -42,11 +42,6 @@ define( [
 return declare(null, {
     constructor(args) {
         this.featureCache = {}
-        this.insertUpperPercentile = args.insertUpperPercentile || 0.95
-        this.insertLowerPercentile = args.insertLowerPercentile || 0.05
-        this.insertStatsCacheMin = args.insertStatsCacheMin || 400
-        this.insertMaxSize = args.insertMaxSize || 50000
-        this.orientationType = args.orientationType || 'fr'
     },
 
 
@@ -68,9 +63,7 @@ return declare(null, {
                     }
                     if(feat.read1 && feat.read2) {
                         delete pairCache[name]
-                        if(this.insertMaxSize > feat.get('end') - feat.get('start')) {
-                             this.featureCache[name] = feat
-                        }
+                        this.featureCache[name] = feat
                     }
                 }
                 else {
@@ -104,25 +97,8 @@ return declare(null, {
                 delete this.featureCache[k]
             }
         })
-    },
-
-    getStatsForPairCache() {
-        if(Object.keys(this.featureCache).length > this.insertStatsCacheMin) {
-            var total = Object.keys(this.featureCache).length
-            var tlens = Object.entries(this.featureCache)
-                .map(([k, v]) => Math.abs(v.get('template_length')))
-                .filter(tlen => tlen < this.insertMaxSize)
-                .sort((a, b) => a - b)
-            var sum = tlens.reduce((a, b) => a + b, 0)
-            var sum2 = tlens.map(a => a*a).reduce((a, b) => a + b, 0)
-            var avg = sum / total;
-            var sd = Math.sqrt((total * sum2 - sum*sum) / (total * total));
-            return {
-                upper: avg + 3*sd,
-                lower: avg - 3*sd
-            }
-        }
-        return { upper: Infinity, lower: 0 }
     }
+
+
 });
 });
