@@ -56,7 +56,7 @@
    in a production build with JBROWSE_PUBLIC_PATH overridden (issue #1239,
    @garrettjstevens)
 
-* Small fix for issue where SNPCoverage would crash on some feature filters
+ * Small fix for issue where SNPCoverage would crash on some feature filters
    (issue #1241, @cmdcolin)
 
  * Fix issue where JBrowse Desktop was not able to access remote files (issue
@@ -68,6 +68,9 @@
 
  * Fixed issue where whitespace surrounding GFF3 attributes and attribute names
    was incorporated (issue #1221, pull #1254, @cmdcolin)
+
+ * Fixed issue with some GFF3Tabix tracks having some inconsistent layout of
+   features (issue #1244, pull #1260, @cmdcolin)
 
 # Release 1.15.4     2018-10-05 13:02:55 UTC
 
