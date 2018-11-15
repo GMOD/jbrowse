@@ -193,7 +193,7 @@ return declare('JBrowse.Store.LazyTrie', null,
         notfoundCallback = notfoundCallback || function() {};
 
         if (!this.root) {
-            this.deferred = arguments;
+            notfoundCallback()
             return;
         }
         query = query.toLowerCase();

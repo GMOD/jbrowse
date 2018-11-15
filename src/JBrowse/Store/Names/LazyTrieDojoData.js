@@ -83,7 +83,7 @@ return declare( null,
         var start = request.start || 0;
         var matchLimit = Math.min( this.resultLimit, Math.max(0, request.count || Infinity ) );
         var matchesRemaining = matchLimit;
-    var scope = request.scope || dojo.global;
+        var scope = request.scope || dojo.global;
         var aborted = false;
 
         // wrap our abort function to set a flag
@@ -153,8 +153,8 @@ return declare( null,
             }));
         }
         else if( request.onComplete ) {
-                request.onComplete.call( scope, [], request );
-    }
+            request.onComplete.call( scope, [], request );
+        }
 
         return request;
     },
