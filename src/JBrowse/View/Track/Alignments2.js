@@ -123,7 +123,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
         });
 
         m.children.push({
-            label: 'View SNP coverage',
+            label: 'View coverage',
             onClick: function(event) {
                 thisB.config.type = 'JBrowse/View/Track/SNPCoverage'
                 thisB.config._oldAlignmentsHeight = thisB.config.style.height
@@ -132,15 +132,6 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             }
         });
 
-        m.children.push({
-            label: 'View feature coverage',
-            onClick: function(event) {
-                thisB.config.type = 'JBrowse/View/Track/FeatureCoverage'
-                thisB.config._oldAlignmentsHeight = thisB.config.style.height
-                thisB.config.style.height = thisB.config._oldSnpCoverageHeight
-                thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
-            }
-        });
         c.children.push({
             label: 'Color by XS tag (RNA-seq strandedness)',
             type: 'dijit/CheckedMenuItem',
