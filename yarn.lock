@@ -164,10 +164,11 @@
     long "^4.0.0"
 
 "@gmod/cram@^1.3.0":
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/@gmod/cram/-/cram-1.3.0.tgz#8297d6d6a01434dc08b12c94a7aef1d1b8e51651"
-  integrity sha512-4lB4+wnA6wKf3fsY+G4zQUAgufP3teccCm7Jcff0Z/cxYE+zMFimWy8EeDGLTF6Gsch5DWYnH4e0EPMb3wxZJQ==
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@gmod/cram/-/cram-1.4.0.tgz#eeee1524d725704cef9d3a95569cec47016dd413"
+  integrity sha512-qq0KyY6+Ps0wxCOtxGU2Qu7edQMyGqk0dBVUP3C1pKkWhSWnJE16AIwXYT/GBpjjVVIIUPifyDZ05K5NtF2tIg==
   dependencies:
+    "@gmod/binary-parser" "^1.3.2"
     babel-runtime "^6.26.0"
     buffer-crc32 "^0.2.13"
     cross-fetch "^2.1.0"
@@ -2232,7 +2233,15 @@ create-hmac@^1.1.0, create-hmac@^1.1.2, create-hmac@^1.1.4:
     safe-buffer "^5.0.1"
     sha.js "^2.4.8"
 
-cross-fetch@^2.1.0, cross-fetch@^2.2.2:
+cross-fetch@^2.1.0:
+  version "2.2.3"
+  resolved "https://registry.yarnpkg.com/cross-fetch/-/cross-fetch-2.2.3.tgz#e8a0b3c54598136e037f8650f8e823ccdfac198e"
+  integrity sha512-PrWWNH3yL2NYIb/7WF/5vFG3DCQiXDOVf8k3ijatbrtnwNuhMWLC7YF7uqf53tbTFDzHIUD8oITw4Bxt8ST3Nw==
+  dependencies:
+    node-fetch "2.1.2"
+    whatwg-fetch "2.0.4"
+
+cross-fetch@^2.2.2:
   version "2.2.2"
   resolved "https://registry.yarnpkg.com/cross-fetch/-/cross-fetch-2.2.2.tgz#a47ff4f7fc712daba8f6a695a11c948440d45723"
   integrity sha1-pH/09/xxLauo9qaVoRyUhEDUVyM=
