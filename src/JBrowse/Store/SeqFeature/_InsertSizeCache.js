@@ -12,7 +12,6 @@ return declare(null, {
         this.featureCache = {}
         this.insertStatsCacheMin = args.insertStatsCacheMin || 400
         this.insertMaxSize = args.insertMaxSize || 50000
-        this.orientationType = args.orientationType || 'fr'
     },
 
     cleanFeatureCache(query) {
@@ -28,8 +27,8 @@ return declare(null, {
     },
 
     getInsertSizeStats() {
-        if(Object.keys(this.featureCache).length > this.insertStatsCacheMin) {
-            var total = Object.keys(this.featureCache).length
+        const total = Object.keys(this.featureCache).length
+        if(total > this.insertStatsCacheMin) {
             var tlens = Object.entries(this.featureCache)
                 .map(([k, v]) => Math.abs(v))
                 .filter(tlen => tlen < this.insertMaxSize)
@@ -39,8 +38,8 @@ return declare(null, {
             var avg = sum / total;
             var sd = Math.sqrt((total * sum2 - sum*sum) / (total * total));
             return {
-                upper: avg + 3*sd,
-                lower: avg - 3*sd
+                upper: avg + 3 * sd,
+                lower: avg - 3 * sd
             }
         }
         return { upper: Infinity, lower: 0 }
