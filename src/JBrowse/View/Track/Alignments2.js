@@ -43,6 +43,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 viewAsSpans: false,
                 readCloud: false,
                 showInterchromosomalArcs: true,
+                maxInsertSize: 50000,
 
                 histograms: {
                     description: 'coverage depth',
@@ -215,6 +216,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             this._handleError(e, args)
             finishCallback(e)
         }
+
         if(this.config.viewAsPairs || this.config.viewAsSpans || this.config.colorByOrientation) {
             let supermethod = this.getInherited(arguments)
             const len = Math.min(Math.max(args.rightBase - args.leftBase, 4000), 100000)
@@ -238,17 +240,21 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                     var stats = this.store.getInsertSizeStats()
                     this.upperPercentile = stats.upper
                     this.lowerPercentile = stats.lower
-                    let f = args.finishCallback
-                    args.finishCallback = () => {
-                        f()
-                        setTimeout(() => {
-                            this.store.cleanFeatureCache({ ref: this.refSeq.name, start: min, end: max })
-                        }, 10000)
-                    }
+
                     resolve()
                 }, reject)
             })
             this.initialCachePromise.then(() => {
+                args.finishCallback = () => {
+                    finishCallback()
+                    setTimeout(() => {
+                        this.store.cleanFeatureCache({
+                            ref: this.refSeq.name,
+                            start: min,
+                            end: max
+                        })
+                    }, 10000)
+                }
                 supermethod.call(this, args)
             }, errorCallback)
         } else {

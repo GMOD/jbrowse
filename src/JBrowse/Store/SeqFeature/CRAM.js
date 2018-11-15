@@ -339,7 +339,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         return new CramSlightlyLazyFeature(record, this)
     },
 
-    saveStore: function() {
+    saveStore() {
         return {
             urlTemplate: this.config.cram.url,
             craiUrlTemplate: this.config.crai.url
