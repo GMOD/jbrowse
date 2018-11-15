@@ -1,8 +1,7 @@
 class SpanFeature {
     constructor(feat) {
-
         this.start = Math.min(feat._get('start'), feat._get('next_pos'))
-        this.end = Math.max(feat._get('end'), feat._get('next_pos') + 100)
+        this.end = Math.max(feat._get('end'), feat._get('next_pos'))
         this.feat = feat
     }
     id() {
@@ -51,7 +50,9 @@ return declare(null, {
             let feat
             if (canBePaired(records[i])) {
                 let name = records[i]._get('name')
-                this.featureCache[name] = new SpanFeature(records[i])
+                if(!this.featureCache[name]) {
+                    this.featureCache[name] = new SpanFeature(records[i])
+                }
             }
             else if(!(records[i]._get('end') < query.start) && !(records[i]._get('start') > query.end)){
                 let feat = records[i]
