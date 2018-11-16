@@ -206,7 +206,7 @@ return declare( null, {
             }
         }
 
-        domConstruct.create('div', { className: 'value '+ (val.length>100 ? 'long ' : '') + class_, innerHTML: val }, parent );
+        domConstruct.create('div', { className: 'value '+ (val.length > 70 ? 'long ' : '') + class_, innerHTML: val }, parent );
         return 1;
     },
 
