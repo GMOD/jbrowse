@@ -1,28 +1,31 @@
 const gff = cjsRequire('@gmod/gff').default
+const { TabixIndexedFile } = cjsRequire('@gmod/tabix')
 const crc32 = cjsRequire('buffer-crc32')
 
 define([
            'dojo/_base/declare',
            'JBrowse/Util',
+           'JBrowse/Errors',
            'JBrowse/Model/SimpleFeature',
            'JBrowse/Store/SeqFeature',
            'JBrowse/Store/DeferredStatsMixin',
            'JBrowse/Store/DeferredFeaturesMixin',
-           'JBrowse/Store/TabixIndexedFile',
            'JBrowse/Store/SeqFeature/IndexedStatsEstimationMixin',
            'JBrowse/Store/SeqFeature/RegionStatsMixin',
+           'JBrowse/Model/BlobFilehandleWrapper',
            'JBrowse/Model/XHRBlob',
        ],
        function(
            declare,
            Util,
+           Errors,
            SimpleFeature,
            SeqFeatureStore,
            DeferredStatsMixin,
            DeferredFeaturesMixin,
-           TabixIndexedFile,
            IndexedStatsEstimationMixin,
            RegionStatsMixin,
+           BlobFilehandleWrapper,
            XHRBlob,
        ) {
 
@@ -56,17 +59,16 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
                 { expectRanges: true }
             )
 
-        this.indexedData = new TabixIndexedFile(
-            {
-                tbi: tbiBlob,
-                csi: csiBlob,
-                file: fileBlob,
-                browser: this.browser,
-                chunkSizeLimit: args.chunkSizeLimit || 1000000
-            })
+        this.indexedData = new TabixIndexedFile({
+            filehandle: new BlobFilehandleWrapper(fileBlob),
+            tbiFilehandle: tbiBlob && new BlobFilehandleWrapper(tbiBlob),
+            csiFilehandle: csiBlob && new BlobFilehandleWrapper(csiBlob),
+            chunkSizeLimit: args.chunkSizeLimit || 1000000,
+            renameRefSeqs: n => this.browser.regularizeReferenceName(n)
+        });
 
         // start our global stats estimation
-        this.indexedData.featureCount('nonexistent')
+        this.indexedData.lineCount('nonexistent')
             .then(
                 () => {
                     this._deferred.features.resolve({ success: true })
@@ -83,20 +85,39 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
             )
     },
 
-    _getFeatures(query, featureCallback, finishedCallback, errorCallback, allowRedispatch = true) {
-        this.indexedData.featureCount('nonexistent').then(
-            () => {
-                const lines = []
-                this.indexedData.getLines(
-                    query.ref || this.refSeq.name,
+    _parseLine(columnNumbers, line) {
+        const fields = line.split("\t")
+
+        return { // note: index column numbers are 1-based
+            start: parseInt(fields[columnNumbers.start - 1]),
+            end: parseInt(fields[columnNumbers.end - 1]),
+            lineHash: crc32.unsigned(line),
+            fields,
+        }
+    },
+
+    _getFeatures(
+        query,
+        featureCallback,
+        finishedCallback,
+        errorCallback,
+        allowRedispatch = true,
+    ) {
+        this.indexedData.getMetadata().then(metadata => {
+            const regularizedReferenceName = this.browser.regularizeReferenceName(
+                query.ref,
+            )
+            const lines = []
+            this.indexedData
+                .getLines(
+                    regularizedReferenceName || this.refSeq.name,
                     query.start,
                     query.end,
                     line => {
-                        if(line.fields) {
-                            line.lineHash = crc32.unsigned(line.fields.join(''))
-                        }
-                        lines.push(line)
+                        lines.push(this._parseLine(metadata.columnNumbers, line))
                     },
+                )
+                .then(
                     () => {
                         // If this is the first fetch (allowRedispatch is true), check whether
                         // any of the features protrude out of the queried range.
@@ -112,38 +133,51 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
                                 const featureType = line.fields[2]
                                 // only expand redispatch range if the feature is not in dontRedispatch,
                                 // and is a top-level feature
-                                if(
+                                if (
                                     !this.dontRedispatch.includes(featureType) &&
                                     this._isTopLevelFeatureType(featureType)
                                 ) {
-                                    let start = line.start-1 // gff is 1-based
+                                    let start = line.start - 1 // gff is 1-based
                                     if (start < minStart) minStart = start
                                     if (line.end > maxEnd) maxEnd = line.end
                                 }
                             })
                             if (maxEnd > query.end || minStart < query.start) {
                                 // console.log(`redispatching ${query.start}-${query.end} => ${minStart}-${maxEnd}`)
-                                let newQuery = Object.assign({},query,{ start: minStart, end: maxEnd })
+                                let newQuery = Object.assign({}, query, {
+                                    start: minStart,
+                                    end: maxEnd,
+                                })
                                 // make a new feature callback to only return top-level features
                                 // in the original query range
-                                let newFeatureCallback = feature => {
-                                    if (feature.get('start') < query.end && feature.get('end') > query.start) {
+                                const newFeatureCallback = feature => {
+                                    if (
+                                        feature.get('start') < query.end &&
+                                        feature.get('end') > query.start
+                                    ) {
                                         featureCallback(feature)
                                     }
                                 }
-                                this._getFeatures(newQuery, newFeatureCallback, finishedCallback, errorCallback, false)
+                                this._getFeatures(
+                                    newQuery,
+                                    newFeatureCallback,
+                                    finishedCallback,
+                                    errorCallback,
+                                    false,
+                                )
                                 return
                             }
                         }
-
-                        // decorate each of the lines with a _fileOffset attribute
+    
+                        // decorate each of the lines with a _lineHash attribute
                         const gff3 = lines
                             .map(lineRecord => {
                                 // add a lineHash attr to each gff3 line sayings its offset in
                                 // the file, we can use this later to synthesize a unique ID for
                                 // features that don't have one
-                                if (lineRecord.fields[8] &&  lineRecord.fields[8] !== '.') {
-                                     if (!lineRecord.fields[8].includes('_lineHash'))
+                                if (lineRecord.fields[8] && lineRecord.fields[8] !== '.') {
+                                    if (!lineRecord.fields[8].includes('_lineHash'))
+
                                         lineRecord.fields[8] += `;_lineHash=${lineRecord.lineHash}`
                                 } else {
                                     lineRecord.fields[8] = `_lineHash=${lineRecord.lineHash}`
@@ -151,28 +185,30 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
                                 return lineRecord.fields.join('\t')
                             })
                             .join('\n')
-                        const features = gff.parseStringSync(
-                            gff3,
-                            {
-                                parseFeatures: true,
-                                parseComments: false,
-                                parseDirectives: false,
-                                parseSequences: false,
-                            })
-
-                        features.forEach( feature =>
-                            this.applyFeatureTransforms(
-                                this._formatFeatures(feature)
-                            )
-                            .forEach(featureCallback)
+                        const features = gff.parseStringSync(gff3, {
+                            parseFeatures: true,
+                            parseComments: false,
+                            parseDirectives: false,
+                            parseSequences: false,
+                        })
+    
+                        features.forEach(feature =>
+                            this.applyFeatureTransforms(this._formatFeatures(feature)).forEach(
+                                featureCallback,
+                            ),
                         )
                         finishedCallback()
                     },
-                    errorCallback
+                    error => {
+                        if (errorCallback) {
+                            if (error.message && error.message.indexOf('Too much data') >= 0) {
+                                error = new Errors.DataOverflow(error.message)
+                            }
+                            errorCallback(error)
+                        } else console.error(error)
+                    },
                 )
-            },
-            errorCallback
-        )
+        }, errorCallback)
     },
 
 

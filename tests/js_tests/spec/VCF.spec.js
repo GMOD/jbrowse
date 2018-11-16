@@ -310,7 +310,7 @@ describe('VCF store', function() {
 
          var stats = {};
          waitsFor( function() { return stats.done; } );
-         store.indexedData.featureCount('whatever').then(()=> {
+         store.indexedData.lineCount('whatever').then(()=> {
              store._estimateGlobalStats({ name: 'ctgA',
                             start: 0,
                             end:50000
