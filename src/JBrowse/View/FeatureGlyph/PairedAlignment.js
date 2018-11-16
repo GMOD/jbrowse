@@ -89,9 +89,6 @@ layoutFeature(viewArgs, layout, feature) {
             rect.rect.t = 0
         }
     }
-    if(feature.get('end') - feature.get('start') > this.track.config.maxInsertSize) {
-        rect.l = Infinity
-    }
 
     return rect;
 }
