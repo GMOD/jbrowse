@@ -72,6 +72,9 @@
  * Fixed issue with some GFF3Tabix tracks having some inconsistent layout of
    features (issue #1244, pull #1260, @cmdcolin)
 
+ * Fixed CRAM store not renaming reference sequences in the same way as other
+   stores (@rbuels)
+
 # Release 1.15.4     2018-10-05 13:02:55 UTC
 
 ## Minor improvements

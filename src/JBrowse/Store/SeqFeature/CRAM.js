@@ -208,7 +208,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
     _refNameToId(refName) {
         // use info from the SAM header if possible, but fall back to using
         // the ref seq order from when the browser's refseqs were loaded
-        if (this._samHeader.refSeqNameToId)
+        if (this._samHeader.refSeqNameToId && refName in this._samHeader.refSeqNameToId)
             return this._samHeader.refSeqNameToId[refName]
         else
             return this.browser.getRefSeqNumber(refName)
