@@ -255,7 +255,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
 
     constructor() {
         this.addFeatureFilter(feat => {
-            return this.config.viewAsPairs && feat.get('end') - feat.get('start') < this.config.maxInsertSize
+            return (this.config.viewAsPairs && feat.get('end') - feat.get('start') < this.config.maxInsertSize) || !this.config.viewAsPairs
         })
     }
 });
