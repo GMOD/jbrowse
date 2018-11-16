@@ -221,9 +221,7 @@ a.dialog-new-window {
  force long sequences in feature and alignment detail dialogs to
  wrap at 45em
 */
-.detail .value.seq,
-.detail .value.bq,
- .detail .value.sequence {
+.detail .value.long {
     word-wrap: break-word;
     width: 45em;
 }
