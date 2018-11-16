@@ -133,7 +133,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
         });
 
         c.children.push({
-            label: 'Color by XS tag (RNA-seq strandedness)',
+            label: 'Color by XS tag (RNA-seq orientation)',
             type: 'dijit/CheckedMenuItem',
             checked: this.config.useXS,
             onClick: function(event) {
@@ -143,7 +143,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
         });
 
         c.children.push({
-            label: 'Color by TS tag (RNA-seq strandedness)',
+            label: 'Color by TS tag (RNA-seq orientation)',
             type: 'dijit/CheckedMenuItem',
             checked: this.config.useTS,
             onClick: function(event) {
@@ -152,7 +152,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             }
         });
         c.children.push({
-            label: 'Color mate pair as flipped (RNA-seq strandedness)',
+            label: 'Color mate pair as flipped (RNA-seq orientation)',
             type: 'dijit/CheckedMenuItem',
             checked: this.config.useReverseTemplate,
             onClick: function(event) {
