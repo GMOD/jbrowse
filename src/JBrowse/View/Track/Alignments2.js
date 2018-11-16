@@ -41,7 +41,6 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 useReverseTemplateOption: true,
                 viewAsPairs: false,
                 viewAsSpans: false,
-                readCloud: false,
                 showInterchromosomalArcs: true,
                 maxInsertSize: 50000,
 
@@ -56,6 +55,9 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             }
         );
         return c;
+    },
+
+    _trackType: function() {
     },
 
     _trackMenuOptions: function() {
@@ -77,15 +79,13 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
         displayOptions.push(m)
         displayOptions.push(c)
 
-
-
-
         m.children.push({
             label: 'View as unpaired',
+            type: 'dijit/RadioMenuItem',
+            checked: this.config.glyph == 'JBrowse/View/FeatureGlyph/Alignment',
             onClick: function(event) {
                 thisB.config.viewAsPairs = false
                 thisB.config.viewAsSpans = false
-                thisB.config.readCloud = false
                 thisB.config.glyph = 'JBrowse/View/FeatureGlyph/Alignment'
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
@@ -93,10 +93,11 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
 
         m.children.push({
             label: 'View as pairs',
+            type: 'dijit/RadioMenuItem',
+            checked: this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedAlignment',
             onClick: function(event) {
                 thisB.config.viewAsPairs = true
                 thisB.config.viewAsSpans = false
-                thisB.config.readCloud = false
                 thisB.config.glyph = 'JBrowse/View/FeatureGlyph/PairedAlignment'
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
@@ -104,6 +105,8 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
 
         m.children.push({
             label: 'View as arcs',
+            type: 'dijit/RadioMenuItem',
+            checked: this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedArc',
             onClick: function(event) {
                 thisB.config.viewAsSpans = true
                 thisB.config.viewAsPairs = false
@@ -113,17 +116,20 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
         });
         m.children.push({
             label: 'View as read cloud',
+            type: 'dijit/RadioMenuItem',
+            checked: this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedReadCloud',
             onClick: function(event) {
                 thisB.config.viewAsPairs = true
                 thisB.config.viewAsSpans = false
-                thisB.config.readCloud = true
-                thisB.config.glyph = 'JBrowse/View/FeatureGlyph/PairedAlignment'
+                thisB.config.glyph = 'JBrowse/View/FeatureGlyph/PairedReadCloud'
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
 
         m.children.push({
             label: 'View coverage',
+            type: 'dijit/RadioMenuItem',
+            checked: false,
             onClick: function(event) {
                 thisB.config.type = 'JBrowse/View/Track/SNPCoverage'
                 thisB.config._oldAlignmentsHeight = thisB.config.style.height
@@ -189,7 +195,8 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
     // override getLayout to access addRect method
     _getLayout: function() {
         var layout = this.inherited(arguments);
-        if(this.config.readCloud || this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedArc') {
+        if(this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedReadCloud' ||
+            this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedArc') {
             layout = declare.safeMixin(layout, {
                 addRect: function() {
                     this.pTotalHeight = this.maxHeight;

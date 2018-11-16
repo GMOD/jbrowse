@@ -16,10 +16,12 @@ function(
 
 return declare(Alignment, {
 
-renderFeature( context, fRect ) {
-    if( this.track.displayMode != 'collapsed' && !this.config.readCloud )
+clearFeat(context, fRect) {
+    if( this.track.displayMode != 'collapsed' )
         context.clearRect( Math.floor(fRect.l), fRect.t, Math.ceil(fRect.w), fRect.h );
-
+},
+renderFeature(context, fRect) {
+    this.clearFeat(context, fRect)
 
     if(fRect.f.pairedFeature()) {
         this.renderConnector( context, fRect );
@@ -40,12 +42,12 @@ renderFeature( context, fRect ) {
     }
 },
 
-renderSegments( context, fRect ) {
+renderSegments(context, fRect) {
     this.renderBox(context, fRect.viewInfo, fRect.f.read1,  fRect.t, fRect.rect.h, fRect.f);
     this.renderBox(context, fRect.viewInfo, fRect.f.read2,  fRect.t, fRect.rect.h, fRect.f);
 },
 
-renderConnector( context, fRect ) {
+renderConnector(context, fRect) {
     // connector
     var connectorColor = this.getStyle( fRect.f, 'connectorColor' );
     if( connectorColor ) {
@@ -62,35 +64,11 @@ renderConnector( context, fRect ) {
 
 _defaultConfig() {
     return this._mergeConfigs(dojo.clone( this.inherited(arguments) ), {
-        readCloudLog: true,
-        readCloudStretch: 20,
         style: {
             connectorColor: AlignmentColoring.colorConnector,
             connectorThickness: 1,
         }
     });
-},
-layoutFeature(viewArgs, layout, feature) {
-    var rect = this.inherited(arguments);
-    if (!rect) {
-        return rect;
-    }
-    if(this.config.readCloud) {
-        if(feature.pairedFeature()) {
-            var tlen = feature.read1.get('template_length')
-            var t = Math.abs(tlen)
-            var k = this.config.readCloudLog ? Math.log(t+1) : t
-            k *= this.config.readCloudStretch
-
-            rect.rect.t = k
-            rect.t = k
-        } else {
-            rect.t = 0
-            rect.rect.t = 0
-        }
-    }
-
-    return rect;
 }
 
 });
