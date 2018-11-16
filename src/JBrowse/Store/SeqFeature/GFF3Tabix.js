@@ -177,6 +177,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
                                 // features that don't have one
                                 if (lineRecord.fields[8] && lineRecord.fields[8] !== '.') {
                                     if (!lineRecord.fields[8].includes('_lineHash'))
+
                                         lineRecord.fields[8] += `;_lineHash=${lineRecord.lineHash}`
                                 } else {
                                     lineRecord.fields[8] = `_lineHash=${lineRecord.lineHash}`
