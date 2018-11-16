@@ -135,9 +135,9 @@
     arrify "^1.0.1"
 
 "@gmod/bam@^1.0.3":
-  version "1.0.8"
-  resolved "https://registry.yarnpkg.com/@gmod/bam/-/bam-1.0.8.tgz#8d2b72a3dbcb4f3f5072d4e84ff450edcd3a904c"
-  integrity sha512-vFzAx+8+J63r8rryZy5TGeHrcaDEtaqIsY/l5p4KmynTTp4lJUDOm/AITOoeZyiqvuTEPhbJTqFwF6gNOiZDyA==
+  version "1.0.9"
+  resolved "https://registry.yarnpkg.com/@gmod/bam/-/bam-1.0.9.tgz#1aa8701aeda4a2eb0370d8cdbbb294e2cc4f4cc8"
+  integrity sha512-iOfy7S+IlCzMqOcnbEt9lbmfScQBzAnDMPq/eXZ7lJxsmC0ZCNdPQE+fBTUNgujzU2Axv8dNjFegc/Y3wWLXWA==
   dependencies:
     "@gmod/bgzf-filehandle" "^1.2.1"
     buffer-crc32 "^0.2.13"
@@ -3627,9 +3627,9 @@ fs-extra@^5.0.0:
     universalify "^0.1.0"
 
 fs-extra@^7.0.0:
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-7.0.0.tgz#8cc3f47ce07ef7b3593a11b9fb245f7e34c041d6"
-  integrity sha512-EglNDLRpmaTWiD/qraZn6HREAEAHJcJOmxNEYwq6xeMKnVMAy3GUcFB+wXt2C6k4CNvB/mP1y/U3dzvKKj5OtQ==
+  version "7.0.1"
+  resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-7.0.1.tgz#4f189c44aa123b895f722804f55ea23eadc348e9"
+  integrity sha512-YJDaCJZEnBmcbw13fvdAM9AwNOJwOzrE4pqMqBq5nFiEqXUqHwlK4B+3pUw6JNvfSPtX05xFHtYy/1ni01eGCw==
   dependencies:
     graceful-fs "^4.1.2"
     jsonfile "^4.0.0"
@@ -3874,10 +3874,15 @@ got@^6.7.1:
     unzip-response "^2.0.1"
     url-parse-lax "^1.0.0"
 
-graceful-fs@^4.1.0, graceful-fs@^4.1.11, graceful-fs@^4.1.2, graceful-fs@^4.1.3, graceful-fs@^4.1.6, graceful-fs@^4.1.9:
+graceful-fs@^4.1.0, graceful-fs@^4.1.11, graceful-fs@^4.1.3, graceful-fs@^4.1.9:
   version "4.1.11"
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.1.11.tgz#0e8bdfe4d1ddb8854d64e04ea7c00e2a026e5658"
   integrity sha1-Dovf5NHduIVNZOBOp8AOKgJuVlg=
+
+graceful-fs@^4.1.2, graceful-fs@^4.1.6:
+  version "4.1.15"
+  resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.1.15.tgz#ffb703e1066e8a0eeaa4c8b80ba9253eeefbfb00"
+  integrity sha512-6uHUhOPEBgQ24HM+r6b/QwWfZq+yiFcipKFrOFiBEnWdy5sdzYoi+pJeQaPI5qOLRFqWmAXUPQNsielzdLoecA==
 
 grapheme-splitter@^1.0.2:
   version "1.0.4"
