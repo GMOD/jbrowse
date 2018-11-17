@@ -12,7 +12,7 @@ return declare(null, {
         this.featureCache = {}
         this.insertStatsCacheMin = args.insertStatsCacheMin || 400
         this.insertMaxSize = args.insertMaxSize || 50000
-        this.insertMinSize = args.insertMinSize || 100
+        this.insertMinSize = args.insertMinSize || 200
     },
 
     cleanFeatureCache(query) {

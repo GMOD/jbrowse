@@ -77,7 +77,7 @@ return declare(null, {
                     pairCache[name] = feat
                 }
             }
-            else if(!(records[i]._get('end') < query.start) && !(records[i]._get('start') > query.end)){
+            else if(Util.intersect(records[i]._get('start'), records[i]._get('end'), query.start, query.end)) {
                 let feat = records[i]
                 featCallback(feat)
             }
