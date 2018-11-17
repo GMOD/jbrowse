@@ -134,7 +134,7 @@
   dependencies:
     arrify "^1.0.1"
 
-"@gmod/bam@^1.0.3":
+"@gmod/bam@^1.0.9":
   version "1.0.9"
   resolved "https://registry.yarnpkg.com/@gmod/bam/-/bam-1.0.9.tgz#1aa8701aeda4a2eb0370d8cdbbb294e2cc4f4cc8"
   integrity sha512-iOfy7S+IlCzMqOcnbEt9lbmfScQBzAnDMPq/eXZ7lJxsmC0ZCNdPQE+fBTUNgujzU2Axv8dNjFegc/Y3wWLXWA==

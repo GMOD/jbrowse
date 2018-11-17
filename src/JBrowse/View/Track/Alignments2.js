@@ -42,7 +42,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 viewAsPairs: false,
                 viewAsSpans: false,
                 showInterchromosomalArcs: true,
-                maxInsertSize: 50000,
+                maxInsertSize: 200000,
 
                 histograms: {
                     description: 'coverage depth',

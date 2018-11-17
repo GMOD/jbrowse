@@ -12,11 +12,12 @@ return declare(null, {
         this.featureCache = {}
         this.insertStatsCacheMin = args.insertStatsCacheMin || 400
         this.insertMaxSize = args.insertMaxSize || 50000
+        this.insertMinSize = args.insertMinSize || 100
     },
 
     cleanFeatureCache(query) {
         Object.entries(this.featureCache).forEach(([k, v]) => {
-            if((v._get('end') < query.start) || (v._get('start') > query.end)) {
+            if(!Util.intersect(v._get('start'), v._get('end'), query.start, query.end)) {
                 delete this.featureCache[k]
             }
         })
@@ -27,16 +28,18 @@ return declare(null, {
     },
 
     getInsertSizeStats() {
-        const total = Object.keys(this.featureCache).length
-        if(total > this.insertStatsCacheMin) {
+        const len = Object.keys(this.featureCache).length
+        if(len > this.insertStatsCacheMin) {
             var tlens = Object.entries(this.featureCache)
                 .map(([k, v]) => Math.abs(v))
-                .filter(tlen => tlen < this.insertMaxSize)
+                .filter(tlen => tlen < this.insertMaxSize && tlen > this.insertMinSize)
                 .sort((a, b) => a - b)
             var sum = tlens.reduce((a, b) => a + b, 0)
             var sum2 = tlens.map(a => a*a).reduce((a, b) => a + b, 0)
-            var avg = sum / total;
-            var sd = Math.sqrt((total * sum2 - sum*sum) / (total * total));
+            var total = tlens.length
+            var avg = sum / total
+            var sd = Math.sqrt((total * sum2 - sum*sum) / (total * total))
+            // console.log(avg, avg+3*sd, avg-3*sd)
             return {
                 upper: avg + 3 * sd,
                 lower: avg - 3 * sd
