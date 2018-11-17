@@ -45,7 +45,13 @@ function(
                     context.lineTo(r.drawFrom, 1000)
                 }
             } else {
-                context.arc(r.drawTo + r.r, 0, Math.abs(r.r), 0, Math.PI)
+                if(Math.abs(r.drawTo+r.r)>100000) {
+                    context.moveTo(r.drawTo, 0)
+                    context.lineTo(r.drawTo, 1000)
+                } else {
+                    context.arc(r.drawTo + r.r, 0, Math.abs(r.r), 0, Math.PI)
+
+                }
             }
             context.stroke();
         },
