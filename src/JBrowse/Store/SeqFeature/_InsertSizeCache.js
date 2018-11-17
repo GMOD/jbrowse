@@ -39,7 +39,6 @@ return declare(null, {
             var total = tlens.length
             var avg = sum / total
             var sd = Math.sqrt((total * sum2 - sum*sum) / (total * total))
-            // console.log(avg, avg+3*sd, avg-3*sd)
             return {
                 upper: avg + 3 * sd,
                 lower: avg - 3 * sd

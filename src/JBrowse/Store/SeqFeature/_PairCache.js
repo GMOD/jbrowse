@@ -30,14 +30,14 @@ function canBePaired(alignment) {
         !(alignment.get('secondary_alignment') || alignment.get('supplementary_alignment'))
 }
 
-define( [
-            'dojo/_base/declare',
-            'JBrowse/Util',
-        ],
-        function(
-            declare,
-            Util,
-        ) {
+define([
+    'dojo/_base/declare',
+    'JBrowse/Util',
+],
+function(
+    declare,
+    Util,
+) {
 
 return declare(null, {
     constructor(args) {
@@ -82,10 +82,18 @@ return declare(null, {
                 featCallback(feat)
             }
         }
+        // dump paired features
         Object.entries(this.featureCache).forEach(([k, v]) => {
             if(Util.intersect(v._get('start'), v._get('end'), query.start, query.end)) {
                 featCallback(v)
             }
+        })
+        // dump unpaired features from the paircache
+        Object.entries(pairCache).forEach(([k, v]) => {
+            if(v.read1)
+                featCallback(v.read1)
+            else if(v.read2)
+                featCallback(v.read2)
         })
     },
 
