@@ -400,7 +400,8 @@ return declare(
             basesPerSpan: basesPerBin,
             basesPerBin: basesPerBin,
             viewAsPairs: this.config.viewAsPairs,
-            viewAsSpans: this.config.viewAsSpans
+            viewAsSpans: this.config.viewAsSpans,
+            maxInsertSize: this.config.maxInsertSize
         }
 
         const handleError = this._handleError.bind(this)

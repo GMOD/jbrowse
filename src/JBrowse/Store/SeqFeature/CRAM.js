@@ -299,7 +299,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
             endCallback()
             return
         }
-        this.cram.getRecordsForRange(refSeqNumber, query.start + 1, query.end, { viewAsPairs: query.viewAsPairs, viewAsSpans: query.viewAsSpans })
+        this.cram.getRecordsForRange(refSeqNumber, query.start + 1, query.end, { viewAsPairs: query.viewAsPairs, viewAsSpans: query.viewAsSpans, maxInsertSize: query.maxInsertSize })
             .then(records => {
                 if(query.viewAsPairs) {
                     const recs = records.map(f => this._cramRecordToFeature(f))

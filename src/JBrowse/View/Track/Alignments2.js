@@ -44,7 +44,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 viewAsPairs: false,
                 viewAsSpans: false,
                 showInterchromosomalArcs: true,
-                maxInsertSize: 2000000,
+                maxInsertSize: 50000,
 
                 histograms: {
                     description: 'coverage depth',
@@ -255,9 +255,6 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
     },
 
     constructor() {
-        this.addFeatureFilter(feat => {
-            return (this.config.viewAsPairs && feat.get('end') - feat.get('start') < this.config.maxInsertSize) || !this.config.viewAsPairs
-        })
         if(this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedArc') {
             this.config.viewAsSpans = true
             this.config.viewAsPairs = false
