@@ -25,10 +25,10 @@ class SpanFeature {
 
 
 function canBePaired(alignment) {
-    return alignment.get('multi_segment_template') &&
-        !alignment.get('multi_segment_next_segment_unmapped') &&
-        (alignment.get('multi_segment_first') || alignment.get('multi_segment_last')) &&
-        !(alignment.get('secondary_alignment') || alignment.get('supplementary_alignment'))
+    return alignment._get('multi_segment_template') &&
+        !alignment._get('multi_segment_next_segment_unmapped') &&
+        (alignment._get('multi_segment_first') || alignment._get('multi_segment_last')) &&
+        !(alignment._get('secondary_alignment') || alignment._get('supplementary_alignment'))
 }
 
 define([

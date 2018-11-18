@@ -103,11 +103,11 @@ return declare(
         this.showTooltips = this.config.style.showTooltips;
         this.displayMode = this.config.displayMode;
 
-        //setup displayMode style cookie
+        //setup config cookie
         var cookie = this.browser.cookie("track-" + this.name);
         if (cookie) {
             cookie = JSON.parse(cookie)
-            cookie.type = undefined
+            delete cookie.type
             Object.assign(this.config, cookie)
         }
 
@@ -598,7 +598,8 @@ return declare(
             start: Math.max( 0, leftBase - bpExpansion ),
             end: rightBase + bpExpansion,
             viewAsPairs: this.config.viewAsPairs,
-            viewAsSpans: this.config.viewAsSpans
+            viewAsSpans: this.config.viewAsSpans,
+            maxInsertSize: this.config.maxInsertSize
         }
 
         const featCallback = feature => {

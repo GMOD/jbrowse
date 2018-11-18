@@ -237,7 +237,8 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                     start: min,
                     end: max,
                     viewAsPairs: this.config.viewAsPairs,
-                    viewAsSpans: this.config.viewAsSpans
+                    viewAsSpans: this.config.viewAsSpans,
+                    maxInsertSize: this.config.maxInsertSize
                 }, () => { /* do nothing */}, () => {
                     this.stats = this.stats || this.store.getInsertSizeStats()
                     this.upperPercentile = this.stats.upper
@@ -271,6 +272,9 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
         } else if (this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedAlignment'
             || this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedReadCloud') {
             this.config.viewAsPairs = true
+            this.config.viewAsSpans = false
+        } else {
+            this.config.viewAsPairs = false
             this.config.viewAsSpans = false
         }
     },
