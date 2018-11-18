@@ -86,8 +86,6 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             type: 'dijit/RadioMenuItem',
             checked: this.config.glyph == 'JBrowse/View/FeatureGlyph/Alignment',
             onClick: function(event) {
-                thisB.config.viewAsPairs = false
-                thisB.config.viewAsSpans = false
                 thisB.config.glyph = 'JBrowse/View/FeatureGlyph/Alignment'
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
@@ -98,8 +96,6 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             type: 'dijit/RadioMenuItem',
             checked: this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedAlignment',
             onClick: function(event) {
-                thisB.config.viewAsPairs = true
-                thisB.config.viewAsSpans = false
                 thisB.config.glyph = 'JBrowse/View/FeatureGlyph/PairedAlignment'
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
@@ -110,8 +106,6 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             type: 'dijit/RadioMenuItem',
             checked: this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedArc',
             onClick: function(event) {
-                thisB.config.viewAsSpans = true
-                thisB.config.viewAsPairs = false
                 thisB.config.glyph = 'JBrowse/View/FeatureGlyph/PairedArc'
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
@@ -121,8 +115,6 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             type: 'dijit/RadioMenuItem',
             checked: this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedReadCloud',
             onClick: function(event) {
-                thisB.config.viewAsPairs = true
-                thisB.config.viewAsSpans = false
                 thisB.config.glyph = 'JBrowse/View/FeatureGlyph/PairedReadCloud'
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
@@ -266,6 +258,14 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
         this.addFeatureFilter(feat => {
             return (this.config.viewAsPairs && feat.get('end') - feat.get('start') < this.config.maxInsertSize) || !this.config.viewAsPairs
         })
+        if(this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedArc') {
+            this.config.viewAsSpans = true
+            this.config.viewAsPairs = false
+        } else if(this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedAlignment'
+            || this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedReadCloud') {
+            this.config.viewAsPairs = true
+            this.config.viewAsSpans = false
+        }
     },
 
     renderClickMap() {
