@@ -100,6 +100,10 @@ var AlignmentColoring = {
     },
 
     colorByInsertDistance(feature, score, glyph, track) {
+        if (feature.get('seq_id') != feature.get('next_seq_id')) {
+            return 'orange'
+        }
+
         return 'hsl(' + Math.abs(score / 10) + ',50%,50%)';
     },
 
