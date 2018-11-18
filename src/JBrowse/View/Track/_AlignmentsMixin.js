@@ -31,9 +31,9 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
             className: 'detail feature-detail feature-detail-'+track.name.replace(/\s+/g,'_').toLowerCase(),
             innerHTML: ''
         });
-        var fmt = dojo.hitch( this, function( name, value, feature ) {
+        var fmt = dojo.hitch( this, function( name, value, feature, unsafe ) {
             name = Util.ucFirst( name.replace(/_/g,' ') );
-            return this.renderDetailField(container, name, value, feature);
+            return this.renderDetailField(container, name, value, feature, null, {}, unsafe);
         });
         fmt( 'Name', f.get('name'), f );
         fmt( 'Type', f.get('type'), f );
@@ -50,7 +50,7 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
 
 
         if( f.get('seq') ) {
-            fmt('Sequence and Quality', this._renderSeqQual( f ), f );
+            fmt('Sequence and Quality', this._renderSeqQual( f ), f, true );
         }
 
         var renameTags = { length_on_ref: 'seq_length_on_ref' };

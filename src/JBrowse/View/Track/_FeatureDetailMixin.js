@@ -97,7 +97,7 @@ return declare( FeatureDescriptionMixin, {
         var fmt = dojo.hitch( this, 'renderDetailField', coreDetails );
         coreDetails.innerHTML += '<h2 class="sectiontitle">Primary Data</h2>';
 
-        fmt( 'Name', this.getFeatureLabel( f ),f );
+        fmt( 'Name', this.getFeatureLabel( f ), f );
         fmt( 'Type', f.get('type'),f );
         fmt( 'Score', f.get('score'),f );
         fmt( 'Description', this.getFeatureDescription( f ),f );

@@ -11,8 +11,8 @@ function (Util) {
             this._id = args.id;
             this.data = this.dataFromVariant(this.variant);
         },
-        
-        get(field) { 
+
+        get(field) {
             return this._get(field) || this._get(field.toLowerCase())
         },
 
@@ -100,7 +100,7 @@ function (Util) {
                 start: start,
                 end: end,
                 seq_id: variant.CHROM,
-                description: Util.escapeHTML( description ),
+                description: description,
                 type: SO_term,
                 reference_allele: ref
             };
@@ -131,7 +131,7 @@ function (Util) {
                     meta: {
                         description: 'VCF ALT field, list of alternate non-reference alleles called on at least one of the samples'
                     },
-                    values: alt.map( Util.escapeHTML )
+                    values: alt
                 };
             }
 
@@ -253,7 +253,7 @@ function (Util) {
 
         _getSOAndDescByExamination: function (ref, alt) {
             if (ref.length == 1 && alt.length == 1) {
-                // use SNV because SO definition of SNP says abundance must be at 
+                // use SNV because SO definition of SNP says abundance must be at
                 // least 1% in population, and can't be sure we meet that
                 return [
                     'SNV',
