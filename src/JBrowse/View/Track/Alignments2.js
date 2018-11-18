@@ -231,7 +231,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             const e = 30
             const min = Math.max(0, region.start - len * e)
             const max = region.end + len * e
-            this.initialCachePromise = this.initialCachePromise || new Promise((resolve, reject) => {
+            var cachePromise = new Promise((resolve, reject) => {
                 this.store.getFeatures({
                     ref: this.refSeq.name,
                     start: min,
@@ -239,14 +239,14 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                     viewAsPairs: this.config.viewAsPairs,
                     viewAsSpans: this.config.viewAsSpans
                 }, () => { /* do nothing */}, () => {
-                    var stats = this.store.getInsertSizeStats()
-                    this.upperPercentile = stats.upper
-                    this.lowerPercentile = stats.lower
+                    this.stats = this.stats || this.store.getInsertSizeStats()
+                    this.upperPercentile = this.stats.upper
+                    this.lowerPercentile = this.stats.lower
 
                     resolve()
                 }, reject)
             })
-            this.initialCachePromise.then(() => {
+            cachePromise.then(() => {
                 args.finishCallback = () => {
                     finishCallback()
                     setTimeout(() => {
