@@ -4,7 +4,6 @@ const { IndexedCramFile, CraiIndex } = cjsRequire('@gmod/cram')
 const cramIndexedFilesCache = LRU(5)
 
 const BlobFilehandleWrapper = cjsRequire('../../Model/BlobFilehandleWrapper')
-const MAX_INSERT_SIZE_FOR_STATS = 30000
 
 class CramSlightlyLazyFeature {
 
