@@ -4,6 +4,7 @@ define( [
             'dijit/MenuItem',
             'JBrowse/Util',
             'JBrowse/View/Track/CanvasFeatures',
+            'JBrowse/View/Track/BlockBased',
             'JBrowse/View/Track/_AlignmentsMixin'
         ],
         function(
@@ -12,6 +13,7 @@ define( [
             MenuItem,
             Util,
             CanvasFeatureTrack,
+			BlockBased,
             AlignmentsMixin
         ) {
 
@@ -42,7 +44,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 viewAsPairs: false,
                 viewAsSpans: false,
                 showInterchromosomalArcs: true,
-                maxInsertSize: 200000,
+                maxInsertSize: 2000000,
 
                 histograms: {
                     description: 'coverage depth',
@@ -264,6 +266,15 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
         this.addFeatureFilter(feat => {
             return (this.config.viewAsPairs && feat.get('end') - feat.get('start') < this.config.maxInsertSize) || !this.config.viewAsPairs
         })
+    },
+
+    renderClickMap() {
+        if(this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedArc'
+        || this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedReadCloud') {
+            return
+        } else {
+            this.inherited(arguments)
+        }
     }
 });
 });

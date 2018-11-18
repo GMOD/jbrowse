@@ -2,7 +2,7 @@ define([
     'dojo/_base/declare',
     'dojo/_base/array',
     'dojo/_base/lang',
-    'JBrowse/View/FeatureGlyph/Box',
+    'JBrowse/View/FeatureGlyph/Alignment',
     'JBrowse/View/FeatureGlyph/AlignmentColoring'
 ],
 function(
@@ -18,11 +18,6 @@ function(
             return this._mergeConfigs(lang.clone(this.inherited(arguments)), {
                 style: {
                     color: AlignmentColoring.colorArcs,
-                    color_pair_lr: 'grey',
-                    color_pair_rr: 'navy',
-                    color_pair_rl: 'teal',
-                    color_pair_ll: 'green',
-                    color_nostrand: '#999999',
                     mouseovercolor: 'rgba(0,0,0,0)',
                     strandArrow: false,
                     orientationType: 'fr' // default illumina adapter sequence --> <--
@@ -50,7 +45,6 @@ function(
                     context.lineTo(r.drawTo, 1000)
                 } else {
                     context.arc(r.drawTo + r.r, 0, Math.abs(r.r), 0, Math.PI)
-
                 }
             }
             context.stroke();
