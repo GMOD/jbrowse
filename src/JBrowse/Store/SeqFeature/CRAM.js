@@ -294,6 +294,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         const pairCache = {};
         const seqName = query.ref || this.refSeq.name
         const refSeqNumber = this._refNameToId(seqName)
+        query.maxInsertSize = query.maxInsertSize || 50000
         if (refSeqNumber === undefined) {
             endCallback()
             return

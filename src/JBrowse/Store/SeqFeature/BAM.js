@@ -222,6 +222,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
         let seqName = query.ref || this.refSeq.name
         seqName = this.browser.regularizeReferenceName( seqName );
         const pairCache = {};
+        query.maxInsertSize = query.maxInsertSize||50000
 
         this.bam.getRecordsForRange(seqName, query.start, query.end, { viewAsPairs: query.viewAsPairs, viewAsSpans: query.viewAsSpans, maxInsertSize: query.maxInsertSize })
             .then(records => {
