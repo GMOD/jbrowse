@@ -87,6 +87,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             checked: this.config.glyph == 'JBrowse/View/FeatureGlyph/Alignment',
             onClick: function(event) {
                 thisB.config.glyph = 'JBrowse/View/FeatureGlyph/Alignment'
+                thisB.browser.cookie('track-' + thisB.name, JSON.stringify(thisB.config));
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
@@ -97,6 +98,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             checked: this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedAlignment',
             onClick: function(event) {
                 thisB.config.glyph = 'JBrowse/View/FeatureGlyph/PairedAlignment'
+                thisB.browser.cookie('track-' + thisB.name, JSON.stringify(thisB.config));
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
@@ -107,6 +109,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             checked: this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedArc',
             onClick: function(event) {
                 thisB.config.glyph = 'JBrowse/View/FeatureGlyph/PairedArc'
+                thisB.browser.cookie('track-' + thisB.name, JSON.stringify(thisB.config));
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
@@ -116,6 +119,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             checked: this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedReadCloud',
             onClick: function(event) {
                 thisB.config.glyph = 'JBrowse/View/FeatureGlyph/PairedReadCloud'
+                thisB.browser.cookie('track-' + thisB.name, JSON.stringify(thisB.config));
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
@@ -128,6 +132,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 thisB.config.type = 'JBrowse/View/Track/SNPCoverage'
                 thisB.config._oldAlignmentsHeight = thisB.config.style.height
                 thisB.config.style.height = thisB.config._oldSnpCoverageHeight
+                thisB.browser.cookie('track-' + thisB.name, JSON.stringify(thisB.config));
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
@@ -138,6 +143,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             checked: this.config.useXS,
             onClick: function(event) {
                 thisB.config.useXS = this.get('checked');
+                thisB.browser.cookie('track-' + thisB.name, JSON.stringify(thisB.config));
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
@@ -148,6 +154,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             checked: this.config.useTS,
             onClick: function(event) {
                 thisB.config.useTS = this.get('checked');
+                thisB.browser.cookie('track-' + thisB.name, JSON.stringify(thisB.config));
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
@@ -157,6 +164,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             checked: this.config.useReverseTemplate,
             onClick: function(event) {
                 thisB.config.useReverseTemplate = this.get('checked');
+                thisB.browser.cookie('track-' + thisB.name, JSON.stringify(thisB.config));
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
@@ -166,6 +174,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             checked: this.config.colorByOrientation,
             onClick: function(event) {
                 thisB.config.colorByOrientation = this.get('checked');
+                thisB.browser.cookie('track-' + thisB.name, JSON.stringify(thisB.config));
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
@@ -175,6 +184,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             checked: this.config.showInterchromosomalArcs,
             onClick: function(event) {
                 thisB.config.showInterchromosomalArcs = this.get('checked');
+                thisB.browser.cookie('track-' + thisB.name, JSON.stringify(thisB.config));
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
@@ -255,10 +265,10 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
     },
 
     constructor() {
-        if(this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedArc') {
+        if (this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedArc') {
             this.config.viewAsSpans = true
             this.config.viewAsPairs = false
-        } else if(this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedAlignment'
+        } else if (this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedAlignment'
             || this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedReadCloud') {
             this.config.viewAsPairs = true
             this.config.viewAsSpans = false
@@ -266,7 +276,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
     },
 
     renderClickMap() {
-        if(this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedArc'
+        if (this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedArc'
         || this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedReadCloud') {
             return
         } else {

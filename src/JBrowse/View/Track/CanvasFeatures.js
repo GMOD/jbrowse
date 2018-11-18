@@ -106,7 +106,9 @@ return declare(
         //setup displayMode style cookie
         var cookie = this.browser.cookie("track-" + this.name);
         if (cookie) {
-            this.displayMode = cookie;
+            cookie = JSON.parse(cookie)
+            cookie.type = undefined
+            Object.assign(this.config, cookie)
         }
 
         this._setupEventHandlers();
@@ -988,7 +990,7 @@ return declare(
                     thisB.makeTrackMenu();
 
                     // set cookie for displayMode
-                    thisB.browser.cookie('track-' + thisB.name, thisB.displayMode);
+                    thisB.browser.cookie('track-' + thisB.name, JSON.stringify(thisB.config));
                 }
             };
         });
@@ -1009,13 +1011,15 @@ return declare(
                     title: "Make features take up more or less space",
                     children: this.displayModeMenuItems
                 },
-                { label: 'Show labels',
-                  type: 'dijit/CheckedMenuItem',
-                  checked: !!( 'showLabels' in this ? this.showLabels : this.config.style.showLabels ),
-                  onClick: function(event) {
-                      thisB.showLabels = this.checked;
-                      thisB.changed();
-                  }
+                {
+                    label: 'Show labels',
+                    type: 'dijit/CheckedMenuItem',
+                    checked: !!( 'showLabels' in this ? this.showLabels : this.config.style.showLabels ),
+                    onClick: function(event) {
+                        thisB.showLabels = this.checked;
+                        thisB.browser.cookie('track-' + thisB.name, JSON.stringify(thisB.config));
+                        thisB.changed();
+                    }
                 }
             ]
         );

@@ -3014,19 +3014,20 @@ _limitLocMap: function( locMap, maxEntries ) {
 cookie: function(keyWithoutId,value) {
     keyWithoutId = this.config.containerID + '-' + keyWithoutId;
     var keyWithId = keyWithoutId +  '-' + (this.config.dataset_id || '');
-    if( typeof value == 'object' )
+    if (typeof value == 'object')
         value = dojo.toJson( value );
 
-    var sizeLimit = this.config.cookieSizeLimit || 1200;
-    if( value!=null && value.length > sizeLimit ) {
+    var sizeLimit = this.config.cookieSizeLimit || 5000;
+    if (value != null && value.length > sizeLimit) {
         console.warn("not setting cookie '"+keyWithId+"', value too big ("+value.length+" > "+sizeLimit+")");
         return localStorage.getItem( keyWithId );
     }
-    else if( value!=null ) {
+    else if (value != null) {
         try {
             return localStorage.setItem(keyWithId, value);
         }
         catch(e) {
+            console.warn('caught error localstorage', e)
         }
     }
 
