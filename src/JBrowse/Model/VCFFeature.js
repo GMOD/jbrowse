@@ -62,15 +62,18 @@ function (Util) {
                 Object.keys(variant.SAMPLES).forEach(sample => {
                     this.data.genotypes[sample] = {}
                     Object.keys(variant.SAMPLES[sample]).forEach(field => {
-                        const { Description, Number, Type } = this.parser.getMetadata('FORMAT', field);
                         this.data.genotypes[sample][field] = {
                             meta: {
-                                Description: [Description],
                                 id: [field],
-                                Number: Number,
-                                Type: Type
                             },
                             values: variant.SAMPLES[sample][field]
+                        }
+                        const metadata = this.parser.getMetadata('FORMAT', field);
+                        if (metadata) {
+                            const { Description, Number, Type } = metadata
+                            this.data.genotypes[sample][field].meta.Description = Description
+                            this.data.genotypes[sample][field].meta.Number = Number
+                            this.data.genotypes[sample][field].meta.Type = Type
                         }
                     })
                 })
