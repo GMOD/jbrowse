@@ -127,7 +127,7 @@ which looks like this when run
 </div>
 <script type="text/javascript" src="../code/latest-release/dist/main.bundle.js" charset="utf-8"></script>
 
-The biggest gotcha with this embedding method is that the relative path from the page where you embed JBrowse to the JBrowse `*.bundle.js` files must be `dist/` if you want to use a "stock" build of JBrowse. A simple way to accomplish that might be to configure a symlink in your site directory, for example by running `ln -s  ./path/to/jbrowse/dist dist`, or by creating some kind of path alias in your web server configuration.
+The biggest gotcha with this embedding method is that the relative path from the page where you embed JBrowse to the JBrowse `*.bundle.js` files must be `dist/` if you want to use a "stock" build of JBrowse. A simple way to accomplish that might be to configure a symlink in your site directory, for example by running `ln -s  ./path/to/jbrowse/dist/ .`, or by creating some kind of path alias in your web server configuration.
 
 For JBrowse 1.15.5 or higher, the other option is to clone JBrowse from GitHub and run `setup.sh` with a nonstandard `JBROWSE_PUBLIC_PATH` environment variable set, which will configure JBrowse to serve its bundles from a different path. For example, if you had this site layout:
 
