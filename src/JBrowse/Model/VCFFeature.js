@@ -71,7 +71,7 @@ function (Util) {
                         const metadata = this.parser.getMetadata('FORMAT', field);
                         if (metadata) {
                             const { Description, Number, Type } = metadata
-                            this.data.genotypes[sample][field].meta.Description = Description
+                            this.data.genotypes[sample][field].meta.Description = [Description]
                             this.data.genotypes[sample][field].meta.Number = Number
                             this.data.genotypes[sample][field].meta.Type = Type
                         }
