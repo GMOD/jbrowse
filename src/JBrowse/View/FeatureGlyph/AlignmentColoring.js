@@ -80,13 +80,16 @@ var AlignmentColoring = {
     },
 
     colorByOrientation(feature, score, glyph, track)  {
-        if (feature.get('seq_id') != feature.get('next_seq_id')) {
-            return 'orange'
-        } else if (track.upperPercentile < Math.abs(feature.get('template_length'))) {
-            return 'red'
-        } else if (track.lowerPercentile > Math.abs(feature.get('template_length'))) {
-            return 'pink'
+        if (feature.get('is_paired')) {
+            if(feature.get('seq_id') != feature.get('next_seq_id')) {
+                return 'orange'
+            } else if (track.upperPercentile < Math.abs(feature.get('template_length'))) {
+                return 'red'
+            } else if (track.lowerPercentile > Math.abs(feature.get('template_length'))) {
+                return 'pink'
+            }
         }
+
         const type = Util.orientationTypes[track.config.orientationType]
         const orientation = type[feature.get('pair_orientation')]
         const map = {
@@ -100,7 +103,7 @@ var AlignmentColoring = {
     },
 
     colorByInsertDistance(feature, score, glyph, track) {
-        if (feature.get('seq_id') != feature.get('next_seq_id')) {
+        if (feature.get('is_paired') && feature.get('seq_id') != feature.get('next_seq_id')) {
             return 'orange'
         }
 

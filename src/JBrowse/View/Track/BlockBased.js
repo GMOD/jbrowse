@@ -958,7 +958,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
                   new TrackConfigEditor( that.config )
                       .show( function( result ) {
                           // replace this track's configuration
-                          that.browser.cookie('track-' + that.name, JSON.stringify(result.config));
+                          that.browser.cookie('track-' + that.name, JSON.stringify(result.conf));
                           that.browser.publish( '/jbrowse/v1/v/tracks/replace', [result.conf] );
                       });
               }

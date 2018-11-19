@@ -27,6 +27,7 @@ class BamSlightlyLazyFeature {
     _get_pair_orientation() { return this.record.getPairOrientation()}
     _get_unmapped() { return this.record.isSegmentUnmapped()}
     _get_next_seq_id() { return this.record.isPaired() ? this._store._refIdToName(this.record._next_refid()) : undefined }
+    _get_is_paired() { return this.record.isPaired() }
     _get_next_pos() { return this.record.isPaired() ? this.record._next_pos() : undefined }
     _get_next_segment_position() { return this.record.isPaired()
         ? ( this._store._refIdToName(this.record._next_refid())+':'+(this.record._next_pos()+1)) : undefined}

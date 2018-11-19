@@ -32,6 +32,7 @@ class CramSlightlyLazyFeature {
     _get_multi_segment_first() { return this.record.isRead1()}
     _get_multi_segment_last() { return this.record.isRead2()}
     _get_multi_segment_next_segment_reversed() { return this.record.isMateReverseComplemented()}
+    _get_is_paired() { return !!this.record.mate }
     _get_unmapped() { return this.record.isSegmentUnmapped()}
     _get_template_length() { return this.record.templateLength || this.record.templateSize}
     _get_next_seq_id() { return this.record.mate ? this._store._refIdToName(this.record.mate.sequenceId) : undefined }
