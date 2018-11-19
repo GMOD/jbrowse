@@ -103,13 +103,6 @@ return declare(
         this.showTooltips = this.config.style.showTooltips;
         this.displayMode = this.config.displayMode;
 
-        //setup config cookie
-        var cookie = this.browser.cookie("track-" + this.name);
-        if (cookie) {
-            cookie = JSON.parse(cookie)
-            delete cookie.type
-            Object.assign(this.config, cookie)
-        }
 
         this._setupEventHandlers();
     },

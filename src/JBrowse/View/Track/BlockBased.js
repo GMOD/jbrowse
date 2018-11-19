@@ -76,8 +76,17 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
     constructor: function( args ) {
         args = args || {};
 
+        //setup config cookie
+
+
         this.refSeq = args.refSeq;
         this.name = args.label || this.config.label;
+        var cookie = this.browser.cookie("track-" + this.name);
+        if (cookie) {
+            cookie = JSON.parse(cookie)
+            delete cookie.type
+            Object.assign(this.config, cookie)
+        }
         this.key = args.key || this.config.key || this.name;
 
         this._changedCallback = args.changeCallback || function(){};
@@ -89,6 +98,8 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         this.setFeatureFilterParentComponent( this.browser.view );
 
         this.store = args.store;
+
+
 
         // retrieve any user-set style info
         lang.mixin( this.config.style, this.getUserStyles() );
@@ -947,6 +958,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
                   new TrackConfigEditor( that.config )
                       .show( function( result ) {
                           // replace this track's configuration
+                          that.browser.cookie('track-' + that.name, JSON.stringify(result.config));
                           that.browser.publish( '/jbrowse/v1/v/tracks/replace', [result.conf] );
                       });
               }
