@@ -219,6 +219,13 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                         return ! ( f.get('multi_segment_template') && f.get('multi_segment_next_segment_unmapped') );
                     }
                 },
+                hideIncorrectAlignments: {
+                    desc: 'Hide reads that are not correctly aligned',
+                    func: function( f ) {
+                        return ! ( f.get('multi_segment_template') && ! f.get('multi_segment_all_aligned') );
+                    }
+                },
+
                 hideUnmapped: {
                     desc: 'Hide unmapped reads',
                     func: function( f ) {
@@ -256,6 +263,7 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                                'hideDuplicateReads',
                                'hideQCFailingReads',
                                'hideMissingMatepairs',
+                               'hideIncorrectAlignments',
                                'hideSecondary',
                                'hideSupplementary',
                                'hideUnmapped',

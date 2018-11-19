@@ -49,6 +49,7 @@ return declare( [WiggleXY, AlignmentsMixin],
                 hideSecondary: true,
                 hideSupplementary: true,
                 hideMissingMatepairs: false,
+                hideIncorrectAlignments: false,
                 hideUnmapped: true
             }
         );

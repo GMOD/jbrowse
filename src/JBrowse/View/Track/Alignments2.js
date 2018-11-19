@@ -35,6 +35,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 hideUnmapped: true,
                 hideUnsplicedReads: false,
                 hideMissingMatepairs: false,
+                hideIncorrectAlignments: false,
                 hideForwardStrand: false,
                 hideReverseStrand: false,
                 useXS: false,
