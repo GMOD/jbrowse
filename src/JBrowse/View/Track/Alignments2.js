@@ -37,6 +37,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 hideReverseStrand: false,
                 useXS: false,
                 useTS: false,
+                defaultColor: true,
                 useReverseTemplate: false,
                 useReverseTemplateOption: true,
                 viewAsPairs: false,
@@ -135,10 +136,22 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
         });
 
         c.children.push({
+            label: 'Color by aligned strand',
+            type: 'dijit/RadioMenuItem',
+            checked: !!this.config.defaultColor,
+            onClick: function(event) {
+                Object.assign(thisB.config, {defaultColor: false, useXS: false, useReverseTemplate: false, colorByOrientation: false, colorBySize: false, colorByOrientationAndSize: false})
+                thisB.config.defaultColor = this.get('checked');
+                thisB.browser.cookie('track-' + thisB.name, JSON.stringify(thisB.config));
+                thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
+            }
+        });
+        c.children.push({
             label: 'Color by XS tag (RNA-seq orientation)',
             type: 'dijit/RadioMenuItem',
             checked: !!this.config.useXS,
             onClick: function(event) {
+                Object.assign(thisB.config, {defaultColor: false, useXS: false, useReverseTemplate: false, colorByOrientation: false, colorBySize: false, colorByOrientationAndSize: false})
                 thisB.config.useXS = this.get('checked');
                 thisB.browser.cookie('track-' + thisB.name, JSON.stringify(thisB.config));
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
@@ -150,6 +163,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             type: 'dijit/RadioMenuItem',
             checked: !!this.config.useTS,
             onClick: function(event) {
+                Object.assign(thisB.config, {defaultColor: false, useXS: false, useReverseTemplate: false, colorByOrientation: false, colorBySize: false, colorByOrientationAndSize: false})
                 thisB.config.useTS = this.get('checked');
                 thisB.browser.cookie('track-' + thisB.name, JSON.stringify(thisB.config));
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
@@ -160,16 +174,18 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             type: 'dijit/RadioMenuItem',
             checked: !!this.config.useReverseTemplate,
             onClick: function(event) {
+                Object.assign(thisB.config, {defaultColor: false, useXS: false, useReverseTemplate: false, colorByOrientation: false, colorBySize: false, colorByOrientationAndSize: false})
                 thisB.config.useReverseTemplate = this.get('checked');
                 thisB.browser.cookie('track-' + thisB.name, JSON.stringify(thisB.config));
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
         c.children.push({
-            label: 'Color by pair orientation',
+            label: 'Color by orientation',
             type: 'dijit/RadioMenuItem',
             checked: !!this.config.colorByOrientation,
             onClick: function(event) {
+                Object.assign(thisB.config, {defaultColor: false, useXS: false, useReverseTemplate: false, colorByOrientation: false, colorBySize: false, colorByOrientationAndSize: false})
                 thisB.config.colorByOrientation = this.get('checked');
                 thisB.browser.cookie('track-' + thisB.name, JSON.stringify(thisB.config));
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
@@ -180,16 +196,18 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             type: 'dijit/RadioMenuItem',
             checked: !!this.config.colorBySize,
             onClick: function(event) {
+                Object.assign(thisB.config, {defaultColor: false, useXS: false, useReverseTemplate: false, colorByOrientation: false, colorBySize: false, colorByOrientationAndSize: false})
                 thisB.config.colorBySize = this.get('checked');
                 thisB.browser.cookie('track-' + thisB.name, JSON.stringify(thisB.config));
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
         c.children.push({
-            label: 'Color by pair orientation and insert size',
+            label: 'Color by orientation and insert size',
             type: 'dijit/RadioMenuItem',
             checked: !!this.config.colorByOrientationAndSize,
             onClick: function(event) {
+                Object.assign(thisB.config, {defaultColor: false, useXS: false, useReverseTemplate: false, colorByOrientation: false, colorBySize: false, colorByOrientationAndSize: false})
                 thisB.config.colorByOrientationAndSize = this.get('checked');
                 thisB.browser.cookie('track-' + thisB.name, JSON.stringify(thisB.config));
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
