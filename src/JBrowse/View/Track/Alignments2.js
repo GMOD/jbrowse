@@ -4,7 +4,6 @@ define( [
             'dijit/MenuItem',
             'JBrowse/Util',
             'JBrowse/View/Track/CanvasFeatures',
-            'JBrowse/View/Track/BlockBased',
             'JBrowse/View/Track/_AlignmentsMixin'
         ],
         function(
@@ -13,7 +12,6 @@ define( [
             MenuItem,
             Util,
             CanvasFeatureTrack,
-			BlockBased,
             AlignmentsMixin
         ) {
 
@@ -25,7 +23,6 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 glyph: 'JBrowse/View/FeatureGlyph/Alignment',
                 maxFeatureGlyphExpansion: 0,
                 maxFeatureScreenDensity: 15,
-                colorByOrientation: false,
                 orientationType: 'fr',
 
                 hideDuplicateReads: true,
@@ -44,7 +41,6 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 useReverseTemplateOption: true,
                 viewAsPairs: false,
                 viewAsSpans: false,
-                showInterchromosomalArcs: true,
                 maxInsertSize: 50000,
 
                 histograms: {
@@ -140,8 +136,8 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
 
         c.children.push({
             label: 'Color by XS tag (RNA-seq orientation)',
-            type: 'dijit/CheckedMenuItem',
-            checked: this.config.useXS,
+            type: 'dijit/RadioMenuItem',
+            checked: !!this.config.useXS,
             onClick: function(event) {
                 thisB.config.useXS = this.get('checked');
                 thisB.browser.cookie('track-' + thisB.name, JSON.stringify(thisB.config));
@@ -151,8 +147,8 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
 
         c.children.push({
             label: 'Color by TS tag (RNA-seq orientation)',
-            type: 'dijit/CheckedMenuItem',
-            checked: this.config.useTS,
+            type: 'dijit/RadioMenuItem',
+            checked: !!this.config.useTS,
             onClick: function(event) {
                 thisB.config.useTS = this.get('checked');
                 thisB.browser.cookie('track-' + thisB.name, JSON.stringify(thisB.config));
@@ -161,8 +157,8 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
         });
         c.children.push({
             label: 'Color mate pair as flipped (RNA-seq orientation)',
-            type: 'dijit/CheckedMenuItem',
-            checked: this.config.useReverseTemplate,
+            type: 'dijit/RadioMenuItem',
+            checked: !!this.config.useReverseTemplate,
             onClick: function(event) {
                 thisB.config.useReverseTemplate = this.get('checked');
                 thisB.browser.cookie('track-' + thisB.name, JSON.stringify(thisB.config));
@@ -170,9 +166,9 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             }
         });
         c.children.push({
-            label: 'Color by pair orientation and insert size',
-            type: 'dijit/CheckedMenuItem',
-            checked: this.config.colorByOrientation,
+            label: 'Color by pair orientation',
+            type: 'dijit/RadioMenuItem',
+            checked: !!this.config.colorByOrientation,
             onClick: function(event) {
                 thisB.config.colorByOrientation = this.get('checked');
                 thisB.browser.cookie('track-' + thisB.name, JSON.stringify(thisB.config));
@@ -180,9 +176,29 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             }
         });
         c.children.push({
+            label: 'Color by insert size',
+            type: 'dijit/RadioMenuItem',
+            checked: !!this.config.colorBySize,
+            onClick: function(event) {
+                thisB.config.colorBySize = this.get('checked');
+                thisB.browser.cookie('track-' + thisB.name, JSON.stringify(thisB.config));
+                thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
+            }
+        });
+        c.children.push({
+            label: 'Color by pair orientation and insert size',
+            type: 'dijit/RadioMenuItem',
+            checked: !!this.config.colorByOrientationAndSize,
+            onClick: function(event) {
+                thisB.config.colorByOrientationAndSize = this.get('checked');
+                thisB.browser.cookie('track-' + thisB.name, JSON.stringify(thisB.config));
+                thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
+            }
+        });
+        c.children.push({
             label: 'Show interchromosomal',
             type: 'dijit/CheckedMenuItem',
-            checked: this.config.showInterchromosomalArcs,
+            checked: !!this.config.showInterchromosomalArcs,
             onClick: function(event) {
                 thisB.config.showInterchromosomalArcs = this.get('checked');
                 thisB.browser.cookie('track-' + thisB.name, JSON.stringify(thisB.config));

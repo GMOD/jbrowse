@@ -46,6 +46,9 @@ return declare( [BoxGlyph,MismatchesMixin], {
                     color_pair_rl: 'teal',
                     color_pair_ll: 'green',
                     color_nostrand: '#999999',
+                    color_interchrom: 'orange',
+                    color_longinsert: 'red',
+                    color_shortinsert: 'pink',
                     border_color: null,
 
                     strandArrow: false,

@@ -3,36 +3,21 @@ define( [
 ],
 function(Util) {
 
-var AlignmentColoring = {
+var c = {
     colorAlignment(feature, score, glyph, track) {
         var strand = feature.get('strand');
         if (Math.abs(strand) != 1 && strand != '+' && strand != '-') {
             return track.colorForBase('reference');
-        }
-        else if (track.config.colorByOrientation) {
-            return AlignmentColoring.colorByOrientation(feature, score, glyph, track)
-        }
-        else if (track.config.useXS) {
-            var xs = feature.get('xs')
-            var strand = {
-                '-': 'color_rev_strand',
-                '+': 'color_fwd_strand'
-            };
-            if (!strand[xs]) {
-                strand = 'color_nostrand';
-            }
-            return glyph.getStyle(feature, strand[xs]);
-        }
-        else if (track.config.useTS) {
-            var ts = feature.get('ts')
-            var strand = {
-                '-': 'color_rev_strand',
-                '+': 'color_fwd_strand'
-            };
-            if (!strand[ts]) {
-                strand = 'color_nostrand';
-            }
-            return glyph.getStyle(feature, strand[ts]);
+        } else if (track.config.colorByOrientationAndSize) {
+            return c.colorByOrientationAndSize.apply(null, arguments)
+        } else if (track.config.colorByOrientation) {
+            return c.colorByOrientation.apply(null, arguments)
+        } else if (track.config.colorBySize) {
+            return c.colorByInsertSizePercentile.apply(null, arguments)
+        } else if (track.config.useXS) {
+            return c.colorByStrand(feature, feature.get('xs'), glyph, track)
+        } else if (track.config.useTS) {
+            return c.colorByStrand(feature, feature.get('ts'), glyph, track)
         }
         else if (feature.get('multi_segment_template')) {
             var revflag = feature.get('multi_segment_first');
@@ -80,16 +65,6 @@ var AlignmentColoring = {
     },
 
     colorByOrientation(feature, score, glyph, track)  {
-        if (feature.get('is_paired')) {
-            if(feature.get('seq_id') != feature.get('next_seq_id')) {
-                return 'orange'
-            } else if (track.upperPercentile < Math.abs(feature.get('template_length'))) {
-                return 'red'
-            } else if (track.lowerPercentile > Math.abs(feature.get('template_length'))) {
-                return 'pink'
-            }
-        }
-
         const type = Util.orientationTypes[track.config.orientationType]
         const orientation = type[feature.get('pair_orientation')]
         const map = {
@@ -97,36 +72,72 @@ var AlignmentColoring = {
             'RR': 'color_pair_rr',
             'RL': 'color_pair_rl',
             'LL': 'color_pair_ll'
-        };
-        return glyph.getStyle(feature, map[orientation] || 'color_nostrand');
+        }
+        return glyph.getStyle(feature, map[orientation] || 'color_nostrand')
 
+    },
+
+    colorByOrientationAndSize(feature, score, glyph, track)  {
+        const p = c.getInsertDistancePercentile.apply(null, arguments)
+        if(!p) {
+            return c.colorByOrientation.apply(null, arguments)
+        }
+        return p
+    },
+    getInsertDistancePercentile(feature, score, glyph, track) {
+        if (feature.get('is_paired')) {
+            const len = Math.abs(feature.get('template_length'))
+            if(feature.get('seq_id') != feature.get('next_seq_id')) {
+                return glyph.getStyle(feature, 'color_interchrom')
+            } else if (track.upperPercentile < len) {
+                return glyph.getStyle(feature, 'color_longinsert')
+            } else if (track.lowerPercentile > len) {
+                return glyph.getStyle(feature, 'color_shortinsert')
+            }
+        }
+        return null
+    },
+    colorByInsertDistancePercentile(feature, score, glyph, track) {
+        return c.getInsertDistancePercentile.apply(null, arguments) || glyph.getStyle(feature, 'color_nostrand')
     },
 
     colorByInsertDistance(feature, score, glyph, track) {
         if (feature.get('is_paired') && feature.get('seq_id') != feature.get('next_seq_id')) {
-            return 'orange'
+            return glyph.getStyle(feature, 'color_interchrom')
         }
 
         return 'hsl(' + Math.abs(score / 10) + ',50%,50%)';
     },
 
     colorArcs(feature, score, glyph, track) {
-        if (track.config.colorByOrientation) {
-            return AlignmentColoring.colorByOrientation(feature, score, glyph, track)
+        if (track.config.colorByOrientationAndSize) {
+            return c.colorByOrientationAndSize.apply(null, arguments)
+        } else if (track.config.colorBySizePercentile) {
+            return c.colorByInsertDistancePercentile.apply(null, arguments)
+        } else if (track.config.colorByOrientation) {
+            return c.colorByOrientation.apply(null, arguments)
         } else {
-            return AlignmentColoring.colorByInsertDistance(feature, score, glyph, track)
+            return c.colorByInsertDistance.apply(null, arguments)
         }
     },
 
     colorConnector(feature, score, glyph, track) {
         if (track.config.colorByOrientation) {
-            return AlignmentColoring.colorByOrientation(feature, score, glyph, track)
+            return c.colorByOrientation(feature, score, glyph, track)
         } else {
             return 'black'
         }
+    },
+
+    colorByStrand(feature, strand, glyph, track) {
+        var map = {
+            '-': 'color_rev_strand',
+            '+': 'color_fwd_strand'
+        };
+        return glyph.getStyle(feature, map[strand] || 'color_nostrand');
     }
 };
 
-return AlignmentColoring;
+return c;
 
 });
