@@ -96,7 +96,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             checked: this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedAlignment',
             onClick: function(event) {
                 thisB.config.glyph = 'JBrowse/View/FeatureGlyph/PairedAlignment'
-                thisB.browser.cookie('track-' + thisB.name, JSON.stringify(thisB.config));
+                thisB.browser.saveConfig(thisB.config, thisB.name);
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
@@ -107,7 +107,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             checked: this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedArc',
             onClick: function(event) {
                 thisB.config.glyph = 'JBrowse/View/FeatureGlyph/PairedArc'
-                thisB.browser.cookie('track-' + thisB.name, JSON.stringify(thisB.config));
+                thisB.browser.saveConfig(thisB.config, thisB.name);
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
@@ -117,7 +117,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             checked: this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedReadCloud',
             onClick: function(event) {
                 thisB.config.glyph = 'JBrowse/View/FeatureGlyph/PairedReadCloud'
-                thisB.browser.cookie('track-' + thisB.name, JSON.stringify(thisB.config));
+                thisB.browser.saveConfig(thisB.config, thisB.name);
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
@@ -130,7 +130,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 thisB.config.type = 'JBrowse/View/Track/SNPCoverage'
                 thisB.config._oldAlignmentsHeight = thisB.config.style.height
                 thisB.config.style.height = thisB.config._oldSnpCoverageHeight
-                thisB.browser.cookie('track-' + thisB.name, JSON.stringify(thisB.config));
+                thisB.browser.saveConfig(thisB.config, thisB.name);
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
@@ -142,7 +142,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             onClick: function(event) {
                 Object.assign(thisB.config, {defaultColor: false, useXS: false, useReverseTemplate: false, colorByOrientation: false, colorBySize: false, colorByOrientationAndSize: false})
                 thisB.config.defaultColor = this.get('checked');
-                thisB.browser.cookie('track-' + thisB.name, JSON.stringify(thisB.config));
+                thisB.browser.saveConfig(thisB.config, thisB.name);
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
@@ -153,7 +153,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             onClick: function(event) {
                 Object.assign(thisB.config, {defaultColor: false, useXS: false, useReverseTemplate: false, colorByOrientation: false, colorBySize: false, colorByOrientationAndSize: false})
                 thisB.config.useXS = this.get('checked');
-                thisB.browser.cookie('track-' + thisB.name, JSON.stringify(thisB.config));
+                thisB.browser.saveConfig(thisB.config, thisB.name);
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
@@ -165,7 +165,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             onClick: function(event) {
                 Object.assign(thisB.config, {defaultColor: false, useXS: false, useReverseTemplate: false, colorByOrientation: false, colorBySize: false, colorByOrientationAndSize: false})
                 thisB.config.useTS = this.get('checked');
-                thisB.browser.cookie('track-' + thisB.name, JSON.stringify(thisB.config));
+                thisB.browser.saveConfig(thisB.config, thisB.name);
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
@@ -176,7 +176,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             onClick: function(event) {
                 Object.assign(thisB.config, {defaultColor: false, useXS: false, useReverseTemplate: false, colorByOrientation: false, colorBySize: false, colorByOrientationAndSize: false})
                 thisB.config.useReverseTemplate = this.get('checked');
-                thisB.browser.cookie('track-' + thisB.name, JSON.stringify(thisB.config));
+                thisB.browser.saveConfig(thisB.config, thisB.name);
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
@@ -187,7 +187,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             onClick: function(event) {
                 Object.assign(thisB.config, {defaultColor: false, useXS: false, useReverseTemplate: false, colorByOrientation: false, colorBySize: false, colorByOrientationAndSize: false})
                 thisB.config.colorByOrientation = this.get('checked');
-                thisB.browser.cookie('track-' + thisB.name, JSON.stringify(thisB.config));
+                thisB.browser.saveConfig(thisB.config, thisB.name);
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
@@ -198,7 +198,8 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             onClick: function(event) {
                 Object.assign(thisB.config, {defaultColor: false, useXS: false, useReverseTemplate: false, colorByOrientation: false, colorBySize: false, colorByOrientationAndSize: false})
                 thisB.config.colorBySize = this.get('checked');
-                thisB.browser.cookie('track-' + thisB.name, JSON.stringify(thisB.config));
+                console.log('here',thisB.config)
+                thisB.browser.saveConfig(thisB.config, thisB.name);
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
@@ -209,7 +210,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             onClick: function(event) {
                 Object.assign(thisB.config, {defaultColor: false, useXS: false, useReverseTemplate: false, colorByOrientation: false, colorBySize: false, colorByOrientationAndSize: false})
                 thisB.config.colorByOrientationAndSize = this.get('checked');
-                thisB.browser.cookie('track-' + thisB.name, JSON.stringify(thisB.config));
+                thisB.browser.saveConfig(thisB.config, thisB.name);
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
@@ -219,7 +220,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             checked: !!this.config.showInterchromosomalArcs,
             onClick: function(event) {
                 thisB.config.showInterchromosomalArcs = this.get('checked');
-                thisB.browser.cookie('track-' + thisB.name, JSON.stringify(thisB.config));
+                thisB.browser.saveConfig(thisB.config, thisB.name);
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });

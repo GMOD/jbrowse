@@ -80,13 +80,13 @@ var c = {
     },
 
     colorByOrientationAndSize(feature, score, glyph, track)  {
-        const p = c.getInsertDistancePercentile.apply(null, arguments)
+        const p = c.getInsertSizePercentile.apply(null, arguments)
         if(!p) {
             return c.colorByOrientation.apply(null, arguments)
         }
         return p
     },
-    getInsertDistancePercentile(feature, score, glyph, track) {
+    getInsertSizePercentile(feature, score, glyph, track) {
         if (feature.get('is_paired')) {
             const len = Math.abs(feature.get('template_length'))
             if(feature.get('seq_id') != feature.get('next_seq_id')) {
@@ -99,11 +99,11 @@ var c = {
         }
         return null
     },
-    colorByInsertDistancePercentile(feature, score, glyph, track) {
-        return c.getInsertDistancePercentile.apply(null, arguments) || glyph.getStyle(feature, 'color_nostrand')
+    colorByInsertSizePercentile(feature, score, glyph, track) {
+        return c.getInsertSizePercentile.apply(null, arguments) || glyph.getStyle(feature, 'color_nostrand')
     },
 
-    colorByInsertDistance(feature, score, glyph, track) {
+    colorByInsertSize(feature, score, glyph, track) {
         if (feature.get('is_paired') && feature.get('seq_id') != feature.get('next_seq_id')) {
             return glyph.getStyle(feature, 'color_interchrom')
         }
@@ -115,11 +115,11 @@ var c = {
         if (track.config.colorByOrientationAndSize) {
             return c.colorByOrientationAndSize.apply(null, arguments)
         } else if (track.config.colorBySizePercentile) {
-            return c.colorByInsertDistancePercentile.apply(null, arguments)
+            return c.colorByInsertSizePercentile.apply(null, arguments)
         } else if (track.config.colorByOrientation) {
             return c.colorByOrientation.apply(null, arguments)
         } else {
-            return c.colorByInsertDistance.apply(null, arguments)
+            return c.colorByInsertSize.apply(null, arguments)
         }
     },
 

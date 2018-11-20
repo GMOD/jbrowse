@@ -3424,6 +3424,14 @@ teardown: function() {
     while (this.container && this.container.firstChild) {
         this.container.removeChild(this.container.firstChild);
     }
+},
+
+saveConfig(name, config) {
+    const c = Object.assign({}, config)
+    delete c.store
+    delete c.menuTemplate
+    delete c.events
+    this.cookie('track-' + name, JSON.stringify(c));
 }
 
 });
