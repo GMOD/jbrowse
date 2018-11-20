@@ -85,6 +85,8 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         if (cookie) {
             cookie = JSON.parse(cookie)
             delete cookie.type
+            delete cookie.events
+            delete cookie.menuTemplate
             Object.assign(this.config, cookie)
         }
         this.key = args.key || this.config.key || this.name;
