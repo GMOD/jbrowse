@@ -59,11 +59,11 @@ var webpackConf = {
         rules: [
             {
                 test: /\.js$/,
-                exclude: /node_modules/,
                 use: {
                   loader: 'babel-loader',
                   options: {
                     presets: ['es2015-without-strict'],
+                    plugins: ['transform-async-to-generator','transform-es2015-classes', 'transform-es5-property-mutators'],
                     cacheDirectory: true
                   }
                 }
