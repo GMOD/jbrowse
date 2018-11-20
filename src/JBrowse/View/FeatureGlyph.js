@@ -69,12 +69,10 @@ return declare( Component, {
     },
 
     mouseoverFeature: function( context, fRect ) {
-        var feature = fRect.f;
         this.renderFeature( context, fRect );
 
         // highlight the feature rectangle if we're moused over
         context.fillStyle = this.getStyle( fRect.f, 'mouseovercolor' );
-
         context.fillRect( fRect.rect.l, fRect.t, fRect.rect.w, fRect.rect.h );
     },
 
