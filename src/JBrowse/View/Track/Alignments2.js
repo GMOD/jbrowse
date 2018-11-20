@@ -37,7 +37,6 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 hideReverseStrand: false,
                 useXS: false,
                 useTS: false,
-                defaultColor: true,
                 useReverseTemplate: false,
                 useReverseTemplateOption: true,
                 viewAsPairs: false,
@@ -312,6 +311,18 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
         } else {
             this.config.viewAsPairs = false
             this.config.viewAsSpans = false
+        }
+
+        // determine if alternate color scheme in use, otherwise make default
+        var elts = ['defaultColor', 'useXS', 'useReverseTemplate', 'colorByOrientation', 'colorBySize', 'colorByOrientationAndSize']
+        var none = true
+        for(var i = 0; i < elts.length; i++) {
+            if(this.config[elts[i]]) {
+                none = false
+            }
+        }
+        if(none) {
+            this.config.defaultColor = true
         }
     },
 
