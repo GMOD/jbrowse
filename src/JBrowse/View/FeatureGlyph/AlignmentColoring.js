@@ -15,9 +15,9 @@ var c = {
         } else if (track.config.colorBySize) {
             return c.colorByInsertSizePercentile.apply(null, arguments)
         } else if (track.config.useXS) {
-            return c.colorByStrand(feature, feature.get('xs'), glyph, track)
+            return c.colorByXS(feature, feature.get('xs'), glyph, track)
         } else if (track.config.useTS) {
-            return c.colorByStrand(feature, feature.get('ts'), glyph, track)
+            return c.colorByTS(feature, feature.get('ts'), glyph, track)
         } else if (track.config.defaultColor) {
             if(feature.get('multi_segment_template')) {
                 var revflag = feature.get('multi_segment_first');
@@ -131,11 +131,20 @@ var c = {
         }
     },
 
-    colorByStrand(feature, strand, glyph, track) {
+    colorByXS(feature, strand, glyph, track) {
         const map = {
             '-': 'color_rev_strand',
             '+': 'color_fwd_strand'
         };
+        return glyph.getStyle(feature, map[strand] || 'color_nostrand');
+    },
+
+    // TS is flipped from XS
+    colorByTS(feature, strand, glyph, track) {
+        const map = {
+            '-': feature.get('strand') === -1 ? 'color_fwd_strand' : 'color_rev_strand',
+            '+': feature.get('strand') === -1 ? 'color_rev_strand' : 'color_fwd_strand'
+        }
         return glyph.getStyle(feature, map[strand] || 'color_nostrand');
     }
 };
