@@ -59,11 +59,12 @@ var webpackConf = {
         rules: [
             {
                 test: /\.js$/,
+                exclude: /node_modules\/(?!(quick-lru|@gmod\/cram|@gmod\/bam|@gmod\/indexedfasta|@gmod\/tabix|@gmod\/tribble-index|@gmod\/binary-parser|http-range-fetcher|@gmod\/bgzf-filehandle))/,
                 use: {
                   loader: 'babel-loader',
                   options: {
                     presets: ['es2015-without-strict'],
-                    plugins: ['transform-async-to-generator','transform-es2015-classes', 'transform-es5-property-mutators'],
+                    plugins: ['transform-async-to-generator','transform-es2015-classes'],
                     cacheDirectory: true
                   }
                 }

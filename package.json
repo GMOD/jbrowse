@@ -94,6 +94,6 @@
     "util-deprecate": "^1.0.2",
     "webpack": "^3.10.0",
     "whatwg-fetch": "^2.0.4",
-    "yarn": "^1.10.1"
+    "yarn": "^1.12.3"
   }
 }

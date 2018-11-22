@@ -12,17 +12,6 @@
     <meta name="msapplication-TileColor" content="#2d89ef">
     <meta name="theme-color" content="#ffffff">
 
-    <script type="text/javascript">
-        window.onerror=function(msg){
-            alert('wtf')
-            if( document.body )
-                document.body.setAttribute("JSError",msg);
-        }
-        if(window.process&&process.versions&&process.versions.electron) {
-            window.electronRequire = require;
-            delete window.require;
-        }
-    </script>
     <style>
         html, body, div.jbrowse {
             margin: 0;
@@ -31,6 +20,40 @@
             width: 100%;
         }
     </style>
+    <script>
+console.log('here1')
+if (typeof Object.assign != 'function') {
+console.log('here5')
+  // Must be writable: true, enumerable: false, configurable: true
+  Object.defineProperty(Object, "assign", {
+    value: function assign(target, varArgs) { // .length of function is 2
+      'use strict';
+      if (target == null) { // TypeError if undefined or null
+        throw new TypeError('Cannot convert undefined or null to object');
+      }
+
+      var to = Object(target);
+
+      for (var index = 1; index < arguments.length; index++) {
+        var nextSource = arguments[index];
+
+        if (nextSource != null) { // Skip over if undefined or null
+          for (var nextKey in nextSource) {
+            // Avoid bugs when hasOwnProperty is shadowed
+            if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
+              to[nextKey] = nextSource[nextKey];
+            }
+          }
+        }
+      }
+      return to;
+    },
+    writable: true,
+    configurable: true
+  });
+}
+console.log('here32')
+    </script>
     <script type="text/javascript" src="dist/main.bundle.js" charset="utf-8"></script>
   </head>
 
