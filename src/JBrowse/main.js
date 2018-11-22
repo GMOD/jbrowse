@@ -1,4 +1,3 @@
-console.log('gdasgdag')
 import 'babel-polyfill'
 
 require([
@@ -32,7 +31,6 @@ function (
     // or you could put the entire
     // dynamically-generated JBrowse config here.
 
-    console.log('wtfffff')
     // parse the query vars in the page URL
     var queryParams = ioQuery.queryToObject( window.location.search.slice(1) );
 
