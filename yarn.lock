@@ -4066,13 +4066,13 @@ http-errors@~1.6.2:
     setprototypeof "1.1.0"
     statuses ">= 1.4.0 < 2"
 
-http-range-fetcher@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/http-range-fetcher/-/http-range-fetcher-1.1.0.tgz#71d49ddb4f3afdc3091fc7ba3ea7227886a4156e"
-  integrity sha512-GsRt+bzlmHEybGVvB+WPMhJtput8avSwgv8fCs3L0U6tvjoz49KrLSz9hhDCEFRJ4WYLMIira72al5ilOwX4wg==
+http-range-fetcher@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/http-range-fetcher/-/http-range-fetcher-1.1.1.tgz#a0ad70eb11f3d5d7fe03fe107fc95f46ae416873"
+  integrity sha512-uJGAQ6vYsjJVVpWAgv6v/sj34OKDlWqoDAy1KxjDcONvnzhhfij+KtJqhwGkaRgv5PCLR4objzib2HRbNufwJw==
   dependencies:
     cross-fetch "^2.2.2"
-    lru-cache "^4.1.3"
+    quick-lru "^2.0.0"
 
 http-signature@~1.2.0:
   version "1.2.0"
@@ -5070,7 +5070,7 @@ lowercase-keys@^1.0.0:
   resolved "https://registry.yarnpkg.com/lowercase-keys/-/lowercase-keys-1.0.1.tgz#6f9e30b47084d971a7c820ff15a6c5167b74c26f"
   integrity sha512-G2Lj61tXDnVFFOi8VZds+SoQjtQC3dgokKdDG2mTm1tx4m50NUHBOZSBwQQHyy0V12A0JTG4icfZQH+xPyh8VA==
 
-lru-cache@^4.0.1, lru-cache@^4.1.1, lru-cache@^4.1.3:
+lru-cache@^4.0.1, lru-cache@^4.1.1:
   version "4.1.3"
   resolved "https://registry.yarnpkg.com/lru-cache/-/lru-cache-4.1.3.tgz#a1175cf3496dfc8436c156c334b4955992bce69c"
   integrity sha512-fFEhvcgzuIoJVUF8fYr5KR0YqxD238zgObTps31YdADwPPAp82a4M8TrckkWyx7ekNlf9aBcVn81cFwwXngrJA==
