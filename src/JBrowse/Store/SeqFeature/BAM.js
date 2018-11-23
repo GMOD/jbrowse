@@ -1,9 +1,9 @@
-const LRU = cjsRequire('lru-cache')
+const LRU = cjsRequire('quick-lru')
 const { BamFile } = cjsRequire('@gmod/bam')
 
 const { Buffer } = cjsRequire('buffer')
 
-const bamIndexedFilesCache = LRU(5)
+const bamIndexedFilesCache = new LRU({ maxSize: 5 })
 
 const BlobFilehandleWrapper = cjsRequire('../../Model/BlobFilehandleWrapper')
 
