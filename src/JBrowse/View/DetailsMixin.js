@@ -208,7 +208,7 @@ return declare( null, {
             }
         }
 
-        domConstruct.create('div', { className: 'value '+class_, innerHTML: unsafe ? val : Util.escapeHTML(val) }, parent );
+        domConstruct.create('div', { className: 'value '+class_, innerHTML: unsafe || this.config.unsafePopup ? val : Util.escapeHTML(val) }, parent );
         return 1;
     },
 
