@@ -4066,10 +4066,10 @@ http-errors@~1.6.2:
     setprototypeof "1.1.0"
     statuses ">= 1.4.0 < 2"
 
-http-range-fetcher@^1.1.1:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/http-range-fetcher/-/http-range-fetcher-1.1.1.tgz#a0ad70eb11f3d5d7fe03fe107fc95f46ae416873"
-  integrity sha512-uJGAQ6vYsjJVVpWAgv6v/sj34OKDlWqoDAy1KxjDcONvnzhhfij+KtJqhwGkaRgv5PCLR4objzib2HRbNufwJw==
+http-range-fetcher@^1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/http-range-fetcher/-/http-range-fetcher-1.1.2.tgz#b6d3f7173fc751ebd270ff545421172c4d2d15c4"
+  integrity sha512-Bg+VD/cd1JNCkoPNsUK6BugbeDlF8e5/S7UZLHWB0qO4T6ksFPS9ZrNENtyc8OGh+2bN2rMh9fF4ol+L5i2eIA==
   dependencies:
     cross-fetch "^2.2.2"
     quick-lru "^2.0.0"
