@@ -266,30 +266,15 @@ describe('VCF store', function() {
           expect(features[0].get('genotypes')).toEqual({
             'sample_data/raw/volvox/volvox-sorted.bam': {
             GT: {
-                meta: {
-                Description: ['Genotype'],
-                id: ['GT'],
-                Number: 1,
-                Type: 'String',
-                },
+
                 values: ['0/1'],
             },
             PL: {
-                meta: {
-                Description: ['List of Phred-scaled genotype likelihoods'],
-                id: ['PL'],
-                Number: 'G',
-                Type: 'Integer',
-                },
+
                 values: [55, 0, 73],
             },
             GQ: {
-                meta: {
-                Description: ['Genotype Quality'],
-                id: ['GQ'],
-                Number: 1,
-                Type: 'Integer',
-                },
+
                 values: [58],
             },
             },
