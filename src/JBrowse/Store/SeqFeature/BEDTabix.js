@@ -70,6 +70,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
             store: this
         });
 
+
         this.getHeader()
             .then( function( header ) {
                 thisB._deferred.features.resolve({success:true});

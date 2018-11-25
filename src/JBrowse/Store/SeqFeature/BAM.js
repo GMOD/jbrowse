@@ -155,7 +155,6 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
                 this._deferred.stats.reject(err)
             })
 
-        this.storeTimeout = args.storeTimeout || 3000;
         this.insertSizeCache = new InsertSizeCache(args);
         this.pairCache = new PairCache(args);
         this.spanCache = new SpanCache(args);

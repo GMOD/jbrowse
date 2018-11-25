@@ -83,7 +83,6 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
                    lang.hitch( thisB, '_failAllDeferred' )
                  );
 
-        this.storeTimeout = args.storeTimeout || 3000;
     },
 
     getParser() {

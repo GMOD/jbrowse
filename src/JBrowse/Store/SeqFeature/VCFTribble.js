@@ -56,7 +56,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
             chunkSizeLimit: args.chunkSizeLimit || 2000000,
             renameRefSeqs: n => this.browser.regularizeReferenceName(n)
         });
-        
+
         this.getParser()
             .then( function( parser ) {
                        thisB._deferred.features.resolve({success:true});
@@ -71,10 +71,9 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                             },
                    lang.hitch( thisB, '_failAllDeferred' )
                  );
-                 
-                 this.storeTimeout = args.storeTimeout || 3000;
+
     },
-    
+
     getParser() {
         if (!this._parser) {
             this._parser = this.indexedData.getHeader()
