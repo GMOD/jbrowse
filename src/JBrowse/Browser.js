@@ -1976,7 +1976,7 @@ _calculateClientStats: function() {
 
 publish: function() {
     if( this.config.logMessages )
-        console.log( arguments );
+        console.log( arguments )
 
     return topic.publish.apply( topic, arguments );
 },
@@ -2197,6 +2197,7 @@ _replaceTrackConfigs: function( /**Array*/ newConfigs ) {
 
         this.trackConfigsByName[conf.label] =
                            dojo.mixin( this.trackConfigsByName[ conf.label ] || {}, conf );
+        this.saveConfig(conf);
    },this);
 },
 /**
@@ -3426,12 +3427,12 @@ teardown: function() {
     }
 },
 
-saveConfig(name, config) {
+saveConfig(config) {
     const c = Object.assign({}, config)
     delete c.store
     delete c.menuTemplate
     delete c.events
-    this.cookie('track-' + name, JSON.stringify(c));
+    this.cookie('track-' + config.label + '-config', JSON.stringify(c));
 }
 
 });

@@ -81,7 +81,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
 
         this.refSeq = args.refSeq;
         this.name = args.label || this.config.label;
-        var cookie = this.browser.cookie("track-" + this.name);
+        var cookie = this.browser.cookie("track-" + this.name + '-config');
         if (cookie) {
             cookie = JSON.parse(cookie)
             Object.assign(this.config, cookie)
@@ -957,7 +957,6 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
                   new TrackConfigEditor( that.config )
                       .show( function( result ) {
                           // replace this track's configuration
-                          that.browser.saveConfig(result.conf, that.name);
                           that.browser.publish( '/jbrowse/v1/v/tracks/replace', [result.conf] );
                       });
               }

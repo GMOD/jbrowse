@@ -84,7 +84,6 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             checked: this.config.glyph == 'JBrowse/View/FeatureGlyph/Alignment',
             onClick: function(event) {
                 thisB.config.glyph = 'JBrowse/View/FeatureGlyph/Alignment'
-                thisB.browser.cookie('track-' + thisB.name, JSON.stringify(thisB.config));
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
@@ -95,7 +94,6 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             checked: this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedAlignment',
             onClick: function(event) {
                 thisB.config.glyph = 'JBrowse/View/FeatureGlyph/PairedAlignment'
-                thisB.browser.saveConfig(thisB.config, thisB.name);
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
@@ -106,7 +104,6 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             checked: this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedArc',
             onClick: function(event) {
                 thisB.config.glyph = 'JBrowse/View/FeatureGlyph/PairedArc'
-                thisB.browser.saveConfig(thisB.config, thisB.name);
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
@@ -116,7 +113,6 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             checked: this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedReadCloud',
             onClick: function(event) {
                 thisB.config.glyph = 'JBrowse/View/FeatureGlyph/PairedReadCloud'
-                thisB.browser.saveConfig(thisB.config, thisB.name);
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
@@ -129,7 +125,6 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 thisB.config.type = 'JBrowse/View/Track/SNPCoverage'
                 thisB.config._oldAlignmentsHeight = thisB.config.style.height
                 thisB.config.style.height = thisB.config._oldSnpCoverageHeight
-                thisB.browser.saveConfig(thisB.config, thisB.name);
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
@@ -141,7 +136,6 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             onClick: function(event) {
                 thisB.clearColorConfig()
                 thisB.config.defaultColor = this.get('checked');
-                thisB.browser.saveConfig(thisB.config, thisB.name);
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
@@ -152,7 +146,6 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             onClick: function(event) {
                 thisB.clearColorConfig()
                 thisB.config.useXS = this.get('checked');
-                thisB.browser.saveConfig(thisB.config, thisB.name);
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
@@ -164,7 +157,6 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             onClick: function(event) {
                 thisB.clearColorConfig()
                 thisB.config.useTS = this.get('checked');
-                thisB.browser.saveConfig(thisB.config, thisB.name);
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
@@ -175,7 +167,6 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             onClick: function(event) {
                 thisB.clearColorConfig()
                 thisB.config.useReverseTemplate = this.get('checked');
-                thisB.browser.saveConfig(thisB.config, thisB.name);
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
@@ -187,7 +178,6 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             onClick: function(event) {
                 thisB.clearColorConfig()
                 thisB.config.colorByMAPQ = this.get('checked');
-                thisB.browser.saveConfig(thisB.config, thisB.name);
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
@@ -198,7 +188,6 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             onClick: function(event) {
                 thisB.clearColorConfig()
                 thisB.config.colorByOrientation = this.get('checked');
-                thisB.browser.saveConfig(thisB.config, thisB.name);
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
@@ -209,7 +198,6 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             onClick: function(event) {
                 thisB.clearColorConfig()
                 thisB.config.colorBySize = this.get('checked');
-                thisB.browser.saveConfig(thisB.config, thisB.name);
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
@@ -220,7 +208,6 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             onClick: function(event) {
                 thisB.clearColorConfig()
                 thisB.config.colorByOrientationAndSize = this.get('checked');
-                thisB.browser.saveConfig(thisB.config, thisB.name);
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
@@ -230,7 +217,6 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             checked: !!this.config.showInterchromosomalArcs,
             onClick: function(event) {
                 thisB.config.showInterchromosomalArcs = this.get('checked');
-                thisB.browser.saveConfig(thisB.config, thisB.name);
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
@@ -345,6 +331,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
         if(none) {
             this.config.defaultColor = true
         }
+
     },
 
     renderClickMap() {
