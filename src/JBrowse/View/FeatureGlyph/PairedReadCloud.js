@@ -26,13 +26,13 @@ layoutFeature(viewArgs, layout, feature) {
         let k
         if(this.track.config.readCloudLogScale) {
             // max is set to upper percentile because it can handle things above this value
-            k = Math.log(tlen + 1) / Math.log(this.track.insertSizeStats.upper + 1)
+            k = Math.log(tlen + 1) / Math.log(this.track.insertSizeStats.max + 1)
         } else {
             // max set to literal max or a configurable insertSizeMax
-            k = tlen / (this.track.config.insertSizeMax || this.track.insertSizeStats.max)
+            k = tlen / (this.track.config.insertSizeMax || this.track.insertSizeStats.upper)
         }
         k *= this.track.config.maxHeight
-        k /= 2
+        k /= 3
 
         // use compact view for additional linear compression
         if(this.track.config.displayMode === 'compact') {

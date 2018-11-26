@@ -163,10 +163,10 @@
   dependencies:
     long "^4.0.0"
 
-"@gmod/cram@^1.4.2":
-  version "1.4.2"
-  resolved "https://registry.yarnpkg.com/@gmod/cram/-/cram-1.4.2.tgz#e5a8e6cda8ac9995521462a9531d8cccb355ff7b"
-  integrity sha512-UoLPx8cD6uQVC0Y0Lj6FBl7NPrykbHpaSpmNlMbDEdUOhPVg9vZa9NDJs4ONFj+GreKk/7LrWH7EQU5s/VjAtQ==
+"@gmod/cram@^1.4.3":
+  version "1.4.3"
+  resolved "https://registry.yarnpkg.com/@gmod/cram/-/cram-1.4.3.tgz#92f9932bfd1edd1d74d21e6b8e514ea6dbe68f92"
+  integrity sha512-OtzghLZAgP7L64FgGOi1ThNNI6utReRMw7aKfuy4Z5ehHitxqNbrKqXYFTwFwVwU2XTBbaA1YIlV19ut3ZFtoA==
   dependencies:
     "@gmod/binary-parser" "^1.3.2"
     babel-runtime "^6.26.0"

@@ -41,7 +41,7 @@
   },
   "devDependencies": {
     "@gmod/bam": "^1.0.12",
-    "@gmod/cram": "^1.4.2",
+    "@gmod/cram": "^1.4.3",
     "@gmod/gff": "^1.1.1",
     "@gmod/indexedfasta": "^1.0.10",
     "@gmod/tabix": "^1.1.3",
