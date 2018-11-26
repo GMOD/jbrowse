@@ -977,14 +977,8 @@ return declare(
                 title: "Render this track in " + displayMode + " mode",
                 checked: thisB.displayMode == displayMode,
                 onClick: function() {
-                    thisB.displayMode = displayMode;
-                    thisB._clearLayout();
-                    thisB.hideAll();
-                    thisB.genomeView.showVisibleBlocks(true);
-                    thisB.makeTrackMenu();
-
-                    // set cookie for displayMode
-                    thisB.browser.cookie('track-' + thisB.name, JSON.stringify(thisB.config));
+                    thisB.config.displayMode = displayMode;
+                    thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
                 }
             };
         });

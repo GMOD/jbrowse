@@ -274,7 +274,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
         }
 
         if(this.config.viewAsPairs || this.config.viewAsSpans
-            || (this.config.colorByOrientationAndSize || this.config.colorBySize && !this.stats)) {
+            || (this.config.colorByOrientationAndSize || this.config.colorBySize && !this.insertSizeStats)) {
             let supermethod = this.getInherited(arguments)
             const len = args.rightBase - args.leftBase
             const region = {
@@ -297,9 +297,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                     viewAsSpans: this.config.viewAsSpans,
                     maxInsertSize: this.config.maxInsertSize
                 }, () => { /* do nothing */}, () => {
-                    this.stats = this.stats || this.store.getInsertSizeStats()
-                    this.upperPercentile = this.stats.upper
-                    this.lowerPercentile = this.stats.lower
+                    this.insertSizeStats = this.insertSizeStats || this.store.getInsertSizeStats()
 
                     resolve()
                 }, reject)

@@ -30,21 +30,20 @@ return declare(null, {
     getInsertSizeStats() {
         const len = Object.keys(this.featureCache).length
         if(len > this.insertStatsCacheMin) {
-            var tlens = Object.entries(this.featureCache)
-                .map(([k, v]) => Math.abs(v))
-                .filter(tlen => tlen < this.insertMaxSize && tlen > this.insertMinSize)
-                .sort((a, b) => a - b)
-            var sum = tlens.reduce((a, b) => a + b, 0)
-            var sum2 = tlens.map(a => a * a).reduce((a, b) => a + b, 0)
-            var total = tlens.length
-            var avg = sum / total
-            var sd = Math.sqrt((total * sum2 - sum*sum) / (total * total))
-            return {
-                upper: avg + 3 * sd,
-                lower: avg - 3 * sd
-            }
+            const insertSizes = Object.values(this.featureCache).map(v => Math.abs(v))
+            const max = Math.max(...insertSizes)
+            const min = Math.min(...insertSizes)
+            const filteredInsertSizes = insertSizes.filter(tlen => tlen < this.insertMaxSize && tlen > this.insertMinSize)
+            const sum = filteredInsertSizes.reduce((a, b) => a + b, 0)
+            const sum2 = filteredInsertSizes.map(a => a * a).reduce((a, b) => a + b, 0)
+            const total = filteredInsertSizes.length
+            const avg = sum / total
+            const sd = Math.sqrt((total * sum2 - sum * sum) / (total * total))
+            const upper = avg + 3 * sd
+            const lower = avg - 3 * sd
+            return { min, max, upper, lower }
         }
-        return { upper: Infinity, lower: 0 }
+        return { upper: Infinity, lower: 0, min: 0, max: Infinity }
     }
 });
 });

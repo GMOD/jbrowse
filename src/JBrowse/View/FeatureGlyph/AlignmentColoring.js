@@ -97,9 +97,9 @@ var c = {
             const len = Math.abs(feature.get('template_length'))
             if(feature.get('seq_id') != feature.get('next_seq_id')) {
                 return 'color_interchrom'
-            } else if (track.upperPercentile < len) {
+            } else if (track.insertSizeStats.upper < len) {
                 return 'color_longinsert'
-            } else if (track.lowerPercentile > len) {
+            } else if (track.insertSizeStats.lower > len) {
                 return 'color_shortinsert'
             }
         }
