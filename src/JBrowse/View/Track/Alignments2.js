@@ -135,7 +135,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
         });
 
         c.children.push({
-            label: 'Color by aligned strand',
+            label: 'Color by default',
             type: 'dijit/RadioMenuItem',
             checked: !!this.config.defaultColor,
             onClick: function(event) {
