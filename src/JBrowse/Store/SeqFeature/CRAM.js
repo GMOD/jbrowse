@@ -7,11 +7,13 @@ const BlobFilehandleWrapper = cjsRequire('../../Model/BlobFilehandleWrapper')
 
 class CramSlightlyLazyFeature {
 
+    _get_id() { return this.id() }
     _get_name() { return this.record.readName }
     _get_start() { return this.record.alignmentStart-1 }
     _get_end() { return this.record.alignmentStart+this.record.lengthOnRef-1 }
     _get_cram_read_features() { return this.record.readFeatures }
     _get_type() { return 'match'}
+    _get_score() { return this.record.mappingQuality }
     _get_mapping_quality() { return this.record.mappingQuality}
     _get_flags() { return `0x${this.record.flags.toString(16)}`}
     _get_cramFlags() { return `0x${this.record.cramFlags.toString(16)}`}

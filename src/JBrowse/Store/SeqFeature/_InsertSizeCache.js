@@ -12,7 +12,7 @@ return declare(null, {
         this.featureCache = {}
         this.insertStatsCacheMin = args.insertStatsCacheMin || 400
         this.insertMaxSize = args.insertMaxSize || 50000
-        this.insertMinSize = args.insertMinSize || 200
+        this.insertMinSize = args.insertMinSize || 100
     },
 
     cleanFeatureCache(query) {
@@ -24,7 +24,7 @@ return declare(null, {
     },
 
     insertFeat(feat) {
-        this.featureCache[feat.get('name')] = Math.abs(feat.get('template_length'))
+        this.featureCache[feat.get('id')] = Math.abs(feat.get('template_length'))
     },
 
     getInsertSizeStats() {
@@ -35,7 +35,7 @@ return declare(null, {
                 .filter(tlen => tlen < this.insertMaxSize && tlen > this.insertMinSize)
                 .sort((a, b) => a - b)
             var sum = tlens.reduce((a, b) => a + b, 0)
-            var sum2 = tlens.map(a => a*a).reduce((a, b) => a + b, 0)
+            var sum2 = tlens.map(a => a * a).reduce((a, b) => a + b, 0)
             var total = tlens.length
             var avg = sum / total
             var sd = Math.sqrt((total * sum2 - sum*sum) / (total * total))

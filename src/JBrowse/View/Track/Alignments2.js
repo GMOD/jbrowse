@@ -59,7 +59,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
     _trackType: function() {
     },
 
-    _trackMenuOptions: function() {
+    _trackMenuOptions() {
         var thisB = this;
         var displayOptions = [];
 
@@ -139,7 +139,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             type: 'dijit/RadioMenuItem',
             checked: !!this.config.defaultColor,
             onClick: function(event) {
-                Object.assign(thisB.config, {defaultColor: false, useXS: false, useReverseTemplate: false, colorByOrientation: false, colorBySize: false, colorByOrientationAndSize: false})
+                thisB.clearColorConfig()
                 thisB.config.defaultColor = this.get('checked');
                 thisB.browser.saveConfig(thisB.config, thisB.name);
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
@@ -150,7 +150,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             type: 'dijit/RadioMenuItem',
             checked: !!this.config.useXS,
             onClick: function(event) {
-                Object.assign(thisB.config, {defaultColor: false, useXS: false, useReverseTemplate: false, colorByOrientation: false, colorBySize: false, colorByOrientationAndSize: false})
+                thisB.clearColorConfig()
                 thisB.config.useXS = this.get('checked');
                 thisB.browser.saveConfig(thisB.config, thisB.name);
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
@@ -162,7 +162,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             type: 'dijit/RadioMenuItem',
             checked: !!this.config.useTS,
             onClick: function(event) {
-                Object.assign(thisB.config, {defaultColor: false, useXS: false, useReverseTemplate: false, colorByOrientation: false, colorBySize: false, colorByOrientationAndSize: false})
+                thisB.clearColorConfig()
                 thisB.config.useTS = this.get('checked');
                 thisB.browser.saveConfig(thisB.config, thisB.name);
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
@@ -173,8 +173,20 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             type: 'dijit/RadioMenuItem',
             checked: !!this.config.useReverseTemplate,
             onClick: function(event) {
-                Object.assign(thisB.config, {defaultColor: false, useXS: false, useReverseTemplate: false, colorByOrientation: false, colorBySize: false, colorByOrientationAndSize: false})
+                thisB.clearColorConfig()
                 thisB.config.useReverseTemplate = this.get('checked');
+                thisB.browser.saveConfig(thisB.config, thisB.name);
+                thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
+            }
+        });
+
+        c.children.push({
+            label: 'Color by mapping quality',
+            type: 'dijit/RadioMenuItem',
+            checked: !!this.config.colorByMAPQ,
+            onClick: function(event) {
+                thisB.clearColorConfig()
+                thisB.config.colorByMAPQ = this.get('checked');
                 thisB.browser.saveConfig(thisB.config, thisB.name);
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
@@ -184,7 +196,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             type: 'dijit/RadioMenuItem',
             checked: !!this.config.colorByOrientation,
             onClick: function(event) {
-                Object.assign(thisB.config, {defaultColor: false, useXS: false, useReverseTemplate: false, colorByOrientation: false, colorBySize: false, colorByOrientationAndSize: false})
+                thisB.clearColorConfig()
                 thisB.config.colorByOrientation = this.get('checked');
                 thisB.browser.saveConfig(thisB.config, thisB.name);
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
@@ -195,9 +207,8 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             type: 'dijit/RadioMenuItem',
             checked: !!this.config.colorBySize,
             onClick: function(event) {
-                Object.assign(thisB.config, {defaultColor: false, useXS: false, useReverseTemplate: false, colorByOrientation: false, colorBySize: false, colorByOrientationAndSize: false})
+                thisB.clearColorConfig()
                 thisB.config.colorBySize = this.get('checked');
-                console.log('here',thisB.config)
                 thisB.browser.saveConfig(thisB.config, thisB.name);
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
@@ -207,7 +218,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             type: 'dijit/RadioMenuItem',
             checked: !!this.config.colorByOrientationAndSize,
             onClick: function(event) {
-                Object.assign(thisB.config, {defaultColor: false, useXS: false, useReverseTemplate: false, colorByOrientation: false, colorBySize: false, colorByOrientationAndSize: false})
+                thisB.clearColorConfig()
                 thisB.config.colorByOrientationAndSize = this.get('checked');
                 thisB.browser.saveConfig(thisB.config, thisB.name);
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
@@ -230,9 +241,21 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                        return o.concat.apply( o, options );
                    });
     },
+    clearColorConfig() {
+        Object.assign(this.config, {
+            defaultColor: false,
+            useTS: false,
+            useXS: false,
+            useReverseTemplate: false,
+            colorByMAPQ: false,
+            colorByOrientation: false,
+            colorBySize: false,
+            colorByOrientationAndSize: false
+        })
+    },
 
     // override getLayout to access addRect method
-    _getLayout: function() {
+    _getLayout() {
         var layout = this.inherited(arguments);
         if(this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedReadCloud' ||
             this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedArc') {
@@ -246,7 +269,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
         return layout;
     },
 
-    fillFeatures: function( args ) {
+    fillFeatures( args ) {
         const finishCallback = args.finishCallback
         const errorCallback = e => {
             console.error(e)
@@ -254,18 +277,16 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             finishCallback(e)
         }
 
-        if(this.config.viewAsPairs || this.config.viewAsSpans || this.config.colorByOrientation) {
+        if(this.config.viewAsPairs || this.config.viewAsSpans || this.config.colorByOrientationAndSize || this.config.colorBySize) {
             let supermethod = this.getInherited(arguments)
-            const len = Math.max(args.rightBase - args.leftBase, 4000)
             const region = {
                 ref: this.refSeq.name,
                 start: Math.max(0, args.leftBase),
                 end: args.rightBase,
                 viewAsPairs: true
             }
-            const e = 20
-            const min = Math.max(0, region.start - Math.min(len * e, 100000))
-            const max = region.end + Math.min(len * e, 100000)
+            const min = Math.max(0, region.start - this.config.maxInsertSize)
+            const max = region.end + this.config.maxInsertSize
             var cachePromise = new Promise((resolve, reject) => {
                 this.store.getFeatures({
                     ref: this.refSeq.name,
@@ -314,7 +335,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
         }
 
         // determine if alternate color scheme in use, otherwise make default
-        var elts = ['defaultColor', 'useXS', 'useReverseTemplate', 'colorByOrientation', 'colorBySize', 'colorByOrientationAndSize']
+        var elts = ['defaultColor', 'useXS', 'useTS', 'useReverseTemplate', 'colorByOrientation', 'colorBySize', 'colorByOrientationAndSize', 'colorByMAPQ']
         var none = true
         for(var i = 0; i < elts.length; i++) {
             if(this.config[elts[i]]) {

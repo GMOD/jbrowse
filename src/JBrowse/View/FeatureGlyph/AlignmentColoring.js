@@ -15,9 +15,11 @@ var c = {
         } else if (track.config.colorBySize) {
             return c.colorByInsertSizePercentile.apply(null, arguments)
         } else if (track.config.useXS) {
-            return c.colorByXS(feature, feature.get('xs'), glyph, track)
+            return c.colorByXS.apply(null, arguments)
         } else if (track.config.useTS) {
-            return c.colorByTS(feature, feature.get('ts'), glyph, track)
+            return c.colorByTS.apply(null, arguments)
+        } else if (track.config.colorByMAPQ) {
+            return c.colorByMAPQ.apply(null, arguments)
         } else if (track.config.defaultColor) {
             if(feature.get('multi_segment_template')) {
                 var revflag = feature.get('multi_segment_first');
@@ -66,7 +68,7 @@ var c = {
         else return glyph.getStyle( feature, 'color_nostrand' )
     },
 
-    colorByOrientation(feature, score, glyph, track)  {
+    getOrientation(feature, score, glyph, track)  {
         const type = Util.orientationTypes[track.config.orientationType]
         const orientation = type[feature.get('pair_orientation')]
         const map = {
@@ -75,8 +77,12 @@ var c = {
             'RL': 'color_pair_rl',
             'LL': 'color_pair_ll'
         }
-        return glyph.getStyle(feature, map[orientation] || 'color_nostrand')
+        return map[orientation]
+    },
 
+    colorByOrientation(feature, score, glyph, track)  {
+        const p = c.getOrientation.apply(null, arguments)
+        return glyph.getStyle(feature, p || 'color_nostrand')
     },
 
     colorByOrientationAndSize(feature, score, glyph, track)  {
@@ -84,37 +90,38 @@ var c = {
         if(!p) {
             return c.colorByOrientation.apply(null, arguments)
         }
-        return p
+        return glyph.getStyle(feature, p)
     },
     getInsertSizePercentile(feature, score, glyph, track) {
         if (feature.get('is_paired')) {
             const len = Math.abs(feature.get('template_length'))
             if(feature.get('seq_id') != feature.get('next_seq_id')) {
-                return glyph.getStyle(feature, 'color_interchrom')
+                return 'color_interchrom'
             } else if (track.upperPercentile < len) {
-                return glyph.getStyle(feature, 'color_longinsert')
+                return 'color_longinsert'
             } else if (track.lowerPercentile > len) {
-                return glyph.getStyle(feature, 'color_shortinsert')
+                return 'color_shortinsert'
             }
         }
         return null
     },
     colorByInsertSizePercentile(feature, score, glyph, track) {
-        return c.getInsertSizePercentile.apply(null, arguments) || glyph.getStyle(feature, 'color_nostrand')
+        const p = c.getInsertSizePercentile.apply(null, arguments)
+        return glyph.getStyle(feature, p || 'color_nostrand')
     },
 
     colorByInsertSize(feature, score, glyph, track) {
         if (feature.get('is_paired') && feature.get('seq_id') != feature.get('next_seq_id')) {
             return glyph.getStyle(feature, 'color_interchrom')
         }
-
-        return 'hsl(' + Math.abs(score / 10) + ',50%,50%)';
+        const s = Math.abs(score/10)
+        return `hsl(${s},50%,50%)`;
     },
 
     colorArcs(feature, score, glyph, track) {
         if (track.config.colorByOrientationAndSize) {
             return c.colorByOrientationAndSize.apply(null, arguments)
-        } else if (track.config.colorBySizePercentile) {
+        } else if (track.config.colorBySize) {
             return c.colorByInsertSizePercentile.apply(null, arguments)
         } else if (track.config.colorByOrientation) {
             return c.colorByOrientation.apply(null, arguments)
@@ -131,21 +138,27 @@ var c = {
         }
     },
 
-    colorByXS(feature, strand, glyph, track) {
+    colorByXS(feature, score, glyph, track) {
         const map = {
             '-': 'color_rev_strand',
             '+': 'color_fwd_strand'
         };
-        return glyph.getStyle(feature, map[strand] || 'color_nostrand');
+        return glyph.getStyle(feature, map[feature.get('xs')] || 'color_nostrand');
     },
 
     // TS is flipped from XS
-    colorByTS(feature, strand, glyph, track) {
+    colorByTS(feature, score, glyph, track) {
         const map = {
             '-': feature.get('strand') === -1 ? 'color_fwd_strand' : 'color_rev_strand',
             '+': feature.get('strand') === -1 ? 'color_rev_strand' : 'color_fwd_strand'
         }
-        return glyph.getStyle(feature, map[strand] || 'color_nostrand');
+        return glyph.getStyle(feature, map[feature.get('ts')] || 'color_nostrand');
+    },
+
+    // assumes score cap at 60, which is used by bwa-mem and other tools. some cap at 37
+    colorByMAPQ(feature, score, glyph, track) {
+        const c = Math.min(feature.get('score') * 4, 200)
+        return `rgb(${c},${c},${c})`;
     }
 };
 

@@ -6,6 +6,7 @@ const bamIndexedFilesCache = LRU(5)
 const BlobFilehandleWrapper = cjsRequire('../../Model/BlobFilehandleWrapper')
 
 class BamSlightlyLazyFeature {
+    _get_id() { return this.record.get('id')}
     _get_type() { return 'match'}
     _get_score() { return this.record._get('mq')}
     _get_mapping_quality() { return this.record.mappingQuality}
