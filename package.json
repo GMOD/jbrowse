@@ -59,7 +59,7 @@
     "babel-preset-es2015-without-strict": "^0.0.4",
     "buffer-crc32": "^0.2.13",
     "clean-webpack-plugin": "^0.1.18",
-    "copy-webpack-plugin": "4.1.1",
+    "copy-webpack-plugin": "^4.6.0",
     "css-loader": "^0.28.10",
     "dgrid": "^1.1.0",
     "dijit": "^1.14.2",
@@ -92,7 +92,8 @@
     "uglifyjs-webpack-plugin": "^1.2.2",
     "url-loader": "0.5.7",
     "util-deprecate": "^1.0.2",
-    "webpack": "^3.10.0",
+    "webpack": "^4.26.1",
+    "webpack-cli": "^3.1.2",
     "whatwg-fetch": "^2.0.4",
     "yarn": "^1.12.3"
   }
