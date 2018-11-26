@@ -125,6 +125,8 @@ var c = {
             return c.colorByInsertSizePercentile.apply(null, arguments)
         } else if (track.config.colorByOrientation) {
             return c.colorByOrientation.apply(null, arguments)
+        } else if (track.config.colorByMAPQ) {
+            return c.colorByMAPQ.apply(null, arguments)
         } else {
             return c.colorByInsertSize.apply(null, arguments)
         }
