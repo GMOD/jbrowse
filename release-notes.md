@@ -44,9 +44,6 @@
  * Improved error message that is displayed when a data file cannot be fetched
    via CORS (@rbuels)
 
- * Fixed bug where older browsers e.g. IE11 were not being properly supported via
-   babel (issue #1259, pull #1267, @cmdcolin)
-
 ## Bug fixes
 
  * Fixed issue with getting feature density from BAM files via the index stats
@@ -74,6 +71,12 @@
 
  * Fixed issue with some GFF3Tabix tracks having some inconsistent layout of
    features (issue #1244, pull #1260, @cmdcolin)
+
+ * Fixed bug where older browsers e.g. IE11 were not being properly supported via
+   babel (issue #1259, pull #1267, @cmdcolin)
+
+ * Fixed bug where some files were not being fetched properly when changing
+   refseqs. Thanks to @luke-c-sargent for the report (issue #1252)
 
 ## Notable changes
 
