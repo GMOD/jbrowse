@@ -27,7 +27,7 @@ function(
 
         renderFeature: function(context, fRect) {
             var r = this.getRadius(fRect.f, fRect.viewInfo.block);
-            if (!r.r) {
+            if (!r.r || Math.abs(r.r) < 1) {
                 return
             }
 
@@ -40,10 +40,13 @@ function(
                     context.lineTo(r.drawFrom, 1000)
                 }
             } else {
-                if(Math.abs(r.drawTo+r.r)>100000) {
+                // draw a vertical line for very very large arcs
+                if(Math.abs(r.drawTo + r.r) > 100000) {
                     context.moveTo(r.drawTo, 0)
                     context.lineTo(r.drawTo, 1000)
-                } else {
+
+                }
+                else {
                     context.arc(r.drawTo + r.r, 0, Math.abs(r.r), 0, Math.PI)
                 }
             }
