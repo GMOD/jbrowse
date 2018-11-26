@@ -108,10 +108,11 @@ var webpackConf = {
 }
 
 if (DEBUG) {
-    webpackConf.devtool = 'source-map'
+    webpackConf.mode = 'development'
     webpackConf.entry.run_jasmine = 'tests/js_tests/main.js'
     webpackConf.plugins.push( new webpack.optimize.AggressiveMergingPlugin() )
 } else {
+    webpackConf.mode = 'production'
     webpackConf.plugins.push( new UglifyJsPlugin())
 }
 
