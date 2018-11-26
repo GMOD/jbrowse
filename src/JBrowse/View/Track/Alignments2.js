@@ -42,6 +42,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 viewAsPairs: false,
                 viewAsSpans: false,
                 maxInsertSize: 50000,
+                readCloudLogScale: true,
 
                 histograms: {
                     description: 'coverage depth',
@@ -217,6 +218,15 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             checked: !!this.config.showInterchromosomalArcs,
             onClick: function(event) {
                 thisB.config.showInterchromosomalArcs = this.get('checked');
+                thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
+            }
+        });
+        c.children.push({
+            label: 'View read cloud log scale',
+            type: 'dijit/CheckedMenuItem',
+            checked: !!this.config.readCloudLogScale,
+            onClick: function(event) {
+                thisB.config.readCloudLogScale = this.get('checked');
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });

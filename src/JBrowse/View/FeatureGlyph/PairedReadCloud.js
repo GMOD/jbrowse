@@ -13,12 +13,6 @@ return declare(PairedAlignment, {
 clearFeat( context, fRect ) {
 },
 
-_defaultConfig() {
-    return this._mergeConfigs(dojo.clone( this.inherited(arguments) ), {
-        readCloudLog: true,
-        readCloudStretch: 20,
-    });
-},
 layoutFeature(viewArgs, layout, feature) {
     var rect = this.inherited(arguments);
     if (!rect) {
@@ -28,8 +22,9 @@ layoutFeature(viewArgs, layout, feature) {
     if (feature.pairedFeature()) {
         var tlen = feature.read1.get('template_length')
         var t = Math.abs(tlen)
-        var k = this.config.readCloudLog ? Math.log(t+1) : t
-        k *= this.config.readCloudStretch
+        var k = this.track.config.readCloudLogScale ?
+            Math.log(t+1)/Math.log(this.track.upperPercentile) : t/this.track.upperPercentile
+        k *= this.track.config.maxHeight/2
 
         rect.rect.t = k
         rect.t = k
