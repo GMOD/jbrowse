@@ -265,14 +265,18 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
 
         if(this.config.viewAsPairs || this.config.viewAsSpans || this.config.colorByOrientationAndSize || this.config.colorBySize) {
             let supermethod = this.getInherited(arguments)
+            const len = Math.max(args.rightBase - args.leftBase, 4000)
             const region = {
                 ref: this.refSeq.name,
                 start: Math.max(0, args.leftBase),
                 end: args.rightBase,
                 viewAsPairs: true
             }
-            const min = Math.max(0, region.start - this.config.maxInsertSize)
-            const max = region.end + this.config.maxInsertSize
+            const e = 8
+            const min = Math.max(0, region.start - Math.min(len * e, 100000))
+            const max = region.end + Math.min(len * e, 100000)
+
+
             var cachePromise = new Promise((resolve, reject) => {
                 this.store.getFeatures({
                     ref: this.refSeq.name,
