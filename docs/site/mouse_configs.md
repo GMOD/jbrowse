@@ -34,6 +34,12 @@ Addendum: If the field has multiple values (e.g. multiple DBXrefs or GO terms), 
 ```
 This shows that you could, in essence, pre-process the array if you wanted, but the same callback is then called on the individual elements, so you handle both these cases.
 
+
+### Rendering HTML in popups
+
+If you are using the fmtDetailValue callbacks it is assumed that HTML can be returned. Otherwise if your data contains actual HTML that you want to render you must set `unsafePopup` on your track
+
+
 ### Additional customizations to the pop-up boxes
 
 In JBrowse 1.11.5, some additional customizations to the pop-up boxes were added.
@@ -163,14 +169,15 @@ The onClick→label attribute from the [previous section](#customizing-left-clic
 
 In JBrowse 1.11.6, the onClick→label attribute was extended further to allow the mouse-over description to be customized using callbacks and template strings.
 
-Example for CanvasFeatures, allows full HTML tooltips. Here the {name} template is automatically filled in with the feature info:
+Example for CanvasFeatures, allows full HTML tooltips if you set `unsafeMouseover`. Here the {name} template is automatically filled in with the feature info:
 
 ~~~~ {.javascript}
     "onClick": {
         "label" : "<div style='font:normal 12px Univers,Helvetica,Arial,sans-serif'>Feature name: {name}</div>",
         "title" : "{name} {type}",
         "action": "defaultDialog"
-    }
+    },
+    "unsafeMouseover": true
 ~~~~
 
 Example for HTMLFeatures, which only allows plain text descriptions but can support newlines (essentially uses \<div title="..."\> for mouseover).
