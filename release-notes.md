@@ -75,6 +75,13 @@
  * Fixed issue with some GFF3Tabix tracks having some inconsistent layout of
    features (issue #1244, pull #1260, @cmdcolin)
 
+## Notable changes
+
+ * Rendering of features in popups, mouseover tooltips, and feature labels were
+   made to escape HTML. If you are using literal HTML labels in these places
+   then set the attribute `unsafePopup`, `unsafeMouseover`, or `unsafeHTMLFeatures`
+   on your tracks. Thanks to @garrettjstevens (pull #1263, @cmdcolin).
+
 # Release 1.15.4     2018-10-05 13:02:55 UTC
 
 ## Minor improvements
