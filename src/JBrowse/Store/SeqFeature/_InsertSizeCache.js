@@ -31,8 +31,8 @@ return declare(null, {
         const len = Object.keys(this.featureCache).length
         if(len > this.insertStatsCacheMin) {
             const insertSizes = Object.values(this.featureCache).map(v => Math.abs(v))
-            const max = Math.max(...insertSizes)
-            const min = Math.min(...insertSizes)
+            const max = insertSizes.reduce((max, n) => n > max ? n : max)
+            const min = insertSizes.reduce((min, n) => n < min ? n : min)
             const filteredInsertSizes = insertSizes.filter(tlen => tlen < this.insertMaxSize && tlen > this.insertMinSize)
             const sum = filteredInsertSizes.reduce((a, b) => a + b, 0)
             const sum2 = filteredInsertSizes.map(a => a * a).reduce((a, b) => a + b, 0)
