@@ -11,8 +11,8 @@ function (Util) {
             this._id = args.id;
             this.data = this.dataFromVariant(this.variant);
         },
-        
-        get(field) { 
+
+        get(field) {
             return this._get(field) || this._get(field.toLowerCase())
         },
 
@@ -62,14 +62,7 @@ function (Util) {
                 Object.keys(variant.SAMPLES).forEach(sample => {
                     this.data.genotypes[sample] = {}
                     Object.keys(variant.SAMPLES[sample]).forEach(field => {
-                        const { Description, Number, Type } = this.parser.getMetadata('FORMAT', field);
                         this.data.genotypes[sample][field] = {
-                            meta: {
-                                Description: [Description],
-                                id: [field],
-                                Number: Number,
-                                Type: Type
-                            },
                             values: variant.SAMPLES[sample][field]
                         }
                     })
@@ -250,7 +243,7 @@ function (Util) {
 
         _getSOAndDescByExamination: function (ref, alt) {
             if (ref.length == 1 && alt.length == 1) {
-                // use SNV because SO definition of SNP says abundance must be at 
+                // use SNV because SO definition of SNP says abundance must be at
                 // least 1% in population, and can't be sure we meet that
                 return [
                     'SNV',

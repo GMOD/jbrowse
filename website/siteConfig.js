@@ -64,7 +64,7 @@ const siteConfig = {
   ],
 
   footerIcon: 'img/jbrowse.png',
-  favicon: 'img/favicon.png',
+  favicon: 'img/favicon.ico',
 
   /* colors for website */
   colors: {

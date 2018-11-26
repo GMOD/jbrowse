@@ -1,7 +1,8 @@
-const LRU = cjsRequire('lru-cache')
+const LRU = cjsRequire('quick-lru')
 const { IndexedCramFile, CraiIndex } = cjsRequire('@gmod/cram')
 
-const cramIndexedFilesCache = LRU(5)
+
+const cramIndexedFilesCache = new LRU({ maxSize: 5 })
 
 const BlobFilehandleWrapper = cjsRequire('../../Model/BlobFilehandleWrapper')
 

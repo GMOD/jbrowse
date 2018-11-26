@@ -1,8 +1,8 @@
-const LRU = cjsRequire('lru-cache')
+const LRU = cjsRequire('quick-lru')
 const { BgzipIndexedFasta } = cjsRequire('@gmod/indexedfasta')
 const { Buffer } = cjsRequire('buffer')
 
-const fastaIndexedFilesCache = LRU(5)
+const fastaIndexedFilesCache = new LRU({ maxSize: 5 })
 
 const BlobFilehandleWrapper = cjsRequire('../../Model/BlobFilehandleWrapper')
 

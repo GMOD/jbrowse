@@ -71,7 +71,7 @@ const HeaderInfo = props => (
     <h1>The JBrowse Genome Browser</h1>
     <p>JBrowse is a fast, scalable genome browser built completely with JavaScript and HTML5. It can run on your desktop, or be embedded in your website.</p>
 
-    <a href="blog/">Latest Release – JBrowse {siteConfig.latestVersion}</a>
+    <b><a href="blog/">Download latest release – JBrowse {siteConfig.latestVersion}</a></b>
   </div>
 )
 

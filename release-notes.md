@@ -44,6 +44,9 @@
  * Improved error message that is displayed when a data file cannot be fetched
    via CORS (@rbuels)
 
+ * Fixed bug where older browsers e.g. IE11 were not being properly supported via
+   babel (issue #1259, pull #1267, @cmdcolin)
+
 ## Bug fixes
 
  * Fixed issue with getting feature density from BAM files via the index stats

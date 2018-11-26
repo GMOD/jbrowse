@@ -11,7 +11,8 @@
       "html_features",
       "alignments",
       "bigwig",
-      "variants"
+      "variants",
+      "minimal"
     ],
     "Advanced configuration": [
       "embedding",
