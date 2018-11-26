@@ -23,20 +23,19 @@ clearFeat(context, fRect) {
 renderFeature(context, fRect) {
     this.clearFeat(context, fRect)
 
-    if(fRect.f.pairedFeature()) {
-        this.renderConnector( context, fRect );
-        this.renderSegments( context, fRect );
-        if( fRect.w > 2 ) {
-            if( fRect.viewInfo.scale > 0.2 ) {
-                this._drawMismatches( context, fRect, this._getMismatches( fRect.f.read1 ), fRect.f.read1 );
-                this._drawMismatches( context, fRect, this._getMismatches( fRect.f.read2 ), fRect.f.read2 );
+    if (fRect.f.pairedFeature()) {
+        this.renderConnector( context, fRect )
+        this.renderSegments( context, fRect )
+        if (fRect.w > 2) {
+            if (fRect.viewInfo.scale > 0.2) {
+                this._drawMismatches( context, fRect, this._getMismatches( fRect.f.read1 ), fRect.f.read1 )
+                this._drawMismatches( context, fRect, this._getMismatches( fRect.f.read2 ), fRect.f.read2 )
             }
             else {
-                this._drawMismatches( context, fRect, this._getSkipsAndDeletions( fRect.f.read1 ), fRect.f.read1 );
-                this._drawMismatches( context, fRect, this._getSkipsAndDeletions( fRect.f.read2 ), fRect.f.read2 );
+                this._drawMismatches( context, fRect, this._getSkipsAndDeletions( fRect.f.read1 ), fRect.f.read1 )
+                this._drawMismatches( context, fRect, this._getSkipsAndDeletions( fRect.f.read2 ), fRect.f.read2 )
             }
         }
-
     } else {
         this.inherited(arguments)
     }
@@ -50,7 +49,7 @@ renderSegments(context, fRect) {
 renderConnector(context, fRect) {
     // connector
     var connectorColor = this.getStyle( fRect.f, 'connectorColor' );
-    if( connectorColor ) {
+    if (connectorColor) {
         context.fillStyle = connectorColor;
         var connectorThickness = this.getStyle( fRect.f, 'connectorThickness' );
         context.fillRect(
@@ -65,8 +64,8 @@ renderConnector(context, fRect) {
 _defaultConfig() {
     return this._mergeConfigs(dojo.clone( this.inherited(arguments) ), {
         style: {
-            connectorColor: AlignmentColoring.colorConnector,
-            connectorThickness: 1,
+            connectorColor: AlignmentColoring.connectorColor,
+            connectorThickness: 1
         }
     });
 }

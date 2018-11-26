@@ -130,9 +130,11 @@ var c = {
         }
     },
 
-    colorConnector(feature, score, glyph, track) {
+    connectorColor(feature, score, glyph, track) {
         if (track.config.colorByOrientation) {
-            return c.colorByOrientation(feature, score, glyph, track)
+            return c.colorByOrientation.apply(null, arguments)
+        } else if(track.config.colorByOrientationAndSize) {
+            return c.colorByOrientationAndSize.apply(null, arguments)
         } else {
             return 'black'
         }

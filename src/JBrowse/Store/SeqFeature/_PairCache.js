@@ -16,6 +16,8 @@ class PairedRead {
             return this.read1._get('pair_orientation')
         } else if(field === 'template_length') {
             return this.read1._get('template_length')
+        } else if(field === 'is_paired') {
+            return true
         }
     }
     pairedFeature() { return true }
@@ -90,10 +92,16 @@ return declare(null, {
         })
         // dump unpaired features from the paircache
         Object.entries(pairCache).forEach(([k, v]) => {
-            if(v.read1)
-                featCallback(v.read1)
-            else if(v.read2)
-                featCallback(v.read2)
+            if(v.read1) {
+                if(Util.intersect(v.read1._get('start'), v.read1._get('end'), query.start, query.end)) {
+                    featCallback(v.read1)
+                }
+            }
+            else if(v.read2) {
+                if(Util.intersect(v.read2._get('start'), v.read2._get('end'), query.start, query.end)) {
+                    featCallback(v.read2)
+                }
+            }
         })
     },
 
