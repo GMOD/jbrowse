@@ -315,25 +315,20 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
         if(this.config.viewAsPairs || this.config.viewAsSpans
             || (this.config.colorByOrientationAndSize || this.config.colorBySize && !this.insertSizeStats)) {
             let supermethod = this.getInherited(arguments)
-            const len = args.rightBase - args.leftBase
-            const region = {
-                ref: this.refSeq.name,
-                start: Math.max(0, args.leftBase),
-                end: args.rightBase,
-                viewAsPairs: true
-            }
+            const blockLen = args.rightBase - args.leftBase
             let min
             let max
 
             // when we use paired arc the insert size can be large and therefore we request a number of neighboring blocks
             if(this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedArc') {
                 const numNeighboringBlockFetches = 6
-                min = Math.max(0, region.start - Math.min(Math.max(len*numNeighboringBlockFetches, this.config.maxInsertSize), 100000))
-                max = region.end + Math.min(Math.max(len*numNeighboringBlockFetches, this.config.maxInsertSize), 100000)
+                // fetch at least maxInsertSize, but possibly more
+                min = Math.max(0, args.leftBase - Math.min(Math.max(blockLen * numNeighboringBlockFetches, this.config.maxInsertSize), 100000))
+                max = args.rightBase + Math.min(Math.max(blockLen * numNeighboringBlockFetches, this.config.maxInsertSize), 100000)
             } else {
                 // otherwise we just request based on maxInsertSize
-                min = Math.max(0, region.start - this.config.maxInsertSize)
-                max = region.end + this.config.maxInsertSize
+                min = Math.max(0, args.leftBase - this.config.maxInsertSize)
+                max = args.rightBase + this.config.maxInsertSize
             }
 
 
