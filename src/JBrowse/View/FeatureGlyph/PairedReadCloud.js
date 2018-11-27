@@ -21,18 +21,19 @@ layoutFeature(viewArgs, layout, feature) {
     if (feature.pairedFeature()) {
         const tlen = Math.abs(feature.read1.get('template_length'))
 
-        // log view uses maximum to handle very large, linear uses upper percentile
 
         let k
         if(this.track.config.readCloudLogScale) {
             // max is set to upper percentile because it can handle things above this value
-            k = Math.log(tlen + 1) / Math.log(this.track.insertSizeStats.max + 1)
+            k = Math.log(tlen + 1) / Math.log(this.track.config.readCloudYScaleMax || this.track.insertSizeStats.max + 1)
+            k /= 2 // squish by 2 means theres space above the maxHeight for things larger than the estimated insert size stats/readcloud max
         } else {
-            // max set to literal max or a configurable insertSizeMax
-            k = tlen / (this.track.config.insertSizeMax || this.track.insertSizeStats.upper)
+            // max set to literal max or a configurable readCloudYScaleMax
+            k = tlen / (this.track.config.readCloudYScaleMax || this.track.insertSizeStats.upper)
+            k /= 3 // squish by 3 means theres space above the maxHeight for things larger than the estimated insert size stats, higher for linear
         }
+
         k *= this.track.config.maxHeight
-        k /= 3
 
         // use compact view for additional linear compression
         if(this.track.config.displayMode === 'compact') {

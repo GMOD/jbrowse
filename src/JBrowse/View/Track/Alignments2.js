@@ -2,6 +2,7 @@ define( [
             'dojo/_base/declare',
             'dojo/_base/array',
             'dijit/MenuItem',
+            'JBrowse/View/Dialog/SetTrackHeight',
             'JBrowse/Util',
             'JBrowse/View/Track/CanvasFeatures',
             'JBrowse/View/Track/_AlignmentsMixin'
@@ -10,6 +11,7 @@ define( [
             declare,
             array,
             MenuItem,
+            Dialog,
             Util,
             CanvasFeatureTrack,
             AlignmentsMixin
@@ -212,24 +214,47 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
-        c.children.push({
-            label: 'Show interchromosomal',
-            type: 'dijit/CheckedMenuItem',
-            checked: !!this.config.showInterchromosomalArcs,
-            onClick: function(event) {
-                thisB.config.showInterchromosomalArcs = this.get('checked');
-                thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
+        if(this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedReadCloud') {
+            var r = {
+                type: 'dijit/Menu',
+                label: 'Read cloud options',
+                children: []
             }
-        });
-        c.children.push({
-            label: 'View read cloud log scale',
-            type: 'dijit/CheckedMenuItem',
-            checked: !!this.config.readCloudLogScale,
-            onClick: function(event) {
-                thisB.config.readCloudLogScale = this.get('checked');
-                thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
-            }
-        });
+            r.children.push({
+                label: 'Show interchromosomal',
+                type: 'dijit/CheckedMenuItem',
+                checked: !!this.config.showInterchromosomalArcs,
+                onClick: function(event) {
+                    thisB.config.showInterchromosomalArcs = this.get('checked');
+                    thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
+                }
+            });
+            r.children.push({
+                label: 'View read cloud log scale',
+                type: 'dijit/CheckedMenuItem',
+                checked: !!this.config.readCloudLogScale,
+                onClick: function(event) {
+                    thisB.config.readCloudLogScale = this.get('checked');
+                    thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
+                }
+            });
+            r.children.push({
+                label: 'Set read cloud Y-scale insert size',
+                onClick: function(event) {
+                    new Dialog({
+                        title: 'Set read cloud Y-scale in terms of the maximum expected insert size',
+                        msg: ' insert size (note: default estimated from sampling track data)',
+                        maxHeight: Infinity,
+                        height: thisB.config.readCloudYScaleMax || 50000,
+                        setCallback: ret => {
+                            thisB.config.readCloudYScaleMax = ret
+                            thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
+                        }
+                    }).show()
+                }
+            });
+            displayOptions.push(r)
+        }
         return Promise.all([ this.inherited(arguments), this._alignmentsFilterTrackMenuOptions(), displayOptions ])
             .then( function( options ) {
                        var o = options.shift();
