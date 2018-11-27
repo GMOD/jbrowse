@@ -45,6 +45,8 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 viewAsSpans: false,
                 maxInsertSize: 50000,
                 readCloudLogScale: true,
+                showInterchromosomalArcs: true,
+                showLargeArcs: true,
 
                 histograms: {
                     description: 'coverage depth',
@@ -73,7 +75,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
         }
         var c = {
             type: 'dijit/Menu',
-            label: 'Drawing options',
+            label: 'Coloring options',
             children: []
         }
 
@@ -215,46 +217,58 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             }
         });
         if(this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedReadCloud') {
-            var r = {
+            displayOptions.push({
                 type: 'dijit/Menu',
                 label: 'Read cloud options',
-                children: []
-            }
-            r.children.push({
-                label: 'Show interchromosomal',
-                type: 'dijit/CheckedMenuItem',
-                checked: !!this.config.showInterchromosomalArcs,
-                onClick: function(event) {
-                    thisB.config.showInterchromosomalArcs = this.get('checked');
-                    thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
-                }
+                children: [{
+                    label: 'View log scale',
+                    type: 'dijit/CheckedMenuItem',
+                    checked: !!this.config.readCloudLogScale,
+                    onClick: function(event) {
+                        thisB.config.readCloudLogScale = this.get('checked');
+                        thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
+                    }
+                }, {
+                    label: 'Set Y-scale size',
+                    onClick: function(event) {
+                        new Dialog({
+                            title: 'Set read cloud Y-scale in terms of the maximum expected insert size',
+                            msg: ' insert size (note: default estimated from sampling track data)',
+                            maxHeight: Infinity,
+                            height: thisB.config.readCloudYScaleMax || 50000,
+                            setCallback: ret => {
+                                thisB.config.readCloudYScaleMax = ret
+                                thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
+                            }
+                        }).show()
+                    }
+                }]
             });
-            r.children.push({
-                label: 'View read cloud log scale',
-                type: 'dijit/CheckedMenuItem',
-                checked: !!this.config.readCloudLogScale,
-                onClick: function(event) {
-                    thisB.config.readCloudLogScale = this.get('checked');
-                    thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
-                }
-            });
-            r.children.push({
-                label: 'Set read cloud Y-scale insert size',
-                onClick: function(event) {
-                    new Dialog({
-                        title: 'Set read cloud Y-scale in terms of the maximum expected insert size',
-                        msg: ' insert size (note: default estimated from sampling track data)',
-                        maxHeight: Infinity,
-                        height: thisB.config.readCloudYScaleMax || 50000,
-                        setCallback: ret => {
-                            thisB.config.readCloudYScaleMax = ret
-                            thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
-                        }
-                    }).show()
-                }
-            });
-            displayOptions.push(r)
         }
+        if(this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedArc') {
+            displayOptions.push({
+                type: 'dijit/Menu',
+                label: 'Paired arc options',
+                children: [{
+                    label: 'Show interchromosomal',
+                    type: 'dijit/CheckedMenuItem',
+                    checked: !!this.config.showInterchromosomalArcs,
+                    onClick: function(event) {
+                        thisB.config.showInterchromosomalArcs = this.get('checked');
+                        thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
+                    }
+                }, {
+                    label: 'Show large arcs',
+                    type: 'dijit/CheckedMenuItem',
+                    checked: !!this.config.showLargeArcs,
+                    onClick: function(event) {
+                        thisB.config.showLargeArcs = this.get('checked');
+                        thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
+                    }
+                }]
+            });
+        }
+
         return Promise.all([ this.inherited(arguments), this._alignmentsFilterTrackMenuOptions(), displayOptions ])
             .then( function( options ) {
                        var o = options.shift();

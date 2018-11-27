@@ -41,12 +41,11 @@ function(
                 }
             } else {
                 // draw a vertical line for very very large arcs
-                if(Math.abs(r.drawTo + r.r) > 100000) {
+                if(this.track.config.showLargeArcs && Math.abs(r.drawTo + r.r) > 100000) {
                     context.moveTo(r.drawTo, 0)
                     context.lineTo(r.drawTo, 1000)
-
                 }
-                else {
+                else if(Math.abs(r.span) < this.track.config.maxInsertSize || this.track.config.showLargeArcs) {
                     context.arc(r.drawTo + r.r, 0, Math.abs(r.r), 0, Math.PI)
                 }
             }
