@@ -344,13 +344,11 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             cachePromise.then(() => {
                 args.finishCallback = () => {
                     finishCallback()
-                    setTimeout(() => {
-                        this.store.cleanFeatureCache({
-                            ref: this.refSeq.name,
-                            start: min,
-                            end: max
-                        })
-                    }, 10000)
+                    this.store.cleanFeatureCache({
+                        ref: this.refSeq.name,
+                        start: min,
+                        end: max
+                    })
                 }
                 supermethod.call(this, args)
             }, errorCallback)
