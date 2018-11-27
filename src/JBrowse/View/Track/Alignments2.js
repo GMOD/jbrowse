@@ -322,9 +322,19 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 end: args.rightBase,
                 viewAsPairs: true
             }
-            const numNeighboringBlockFetches = 6
-            const min = Math.max(0, region.start - Math.min(Math.max(len*numNeighboringBlockFetches, this.config.maxInsertSize), 100000))
-            const max = region.end + Math.min(Math.max(len*numNeighboringBlockFetches, this.config.maxInsertSize), 100000)
+            let min
+            let max
+
+            // when we use paired arc the insert size can be large and therefore we request a number of neighboring blocks
+            if(this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedArc') {
+                const numNeighboringBlockFetches = 6
+                min = Math.max(0, region.start - Math.min(Math.max(len*numNeighboringBlockFetches, this.config.maxInsertSize), 100000))
+                max = region.end + Math.min(Math.max(len*numNeighboringBlockFetches, this.config.maxInsertSize), 100000)
+            } else {
+                // otherwise we just request based on maxInsertSize
+                min = Math.max(0, region.start - this.config.maxInsertSize)
+                max = region.end + this.config.maxInsertSize
+            }
 
 
             var cachePromise = new Promise((resolve, reject) => {
@@ -335,9 +345,10 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                     viewAsPairs: this.config.viewAsPairs,
                     viewAsSpans: this.config.viewAsSpans,
                     maxInsertSize: this.config.maxInsertSize
-                }, () => { /* do nothing */}, () => {
+                }, () => {
+                    /* do nothing except initialize caches on store backend */
+                }, () => {
                     this.insertSizeStats = this.insertSizeStats || this.store.getInsertSizeStats()
-
                     resolve()
                 }, reject)
             })
