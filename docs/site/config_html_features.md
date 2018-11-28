@@ -38,6 +38,7 @@ JBrowse HTMLFeatures tracks, the default legacy track type for range-based featu
 |` style->trackLabelCss `|Add arbitrary CSS to the track label|
 |` style->histCss `|Add arbitrary CSS to the histogram. Used for HTMLFeatures histograms only|
 |` style->featureCss `|Add arbitrary CSS to the features. Used for HTMLFeatures features only|
+|`unsafeHTMLFeatures`|Allows rendering raw HTML in the feature labels and descriptions|
 
 
   <link rel="stylesheet" type="text/css" href="assets/css/track_styles.css"></link>

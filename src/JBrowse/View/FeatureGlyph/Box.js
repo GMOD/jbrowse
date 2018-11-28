@@ -347,7 +347,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin], {
                 if (clearTop) context.clearRect(labelLeft,clearTop,fLabelRecord.w,fLabelRecord.h)
 
                 context.fillText(
-                    Util.unescapeHTML(fLabelRecord.text),
+                    fLabelRecord.text,
                     labelLeft,
                     labelTop
                 )

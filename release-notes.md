@@ -44,9 +44,6 @@
  * Improved error message that is displayed when a data file cannot be fetched
    via CORS (@rbuels)
 
- * Fixed bug where older browsers e.g. IE11 were not being properly supported via
-   babel (issue #1259, pull #1267, @cmdcolin)
-
 ## Bug fixes
 
  * Fixed issue with getting feature density from BAM files via the index stats
@@ -77,6 +74,19 @@
 
  * Fixed CRAM store not renaming reference sequences in the same way as other
    stores (@rbuels)
+
+ * Fixed bug where older browsers e.g. IE11 were not being properly supported via
+   babel (issue #1259, pull #1267, @cmdcolin)
+
+ * Fixed bug where some files were not being fetched properly when changing
+   refseqs. Thanks to @luke-c-sargent for the report (issue #1252)
+
+## Notable changes
+
+ * Rendering of features in popups, mouseover tooltips, and feature labels were
+   made to escape HTML. If you are using literal HTML labels in these places
+   then set the attribute `unsafePopup`, `unsafeMouseover`, or `unsafeHTMLFeatures`
+   on your tracks. Thanks to @garrettjstevens (pull #1263, @cmdcolin).
 
 # Release 1.15.4     2018-10-05 13:02:55 UTC
 

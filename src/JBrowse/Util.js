@@ -38,6 +38,9 @@ Util = {
     },
 
     escapeHTML: function( str ) {
+        if(str === null || str === undefined) {
+            return str
+        }
         return str.toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     },
 

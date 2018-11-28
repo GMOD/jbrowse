@@ -90,7 +90,7 @@ function (Util) {
                 start: start,
                 end: end,
                 seq_id: variant.CHROM,
-                description: Util.escapeHTML( description ),
+                description: description,
                 type: SO_term,
                 reference_allele: ref
             };
@@ -121,7 +121,7 @@ function (Util) {
                     meta: {
                         description: 'VCF ALT field, list of alternate non-reference alleles called on at least one of the samples'
                     },
-                    values: alt.map( Util.escapeHTML )
+                    values: alt
                 };
             }
 

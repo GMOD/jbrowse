@@ -1126,8 +1126,8 @@ define( [
                 if ( ( name || description ) && this.showLabels && scale >= labelScale ) {
                     var labelDiv = dojo.create( 'div', {
                         className: "feature-label" + ( highlighted ? ' highlighted' : '' ),
-                        innerHTML:  ( name ? '<div class="feature-name">'+name+'</div>' : '' )
-                        +( description ? ' <div class="feature-description">'+description+'</div>' : '' ),
+                        innerHTML:  ( name ? '<div class="feature-name">' + (this.config.unsafeHTMLFeatures ? name : Util.escapeHTML(name)) + '</div>' : '' )
+                        +( description ? ' <div class="feature-description">'+ (this.config.unsafeHTMLFeatures ? description : Util.escapeHTML(description)) + '</div>' : '' ),
                         style: {
                             top: (top + this.glyphHeight + 2) + "px",
                             left: (100 * (layoutStart - block.startBase) / blockWidth)+'%'

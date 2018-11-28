@@ -31,7 +31,7 @@ var Grid = declare([DGrid,DGridDijitRegistry]);
 
 return declare( null, {
 
-    renderDetailField: function( parentElement, title, val, f, class_, externalFieldMeta = {} ) {
+    renderDetailField: function( parentElement, title, val, f, class_, externalFieldMeta = {}, unsafe = false) {
         if( val === null || val === undefined )
             return '';
 
@@ -44,7 +44,7 @@ return declare( null, {
 
         class_ = class_ || title.replace(/\W/g,'_').toLowerCase();
 
-        var formatted_title=title;
+        var formatted_title = title;
         // if this object has a config value 'fmtDetailField_Foo' function, apply it to field title
         if(( fieldSpecificFormatter = this.config['fmtDetailField_'+title] ) && f) {
             formatted_title= fieldSpecificFormatter(title,f);
@@ -91,7 +91,7 @@ return declare( null, {
                          + class_
             }, fieldContainer );
 
-        var count = this.renderDetailValue( valueContainer, title, val, f, class_);
+        var count = this.renderDetailValue( valueContainer, title, val, f, class_, unsafe);
         if( typeof count == 'number' && count > 4 ) {
             query( 'h2', fieldContainer )[0].innerHTML = formatted_title + ' ('+count+')';
         }
@@ -99,7 +99,7 @@ return declare( null, {
         return fieldContainer;
     },
 
-    renderDetailValue: function( parent, title, val, f, class_ ) {
+    renderDetailValue: function( parent, title, val, f, class_, unsafe = false) {
         var thisB = this;
 
         if( !lang.isArray(val) && val && val.values )
@@ -114,13 +114,15 @@ return declare( null, {
 
         // if this object has a config value 'fmtDetailValue_Foo' function, apply it to val
         if(( fieldSpecificFormatter = this.config['fmtDetailValue_'+title] ) && f) {
-            val= fieldSpecificFormatter( val,f );
+            unsafe = true
+            val = fieldSpecificFormatter( val,f );
             if(!val) val='';
-            if(val.length==1) val=val[0]; // avoid recursion when an array of length 1 is returned
+            if(val.length == 1) val = val[0]; // avoid recursion when an array of length 1 is returned
         }
         else if(( fieldSpecificFormatter = this.config['fmtMetaValue_'+title] ) && !f) {
-            val=fieldSpecificFormatter( val );
-            if(val.length==1) val=val[0];
+            unsafe = true
+            val = fieldSpecificFormatter( val );
+            if(val.length == 1) val = val[0];
         }
 
         var valType = typeof val;
@@ -140,12 +142,12 @@ return declare( null, {
                         className: 'value_container '+class_,
                         style: { width: '100%' },
                     }, parent );
-                    this.renderDetailValue( itemContainer, title, v, f, class_ );
+                    this.renderDetailValue( itemContainer, title, v, f, class_, unsafe );
                     return itemContainer
                 })
             } else {
                 vals = array.map( val, function(v) {
-                    return this.renderDetailValue( parent, title, v, f, class_ );
+                    return this.renderDetailValue( parent, title, v, f, class_, unsafe );
                 }, this );
             }
             if( vals.length > 1 )
@@ -200,13 +202,13 @@ return declare( null, {
             }
             else {
                 array.forEach( keys, function( k ) {
-                                   return this.renderDetailField( parent, k, val[k], f, class_ );
+                                   return this.renderDetailField( parent, k, val[k], f, class_, {}, unsafe );
                                }, this );
                 return keys.length;
             }
         }
 
-        domConstruct.create('div', { className: 'value '+ (val.length > 70 && val.indexOf(' ') == -1 ? 'long ' : '') + class_, innerHTML: val }, parent );
+        domConstruct.create('div', { className: 'value '+ (val.length > 70 && val.indexOf(' ') == -1 ? 'long ' : '') + class_, innerHTML:  unsafe || this.config.unsafePopup ? val : Util.escapeHTML(val) }, parent );
         return 1;
     },
 

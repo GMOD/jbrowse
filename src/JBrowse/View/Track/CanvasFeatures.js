@@ -913,14 +913,15 @@ return declare(
                             labelSpan.style.display = 'block';
                             labelSpan.style.font = label.font;
                             labelSpan.style.color = label.fill;
-                            labelSpan.innerHTML = this.template( feature, this._evalConf( context, this.config.onClick.label, "label" ) );
+                            var t = this.template( feature, this._evalConf( context, this.config.onClick.label, "label" ) )
+                            labelSpan.innerHTML = this.config.unsafeMouseover ? t : Util.escapeHTML(t)
                             return;
                         }
                         if( label ) {
                             labelSpan.style.display = 'block';
                             labelSpan.style.font = label.font;
                             labelSpan.style.color = label.fill;
-                            labelSpan.innerHTML = label.text;
+                            labelSpan.innerHTML = this.config.unsafeMouseover ? label.text : Util.escapeHTML(label.text);
                         } else {
                             labelSpan.style.display = 'none';
                             labelSpan.innerHTML = '(no label)';
@@ -929,7 +930,7 @@ return declare(
                             descriptionSpan.style.display = 'block';
                             descriptionSpan.style.font = description.font;
                             descriptionSpan.style.color = description.fill;
-                            descriptionSpan.innerHTML = description.text;
+                            descriptionSpan.innerHTML = this.config.unsafeMouseover ? description.text : Util.escapeHTML(description.text);
                         }
                         else {
                             descriptionSpan.style.display = 'none';
