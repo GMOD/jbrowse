@@ -2174,6 +2174,7 @@ _addTrackConfigs: function( /**Array*/ configs ) {
         //     console.warn("track with label "+conf.label+" already exists, skipping");
         //     return;
         // }
+        this.loadTrackConfigFromCookie(conf);
 
         this.trackConfigsByName[conf.label] = conf;
         this.config.tracks.push( conf );
@@ -2197,7 +2198,7 @@ _replaceTrackConfigs: function( /**Array*/ newConfigs ) {
 
         this.trackConfigsByName[conf.label] =
                            dojo.mixin( this.trackConfigsByName[ conf.label ] || {}, conf );
-        this.saveConfig(conf);
+        this.saveTrackConfigToCookie(conf);
    },this);
 },
 /**
@@ -3427,12 +3428,20 @@ teardown: function() {
     }
 },
 
-saveConfig(config) {
+saveTrackConfigToCookie(config) {
     const c = Object.assign({}, config)
     delete c.store
     delete c.menuTemplate
     delete c.events
     this.cookie('track-' + config.label + '-config', JSON.stringify(c));
+},
+
+loadTrackConfigFromCookie(config) {
+    var cookie = this.cookie("track-" + config.label + '-config');
+    if (cookie) {
+        cookie = JSON.parse(cookie)
+        Object.assign(config, cookie)
+    }
 }
 
 });

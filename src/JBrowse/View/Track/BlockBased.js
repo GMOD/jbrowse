@@ -81,11 +81,6 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
 
         this.refSeq = args.refSeq;
         this.name = args.label || this.config.label;
-        var cookie = this.browser.cookie("track-" + this.name + '-config');
-        if (cookie) {
-            cookie = JSON.parse(cookie)
-            Object.assign(this.config, cookie)
-        }
         this.key = args.key || this.config.key || this.name;
 
         this._changedCallback = args.changeCallback || function(){};
