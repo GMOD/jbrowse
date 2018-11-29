@@ -2175,6 +2175,7 @@ _addTrackConfigs: function( /**Array*/ configs ) {
         //     console.warn("track with label "+conf.label+" already exists, skipping");
         //     return;
         // }
+        this.loadTrackConfigFromCookie(conf);
 
         this.trackConfigsByName[conf.label] = conf;
         this.config.tracks.push( conf );
@@ -2198,6 +2199,7 @@ _replaceTrackConfigs: function( /**Array*/ newConfigs ) {
 
         this.trackConfigsByName[conf.label] =
                            dojo.mixin( this.trackConfigsByName[ conf.label ] || {}, conf );
+        this.saveTrackConfigToCookie(conf);
    },this);
 },
 /**
@@ -3018,7 +3020,7 @@ cookie: function(keyWithoutId,value) {
     if( typeof value == 'object' )
         value = dojo.toJson( value );
 
-    var sizeLimit = this.config.cookieSizeLimit || 1200;
+    var sizeLimit = this.config.cookieSizeLimit || 20000;
     if( value!=null && value.length > sizeLimit ) {
         console.warn("not setting cookie '"+keyWithId+"', value too big ("+value.length+" > "+sizeLimit+")");
         return localStorage.getItem( keyWithId );
@@ -3423,6 +3425,22 @@ teardown: function() {
 
     while (this.container && this.container.firstChild) {
         this.container.removeChild(this.container.firstChild);
+    }
+},
+
+saveTrackConfigToCookie(config) {
+    const c = Object.assign({}, config)
+    delete c.store
+    delete c.menuTemplate
+    delete c.events
+    this.cookie('track-' + config.label + '-config', JSON.stringify(c));
+},
+
+loadTrackConfigFromCookie(config) {
+    var cookie = this.cookie("track-" + config.label + '-config');
+    if (cookie) {
+        cookie = JSON.parse(cookie)
+        Object.assign(config, cookie)
     }
 }
 
