@@ -2174,7 +2174,6 @@ _addTrackConfigs: function( /**Array*/ configs ) {
         //     console.warn("track with label "+conf.label+" already exists, skipping");
         //     return;
         // }
-        this.loadTrackConfigFromCookie(conf);
 
         this.trackConfigsByName[conf.label] = conf;
         this.config.tracks.push( conf );
@@ -2198,7 +2197,6 @@ _replaceTrackConfigs: function( /**Array*/ newConfigs ) {
 
         this.trackConfigsByName[conf.label] =
                            dojo.mixin( this.trackConfigsByName[ conf.label ] || {}, conf );
-        this.saveTrackConfigToCookie(conf);
    },this);
 },
 /**
@@ -3016,20 +3014,19 @@ _limitLocMap: function( locMap, maxEntries ) {
 cookie: function(keyWithoutId,value) {
     keyWithoutId = this.config.containerID + '-' + keyWithoutId;
     var keyWithId = keyWithoutId +  '-' + (this.config.dataset_id || '');
-    if (typeof value == 'object')
+    if( typeof value == 'object' )
         value = dojo.toJson( value );
 
-    var sizeLimit = this.config.cookieSizeLimit || 5000;
-    if (value != null && value.length > sizeLimit) {
+    var sizeLimit = this.config.cookieSizeLimit || 1200;
+    if( value!=null && value.length > sizeLimit ) {
         console.warn("not setting cookie '"+keyWithId+"', value too big ("+value.length+" > "+sizeLimit+")");
         return localStorage.getItem( keyWithId );
     }
-    else if (value != null) {
+    else if( value!=null ) {
         try {
             return localStorage.setItem(keyWithId, value);
         }
         catch(e) {
-            console.warn('caught error localstorage', e)
         }
     }
 
@@ -3425,22 +3422,6 @@ teardown: function() {
 
     while (this.container && this.container.firstChild) {
         this.container.removeChild(this.container.firstChild);
-    }
-},
-
-saveTrackConfigToCookie(config) {
-    const c = Object.assign({}, config)
-    delete c.store
-    delete c.menuTemplate
-    delete c.events
-    this.cookie('track-' + config.label + '-config', JSON.stringify(c));
-},
-
-loadTrackConfigFromCookie(config) {
-    var cookie = this.cookie("track-" + config.label + '-config');
-    if (cookie) {
-        cookie = JSON.parse(cookie)
-        Object.assign(config, cookie)
     }
 }
 
