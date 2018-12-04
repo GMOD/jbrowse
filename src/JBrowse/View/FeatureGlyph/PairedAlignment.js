@@ -3,14 +3,16 @@ define([
     'dojo/_base/array',
     'dojo/_base/lang',
     'JBrowse/View/FeatureGlyph/Alignment',
-    'JBrowse/View/FeatureGlyph/AlignmentColoring'
+    'JBrowse/View/FeatureGlyph/AlignmentColoring',
+    'JBrowse/Util'
 ],
 function(
     declare,
     array,
     lang,
     Alignment,
-    AlignmentColoring
+    AlignmentColoring,
+    Util
 ) {
 
 
@@ -21,19 +23,60 @@ clearFeat(context, fRect) {
         context.clearRect( Math.floor(fRect.l), fRect.t, Math.ceil(fRect.w), fRect.h );
 },
 renderFeature(context, fRect) {
+    const f = fRect.f
     this.clearFeat(context, fRect)
 
-    if (fRect.f.pairedFeature()) {
+    if (f.pairedFeature()) {
         this.renderConnector( context, fRect )
         this.renderSegments( context, fRect )
         if (fRect.w > 2) {
             if (fRect.viewInfo.scale > 0.2) {
-                this._drawMismatches( context, fRect, this._getMismatches( fRect.f.read1 ), fRect.f.read1 )
-                this._drawMismatches( context, fRect, this._getMismatches( fRect.f.read2 ), fRect.f.read2 )
+                this._drawMismatches( context, fRect, this._getMismatches( f.read1 ), f.read1 )
+                this._drawMismatches( context, fRect, this._getMismatches( f.read2 ), f.read2 )
             }
             else {
-                this._drawMismatches( context, fRect, this._getSkipsAndDeletions( fRect.f.read1 ), fRect.f.read1 )
-                this._drawMismatches( context, fRect, this._getSkipsAndDeletions( fRect.f.read2 ), fRect.f.read2 )
+                this._drawMismatches( context, fRect, this._getSkipsAndDeletions( f.read1 ), f.read1 )
+                this._drawMismatches( context, fRect, this._getSkipsAndDeletions( f.read2 ), f.read2 )
+            }
+        }
+        const x1 = f.read1.get('start')
+        const x2 = f.read1.get('end')
+        const y1 = f.read2.get('start')
+        const y2 = f.read2.get('end')
+        if(Util.intersect(x1, x2, y1, y2)) {
+            const s1 = x2 > y2 ? x1 : y1
+            const s2 = x1 > y1 ? y2 : x2
+            const block = fRect.viewInfo.block
+            const l = block.bpToX(s1)
+            const r = block.bpToX(s2)
+            context.fillStyle = this.getStyle(f, 'overlapColor')
+            context.strokeStyle = this.getStyle(f, 'overlapStroke')
+            context.rect(
+                l, // left
+                fRect.rect.t,
+                r-l, // width
+                fRect.rect.h
+            )
+            context.fill();
+            context.stroke()
+            context.strokeStyle = null
+            context.fillStyle = null
+            var m1 = this._getMismatches( f.read1 );
+            var m2 = this._getMismatches( f.read2 );
+            if(!m1 && !m2) {
+                return;
+            } else {
+                var mismatches = [];
+                for(var i = 0; i < m1.length; i++) {
+                    for(var j = 0; j < m2.length; j++) {
+                        if(x1+m1[i].start == y1+m2[j].start && s1 < x1+m1[i].start && s2 > x1+m1[i].start) {
+                            mismatches.push({ start: m1[i].start, base1: m1[i].base, base2: m2[j].base, type: 'mismatch', length: 1 });
+                        }
+                    }
+                }
+                if(mismatches.length !== 0) {
+                    this._drawOverlappingMismatches(context, fRect, mismatches, x1)
+                }
             }
         }
     } else {
@@ -61,14 +104,63 @@ renderConnector(context, fRect) {
     }
 },
 
+// draw both gaps and mismatches
+_drawOverlappingMismatches(context, fRect, mismatches, fstart) {
+    var block = fRect.viewInfo.block;
+    var scale = block.scale;
+
+    var charSize = this.getCharacterMeasurements( context );
+    context.textBaseline = 'middle'; // reset to alphabetic (the default) after loop
+
+    array.forEach( mismatches, function( mismatch ) {
+        var start = fstart + mismatch.start;
+        var end = fstart + mismatch.start + mismatch.length;
+
+        var mRect = {
+            h: (fRect.rect||{}).h || fRect.h,
+            l: block.bpToX( start ),
+            t: fRect.rect.t
+        };
+        mRect.w = Math.max( block.bpToX( end ) - mRect.l, 1 );
+
+        if( mismatch.type == 'mismatch' ) {
+            if(mismatch.base1 == mismatch.base2) {
+                context.fillStyle = this.track.colorForBase( mismatch.type == 'deletion' ? 'deletion' : mismatch.base1 );
+            } else {
+                context.fillStyle = 'black';
+            }
+            context.fillRect( mRect.l, mRect.t, mRect.w, mRect.h );
+
+            if( mRect.w >= charSize.w && mRect.h >= charSize.h-3 ) {
+                context.font = this.config.style.mismatchFont;
+                if(mismatch.base1 == mismatch.base2) {
+                    context.fillStyle = 'black'
+                    context.fillText( mismatch.base1, mRect.l+(mRect.w-charSize.w)/2+1, mRect.t+mRect.h/2 );
+                } else if(scale >= 10) {
+                    context.fillStyle = 'white'
+                    context.fillText( mismatch.base1 + '/' +mismatch.base2, mRect.l+(mRect.w-charSize.w*2)/2+1, mRect.t+mRect.h/2 );
+                }
+            }
+        }
+    },this);
+
+    context.textBaseline = 'alphabetic';
+},
+
 _defaultConfig() {
     return this._mergeConfigs(dojo.clone( this.inherited(arguments) ), {
         style: {
             connectorColor: AlignmentColoring.connectorColor,
-            connectorThickness: 1
-        }
+            connectorThickness: 1,
+            overlapColor: 'lightgrey',
+            overlapStroke: 'grey',
+        },
+        strandInlay: false
     });
 }
 
 });
 });
+
+
+
