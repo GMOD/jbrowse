@@ -68,14 +68,36 @@ renderFeature(context, fRect) {
             } else {
                 var mismatches = [];
                 for(var i = 0; i < m1.length; i++) {
+                    let foundMatching = false;
                     for(var j = 0; j < m2.length; j++) {
                         if(x1+m1[i].start == y1+m2[j].start && s1 < x1+m1[i].start && s2 > x1+m1[i].start) {
+                            foundMatching = true
                             mismatches.push({ start: m1[i].start, base1: m1[i].base, base2: m2[j].base, type: 'mismatch', length: 1 });
                         }
+                    }
+                    if(m1[i].type == 'mismatch' && s1 < x1+m1[i].start && s2 > x1+m1[i].start && !foundMatching ) {
+                        mismatches.push({ start: m1[i].start, base1: m1[i].base, base2: '-', type: 'mismatch', length: 1 });
                     }
                 }
                 if(mismatches.length !== 0) {
                     this._drawOverlappingMismatches(context, fRect, mismatches, x1)
+                }
+                mismatches = [];
+                for(var i = 0; i < m2.length; i++) {
+                    let foundMatching = false;
+                    for(var j = 0; j < m1.length; j++) {
+                        if(x1+m1[j].start == y1+m2[i].start && s1 < y1+m2[i].start && s2 > y1+m2[i].start) {
+                            //    mismatches.push({ start: m2[i].start, base1: m2[i].base, base2: m1[j].base, type: 'mismatch', length: 1 });
+                            //    would have been found in above loop also previous iteration
+                            foundMatching = true
+                        }
+                    }
+                    if(m2[i].type == 'mismatch' && s1 < y1+m2[i].start && s2 > y1+m2[i].start && !foundMatching) {
+                        mismatches.push({ start: m2[i].start, base1: m2[i].base, base2: '-', type: 'mismatch', length: 1 });
+                    }
+                }
+                if(mismatches.length !== 0) {
+                    this._drawOverlappingMismatches(context, fRect, mismatches, y1)
                 }
             }
         }
