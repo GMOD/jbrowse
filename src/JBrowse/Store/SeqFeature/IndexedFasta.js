@@ -55,7 +55,8 @@ return declare( [ SeqFeatureStore, DeferredFeaturesMixin ],
         if (!this.fasta) {
             this.fasta = new IndexedFasta({
                 fasta: dataBlob,
-                fai: indexBlob
+                fai: indexBlob,
+                chunkSizeLimit: args.chunkSizeLimit || 1000000
             })
 
             fastaIndexedFilesCache.set(cacheKey, this.fasta)

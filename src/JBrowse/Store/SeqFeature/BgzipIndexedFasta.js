@@ -64,7 +64,8 @@ return declare( IndexedFasta,
             this.fasta = new BgzipIndexedFasta({
                 fasta: dataBlob,
                 fai: indexBlob,
-                gzi: gziBlob
+                gzi: gziBlob,
+                chunkSizeLimit: args.chunkSizeLimit || 1000000
             })
 
             fastaIndexedFilesCache.set(cacheKey, this.fasta)
