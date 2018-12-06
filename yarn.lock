@@ -187,10 +187,10 @@
     tmp-promise "^1.0.4"
     typical "^2.6.1"
 
-"@gmod/indexedfasta@^1.0.10":
-  version "1.0.10"
-  resolved "https://registry.yarnpkg.com/@gmod/indexedfasta/-/indexedfasta-1.0.10.tgz#2b8620d0d2675c91532d183d9a4480af9e84ce32"
-  integrity sha512-2itK6LF3dm2m8ymF0eMDyMXoM3yPVwILipr4kVwzL0+z/Kz14jmBjUuvaXVFGXtyRmmLmhAtxUBf4xtp5qCmsQ==
+"@gmod/indexedfasta@^1.0.11":
+  version "1.0.11"
+  resolved "https://registry.yarnpkg.com/@gmod/indexedfasta/-/indexedfasta-1.0.11.tgz#a19d34d55790d088e306fede0975db6bf50c3fbd"
+  integrity sha512-B8jG4KhqJOcBTikk1OlWzKz4v/gaH9ZGy7qiSEMZpVFGAaBL2RVqR8S1hQjrkZE+jZ1Z7ItWm8akOSvz3VV7MA==
   dependencies:
     "@gmod/bgzf-filehandle" "^1.2.2"
     es6-promisify "^6.0.1"
