@@ -1,12 +1,11 @@
 define( ['dojo/_base/declare',
          'dojo/_base/array',
-         'dojo/promise/all',
          'JBrowse/View/Track/Wiggle/XYPlot',
          'JBrowse/Util',
          'JBrowse/View/Track/_AlignmentsMixin',
          'JBrowse/Store/SeqFeature/SNPCoverage'
         ],
-        function( declare, array, all, WiggleXY, Util, AlignmentsMixin, SNPCoverageStore ) {
+        function( declare, array, WiggleXY, Util, AlignmentsMixin, SNPCoverageStore ) {
 
 var dojof = Util.dojof;
 
@@ -50,6 +49,7 @@ return declare( [WiggleXY, AlignmentsMixin],
                 hideSecondary: true,
                 hideSupplementary: true,
                 hideMissingMatepairs: false,
+                hideImproperPairs: false,
                 hideUnmapped: true
             }
         );
@@ -281,7 +281,21 @@ return declare( [WiggleXY, AlignmentsMixin],
     },
 
     _trackMenuOptions: function() {
-        return all([ this.inherited(arguments), this._alignmentsFilterTrackMenuOptions() ])
+        var thisB = this;
+        var displayOptions = [];
+
+
+        displayOptions.push({
+            label: 'View alignments',
+            onClick: function(event) {
+                thisB.config.type = 'JBrowse/View/Track/Alignments2'
+                thisB.config._oldSnpCoverageHeight = thisB.config.style.height
+                thisB.config.style.height = thisB.config._oldAlignmentsHeight
+                thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
+            }
+        });
+
+        return Promise.all([ this.inherited(arguments), this._alignmentsFilterTrackMenuOptions(), displayOptions ])
             .then( function( options ) {
                        var o = options.shift();
                        options.unshift({ type: 'dijit/MenuSeparator' } );

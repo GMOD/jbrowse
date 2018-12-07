@@ -21,7 +21,7 @@ return declare( Store,
 
     constructor: function( args ) {
         this.globalStats = {}
-        this.storeTimeout = args.storeTimeout || 500;
+        this.storeTimeout = args.storeTimeout ? args.storeTimeout : 3000;
         this._featureTransforms = args.featureTransforms || []
 
         // install general transform function if defined

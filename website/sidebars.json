@@ -23,7 +23,8 @@
       "track_metadata",
       "global_options",
       "compression",
-      "authentication"
+      "authentication",
+      "paired_reads"
     ],
     "Command line": [
       "flatfile-to-json.pl",

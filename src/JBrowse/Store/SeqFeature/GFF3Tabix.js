@@ -67,6 +67,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
             renameRefSeqs: n => this.browser.regularizeReferenceName(n)
         });
 
+
         // start our global stats estimation
         this.indexedData.lineCount('nonexistent')
             .then(
@@ -168,7 +169,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
                                 return
                             }
                         }
-    
+
                         // decorate each of the lines with a _lineHash attribute
                         const gff3 = lines
                             .map(lineRecord => {
@@ -191,7 +192,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
                             parseDirectives: false,
                             parseSequences: false,
                         })
-    
+
                         features.forEach(feature =>
                             this.applyFeatureTransforms(this._formatFeatures(feature)).forEach(
                                 featureCallback,

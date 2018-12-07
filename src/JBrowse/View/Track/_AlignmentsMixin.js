@@ -27,6 +27,33 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
      * @returns {HTMLElement} feature detail page HTML
      */
     defaultFeatureDetail: function( /** JBrowse.Track */ track, /** Object */ f, /** HTMLElement */ div ) {
+        let container
+        if(f.pairedFeature() && track.config.viewAsPairs) {
+            container = dojo.create('div', {
+                className: 'detail feature-detail feature-detail-'+track.name.replace(/\s+/g,'_').toLowerCase(),
+                style: { width: '1000px' }
+            });
+            dojo.place('<div><h1>Paired read details</h1></div><br />', container)
+            var flexContainer = dojo.create('div', {
+                className: 'detail feature-detail feature-detail-'+track.name.replace(/\s+/g,'_').toLowerCase(),
+                style: {
+                    display: 'flex',
+                    'flex-direction': 'row'
+                }
+            }, container);
+            var c1 = dojo.create('div', { className: 'detail feature-detail' }, flexContainer);
+            var c2 = dojo.create('div', { className: 'detail feature-detail' }, flexContainer);
+            var ret = this.defaultAlignmentDetail(track, f.read1, c1)
+            var ret2 = this.defaultAlignmentDetail(track, f.read2, c2)
+            dojo.place(ret, c1)
+            dojo.place(ret2, c2)
+            return container;
+        } else {
+            container = this.defaultAlignmentDetail(track, f, div)
+        }
+        return container
+    },
+    defaultAlignmentDetail(track, f, div) {
         var container = dojo.create('div', {
             className: 'detail feature-detail feature-detail-'+track.name.replace(/\s+/g,'_').toLowerCase(),
             innerHTML: ''
@@ -189,9 +216,16 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                 hideMissingMatepairs: {
                     desc: 'Hide reads with missing mate pairs',
                     func: function( f ) {
+                        return ! ( f.get('multi_segment_template') && f.get('multi_segment_next_segment_unmapped') );
+                    }
+                },
+                hideImproperPairs: {
+                    desc: 'Hide reads that with improper pairs',
+                    func: function( f ) {
                         return ! ( f.get('multi_segment_template') && ! f.get('multi_segment_all_aligned') );
                     }
                 },
+
                 hideUnmapped: {
                     desc: 'Hide unmapped reads',
                     func: function( f ) {
@@ -229,6 +263,7 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                                'hideDuplicateReads',
                                'hideQCFailingReads',
                                'hideMissingMatepairs',
+                               'hideImproperPairs',
                                'hideSecondary',
                                'hideSupplementary',
                                'hideUnmapped',

@@ -102,12 +102,12 @@ return declare(
         this.showLabels = this.config.style.showLabels;
         this.showTooltips = this.config.style.showTooltips;
         this.displayMode = this.config.displayMode;
-
         //setup displayMode style cookie
         var cookie = this.browser.cookie("track-" + this.name);
         if (cookie) {
             this.displayMode = cookie;
         }
+
 
         this._setupEventHandlers();
     },
@@ -398,7 +398,10 @@ return declare(
             start: args.leftBase,
             end:   args.rightBase,
             basesPerSpan: basesPerBin,
-            basesPerBin: basesPerBin
+            basesPerBin: basesPerBin,
+            viewAsPairs: this.config.viewAsPairs,
+            viewAsSpans: this.config.viewAsSpans,
+            maxInsertSize: this.config.maxInsertSize
         }
 
         const handleError = this._handleError.bind(this)
@@ -591,7 +594,10 @@ return declare(
         const region = {
             ref: this.refSeq.name,
             start: Math.max( 0, leftBase - bpExpansion ),
-            end: rightBase + bpExpansion
+            end: rightBase + bpExpansion,
+            viewAsPairs: this.config.viewAsPairs,
+            viewAsSpans: this.config.viewAsSpans,
+            maxInsertSize: this.config.maxInsertSize
         }
 
         const featCallback = feature => {
@@ -982,8 +988,7 @@ return declare(
                     thisB.hideAll();
                     thisB.genomeView.showVisibleBlocks(true);
                     thisB.makeTrackMenu();
-
-                    // set cookie for displayMode
+                     // set cookie for displayMode
                     thisB.browser.cookie('track-' + thisB.name, thisB.displayMode);
                 }
             };
@@ -1012,7 +1017,7 @@ return declare(
                       thisB.showLabels = this.checked;
                       thisB.changed();
                   }
-                }
+				}
             ]
         );
 

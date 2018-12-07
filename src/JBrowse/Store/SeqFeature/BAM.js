@@ -1,25 +1,19 @@
 const LRU = cjsRequire('quick-lru')
 const { BamFile } = cjsRequire('@gmod/bam')
 
-const { Buffer } = cjsRequire('buffer')
 
 const bamIndexedFilesCache = new LRU({ maxSize: 5 })
 
 const BlobFilehandleWrapper = cjsRequire('../../Model/BlobFilehandleWrapper')
 
 class BamSlightlyLazyFeature {
-
-    _get_name() { return this.record._get('name') }
-    _get_start() { return this.record._get('start') }
-    _get_end() { return this.record._get('end') }
+    _get_id() { return this.record.get('id')}
     _get_type() { return 'match'}
     _get_score() { return this.record._get('mq')}
     _get_mapping_quality() { return this.record.mappingQuality}
     _get_flags() { return `0x${this.record.flags.toString(16)}`}
     _get_strand() { return this.record.isReverseComplemented() ? -1 : 1 }
     _get_read_group_id() { return this.record.readGroupId }
-    _get_qual() { return this.record._get('qual')}
-    _get_cigar() { return this.record._get('cigar')}
     _get_seq_id() { return this._store._refIdToName(this.record._refID)}
     _get_qc_failed() { return this.record.isFailedQc()}
     _get_duplicate() { return this.record.isDuplicate()}
@@ -32,13 +26,15 @@ class BamSlightlyLazyFeature {
     _get_multi_segment_first() { return this.record.isRead1()}
     _get_multi_segment_last() { return this.record.isRead2()}
     _get_multi_segment_next_segment_reversed() { return this.record.isMateReverseComplemented()}
+    _get_pair_orientation() { return this.record.getPairOrientation()}
     _get_unmapped() { return this.record.isSegmentUnmapped()}
-    _get_next_seq_id() { return this._store._refIdToName(this.record._next_refid()) }
+    _get_next_seq_id() { return this.record.isPaired() ? this._store._refIdToName(this.record._next_refid()) : undefined }
+    _get_is_paired() { return this.record.isPaired() }
+    _get_next_pos() { return this.record.isPaired() ? this.record._next_pos() : undefined }
     _get_next_segment_position() { return this.record.isPaired()
         ? ( this._store._refIdToName(this.record._next_refid())+':'+(this.record._next_pos()+1)) : undefined}
     _get_tags() { return this.record._tags() }
     _get_seq() { return this.record.getReadBases() }
-    _get_md() { return this.record._get('md') }
 
     constructor(record, store) {
         this.record = record
@@ -53,6 +49,11 @@ class BamSlightlyLazyFeature {
         return this.record.get('id')
     }
 
+    _get(field) {
+        const methodName = `_get_${field}`
+        if (this[methodName]) return this[methodName]()
+        else return this.record._get(field)
+    }
     get(field) {
         const methodName = `_get_${field.toLowerCase()}`
         if (this[methodName]) return this[methodName]()
@@ -62,29 +63,42 @@ class BamSlightlyLazyFeature {
     parent() {}
 
     children() {}
+
+    pairedFeature() { return false }
 }
+
 
 define( [
             'dojo/_base/declare',
+            'JBrowse/Util',
             'JBrowse/Errors',
             'JBrowse/Store/SeqFeature',
             'JBrowse/Store/DeferredStatsMixin',
             'JBrowse/Store/DeferredFeaturesMixin',
             'JBrowse/Store/SeqFeature/IndexedStatsEstimationMixin',
+            'JBrowse/Store/SeqFeature/_PairCache',
+            'JBrowse/Store/SeqFeature/_SpanCache',
+            'JBrowse/Store/SeqFeature/_InsertSizeCache',
             'JBrowse/Model/XHRBlob',
+            'JBrowse/Model/SimpleFeature',
         ],
         function(
             declare,
+            Util,
             Errors,
             SeqFeatureStore,
             DeferredStatsMixin,
             DeferredFeaturesMixin,
             IndexedStatsEstimationMixin,
+            PairCache,
+            SpanCache,
+            InsertSizeCache,
             XHRBlob,
+            SimpleFeature
         ) {
 
 return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, IndexedStatsEstimationMixin ], {
-    constructor: function( args ) {
+    constructor( args ) {
 
         let dataBlob
         if (args.bam)
@@ -118,8 +132,8 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
                 baiFilehandle: baiBlob,
                 csiFilehandle: csiBlob,
                 renameRefSeqs: n => this.browser.regularizeReferenceName(n),
-                fetchSizeLimit: 100000000 || args.fetchSizeLimit,
-                chunkSizeLimit: 10000000 || args.chunkSizeLimit
+                fetchSizeLimit: args.fetchSizeLimit || 100000000,
+                chunkSizeLimit: args.chunkSizeLimit || 20000000
             })
 
             bamIndexedFilesCache.set(cacheKey, this.bam)
@@ -143,7 +157,9 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
                 this._deferred.stats.reject(err)
             })
 
-        this.storeTimeout = args.storeTimeout || 3000;
+        this.insertSizeCache = new InsertSizeCache(args);
+        this.pairCache = new PairCache(args);
+        this.spanCache = new SpanCache(args);
     },
 
     // process the parsed SAM header from the bam file
@@ -195,7 +211,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
      * Interrogate whether a store has data for a given reference
      * sequence.  Calls the given callback with either true or false.
      */
-    hasRefSeq: function( seqName, callback, errorCallback ) {
+    hasRefSeq( seqName, callback, errorCallback ) {
         seqName = this.browser.regularizeReferenceName( seqName );
 
         this._deferred.stats
@@ -204,33 +220,52 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
     },
 
     // called by getFeatures from the DeferredFeaturesMixin
-    _getFeatures: function( query, featCallback, endCallback, errorCallback ) {
+    _getFeatures( query, featCallback, endCallback, errorCallback ) {
         let seqName = query.ref || this.refSeq.name
         seqName = this.browser.regularizeReferenceName( seqName );
+        const pairCache = {};
+        query.maxInsertSize = query.maxInsertSize||50000
 
-        this.bam.getRecordsForRange(seqName, query.start, query.end)
+        this.bam.getRecordsForRange(seqName, query.start, query.end, { viewAsPairs: query.viewAsPairs, viewAsSpans: query.viewAsSpans, maxInsertSize: query.maxInsertSize })
             .then(records => {
-                for (let i = 0; i < records.length; i += 1) {
-                    featCallback(this._bamRecordToFeature(records[i]))
+                if(query.viewAsPairs) {
+                    const recs = records.map(f => this._bamRecordToFeature(f))
+                    recs.forEach(r => this.insertSizeCache.insertFeat(r))
+                    this.pairCache.pairFeatures(query, recs, featCallback, endCallback, errorCallback)
+                } else if(query.viewAsSpans) {
+                    const recs = records.map(f => this._bamRecordToFeature(f))
+                    recs.forEach(r => this.insertSizeCache.insertFeat(r))
+                    this.spanCache.pairFeatures(query, recs, featCallback, endCallback, errorCallback)
+                } else {
+                    for(let i = 0; i < records.length; i++) {
+                        this.insertSizeCache.insertFeat(records[i]);
+                        featCallback(this._bamRecordToFeature(records[i]))
+                    }
                 }
-
                 endCallback()
-            })
-            .catch(err => {
-                // // map the BamSizeLimitError to JBrowse Errors.DataOverflow
-                // if (err instanceof BamSizeLimitError) {
-                //     err = new Errors.DataOverflow(err)
-                // }
-
-                errorCallback(err)
-            })
+            }).catch(errorCallback)
     },
+
+
+    getInsertSizeStats() {
+        return this.insertSizeCache.getInsertSizeStats()
+    },
+
+    cleanFeatureCache(query) {
+        this.pairCache.cleanFeatureCache(query)
+        this.spanCache.cleanFeatureCache(query)
+    },
+
+    cleanStatsCache() {
+        this.insertSizeCache.cleanStatsCache()
+    },
+
 
     _bamRecordToFeature(record) {
         return new BamSlightlyLazyFeature(record, this)
     },
 
-    saveStore: function() {
+    saveStore() {
         return {
             urlTemplate: this.config.bam.url,
             baiUrlTemplate: (this.config.bai||{}).url,

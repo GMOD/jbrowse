@@ -216,6 +216,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin], {
         if( bgcolor ) {
             context.fillStyle = bgcolor;
             context.fillRect( left, top, Math.max(1,width), height );
+
         }
         else {
             context.clearRect( left, top, Math.max(1,width), height );

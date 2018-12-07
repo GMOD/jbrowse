@@ -1036,8 +1036,7 @@ initView: function() {
                   elem: this.viewElem,
                   config: this.config.view,
                   stripeWidth: 250,
-                  refSeq: this.refSeq,
-                  zoomLevel: 1/200
+                  refSeq: this.refSeq
                 });
 
         dojo.connect( this.view, "onFineMove",   this, "onFineMove"   );
@@ -1518,7 +1517,7 @@ getTrackTypes: function() {
             // map of store type -> default track type to use for the store
             trackTypeDefaults: {
                 'JBrowse/Store/SeqFeature/BAM'         : 'JBrowse/View/Track/Alignments2',
-                'JBrowse/Store/SeqFeature/CRAM'         : 'JBrowse/View/Track/Alignments2',
+                'JBrowse/Store/SeqFeature/CRAM'        : 'JBrowse/View/Track/Alignments2',
                 'JBrowse/Store/SeqFeature/NCList'      : 'JBrowse/View/Track/CanvasFeatures',
                 'JBrowse/Store/SeqFeature/BigWig'      : 'JBrowse/View/Track/Wiggle/XYPlot',
                 'JBrowse/Store/SeqFeature/VCFTabix'    : 'JBrowse/View/Track/CanvasVariants',
@@ -1977,7 +1976,7 @@ _calculateClientStats: function() {
 
 publish: function() {
     if( this.config.logMessages )
-        console.log( arguments );
+        console.log( arguments )
 
     return topic.publish.apply( topic, arguments );
 },

@@ -1,7 +1,6 @@
 const LRU = cjsRequire('quick-lru')
 const { IndexedCramFile, CraiIndex } = cjsRequire('@gmod/cram')
-
-const { Buffer } = cjsRequire('buffer')
+const { CramSizeLimitError } = cjsRequire('@gmod/cram/errors')
 
 const cramIndexedFilesCache = new LRU({ maxSize: 5 })
 
@@ -9,11 +8,13 @@ const BlobFilehandleWrapper = cjsRequire('../../Model/BlobFilehandleWrapper')
 
 class CramSlightlyLazyFeature {
 
+    _get_id() { return this.id() }
     _get_name() { return this.record.readName }
     _get_start() { return this.record.alignmentStart-1 }
     _get_end() { return this.record.alignmentStart+this.record.lengthOnRef-1 }
     _get_cram_read_features() { return this.record.readFeatures }
     _get_type() { return 'match'}
+    _get_score() { return this.record.mappingQuality }
     _get_mapping_quality() { return this.record.mappingQuality}
     _get_flags() { return `0x${this.record.flags.toString(16)}`}
     _get_cramFlags() { return `0x${this.record.cramFlags.toString(16)}`}
@@ -26,16 +27,21 @@ class CramSlightlyLazyFeature {
     _get_secondary_alignment() { return this.record.isSecondary()}
     _get_duplicate() { return this.record.isDuplicate()}
     _get_supplementary_alignment() { return this.record.isSupplementary()}
+    _get_pair_orientation() { return this.record.getPairOrientation()}
     _get_multi_segment_template() { return this.record.isPaired()}
     _get_multi_segment_all_correctly_aligned() { return this.record.isProperlyPaired()}
+    _get_multi_segment_all_aligned() { return this.record.isProperlyPaired()}
     _get_multi_segment_next_segment_unmapped() { return this.record.isMateUnmapped()}
     _get_multi_segment_first() { return this.record.isRead1()}
     _get_multi_segment_last() { return this.record.isRead2()}
     _get_multi_segment_next_segment_reversed() { return this.record.isMateReverseComplemented()}
+    _get_is_paired() { return !!this.record.mate }
     _get_unmapped() { return this.record.isSegmentUnmapped()}
+    _get_template_length() { return this.record.templateLength || this.record.templateSize}
     _get_next_seq_id() { return this.record.mate ? this._store._refIdToName(this.record.mate.sequenceId) : undefined }
+    _get_next_pos() { return this.record.mate ? this.record.mate.alignmentStart : undefined }
     _get_next_segment_position() { return this.record.mate
-        ? ( this._store._refIdToName(this.record.mate.sequenceId)+':'+this.record.mate.alignmentStart) : undefined}
+        ? ( this._store._refIdToName(this.record.mate.sequenceId)+':'+this.record.mate.alignmentStart) : undefined }
     _get_tags() { return this.record.tags }
     _get_seq() { return this.record.getReadBases() }
 
@@ -55,6 +61,11 @@ class CramSlightlyLazyFeature {
         return this.record.uniqueId + 1
     }
 
+    _get(field) {
+        const methodName = `_get_${field}`
+        if (this[methodName]) return this[methodName]()
+        return undefined
+    }
     get(field) {
         const methodName = `_get_${field.toLowerCase()}`
         if (this[methodName]) return this[methodName]()
@@ -64,25 +75,36 @@ class CramSlightlyLazyFeature {
     parent() {}
 
     children() {}
+
+    pairedFeature() { return false }
 }
+
 
 define( [
             'dojo/_base/declare',
+            'JBrowse/Util',
             'JBrowse/Errors',
             'JBrowse/Store/SeqFeature',
             'JBrowse/Store/DeferredStatsMixin',
             'JBrowse/Store/DeferredFeaturesMixin',
             'JBrowse/Store/SeqFeature/GlobalStatsEstimationMixin',
+            'JBrowse/Store/SeqFeature/_PairCache',
+            'JBrowse/Store/SeqFeature/_SpanCache',
+            'JBrowse/Store/SeqFeature/_InsertSizeCache',
             'JBrowse/Model/XHRBlob',
             'JBrowse/Model/SimpleFeature',
         ],
         function(
             declare,
+            Util,
             Errors,
             SeqFeatureStore,
             DeferredStatsMixin,
             DeferredFeaturesMixin,
             GlobalStatsEstimationMixin,
+            PairCache,
+            SpanCache,
+            InsertSizeCache,
             XHRBlob,
             SimpleFeature,
         ) {
@@ -129,6 +151,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                 index: new CraiIndex({filehandle: indexBlob}),
                 seqFetch: this._seqFetch.bind(this),
                 checkSequenceMD5: false,
+                fetchSizeLimit: args.fetchSizeLimit || 60000000
             })
 
             cramIndexedFilesCache.set(cacheKey, this.cram)
@@ -154,7 +177,9 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                 this._deferred.stats.reject(err)
             })
 
-        this.storeTimeout = args.storeTimeout || 3000;
+        this.insertSizeCache = new InsertSizeCache(args);
+        this.pairCache = new PairCache(args);
+        this.spanCache = new SpanCache(args);
     },
 
     // process the parsed SAM header from the cram file
@@ -185,7 +210,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
     _refNameToId(refName) {
         // use info from the SAM header if possible, but fall back to using
         // the ref seq order from when the browser's refseqs were loaded
-        if (this._samHeader.refSeqNameToId)
+        if (this._samHeader.refSeqNameToId && refName in this._samHeader.refSeqNameToId)
             return this._samHeader.refSeqNameToId[refName]
         else
             return this.browser.getRefSeqNumber(refName)
@@ -269,31 +294,61 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
 
     // called by getFeatures from the DeferredFeaturesMixin
     _getFeatures: function( query, featCallback, endCallback, errorCallback ) {
+        const pairCache = {};
         const seqName = query.ref || this.refSeq.name
         const refSeqNumber = this._refNameToId(seqName)
+        query.maxInsertSize = query.maxInsertSize || 50000
         if (refSeqNumber === undefined) {
             endCallback()
             return
         }
-
-        this.cram.getRecordsForRange(refSeqNumber, query.start + 1, query.end)
+        this.cram.getRecordsForRange(refSeqNumber, query.start + 1, query.end, { viewAsPairs: query.viewAsPairs, viewAsSpans: query.viewAsSpans, maxInsertSize: query.maxInsertSize })
             .then(records => {
-                for (let i = 0; i < records.length; i+= 1) {
-                    featCallback(this._cramRecordToFeature(records[i]))
+                if(query.viewAsPairs) {
+                    const recs = records.map(f => this._cramRecordToFeature(f))
+                    recs.forEach(r => this.insertSizeCache.insertFeat(r))
+                    this.pairCache.pairFeatures(query, recs, featCallback, endCallback, errorCallback)
+                } else if(query.viewAsSpans) {
+                    const recs = records.map(f => this._cramRecordToFeature(f))
+                    recs.forEach(r => this.insertSizeCache.insertFeat(r))
+                    this.spanCache.pairFeatures(query, recs, featCallback, endCallback, errorCallback)
+                } else {
+                    for(let i = 0; i < records.length; i++) {
+                        let feat = this._cramRecordToFeature(records[i])
+                        this.insertSizeCache.insertFeat(feat);
+                        featCallback(feat)
+                    }
                 }
-
                 endCallback()
             })
             .catch(err => {
+                // map the CramSizeLimitError to JBrowse Errors.DataOverflow
+                if (err instanceof CramSizeLimitError) {
+                    err = new Errors.DataOverflow(err)
+                }
+
                 errorCallback(err)
             })
+    },
+
+    getInsertSizeStats() {
+        return this.insertSizeCache.getInsertSizeStats()
+    },
+
+    cleanFeatureCache(query) {
+        this.pairCache.cleanFeatureCache(query)
+        this.spanCache.cleanFeatureCache(query)
+    },
+
+    cleanStatsCache() {
+        this.insertSizeCache.cleanStatsCache()
     },
 
     _cramRecordToFeature(record) {
         return new CramSlightlyLazyFeature(record, this)
     },
 
-    saveStore: function() {
+    saveStore() {
         return {
             urlTemplate: this.config.cram.url,
             craiUrlTemplate: this.config.crai.url

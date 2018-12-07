@@ -208,7 +208,7 @@ return declare( null, {
             }
         }
 
-        domConstruct.create('div', { className: 'value '+class_, innerHTML: unsafe || this.config.unsafePopup ? val : Util.escapeHTML(val) }, parent );
+        domConstruct.create('div', { className: 'value '+ (val.length > 70 && val.indexOf(' ') == -1 ? 'long ' : '') + class_, innerHTML:  unsafe || this.config.unsafePopup ? val : Util.escapeHTML(val) }, parent );
         return 1;
     },
 
@@ -225,6 +225,7 @@ return declare( null, {
             return document.createElement('span');
 
         function defaultRenderCell( field, value, node, options ) {
+
             thisB.renderDetailValue( node, '', value, f, '' );
         }
 

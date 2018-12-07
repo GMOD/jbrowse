@@ -24,6 +24,10 @@ return declare( null, {
 
         refseq = refseq || this.refSeq;
         var timeout = this.storeTimeout || 3000;
+        if (this.storeTimeout == 0) {
+            deferred.resolve( { featureDensity: 0, error: 'global stats estimation timed out' } )
+            return
+        }
 
         var startTime = new Date();
 

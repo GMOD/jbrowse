@@ -72,6 +72,9 @@
  * Fixed issue with some GFF3Tabix tracks having some inconsistent layout of
    features (issue #1244, pull #1260, @cmdcolin)
 
+ * Fixed CRAM store not renaming reference sequences in the same way as other
+   stores (@rbuels)
+
  * Fixed bug where older browsers e.g. IE11 were not being properly supported via
    babel (issue #1259, pull #1267, @cmdcolin)
 

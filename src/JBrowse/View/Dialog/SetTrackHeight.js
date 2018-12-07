@@ -2,7 +2,7 @@ define([
            'dojo/_base/declare',
            'dojo/dom-construct',
            'dijit/focus',
-            'dijit/form/NumberSpinner',
+           'dijit/form/NumberSpinner',
            'JBrowse/View/Dialog/WithActionBar',
            'dojo/on',
            'dijit/form/Button',
@@ -14,7 +14,7 @@ define([
 return declare( ActionBarDialog, {
     /**
      * Dijit Dialog subclass that pops up prompt for the user to
-     * manually set a new highlight.
+     * manually set a new track height.
      * @lends JBrowse.View.InfoDialog
      */
     title: 'Set new track height',
@@ -24,7 +24,8 @@ return declare( ActionBarDialog, {
         this.browser = args.browser;
         this.setCallback    = args.setCallback || function() {};
         this.cancelCallback = args.cancelCallback || function() {};
-        this.heightConstraints = { min: 10, max: 750 };
+        this.heightConstraints = { min: 10, max: args.maxHeight||750 };
+        this.msg = args.msg
     },
 
     _fillActionBar: function( actionBar ) {
@@ -60,7 +61,7 @@ return declare( ActionBarDialog, {
         this.set('content', [
                      dom.create('label', { "for": 'newhighlight_locstring', innerHTML: '' } ),
                      this.heightSpinner.domNode,
-                     dom.create( 'span', { innerHTML: ' pixels' } )
+                     dom.create( 'span', { innerHTML: this.msg||' pixels' } )
                  ] );
 
         this.inherited( arguments );
