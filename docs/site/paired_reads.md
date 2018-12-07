@@ -44,10 +44,18 @@ Furthermore store class must implement usage of the `InsertSizeCache` for insert
 
 ## Screenshots
 
-![center|1124px|border|JBrowse displaying paired-read alignments](assets/config/JBrowse_mate_pair.png)
+![center|1124px|border|JBrowse displaying paired-read pileup and arc](assets/config/JBrowse_paired_reads.png)
 
-Long-insert size mate pair libraries
+Figure 1. Mate pair libraries showing the pileup view and arc view of the same data. The pileup view has `colorByOrientationAndSize` turned on, and the below has only `colorByOrientation` turned on. The red lines indicate abnormally large insert size.
+
+![center|1124px|border|JBrowse displaying paired-read cloud](assets/config/JBrowse_paired_read_cloud.png)
+
+Figure 2. The read cloud view of the same data, using on top the linear-scale and on the bottom the log-scale. The configuration option is `readCloudLogScale: true` but can be enabled via the track menu also
+
+![center|1124px|border|JBrowse displaying paired-read menu](assets/config/JBrowse_paired_read_menu.png)
+
+Figure 3. The track menu shows the ability to toggle different track visualizations by the user easily
 
 
-![center|1124px|border|JBrowse displaying paired-read alignments](assets/config/JBrowse_paired_end.png)
+
 
