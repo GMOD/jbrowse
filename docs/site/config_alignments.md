@@ -31,6 +31,8 @@ The above track template infers that the storeClass is a BAM store. Not all trac
 
 ### List of configuration options
 
+General options
+
 |Option|Value|
 |------|-----|
 |`maxHeight`|Available in JBrowse 1.9.0 and later. Maximum displayed height of the track in pixels. Defaults to 1000. Features that would cause the track to grow taller than the `maxHeight` are not shown. If a section of a track has features that are not drawn because of a `maxHeight` constraint, a notification is displayed at the bottom of that track section.|
@@ -42,10 +44,16 @@ The above track template infers that the storeClass is a BAM store. Not all trac
 |`style→marginBotton`|Number of pixels of vertical spacing to put on the bottom of each alignment. Default 1.|
 |`style→showMismatches`|If true, draw mismatches (SNPs, insertions, deletions, skips) on the alignent. Default true.|
 |`style→mismatchFont`|CSS string describing the font to use for labeling mismatches. Default "bold 10px Courier New,monospace".|
+
+Histograms configuration
+
 |`histograms.storeClass`|A store class for summary histograms used for the Alignments2 track. Usually JBrowse/Store/SeqFeature/BigWig. Can be used on any CanvasFeatures-type track but generally used in Alignments2 tracks|
 |`histograms.urlTemplate`|Path to a histogram file (such as a BigWig) to be used for summary histograms used for the Alignments2 track. Can be used on any CanvasFeatures-type track but generally used in Alignments2 tracks|
 |`histograms.color`|Color for the histograms e.g. "purple". Default is orange. Can be used on any CanvasFeatures-type track but generally used in Alignments2 tracks|
 |`histograms.binsPerBlock`|"Granularity" of the bins in histogram. Default is 200 for Alignments2 tracks. Default is 25 on other CanvasFeatures type tracks.|
+
+Filtering options
+
 |`hideDuplicateReads`|Hide duplicate reads to the same location. Default: true|
 |`hideQCFailingReads`|Hide QC failing reads that did not pass some aligner quality. Default: true|
 |`hideSecondary`|Hide secondary reads which mapped to multiple locations. Default: true|
@@ -53,24 +61,36 @@ The above track template infers that the storeClass is a BAM store. Not all trac
 |`hideMissingMatepairs`|If a read is missing a mate pair or paired-end match, hide the read. Default: false|
 |`hideForwardStrand`|Hide all reads from the forward strand. Default: false|
 |`hideReverseStrand`|Hide all reads from the reverse strand. Default: false|
-|`useReverseTemplate`|Use an algorithm for reversing the template of paired-end reads so that they appear on the same strand. Default: false. Added in 1.11.6|
-|`useReverseTemplateOption`|Present a checkbox to the user for changing the "Use reverse template" option. Default: true. Added in 1.11.6|
-|`useXS`|Color reads when the XS tag indicates strandedness. Default: false. Added in 1.11.6|
-|`useTS`|Color reads when the TS tag indicates strandedness. Default: false. Added in 1.16.0|
-|`useXSOption`|Present a checkbox to the user for changing the "Use XS" option. Default: true. Added in 1.11.6|
+
+Coloring options
+
+|`useReverseTemplate`|Use an algorithm for reversing the template of paired-end reads so that they appear on the same strand, RNA-seq specific. Default: false. Added in 1.11.6|
+|`useXS`|Color reads when the XS tag indicates strandedness, RNA-seq specific. Default: false. Added in 1.11.6|
+|`useTS`|Color reads when the TS tag indicates strandedness, RNA-seq specific. Default: false. Added in 1.16.0|
+|`colorByMAPQ`|Color reads when the TS tag indicates strandedness, RNA-seq specific. Default: false. Added in 1.16.0|
+|`colorByOrientation`|Colors reads according to paired end orientations. See https://software.broadinstitute.org/software/igv/interpreting_pair_orientations for details. Default: false. Requires viewAsPairs to be true|
+|`colorBySize`|Colors reads according to paired end orientations. See https://software.broadinstitute.org/software/igv/interpreting_pair_orientations for details. Default: false. Requires viewAsPairs to be true|
+|`colorByOrientationAndSize`|Colors reads according to paired end orientations. See https://software.broadinstitute.org/software/igv/interpreting_pair_orientations for details. Default: false. Requires viewAsPairs to be true|
+
+Other options
+
 |`cacheMismatches`|Cache mismatch calculations so that long reads are faster to browser. Default: false. Added in 1.12.3|
 |`renderAlignments`|Add a text display of the BAM alignment on a single line in the View details popup. Default: false|
 |`renderPrettyAlignments`|Add a text display of the BAM alignment using prettier "BLAST style" to the View details popup. Default: false|
-|`colorByOrientation`|Colors reads according to paired end orientations. See https://software.broadinstitute.org/software/igv/interpreting_pair_orientations for details. Default: false. Requires viewAsPairs to be true|
 |`orientationType`|Set the orientation pattern. Default is 'fr' according to illumina adapters that face each other. Other options are 'rf' and 'ff'.|
-|`viewAsPairs`|Applies algorithm to display paired end reads as a connected entity. Requires manually setting glyph=JBrowse/View/FeatureGlyph/PairedAlignment in config|
-|`readCloud`|Applies algorithm to display reads stratified on the y-axis according to the insert size. Requires manually setting glyph=JBrowse/View/FeatureGlyph/PairedAlignment in config|
 
-Also can set glyph=JBrowse/View/FeatureGlyph/PairedArc, requires having viewAsPairs being true
+### Paired read options
+
+In JBrowse 1.16, paired read visualization was introduced
+
+See [paired read configuration also](paired_reads.md) for more information
+
+Note: the `colorByOrientation`, `colorBySize`, and `colorByOrientationAndSize` all depend on paired read data being viewed, but you do not need to have the glyph for `PairedAlignment`/`PairedArc`/`PairedReadCloud` to be turned on to use the coloring scheme e.g. you can color by insert size with the unpaired alignments view.
 
 ### Alignments2 coloring schemes
 
 Since JBrowse 1.11.3, there is a new coloring scheme for BAM files that allows for new coloring of paired end reads, such as a different coloring for unpaired reads and aberrant pairing split across chromosomes.
+
 
 The coloring styles that can be configured for the Alignments2 track are as follows
 

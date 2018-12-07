@@ -31,15 +31,23 @@ Algorithmically, a window of size `maxInsertSize` needs to be fetched surroundin
 
 
 
-## Implementing paired read data stores
+## For developers
 
-The paired read visualizations have been tested on both BAM and CRAM data types. For other store classes, you must return features implement
-
-- a .pairedFeature method that returns true
-- a .get method such that .get('template_length')
-- have .read1 and .read2 class attributes each with corresponding .get methods with start and end attributes
-
-Furthermore store class must implement usage of the `InsertSizeCache` for insert size stats estimation, `SpanCache` for the PairedArc visualization, and `PairCache` for the `PairedAlignment` and `PairedReadCloud` visualizations.
+The paired read visualizations have been tested on both BAM and CRAM data types. If you are implementing your own custom store class with paired read data support, you must implement for your feature types:
 
 
+- a method that can be called as yourfeature.pairedFeature() method that returns true
+- data attributes the reads called yourfeature.read1 and yourfeature.read2
+
+Furthermore store class must implement usage of the `InsertSizeCache` for insert size stats estimation, `SpanCache` for the PairedArc visualization, and `PairCache` for the `PairedAlignment` and `PairedReadCloud` visualizations. See the BAM and CRAM store class implementations for these.
+
+
+## Screenshots
+
+![center|1124px|border|JBrowse displaying paired-read alignments](assets/config/JBrowse_mate_pair.png)
+
+Long-insert size mate pair libraries
+
+
+![center|1124px|border|JBrowse displaying paired-read alignments](assets/config/JBrowse_paired_end.png)
 
