@@ -256,6 +256,11 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
         this.spanCache.cleanFeatureCache(query)
     },
 
+    cleanStatsCache() {
+        this.insertSizeCache.cleanStatsCache()
+    },
+
+
     _bamRecordToFeature(record) {
         return new BamSlightlyLazyFeature(record, this)
     },

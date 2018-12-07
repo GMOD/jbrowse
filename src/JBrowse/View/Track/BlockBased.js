@@ -76,9 +76,6 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
     constructor: function( args ) {
         args = args || {};
 
-        //setup config cookie
-
-
         this.refSeq = args.refSeq;
         this.name = args.label || this.config.label;
         this.key = args.key || this.config.key || this.name;

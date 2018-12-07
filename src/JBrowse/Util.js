@@ -587,6 +587,7 @@ Util = {
         return x2 >= y1 && y2 >= x1
     },
 
+    // orientation definitions from igv.js, see also https://software.broadinstitute.org/software/igv/interpreting_pair_orientations
     orientationTypes: {
         fr: {
 

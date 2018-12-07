@@ -34,7 +34,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 hideUnmapped: true,
                 hideUnsplicedReads: false,
                 hideMissingMatepairs: false,
-                hideIncorrectAlignments: false,
+                hideImproperPairs: false,
                 hideForwardStrand: false,
                 hideReverseStrand: false,
                 useXS: false,
@@ -269,6 +269,15 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             });
         }
 
+        displayOptions.push({
+            type: 'dijit/MenuItem',
+            label: 'Re-estimate insert size stats',
+            onClick: function(event) {
+                thisB.insertSizeStats = null
+                thisB.store.cleanStatsCache()
+                thisB.redraw()
+            }
+        })
         return Promise.all([ this.inherited(arguments), this._alignmentsFilterTrackMenuOptions(), displayOptions ])
             .then( function( options ) {
                        var o = options.shift();
@@ -319,13 +328,13 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             let min
             let max
 
-            // when we use paired arc the insert size can be large and therefore we request a number of neighboring blocks
             if(this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedArc') {
+                // paired arc the insert size can be large and therefore we request a number of neighboring blocks
                 const numNeighboringBlockFetches = 6
-                // fetch at least maxInsertSize, but possibly more
                 min = Math.max(0, args.leftBase - Math.min(Math.max(blockLen * numNeighboringBlockFetches, this.config.maxInsertSize), 100000))
                 max = args.rightBase + Math.min(Math.max(blockLen * numNeighboringBlockFetches, this.config.maxInsertSize), 100000)
-            } else {
+            }
+            else {
                 // otherwise we just request based on maxInsertSize
                 min = Math.max(0, args.leftBase - this.config.maxInsertSize)
                 max = args.rightBase + this.config.maxInsertSize
@@ -364,6 +373,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
     },
 
     constructor() {
+        // automatically set parameters for the track based on glyph types
         if (this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedArc') {
             this.config.viewAsSpans = true
             this.config.viewAsPairs = false
@@ -375,19 +385,23 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             this.config.viewAsPairs = false
             this.config.viewAsSpans = false
         }
+        this.insertSizeStats = this.config.insertSizeStats
 
         // determine if alternate color scheme in use, otherwise make default
-        var elts = ['defaultColor', 'useXS', 'useTS', 'useReverseTemplate', 'colorByOrientation', 'colorBySize', 'colorByOrientationAndSize', 'colorByMAPQ']
-        var none = true
-        for(var i = 0; i < elts.length; i++) {
-            if(this.config[elts[i]]) {
-                none = false
-            }
-        }
-        if(none) {
+        var elts = [
+            'defaultColor',
+            'useXS',
+            'useTS',
+            'useReverseTemplate',
+            'colorByOrientation',
+            'colorBySize',
+            'colorByOrientationAndSize',
+            'colorByMAPQ'
+        ]
+
+        if(!elts.some(e => this.config[e] == true)) {
             this.config.defaultColor = true
         }
-
     },
 
     renderClickMap() {

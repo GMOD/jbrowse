@@ -28,10 +28,18 @@ The most basic Alignments2 track configuration in tracks.conf format is
 
 The above track template infers that the storeClass is a BAM store. Not all track and store types can do this inference but Alignments2 allows this
 
+## Paired read options
 
-### List of configuration options
+In JBrowse 1.16, paired read visualization was introduced
 
-General options
+See [paired read configuration also](paired_reads.md) for more information
+
+Note: the `colorByOrientation`, `colorBySize`, and `colorByOrientationAndSize` all depend on paired read data being viewed, but you do not need to have the glyph for `PairedAlignment`/`PairedArc`/`PairedReadCloud` to be turned on to use the coloring scheme e.g. you can color by insert size with the unpaired alignments view.
+
+
+## List of configuration options
+
+### General options
 
 |Option|Value|
 |------|-----|
@@ -45,49 +53,67 @@ General options
 |`style→showMismatches`|If true, draw mismatches (SNPs, insertions, deletions, skips) on the alignent. Default true.|
 |`style→mismatchFont`|CSS string describing the font to use for labeling mismatches. Default "bold 10px Courier New,monospace".|
 
-Histograms configuration
+### Histograms configuration
 
+A pre-defined histogram e.g. from a bigwig can be defined on the Alignments2 track. Example
+
+```
+[tracks.bam]
+urlTemplate=alignments.bam
+histograms.storeClass=JBrowse/Store/SeqFeature/BigWig
+histograms.urlTemplate=coverage.bw
+```
+
+Config options
+
+|Option|Value|
+|------|-----|
 |`histograms.storeClass`|A store class for summary histograms used for the Alignments2 track. Usually JBrowse/Store/SeqFeature/BigWig. Can be used on any CanvasFeatures-type track but generally used in Alignments2 tracks|
 |`histograms.urlTemplate`|Path to a histogram file (such as a BigWig) to be used for summary histograms used for the Alignments2 track. Can be used on any CanvasFeatures-type track but generally used in Alignments2 tracks|
 |`histograms.color`|Color for the histograms e.g. "purple". Default is orange. Can be used on any CanvasFeatures-type track but generally used in Alignments2 tracks|
 |`histograms.binsPerBlock`|"Granularity" of the bins in histogram. Default is 200 for Alignments2 tracks. Default is 25 on other CanvasFeatures type tracks.|
 
-Filtering options
+### Filtering options
 
+Alignments can be filtered by various BAM flags
+
+|Option|Value|
+|------|-----|
 |`hideDuplicateReads`|Hide duplicate reads to the same location. Default: true|
 |`hideQCFailingReads`|Hide QC failing reads that did not pass some aligner quality. Default: true|
 |`hideSecondary`|Hide secondary reads which mapped to multiple locations. Default: true|
 |`hideUnmapped`|Hide unmapped reads. Default: true|
 |`hideMissingMatepairs`|If a read is missing a mate pair or paired-end match, hide the read. Default: false|
+|`hideImproperPairs`|If a read is missing a mate pair or paired-end match, hide the read. Default: false|
 |`hideForwardStrand`|Hide all reads from the forward strand. Default: false|
 |`hideReverseStrand`|Hide all reads from the reverse strand. Default: false|
 
-Coloring options
+Note: `hideImproperPairs` was introduced in 1.16.0 to disambiguate from hideMissingMatepairs. The "read mapped in proper pair" flag can have a mate but it is simply classified as a bad alignment by the aligner, JBrowse displays these as lightly colored
 
+### Coloring options
+
+|Option|Value|
+|------|-----|
 |`useReverseTemplate`|Use an algorithm for reversing the template of paired-end reads so that they appear on the same strand, RNA-seq specific. Default: false. Added in 1.11.6|
 |`useXS`|Color reads when the XS tag indicates strandedness, RNA-seq specific. Default: false. Added in 1.11.6|
 |`useTS`|Color reads when the TS tag indicates strandedness, RNA-seq specific. Default: false. Added in 1.16.0|
 |`colorByMAPQ`|Color reads when the TS tag indicates strandedness, RNA-seq specific. Default: false. Added in 1.16.0|
-|`colorByOrientation`|Colors reads according to paired end orientations. See https://software.broadinstitute.org/software/igv/interpreting_pair_orientations for details. Default: false. Requires viewAsPairs to be true|
-|`colorBySize`|Colors reads according to paired end orientations. See https://software.broadinstitute.org/software/igv/interpreting_pair_orientations for details. Default: false. Requires viewAsPairs to be true|
-|`colorByOrientationAndSize`|Colors reads according to paired end orientations. See https://software.broadinstitute.org/software/igv/interpreting_pair_orientations for details. Default: false. Requires viewAsPairs to be true|
+|`colorByOrientation`|Colors reads according to paired end orientations. Default: false. Added in 1.16.0|
+|`colorBySize`|Colors reads according to insert size. Default: false. Added in 1.16.0|
+|`colorByOrientationAndSize`|Colors reads according to paired end orientations. Default: false. Added in 1.16.0|
 
-Other options
+Note:  `colorBySize`, `colorByOrientationAndSize` invoke insert size stats estimation, and only makes sense with paired read tracks. Many of these options are 1.16.0 and newer. See [paired reads](paired_reads.html) for more information.
 
+### Other options
+
+|Option|Value|
+|------|-----|
 |`cacheMismatches`|Cache mismatch calculations so that long reads are faster to browser. Default: false. Added in 1.12.3|
 |`renderAlignments`|Add a text display of the BAM alignment on a single line in the View details popup. Default: false|
 |`renderPrettyAlignments`|Add a text display of the BAM alignment using prettier "BLAST style" to the View details popup. Default: false|
-|`orientationType`|Set the orientation pattern. Default is 'fr' according to illumina adapters that face each other. Other options are 'rf' and 'ff'.|
+|`orientationType`|Set the orientation pattern. Default is 'fr' according to illumina adapters that face each other. Other options are 'rf' and 'ff'. See https://software.broadinstitute.org/software/igv/interpreting_pair_orientations for more info. Added in 1.16.0|
 
-### Paired read options
-
-In JBrowse 1.16, paired read visualization was introduced
-
-See [paired read configuration also](paired_reads.md) for more information
-
-Note: the `colorByOrientation`, `colorBySize`, and `colorByOrientationAndSize` all depend on paired read data being viewed, but you do not need to have the glyph for `PairedAlignment`/`PairedArc`/`PairedReadCloud` to be turned on to use the coloring scheme e.g. you can color by insert size with the unpaired alignments view.
-
-### Alignments2 coloring schemes
+# Alignments2 coloring schemes
 
 Since JBrowse 1.11.3, there is a new coloring scheme for BAM files that allows for new coloring of paired end reads, such as a different coloring for unpaired reads and aberrant pairing split across chromosomes.
 
@@ -96,17 +122,18 @@ The coloring styles that can be configured for the Alignments2 track are as foll
 
 |Option|
 |------|
-|`style→color_fwd_strand`|1.  EC8B8B (original red)|
-|`style→color_rev_strand`|1.  8F8FD8 (original blue)|
-|`style→color_fwd_missing_mate`|1.  D11919 (hard red)|
-|`style→color_rev_missing_mate`|1.  1919D1 (hard blue)|
-|`style→color_fwd_strand_not_proper`|1.  ECC8C8 (light red)|
-|`style→color_rev_strand_not_proper`|1.  BEBED8 (light blue)|
-|`style→color_fwd_diff_chr`|1.  000000 (black)|
-|`style→color_rev_diff_chr`|1.  969696 (gray)|
-|`style→color_nostrand`|1.  999999 (gray) Added in 1.11.6|
+|`style→color_fwd_strand`|#EC8B8B (original red)|
+|`style→color_rev_strand`|#8F8FD8 (original blue)|
+|`style→color_fwd_missing_mate`|#D11919 (hard red)|
+|`style→color_rev_missing_mate`|#1919D1 (hard blue)|
+|`style→color_fwd_strand_not_proper`|#ECC8C8 (light red)|
+|`style→color_rev_strand_not_proper`|#BEBED8 (light blue)|
+|`style→color_fwd_diff_chr`|#000000 (black)|
+|`style→color_rev_diff_chr`|#969696 (gray)|
+|`style→color_nostrand`|#999999 (gray) Added in 1.11.6|
 
-If this scheme is undesirable, the style-\>color variable can be overridden entirely as well, with a callback for example
+If this scheme is undesirable, the style-\>color variable can be overridden entirely as well, with a callback for example. Also see See [paired reads](paired_reads.html) for additional flags relavant to paired end reads.
+
 
 ## SNPCoverage
 

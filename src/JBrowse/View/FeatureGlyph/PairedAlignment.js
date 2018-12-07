@@ -49,18 +49,25 @@ renderFeature(context, fRect) {
             const block = fRect.viewInfo.block
             const l = block.bpToX(s1)
             const r = block.bpToX(s2)
-            if(r-l > 2) {
+            // avoid drawing small overlaps
+            if(r - l > 2) {
                 context.fillStyle = this.getStyle(f, 'overlapColor')
-                context.strokeStyle = this.getStyle(f, 'overlapStroke')
-                context.rect(
+                context.fillRect(
                     l, // left
                     fRect.rect.t,
                     r-l, // width
                     fRect.rect.h)
-                context.fill();
-                context.stroke()
-                context.strokeStyle = null
-                context.fillStyle = null
+
+                var s = this.getStyle(f, 'overlapStroke')
+                if(s) {
+                    context.strokeStyle = s
+                    context.strokeRect(
+                        l, // left
+                        fRect.rect.t,
+                        r-l, // width
+                        fRect.rect.h)
+                }
+
                 var m1 = this._getMismatches( f.read1 );
                 var m2 = this._getMismatches( f.read2 );
                 if(!m1 && !m2) {
@@ -70,12 +77,12 @@ renderFeature(context, fRect) {
                     for(var i = 0; i < m1.length; i++) {
                         let foundMatching = false;
                         for(var j = 0; j < m2.length; j++) {
-                            if(x1+m1[i].start == y1+m2[j].start && s1 < x1+m1[i].start && s2 > x1+m1[i].start) {
+                            if(x1+m1[i].start == y1+m2[j].start && s1 <= x1+m1[i].start && s2 >= x1+m1[i].start) {
                                 foundMatching = true
                                 mismatches.push({ start: m1[i].start, base1: m1[i].base, base2: m2[j].base, type: 'mismatch', length: 1 });
                             }
                         }
-                        if(m1[i].type == 'mismatch' && s1 < x1+m1[i].start && s2 > x1+m1[i].start && !foundMatching ) {
+                        if(m1[i].type == 'mismatch' && s1 <= x1+m1[i].start && s2 >= x1+m1[i].start && !foundMatching ) {
                             mismatches.push({ start: m1[i].start, base1: m1[i].base, base2: '-', type: 'mismatch', length: 1 });
                         }
                     }
@@ -86,13 +93,13 @@ renderFeature(context, fRect) {
                     for(var i = 0; i < m2.length; i++) {
                         let foundMatching = false;
                         for(var j = 0; j < m1.length; j++) {
-                            if(x1+m1[j].start == y1+m2[i].start && s1 < y1+m2[i].start && s2 > y1+m2[i].start) {
+                            if(x1+m1[j].start == y1+m2[i].start && s1 <= y1+m2[i].start && s2 >= y1+m2[i].start) {
                                 //    mismatches.push({ start: m2[i].start, base1: m2[i].base, base2: m1[j].base, type: 'mismatch', length: 1 });
                                 //    would have been found in above loop also previous iteration
                                 foundMatching = true
                             }
                         }
-                        if(m2[i].type == 'mismatch' && s1 < y1+m2[i].start && s2 > y1+m2[i].start && !foundMatching) {
+                        if(m2[i].type == 'mismatch' && s1 <= y1+m2[i].start && s2 >= y1+m2[i].start && !foundMatching) {
                             mismatches.push({ start: m2[i].start, base1: m2[i].base, base2: '-', type: 'mismatch', length: 1 });
                         }
                     }
@@ -176,9 +183,8 @@ _defaultConfig() {
             connectorColor: AlignmentColoring.connectorColor,
             connectorThickness: 1,
             overlapColor: 'lightgrey',
-            overlapStroke: 'grey',
-        },
-        strandInlay: false
+            overlapStroke: 'grey'
+        }
     });
 }
 

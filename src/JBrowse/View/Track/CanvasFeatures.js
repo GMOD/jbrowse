@@ -102,6 +102,11 @@ return declare(
         this.showLabels = this.config.style.showLabels;
         this.showTooltips = this.config.style.showTooltips;
         this.displayMode = this.config.displayMode;
+        //setup displayMode style cookie
+        var cookie = this.browser.cookie("track-" + this.name);
+        if (cookie) {
+            this.displayMode = cookie;
+        }
 
 
         this._setupEventHandlers();
@@ -978,8 +983,13 @@ return declare(
                 title: "Render this track in " + displayMode + " mode",
                 checked: thisB.displayMode == displayMode,
                 onClick: function() {
-                    thisB.config.displayMode = displayMode;
-                    thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
+                    thisB.displayMode = displayMode;
+                    thisB._clearLayout();
+                    thisB.hideAll();
+                    thisB.genomeView.showVisibleBlocks(true);
+                    thisB.makeTrackMenu();
+                     // set cookie for displayMode
+                    thisB.browser.cookie('track-' + thisB.name, thisB.displayMode);
                 }
             };
         });
@@ -1000,16 +1010,14 @@ return declare(
                     title: "Make features take up more or less space",
                     children: this.displayModeMenuItems
                 },
-                {
-                    label: 'Show labels',
-                    type: 'dijit/CheckedMenuItem',
-                    checked: !!( 'showLabels' in this ? this.showLabels : this.config.style.showLabels ),
-                    onClick: function(event) {
-                        thisB.showLabels = this.checked;
-                        thisB.browser.cookie('track-' + thisB.name, JSON.stringify(thisB.config));
-                        thisB.changed();
-                    }
-                }
+                { label: 'Show labels',
+                  type: 'dijit/CheckedMenuItem',
+                  checked: !!( 'showLabels' in this ? this.showLabels : this.config.style.showLabels ),
+                  onClick: function(event) {
+                      thisB.showLabels = this.checked;
+                      thisB.changed();
+                  }
+				}
             ]
         );
 

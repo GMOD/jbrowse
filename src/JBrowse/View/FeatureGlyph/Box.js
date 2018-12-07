@@ -35,8 +35,6 @@ return declare([ FeatureGlyph, FeatureLabelMixin], {
                     borderWidth: 0.5,
                     height: 11,
                     marginBottom: 2,
-                    strandInlay: false,
-                    strandInlayWidth: 4,
 
                     strandArrow: true,
 
@@ -218,24 +216,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin], {
         if( bgcolor ) {
             context.fillStyle = bgcolor;
             context.fillRect( left, top, Math.max(1,width), height );
-            if(this.config.style.strandInlay && viewInfo.scale > 0.2 ) {
-                var arrowWidth = this.config.style.strandInlayWidth
-                if(feature.get('strand') === 1) {
-                    context.beginPath();
-                    context.moveTo(left+width, top)
-                    context.lineTo(left+width+arrowWidth, top+height/2)
-                    context.lineTo(left+width, top+height)
-                    context.closePath()
-                    context.fill()
-                } else if(feature.get('strand') === -1) {
-                    context.beginPath();
-                    context.moveTo(left, top)
-                    context.lineTo(left-arrowWidth, top+height/2)
-                    context.lineTo(left, top+height)
-                    context.closePath()
-                    context.fill()
-                }
-            }
+
         }
         else {
             context.clearRect( left, top, Math.max(1,width), height );
@@ -358,32 +339,6 @@ return declare([ FeatureGlyph, FeatureLabelMixin], {
             }
             if (fRect.description) {
                 renderText(fRect.description)
-            }
-        }
-    },
-    mouseoverFeature( context, fRect ) {
-        this.inherited(arguments)
-        var feature = fRect.f
-        if(this.config.style.strandInlay && fRect.viewInfo.scale > 0.2) {
-            var arrowWidth = this.config.style.strandInlayWidth
-            var top = fRect.t
-            var height = fRect.rect.h
-            var left = fRect.rect.l
-            var width = fRect.rect.w
-            if(feature.get('strand') === 1) {
-                context.beginPath();
-                context.moveTo(left + width, top)
-                context.lineTo(left + width + arrowWidth, top + height / 2)
-                context.lineTo(left + width, top + height)
-                context.closePath()
-                context.fill()
-            } else if(feature.get('strand') === -1) {
-                context.beginPath();
-                context.moveTo(left, top)
-                context.lineTo(left - arrowWidth, top + height/2)
-                context.lineTo(left, top + height)
-                context.closePath()
-                context.fill()
             }
         }
     }

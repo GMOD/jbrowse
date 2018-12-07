@@ -11,16 +11,12 @@ return declare(null, {
     constructor(args) {
         this.featureCache = {}
         this.insertStatsCacheMin = args.insertStatsCacheMin || 400
-        this.insertMaxSize = args.insertMaxSize || 50000
-        this.insertMinSize = args.insertMinSize || 100
+        this.insertStatsMaxSize = args.insertStatsMaxSize || 50000
+        this.insertStatsMinSize = args.insertStatsMinSize || 100
     },
 
-    cleanFeatureCache(query) {
-        Object.entries(this.featureCache).forEach(([k, v]) => {
-            if(!Util.intersect(v._get('start'), v._get('end'), query.start, query.end)) {
-                delete this.featureCache[k]
-            }
-        })
+    cleanStatsCache() {
+        this.featureCache = {}
     },
 
     insertFeat(feat) {
@@ -33,7 +29,7 @@ return declare(null, {
             const insertSizes = Object.values(this.featureCache).map(v => Math.abs(v))
             const max = insertSizes.reduce((max, n) => n > max ? n : max)
             const min = insertSizes.reduce((min, n) => n < min ? n : min)
-            const filteredInsertSizes = insertSizes.filter(tlen => tlen < this.insertMaxSize && tlen > this.insertMinSize)
+            const filteredInsertSizes = insertSizes.filter(tlen => tlen < this.insertStatsMaxSize && tlen > this.insertStatsMinSize)
             const sum = filteredInsertSizes.reduce((a, b) => a + b, 0)
             const sum2 = filteredInsertSizes.map(a => a * a).reduce((a, b) => a + b, 0)
             const total = filteredInsertSizes.length
