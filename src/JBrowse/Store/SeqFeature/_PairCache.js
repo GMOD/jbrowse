@@ -17,7 +17,9 @@ class PairedRead {
         } else if(field === 'template_length') {
             return this.read1._get('template_length')
         } else if(field === 'is_paired') {
-            return true
+            return true // simply comes from paired end reads
+        } else if(field === 'paired_feature') {
+            return true // it is a combination of two reads
         }
     }
     pairedFeature() { return true }
