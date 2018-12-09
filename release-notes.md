@@ -31,7 +31,6 @@
  * Add support for generate-names to index VCF features that have multiple IDs in
    the ID column (@cmdcolin)
 
-
  * Added documentation on embedding JBrowse in an iframe and in a div, including
    how to embed JBrowse using a custom JavaScript object as a configuration
    (pull #1228, pull #1243, @rbuels and @garrettjstevens)
@@ -91,7 +90,7 @@
    features (issue #1244, pull #1260, @cmdcolin)
 
  * Fixed CRAM store not renaming reference sequences in the same way as other
-   stores (@rbuels)
+   stores (pull #1277, @rbuels, @cmdcolin)
 
  * Fixed bug where older browsers e.g. IE11 were not being properly supported via
    babel (issue #1259, pull #1267, @cmdcolin)
@@ -106,9 +105,6 @@
    resulting in bad layouts and excessive data fetches. Thanks to @hkmoon,
    @cmdcolin, and @garrettjstevens for debugging (issue #1190, pull #1235, pull
    #1187)
-
- * Fixed issue where CRAM data could be displayed on the wrong refseq (issue #1273,
-   @cmdcolin)
 
  * Fixed issue where CRAM layout and mouseover would be glitchy due to ID
    collisions on features (issue #1271, @cmdcolin)
