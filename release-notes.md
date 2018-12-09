@@ -1,5 +1,16 @@
 {{$NEXT}}
 
+## Major improvements
+
+ * Added ability to view paired read data as connected entities for BAM and
+   CRAM store classes. There are multiple different viewing options for this
+   including plotting by insert size, plotting as connected arcs, or pileup
+   views for the paired reads. Additonally multiple color schemes are available
+   for coloring by insert size, pair orientation, mapping quality, and more.
+   Thanks to @garrettjstevens, @rbuels, @AndyMenzies, and @keiranmraine for
+   testing. Also a big thanks to @jrobinso from @igvteam for contributions to
+   CRAM code related to paired reads (pull #1235, @cmdcolin)
+
 ## Minor improvements
 
  * For users with the "dev" or compiling JBrowse from source code, the ./setup.sh
@@ -20,8 +31,6 @@
  * Add support for generate-names to index VCF features that have multiple IDs in
    the ID column (@cmdcolin)
 
- * Fix parsing of certain bigBed files that were hanging on track startup
-   (issue #1226, pull #1229, @cmdcolin)
 
  * Added documentation on embedding JBrowse in an iframe and in a div, including
    how to embed JBrowse using a custom JavaScript object as a configuration
@@ -43,6 +52,12 @@
 
  * Improved error message that is displayed when a data file cannot be fetched
    via CORS (@rbuels)
+
+ * Added some word wrapping for long unbroken fields in the View details
+   popups. Thanks to @luke-c-sargent for the idea (issue #1246).
+
+ * Added `hideImproperPairs` filter for Alignments2/SNPCoverage tracks which
+   disambiguates from missing mate pairs (pull #1235, @cmdcolin)
 
 ## Bug fixes
 
@@ -80,6 +95,26 @@
 
  * Fixed bug where some files were not being fetched properly when changing
    refseqs. Thanks to @luke-c-sargent for the report (issue #1252)
+
+ * Fix storeTimeout on CRAM files being unused which can result in excessive
+   fetches (pull #1235, @cmdcolin)
+
+ * Fix issue where JBrowse would load the wrong area of the refseq on startup
+   resulting in bad layouts and excessive data fetches. Thanks to @hkmoon,
+   @cmdcolin, and @garrettjstevens for debugging (issue #1190, pull #1235, pull
+   #1187)
+
+ * Fix issue where CRAM data could be displayed on the wrong refseq (issue #1273,
+   @cmdcolin)
+
+ * Fix issue where CRAM layout and mouseover would be glitchy due to ID collisions
+   on features (issue #1271, @cmdcolin)
+
+ * Fix parsing of certain bigBed files that were hanging on track startup
+   (issue #1226, pull #1229, @cmdcolin)
+
+ * Added `useTS` coloring option for RNA-seq strandedness, similar to the `useXS`
+   that existed previously (pull #1235, @cmdcolin)
 
 ## Notable changes
 
