@@ -59,6 +59,9 @@
  * Added `hideImproperPairs` filter for Alignments2/SNPCoverage tracks which
    disambiguates from missing mate pairs (pull #1235, @cmdcolin)
 
+ * Added `useTS` coloring option for RNA-seq strandedness, similar to the `useXS`
+   that existed previously (pull #1235, @cmdcolin)
+
 ## Bug fixes
 
  * Fixed issue with getting feature density from BAM files via the index stats
@@ -74,7 +77,7 @@
  * Small fix for issue where SNPCoverage would crash on some feature filters
    (issue #1241, @cmdcolin)
 
- * Fix issue where JBrowse Desktop was not able to access remote files (issue
+ * Fixed issue where JBrowse Desktop was not able to access remote files (issue
    #1234, pull #1245, @cmdcolin)
 
  * Fix issue where the Hierarchical track selector contained a bunch of blank
@@ -96,25 +99,25 @@
  * Fixed bug where some files were not being fetched properly when changing
    refseqs. Thanks to @luke-c-sargent for the report (issue #1252)
 
- * Fix storeTimeout on CRAM files being unused which can result in excessive
+ * Fixed storeTimeout on CRAM files being unused which can result in excessive
    fetches (pull #1235, @cmdcolin)
 
- * Fix issue where JBrowse would load the wrong area of the refseq on startup
+ * Fixed issue where JBrowse would load the wrong area of the refseq on startup
    resulting in bad layouts and excessive data fetches. Thanks to @hkmoon,
    @cmdcolin, and @garrettjstevens for debugging (issue #1190, pull #1235, pull
    #1187)
 
- * Fix issue where CRAM data could be displayed on the wrong refseq (issue #1273,
+ * Fixed issue where CRAM data could be displayed on the wrong refseq (issue #1273,
    @cmdcolin)
 
- * Fix issue where CRAM layout and mouseover would be glitchy due to ID collisions
-   on features (issue #1271, @cmdcolin)
+ * Fixed issue where CRAM layout and mouseover would be glitchy due to ID
+   collisions on features (issue #1271, @cmdcolin)
 
- * Fix parsing of certain bigBed files that were hanging on track startup
+ * Fixed parsing of certain bigBed files that were hanging on track startup
    (issue #1226, pull #1229, @cmdcolin)
 
- * Added `useTS` coloring option for RNA-seq strandedness, similar to the `useXS`
-   that existed previously (pull #1235, @cmdcolin)
+ * Fixed issue where some parts of a CRAM file would not be displayed in JBrowse
+   due to a CRAM index parsing issue (@cmdcolin)
 
 ## Notable changes
 
