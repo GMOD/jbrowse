@@ -30,26 +30,35 @@ function(
             if (!r.r || Math.abs(r.r) < 1) {
                 return
             }
+            const f = fRect.f
 
-            context.beginPath()
-            context.strokeStyle = this.getConf('style.color', [fRect.f, r.span, this, this.track])
 
-            if (fRect.f.get('seq_id') !== fRect.f.get('next_seq_id')) {
-                if (this.track.config.showInterchromosomalArcs) {
-                    context.moveTo(r.drawFrom, 0)
-                    context.lineTo(r.drawFrom, 1000)
-                }
-            } else {
-                // draw a vertical line for very very large arcs
-                if(this.track.config.showLargeArcs && Math.abs(r.drawTo + r.r) > 100000) {
-                    context.moveTo(r.drawTo, 0)
-                    context.lineTo(r.drawTo, 1000)
-                }
-                else if(Math.abs(r.span) < this.track.config.maxInsertSize || this.track.config.showLargeArcs) {
-                    context.arc(r.drawTo + r.r, 0, Math.abs(r.r), 0, Math.PI)
+            if (f.get('is_paired')) {
+                if(f.get('seq_id') !== f.get('next_seq_id')) {
+                    if (this.track.config.showInterchromosomalArcs) {
+                        context.beginPath()
+                        context.strokeStyle = this.getConf('style.color', [f, r.span, this, this.track])
+                        context.moveTo(r.drawFrom, 0)
+                        context.lineTo(r.drawFrom, 1000)
+                        context.stroke()
+                    }
+                } else {
+                    // draw a vertical line for very very large arcs
+                    if(this.track.config.showLargeArcs && Math.abs(r.drawTo + r.r) > 100000) {
+                        context.beginPath()
+                        context.strokeStyle = this.getConf('style.color', [f, r.span, this, this.track])
+                        context.moveTo(r.drawTo, 0)
+                        context.lineTo(r.drawTo, 1000)
+                        context.stroke()
+                    }
+                    else if(Math.abs(r.span) < this.track.config.maxInsertSize || this.track.config.showLargeArcs) {
+                        context.beginPath()
+                        context.strokeStyle = this.getConf('style.color', [f, r.span, this, this.track])
+                        context.arc(r.drawTo + r.r, 0, Math.abs(r.r), 0, Math.PI)
+                        context.stroke()
+                    }
                 }
             }
-            context.stroke();
         },
         getRadius: function(feature, block) {
             var n = feature.get('end') - feature.get('start')
