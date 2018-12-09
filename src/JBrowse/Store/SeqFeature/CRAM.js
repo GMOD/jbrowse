@@ -195,7 +195,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
             sqLine.data.forEach(item => {
                 if (item.tag === 'SN') {
                     // this is the seq name
-                    const seqName = item.value
+                    const seqName = this.browser.regularizeReferenceName(item.value)
                     refSeqNameToId[seqName] = seqId
                     refSeqIdToName[seqId] = seqName
                 }
@@ -296,7 +296,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
     _getFeatures: function( query, featCallback, endCallback, errorCallback ) {
         const pairCache = {};
         const seqName = query.ref || this.refSeq.name
-        const refSeqNumber = this._refNameToId(seqName)
+        const refSeqNumber = this._refNameToId(this.browser.regularizeReferenceName(seqName))
         query.maxInsertSize = query.maxInsertSize || 50000
         if (refSeqNumber === undefined) {
             endCallback()
