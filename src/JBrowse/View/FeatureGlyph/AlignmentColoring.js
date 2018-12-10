@@ -20,7 +20,7 @@ var c = {
             return c.colorByTS.apply(null, arguments)
         } else if (track.config.colorByMAPQ) {
             return c.colorByMAPQ.apply(null, arguments)
-        } else if (track.config.defaultColor) {
+        } else if (track.config.defaultColor||track.config.useReverseTemplate) {
             if(feature.get('multi_segment_template')) {
                 var revflag = feature.get('multi_segment_first');
                 if (feature.get('multi_segment_all_correctly_aligned')) {
