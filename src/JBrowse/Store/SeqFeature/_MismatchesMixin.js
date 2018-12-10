@@ -48,8 +48,8 @@ return declare( null, {
 
     _getMismatches: function( feature ) {
         var mismatches = [];
-        if( this.config.cacheMismatches && feature.mismatches ) {
-            return feature.mismatches;
+        if( this.config.cacheMismatches && feature.record.mismatches ) {
+            return feature.record.mismatches;
         }
 
         // parse the CIGAR tag if it has one
@@ -96,7 +96,7 @@ return declare( null, {
             return !s;
         });
         if( this.config.cacheMismatches ) {
-            feature.mismatches = mismatches;
+            feature.record.mismatches = mismatches;
         }
 
         return mismatches;
