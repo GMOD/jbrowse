@@ -1,0 +1,2 @@
+[["GmG20150304_scaffold_1411","GmG20150304_scaffold_1411"],"genes","GmG20150304_scaffold_1411","GmG20150304_scaffold_1411",0,474]
+[["GAMO_00083399","augustus_masked-GmG20150304_scaffold_1411-processed-gene-0.0","GAMO_00083399"],"genes","GAMO_00083399","GmG20150304_scaffold_1411",0,79]

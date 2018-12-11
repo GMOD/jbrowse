@@ -81,6 +81,17 @@ run_with (
     # or diag explain read_names($tempdir);
 }
 
+$tempdir = new_generate_names_failure();
+run_with (
+    '--dir'   => "$tempdir",
+    );
+{
+    my $got = read_names($tempdir);
+    my $expected = read_names('tests/data/generate_names_failure');
+    is_deeply( $got, $expected, 'got GAMO' );
+    is(defined $got->{'7.json'}{gamo_00083399}, 1);
+    # or diag explain read_names($tempdir);
+}
 done_testing;
 
 sub read_names {
@@ -107,7 +118,6 @@ sub new_volvox_sandbox {
 
 sub new_volvox_sandbox_tabix_nameattributes {
     my $tempdir = File::Temp->newdir( CLEANUP => $ENV{KEEP_ALL} ? 0 : 1 );
-    print STDERR $tempdir."\n";
     dircopy( 'tests/data/volvox_tabix_names', $tempdir );
     copy( 'sample_data/raw/volvox/volvox.sort.gff3.gz.1',
           "$tempdir/volvox.sort.gff3.gz.1"
@@ -115,6 +125,14 @@ sub new_volvox_sandbox_tabix_nameattributes {
     copy( 'sample_data/raw/volvox/volvox.sort.gff3.gz.tbi',
           "$tempdir/volvox.sort.gff3.gz.tbi"
           ) or die $!;
+    rmtree( "$tempdir/names" );
+    return $tempdir;
+}
+
+
+sub new_generate_names_failure {
+    my $tempdir = File::Temp->newdir( CLEANUP => $ENV{KEEP_ALL} ? 0 : 1 );
+    dircopy( 'tests/data/generate_names_failure', $tempdir );
     rmtree( "$tempdir/names" );
     return $tempdir;
 }
