@@ -2516,6 +2516,9 @@ navigateTo: function(loc) {
                               content: 'Not found: <span class="locString">'+loc+'</span>',
                               className: 'notfound-dialog'
                           }).show();
+                      if(!thisB.view.pxPerBp) {
+                          thisB.navigateToLocation(thisB.refSeq)
+                      }
                   });
     });
 },
