@@ -62,18 +62,9 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
             name = Util.ucFirst( name.replace(/_/g,' ') );
             return this.renderDetailField(container, name, value, feature, null, {}, unsafe);
         });
-        fmt( 'Name', f.get('name'), f );
-        fmt( 'Type', f.get('type'), f );
-        fmt( 'Score', f.get('score'), f );
-        fmt( 'Description', f.get('note'), f );
-        fmt(
-            'Position',
-            Util.assembleLocString({ start: f.get('start'),
-                                     end: f.get('end'),
-                                     ref: this.refSeq.name })
-            + ({'1':' (+)', '-1': ' (-)', 0: ' (no strand)' }[f.get('strand')] || ''),
-            f
-        );
+
+        this._renderCoreDetails(track, f, div, container);
+
 
 
         if( f.get('seq') ) {
