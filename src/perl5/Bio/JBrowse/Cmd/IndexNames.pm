@@ -438,9 +438,9 @@ sub make_operation_stream {
     }
 
     return sub {
-        if(scalar @operation_buffer == 0) {
-            while((my $n = $record_stream->()) && scalar @operation_buffer < 5000) {
-                push @operation_buffer, $self->make_operations($n);
+        unless( @operation_buffer ) {
+            while( (my $name_record = $record_stream->()) && @operation_buffer < 5000) {
+                push @operation_buffer, $self->make_operations($name_record);
             }
         }
         return shift @operation_buffer;
