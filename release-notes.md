@@ -63,6 +63,9 @@
 
 ## Bug fixes
 
+ * Fixed issue where some generate-names setups would fail to index features.
+   Thanks to @BioInfoSuite for reporting (issue #1275, pull #1283, @cmdcolin)
+
  * Fixed issue with getting feature density from BAM files via the index stats
    estimation (issue #1233, @cmdcolin)
 
