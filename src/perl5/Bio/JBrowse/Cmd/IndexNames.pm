@@ -438,10 +438,9 @@ sub make_operation_stream {
     }
 
     return sub {
-        unless( @operation_buffer ) {
-            while( @operation_buffer < 50000 && ( my $name_record = $record_stream->()) ) {
-                #$self->{stats}{namerecs_converted_to_operations}++;
-                push @operation_buffer, $self->make_operations( $name_record );
+        if(scalar @operation_buffer == 0) {
+            while((my $n = $record_stream->()) && scalar @operation_buffer < 5000) {
+                push @operation_buffer, $self->make_operations($n);
             }
         }
         return shift @operation_buffer;
