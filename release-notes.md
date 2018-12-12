@@ -123,9 +123,6 @@
  * Fixed issue where some parts of a CRAM file would not be displayed in JBrowse
    due to a CRAM index parsing issue (@cmdcolin)
 
- * Fixed the feature density estimation on certain BAM files (issue #1233,
-   @cmdcolin)
-
 ## Notable changes
 
  * Rendering of features in popups, mouseover tooltips, and feature labels were
