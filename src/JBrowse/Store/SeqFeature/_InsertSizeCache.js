@@ -20,7 +20,7 @@ return declare(null, {
     },
 
     insertFeat(feat) {
-        this.featureCache[feat.get('id')] = Math.abs(feat.get('template_length'))
+        this.featureCache[feat.id()] = Math.abs(feat.get('template_length'))
     },
 
     getInsertSizeStats() {
