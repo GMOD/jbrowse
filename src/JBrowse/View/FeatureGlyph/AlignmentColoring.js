@@ -147,7 +147,8 @@ var c = {
             '-': 'color_rev_strand',
             '+': 'color_fwd_strand'
         };
-        return glyph.getStyle(feature, map[feature.get('xs')] || 'color_nostrand');
+        console.log(feature.get('tags'))
+        return glyph.getStyle(feature, map[feature.get('xs')||feature.get('tags').XS] || 'color_nostrand');
     },
 
     // TS is flipped from XS
@@ -156,7 +157,7 @@ var c = {
             '-': feature.get('strand') === -1 ? 'color_fwd_strand' : 'color_rev_strand',
             '+': feature.get('strand') === -1 ? 'color_rev_strand' : 'color_fwd_strand'
         }
-        return glyph.getStyle(feature, map[feature.get('ts')] || 'color_nostrand');
+        return glyph.getStyle(feature, map[feature.get('ts')||feature.get('tags').TS] || 'color_nostrand');
     },
 
     // assumes score cap at 60, which is used by bwa-mem and other tools. some cap at 37
