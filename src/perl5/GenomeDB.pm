@@ -257,7 +257,37 @@ Returns a arrayref of hashrefs defining the reference sequences, as:
 =cut
 
 sub refSeqs {
-    shift->{rootStore}->get( 'seq/refSeqs.json', [] );
+    my $self = shift;
+    my $conf = Bio::JBrowse::ConfigurationManager->new( conf => {
+        baseUrl => "$self->{dataDir}",
+        include => [ $trackListPath, 'tracks.conf' ],
+    })->get_final_config;
+
+    if(my $seqs = $conf->{refSeqs}) {
+        if($seqs =~ /.fai$/) {
+            my @refs;
+            my $file = File::Spec->join($self->{dataDir}, $seqs);
+            open FAI, "<$file" or die "Unable to read from $file $!\n";
+            while (<FAI>) {
+                if (/([^\t]+)\t(\d+)\t(\d+)\t(\d+)\t(\d+)/) {
+                    push(@refs, {
+                        name => $1,
+                        start => 0,
+                        end => $2+0,
+                        offset => $3,
+                        line_length => $4,
+                        line_byte_length => $5
+                    });
+                } else {
+                    die "Improperly-formatted line in fai file ($file):\n$_\n"
+                }
+            }
+            close FAI;
+            return \@refs;
+        }
+    } else {
+        return $self->{rootStore}->get( 'seq/refSeqs.json', [] );
+    }
 }
 
 

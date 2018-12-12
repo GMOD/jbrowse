@@ -42,6 +42,7 @@ sub option_definitions {(
     "chunksize=s",
     "fasta=s@",
     "indexed_fasta=s",
+    "bgzip_fasta=s",
     "twobit=s",
     "sizes=s@",
     "gff-sizes=s@",
@@ -65,11 +66,12 @@ sub run {
     $self->{refseqstorage} = JsonFileStorage->new( $self->opt('out'), $self->opt('compress'), { pretty => 0 } );
     $self->{trackliststorage} = JsonFileStorage->new( $self->opt('out'), $self->opt('compress'), { pretty => 1 } );
 
-    Pod::Usage::pod2usage( 'must provide either a --fasta, --indexed_fasta, --twobit, --sizes, --gff, --gff-sizes, or --conf option' )
+    Pod::Usage::pod2usage( 'must provide either a --fasta, --indexed_fasta, --bgzip_fasta, --twobit, --sizes, --gff, --gff-sizes, or --conf option' )
         unless $self->opt('gff') ||
             $self->opt('conf') ||
             $self->opt('fasta') ||
             $self->opt('indexed_fasta') ||
+            $self->opt('bgzip_fasta') ||
             $self->opt('sizes') ||
             $self->opt('twobit') ||
             $self->opt('gff-sizes');
@@ -91,6 +93,10 @@ sub run {
 
     if ( $self->opt('indexed_fasta') ) {
         $self->exportFAI( $self->opt('indexed_fasta') );
+        $self->writeTrackEntry();
+    }
+    elsif ( $self->opt('bgzip_fasta') ) {
+        $self->exportBGZIP( $self->opt('bgzip_fasta') );
         $self->writeTrackEntry();
     }
     elsif ( $self->opt('twobit') ) {
@@ -258,6 +264,18 @@ sub exportFAI {
     copy( $fai, $dir ) or die "Unable to copy $fai to $dir: $!\n";
     copy( $indexed_fasta, $dir ) or die "Unable to copy $indexed_fasta to $dir: $!\n";
     $self->writeRefSeqsJSON( \%refSeqs, \@originalorder );
+}
+
+
+sub exportBGZIP {
+    my ( $self, $bgzip_fasta ) = @_;
+    my $fai = "$bgzip_fasta.fai";
+    my $gzi = "$bgzip_fasta.gzi";
+    my $dir = catdir( $self->opt('out'), 'seq' );
+    mkpath( $dir );
+    copy( $fai, $dir ) or die "Unable to copy $fai to $dir: $!\n";
+    copy( $gzi, $dir ) or die "Unable to copy $gzi to $dir: $!\n";
+    copy( $bgzip_fasta, $dir ) or die "Unable to copy $bgzip_fasta to $dir: $!\n";
 }
 
 sub exportTWOBIT {
@@ -511,12 +529,23 @@ sub writeTrackEntry {
                                                %{ $self->opt('trackConfig') || {} },
                                            };
                                            if ( $self->opt('indexed_fasta') ) {
-                                               $tracks->[$i]->{'storeClass'} = 'JBrowse/Store/Sequence/IndexedFasta';
+                                               $tracks->[$i]->{'storeClass'} = 'JBrowse/Store/SeqFeature/IndexedFasta';
                                                delete $tracks->[$i]->{'chunkSize'};
                                                my $fastaTemplate = catfile( 'seq', basename( $self->opt('indexed_fasta') ) );
                                                $tracks->[$i]->{'urlTemplate'} = $fastaTemplate;
                                                $tracks->[$i]->{'faiUrlTemplate'} = "$fastaTemplate.fai";
                                                $tracks->[$i]->{'useAsRefSeqStore'} = 1;
+                                               $trackList->{'refSeqs'} = "$fastaTemplate.fai";
+                                           }
+                                           if ( $self->opt('bgzip_fasta') ) {
+                                               $tracks->[$i]->{'storeClass'} = 'JBrowse/Store/SeqFeature/BgzipIndexedFasta';
+                                               delete $tracks->[$i]->{'chunkSize'};
+                                               my $fastaTemplate = catfile( 'seq', basename( $self->opt('bgzip_fasta') ) );
+                                               $tracks->[$i]->{'urlTemplate'} = $fastaTemplate;
+                                               $tracks->[$i]->{'faiUrlTemplate'} = "$fastaTemplate.fai";
+                                               $tracks->[$i]->{'gziUrlTemplate'} = "$fastaTemplate.gzi";
+                                               $tracks->[$i]->{'useAsRefSeqStore'} = 1;
+                                               $trackList->{'refSeqs'} = "$fastaTemplate.fai";
                                            }
                                            if ( $self->opt('twobit') ) {
                                                $tracks->[$i]->{'storeClass'} = 'JBrowse/Store/Sequence/TwoBit';
