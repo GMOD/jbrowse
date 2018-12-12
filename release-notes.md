@@ -61,6 +61,11 @@
  * Added `useTS` coloring option for RNA-seq strandedness, similar to the `useXS`
    that existed previously (pull #1235, @cmdcolin)
 
+ * Added a --bgzip_fasta option for prepare-refseqs.pl and also the ability
+   to index reference sequence names if they are manually specified as a
+   fasta index e.g. `refSeqs=genome.fai`. Thanks to @FredericBGA for the report!
+   (issue #1281, pull #1282, @cmdcolin).
+
 ## Bug fixes
 
  * Fixed issue where some generate-names setups would fail to index features.
