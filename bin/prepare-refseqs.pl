@@ -22,6 +22,8 @@ prepare-refseqs.pl - format reference sequences for use by JBrowse
    # OR:
        prepare-refseqs.pl --indexed_fasta <file>  [options]
    # OR:
+       prepare-refseqs.pl --bgzip_fasta <file>  [options]
+   # OR:
        prepare-refseqs.pl --twobit <file>  [options]
    # OR:
        prepare-refseqs.pl --conf <biodb config file>  [options]
