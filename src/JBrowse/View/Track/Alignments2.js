@@ -55,7 +55,8 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                     showLabels: false,
                     colorSchemes: [{
                         name: 'Color by default',
-                        callback: this.defaultColor
+                        callback: dojo.hitch(this, 'defaultColor'),
+                        selected: true
                     },
                     {
                         name: 'Color mate reversed (RNA-seq strandedness)',
@@ -412,16 +413,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                    });
     },
     clearColorConfig() {
-        Object.assign(this.config, {
-            defaultColor: false,
-            useTS: false,
-            useXS: false,
-            useReverseTemplate: false,
-            colorByMAPQ: false,
-            colorByOrientation: false,
-            colorBySize: false,
-            colorByOrientationAndSize: false
-        })
+        this.config.style.colorSchemes.forEach(s => s.selected = false)
     },
 
     // override getLayout to access addRect method
