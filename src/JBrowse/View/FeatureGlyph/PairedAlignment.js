@@ -26,7 +26,7 @@ renderFeature(context, fRect) {
     const f = fRect.f
     this.clearFeat(context, fRect)
 
-    if (f.pairedFeature()) {
+    if (f.get('paired_feature')) {
         this.renderConnector( context, fRect )
         this.renderSegments( context, fRect )
         if (fRect.w > 2) {

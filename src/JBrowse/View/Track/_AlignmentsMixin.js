@@ -28,7 +28,7 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
      */
     defaultFeatureDetail: function( /** JBrowse.Track */ track, /** Object */ f, /** HTMLElement */ div ) {
         let container
-        if(f.pairedFeature() && track.config.viewAsPairs) {
+        if(f.pairedFeature()) {
             container = dojo.create('div', {
                 className: 'detail feature-detail feature-detail-'+track.name.replace(/\s+/g,'_').toLowerCase(),
                 style: { width: '1000px' }
