@@ -23,24 +23,24 @@ return declare( null, {
         var cigarString = feature.get( this.cigarAttributeName );
         if( cigarString ) {
             mismatches = this._cigarToSkipsAndDeletions( feature, this._parseCigar( cigarString ) );
-        }
+        } else {
+            var cramReadFeatures = feature.get('cram_read_features')
+            if( this.config.renderAlignment &&
+                cramReadFeatures &&
+                cramReadFeatures.length
+            ) {
+                mismatches = mismatches.filter( m =>
+                    !(m.type == "deletion" || m.type == "mismatch")
+                )
+            }
 
-        var cramReadFeatures = feature.get('cram_read_features')
-        if( this.config.renderAlignment &&
-            cramReadFeatures &&
-            cramReadFeatures.length
-        ) {
-            mismatches = mismatches.filter( m =>
-                !(m.type == "deletion" || m.type == "mismatch")
-            )
-        }
-
-        // parse the CRAM read features if it has them
-        if( cramReadFeatures ) {
-            mismatches.push(
-                ...this._cramReadFeaturesToMismatches(feature,cramReadFeatures)
-                    .filter(m => m.type === 'skip' || m.type === 'deletion')
-            )
+            // parse the CRAM read features if it has them
+            if( cramReadFeatures ) {
+                mismatches.push(
+                    ...this._cramReadFeaturesToMismatches(feature,cramReadFeatures)
+                        .filter(m => m.type === 'skip' || m.type === 'deletion')
+                )
+            }
         }
 
         return mismatches
