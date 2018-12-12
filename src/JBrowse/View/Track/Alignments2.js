@@ -53,69 +53,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
 
                 style: {
                     showLabels: false,
-                    colorSchemes: [{
-                        name: 'Color by default',
-                        callback: dojo.hitch(this, 'defaultColor'),
-                        selected: true
-                    },
-                    {
-                        name: 'Color mate reversed (RNA-seq strandedness)',
-                        callback: (feature, score, glyph, track) => this.defaultColor(feature, score, glyph, track, true)
-                    },
-                    {
-                        name: 'Color by XS (RNA-seq strandedness)',
-                        callback: function(feature, score, glyph, track) {
-                            const map = {
-                                '-': 'color_rev_strand',
-                                '+': 'color_fwd_strand'
-                            };
-                            return glyph.getStyle(feature, map[feature.get('xs')] || 'color_nostrand');
-                        }
-                    },
-                    {
-                        name: 'Color by TS (RNA-seq strandedness)',
-                        callback: function(feature, score, glyph, track) {
-                            const map = {
-                                '-': feature.get('strand') === -1 ? 'color_fwd_strand' : 'color_rev_strand',
-                                '+': feature.get('strand') === -1 ? 'color_rev_strand' : 'color_fwd_strand'
-                            }
-                            return glyph.getStyle(feature, map[feature.get('ts')] || 'color_nostrand');
-                        }
-                    },
-					{
-                        name: 'Color by mapping quality',
-                        callback: function(feature, score, glyph, track) {
-                            const c = Math.min(feature.get('score') * 4, 200)
-                            return `rgb(${c},${c},${c})`;
-                        }
-                    },
-                    {
-                        name: 'Color by insert size',
-                        insertStatsRequired: true,
-						callback: function(feature, score, glyph, track)  {
-							const p = track.getInsertSizePercentile.apply(track, arguments)
-							return glyph.getStyle(feature, p || 'color_nostrand')
-						}
-                    },
-                    {
-                        name: 'Color by orientation',
-						callback: function(feature, score, glyph, track)  {
-							const p = track.getOrientation.apply(track, arguments)
-							return glyph.getStyle(feature, p || 'color_nostrand')
-						}
-                    },
-                    {
-                        name: 'Color by insert size and orientation',
-                        insertStatsRequired: true,
-						callback: function(feature, score, glyph, track)  {
-							const p = track.getInsertSizePercentile.apply(track, arguments)
-							if(!p) {
-                                const q = track.getOrientation.apply(track, arguments)
-                                return glyph.getStyle(feature, q || 'color_nostrand')
-							}
-							return glyph.getStyle(feature, p || 'color_nostrand')
-						}
-                    }]
+                    colorSchemes: []
                 }
             }
         );
@@ -261,88 +199,6 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             })
         })
 
-//         c.children.push({
-//             label: 'Color by default',
-//             type: 'dijit/RadioMenuItem',
-//             checked: !!this.config.defaultColor,
-//             onClick: function(event) {
-//                 thisB.clearColorConfig()
-//                 thisB.config.defaultColor = this.get('checked');
-//                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
-//             }
-//         });
-//         c.children.push({
-//             label: 'Color by XS tag (RNA-seq orientation)',
-//             type: 'dijit/RadioMenuItem',
-//             checked: !!this.config.useXS,
-//             onClick: function(event) {
-//                 thisB.clearColorConfig()
-//                 thisB.config.useXS = this.get('checked');
-//                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
-//             }
-//         });
-
-//         c.children.push({
-//             label: 'Color by TS tag (RNA-seq orientation)',
-//             type: 'dijit/RadioMenuItem',
-//             checked: !!this.config.useTS,
-//             onClick: function(event) {
-//                 thisB.clearColorConfig()
-//                 thisB.config.useTS = this.get('checked');
-//                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
-//             }
-//         });
-//         c.children.push({
-//             label: 'Color mate pair as flipped (RNA-seq orientation)',
-//             type: 'dijit/RadioMenuItem',
-//             checked: !!this.config.useReverseTemplate,
-//             onClick: function(event) {
-//                 thisB.clearColorConfig()
-//                 thisB.config.useReverseTemplate = this.get('checked');
-//                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
-//             }
-//         });
-
-//         c.children.push({
-//             label: 'Color by mapping quality',
-//             type: 'dijit/RadioMenuItem',
-//             checked: !!this.config.colorByMAPQ,
-//             onClick: function(event) {
-//                 thisB.clearColorConfig()
-//                 thisB.config.colorByMAPQ = this.get('checked');
-//                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
-//             }
-//         });
-//         c.children.push({
-//             label: 'Color by orientation',
-//             type: 'dijit/RadioMenuItem',
-//             checked: !!this.config.colorByOrientation,
-//             onClick: function(event) {
-//                 thisB.clearColorConfig()
-//                 thisB.config.colorByOrientation = this.get('checked');
-//                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
-//             }
-//         });
-//         c.children.push({
-//             label: 'Color by insert size',
-//             type: 'dijit/RadioMenuItem',
-//             checked: !!this.config.colorBySize,
-//             onClick: function(event) {
-//                 thisB.clearColorConfig()
-//                 thisB.config.colorBySize = this.get('checked');
-//                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
-//             }
-//         });
-        // c.children.push({
-        //     label: 'Color by orientation and insert size',
-        //     type: 'dijit/RadioMenuItem',
-        //     checked: !!this.config.colorByOrientationAndSize,
-        //     onClick: function(event) {
-        //         thisB.clearColorConfig()
-        //         thisB.config.colorByOrientationAndSize = this.get('checked');
-        //         thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
-        //     }
-        // });
         if(this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedReadCloud') {
             displayOptions.push({
                 type: 'dijit/Menu',
@@ -495,27 +351,191 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
         if (this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedArc') {
             this._viewAsSpans = true
             this._viewAsPairs = false
+            this.config.style.colorSchemes = [
+                {
+                    name: 'Color by arc length',
+                    callback:  function(feature, score, glyph, track) {
+                        if (feature.get('is_paired') && feature.get('seq_id') != feature.get('next_seq_id')) {
+                            return glyph.getStyle(feature, 'color_interchrom')
+                        }
+                        const s = Math.abs(score/10)
+                        return `hsl(${s},50%,50%)`;
+                    }
+                },
+                {
+                    name: 'Color by mapping quality',
+                    callback: function(feature, score, glyph, track) {
+                        const c = Math.min(feature.get('score') * 4, 200)
+                        return `rgb(${c},${c},${c})`;
+                    }
+                },
+                {
+                    name: 'Color by insert size',
+                    insertStatsRequired: true,
+                    callback: function(feature, score, glyph, track)  {
+                        const p = track.getInsertSizePercentile.apply(track, arguments)
+                        return glyph.getStyle(feature, p || 'color_nostrand')
+                    }
+                },
+                {
+                    name: 'Color by orientation',
+                    callback: function(feature, score, glyph, track)  {
+                        const p = track.getOrientation.apply(track, arguments)
+                        return glyph.getStyle(feature, p || 'color_nostrand')
+                    }
+                },
+                {
+                    name: 'Color by insert size and orientation',
+                    insertStatsRequired: true,
+                    callback: function(feature, score, glyph, track)  {
+                        const p = track.getInsertSizePercentile.apply(track, arguments)
+                        if(!p) {
+                            const q = track.getOrientation.apply(track, arguments)
+                            return glyph.getStyle(feature, q || 'color_nostrand')
+                        }
+                        return glyph.getStyle(feature, p || 'color_nostrand')
+                    }
+                }
+            ];
         } else if (this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedAlignment' || this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedReadCloud') {
             this._viewAsPairs = true
             this._viewAsSpans = false
+            this.config.style.colorSchemes = [
+            {
+                name: 'Color by default',
+                callback: dojo.hitch(this, 'defaultColor'),
+                selected: true
+            },
+            {
+                name: 'Color mate reversed (RNA-seq strandedness)',
+                callback: (feature, score, glyph, track) => this.defaultColor(feature, score, glyph, track, true)
+            },
+            {
+                name: 'Color by XS (RNA-seq strandedness)',
+                callback: function(feature, score, glyph, track) {
+                    const map = {
+                        '-': 'color_rev_strand',
+                        '+': 'color_fwd_strand'
+                    };
+                    return glyph.getStyle(feature, map[feature.get('xs')] || 'color_nostrand');
+                }
+            },
+            {
+                name: 'Color by TS (RNA-seq strandedness)',
+                callback: function(feature, score, glyph, track) {
+                    const map = {
+                        '-': feature.get('strand') === -1 ? 'color_fwd_strand' : 'color_rev_strand',
+                        '+': feature.get('strand') === -1 ? 'color_rev_strand' : 'color_fwd_strand'
+                    }
+                    return glyph.getStyle(feature, map[feature.get('ts')] || 'color_nostrand');
+                }
+            },
+            {
+                name: 'Color by mapping quality',
+                callback: function(feature, score, glyph, track) {
+                    const c = Math.min(feature.get('score') * 4, 200)
+                    return `rgb(${c},${c},${c})`;
+                }
+            },
+            {
+                name: 'Color by insert size',
+                insertStatsRequired: true,
+                callback: function(feature, score, glyph, track)  {
+                    const p = track.getInsertSizePercentile.apply(track, arguments)
+                    return glyph.getStyle(feature, p || 'color_nostrand')
+                }
+            },
+            {
+                name: 'Color by orientation',
+                callback: function(feature, score, glyph, track)  {
+                    const p = track.getOrientation.apply(track, arguments)
+                    return glyph.getStyle(feature, p || 'color_nostrand')
+                }
+            },
+            {
+                name: 'Color by insert size and orientation',
+                insertStatsRequired: true,
+                callback: function(feature, score, glyph, track)  {
+                    const p = track.getInsertSizePercentile.apply(track, arguments)
+                    if(!p) {
+                        const q = track.getOrientation.apply(track, arguments)
+                        return glyph.getStyle(feature, q || 'color_nostrand')
+                    }
+                    return glyph.getStyle(feature, p || 'color_nostrand')
+                }
+            }
+        ];
         } else {
             this._viewAsPairs = false
             this._viewAsSpans = false
+            this.config.style.colorSchemes = [
+                {
+                    name: 'Color by default',
+                    callback: dojo.hitch(this, 'defaultColor')
+                },
+                {
+                    name: 'Color mate reversed (RNA-seq strandedness)',
+                    callback: (feature, score, glyph, track) => this.defaultColor(feature, score, glyph, track, true)
+                },
+                {
+                    name: 'Color by XS (RNA-seq strandedness)',
+                    callback: function(feature, score, glyph, track) {
+                        const map = {
+                            '-': 'color_rev_strand',
+                            '+': 'color_fwd_strand'
+                        };
+                        return glyph.getStyle(feature, map[feature.get('xs')] || 'color_nostrand');
+                    }
+                },
+                {
+                    name: 'Color by TS (RNA-seq strandedness)',
+                    callback: function(feature, score, glyph, track) {
+                        const map = {
+                            '-': feature.get('strand') === -1 ? 'color_fwd_strand' : 'color_rev_strand',
+                            '+': feature.get('strand') === -1 ? 'color_rev_strand' : 'color_fwd_strand'
+                        }
+                        return glyph.getStyle(feature, map[feature.get('ts')] || 'color_nostrand');
+                    }
+                },
+                {
+                    name: 'Color by mapping quality',
+                    callback: function(feature, score, glyph, track) {
+                        const c = Math.min(feature.get('score') * 4, 200)
+                        return `rgb(${c},${c},${c})`;
+                    }
+                },
+                {
+                    name: 'Color by insert size',
+                    insertStatsRequired: true,
+                    callback: function(feature, score, glyph, track)  {
+                        const p = track.getInsertSizePercentile.apply(track, arguments)
+                        return glyph.getStyle(feature, p || 'color_nostrand')
+                    }
+                },
+                {
+                    name: 'Color by orientation',
+                    callback: function(feature, score, glyph, track)  {
+                        const p = track.getOrientation.apply(track, arguments)
+                        return glyph.getStyle(feature, p || 'color_nostrand')
+                    }
+                },
+                {
+                    name: 'Color by insert size and orientation',
+                    insertStatsRequired: true,
+                    callback: function(feature, score, glyph, track)  {
+                        const p = track.getInsertSizePercentile.apply(track, arguments)
+                        if(!p) {
+                            const q = track.getOrientation.apply(track, arguments)
+                            return glyph.getStyle(feature, q || 'color_nostrand')
+                        }
+                        return glyph.getStyle(feature, p || 'color_nostrand')
+                    }
+                }
+            ];
         }
+
+
         this.insertSizeStats = this.config.insertSizeStats
-
-        // determine if alternate color scheme in use, otherwise make default
-        var elts = [
-            'defaultColor',
-            'useReverseTemplate',
-            'colorByOrientation',
-            'colorBySize',
-            'colorByOrientationAndSize',
-        ]
-
-        if(!elts.some(e => this.config[e] == true)) {
-            this.config.defaultColor = true
-        }
     },
 
     renderClickMap() {
