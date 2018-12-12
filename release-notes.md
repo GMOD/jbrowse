@@ -123,6 +123,9 @@
  * Fixed issue where some parts of a CRAM file would not be displayed in JBrowse
    due to a CRAM index parsing issue (@cmdcolin)
 
+ * Fixed an issue where BAM features were not lazily evaluating their tags
+   (@cmdcolin)
+
 ## Notable changes
 
  * Rendering of features in popups, mouseover tooltips, and feature labels were
