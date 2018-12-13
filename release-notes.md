@@ -1,3 +1,6 @@
+{{$NEXT}}
+
+
 # Release 1.16.0     2018-12-13 17:24:29 UTC
 
 ## Major improvements
