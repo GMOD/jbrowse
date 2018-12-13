@@ -52,6 +52,8 @@ Several params specific for insert size estimation can be applied
 
 Note that style.color can also still be a callback function
 
+Also note that the `colorByOrientation`, `colorBySize`, and `colorByOrientationAndSize` all depend on paired read data being viewed, and can be used in both unpaired and paired alignments views.
+
 ## Feature colors
 
 |Option|Description|

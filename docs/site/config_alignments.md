@@ -32,9 +32,8 @@ The above track template infers that the storeClass is a BAM store. Not all trac
 
 In JBrowse 1.16, paired read visualization was introduced
 
-See [paired read configuration also](paired_reads.md) for more information
+See [paired read configuration also](paired_reads.html) for more information
 
-Note: the `colorByOrientation`, `colorBySize`, and `colorByOrientationAndSize` all depend on paired read data being viewed, but you do not need to have the glyph for `PairedAlignment`/`PairedArc`/`PairedReadCloud` to be turned on to use the coloring scheme e.g. you can color by insert size with the unpaired alignments view.
 
 
 ## List of configuration options
