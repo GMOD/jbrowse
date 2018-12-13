@@ -285,7 +285,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                     onClick: function(event) {
                         new Dialog({
                             title: 'Set read cloud Y-scale in terms of the maximum expected insert size',
-                            msg: ' insert size (note: default estimated from sampling track data)',
+                            msg: ' expected max insert size',
                             maxHeight: Infinity,
                             height: thisB.config.readCloudYScaleMax || 50000,
                             setCallback: ret => {
