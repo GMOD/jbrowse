@@ -194,6 +194,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 onClick: function(event) {
                     thisB.clearColorConfig()
                     s.selected = this.get('checked')
+                    thisB.config.style.color = s.callback;
                     thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config])
                 }
             })
@@ -268,6 +269,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                        return o.concat.apply( o, options );
                    });
     },
+
     clearColorConfig() {
         this.config.style.colorSchemes.forEach(s => s.selected = false)
     },
@@ -351,187 +353,15 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
         if (this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedArc') {
             this._viewAsSpans = true
             this._viewAsPairs = false
-            this.config.style.colorSchemes = [
-                {
-                    name: 'Color by arc length',
-                    callback:  function(feature, score, glyph, track) {
-                        if (feature.get('is_paired') && feature.get('seq_id') != feature.get('next_seq_id')) {
-                            return glyph.getStyle(feature, 'color_interchrom')
-                        }
-                        const s = Math.abs(score/10)
-                        return `hsl(${s},50%,50%)`;
-                    }
-                },
-                {
-                    name: 'Color by mapping quality',
-                    callback: function(feature, score, glyph, track) {
-                        const c = Math.min(feature.get('score') * 4, 200)
-                        return `rgb(${c},${c},${c})`;
-                    }
-                },
-                {
-                    name: 'Color by insert size',
-                    insertStatsRequired: true,
-                    callback: function(feature, score, glyph, track)  {
-                        const p = track.getInsertSizePercentile.apply(track, arguments)
-                        return glyph.getStyle(feature, p || 'color_nostrand')
-                    }
-                },
-                {
-                    name: 'Color by orientation',
-                    callback: function(feature, score, glyph, track)  {
-                        const p = track.getOrientation.apply(track, arguments)
-                        return glyph.getStyle(feature, p || 'color_nostrand')
-                    }
-                },
-                {
-                    name: 'Color by insert size and orientation',
-                    insertStatsRequired: true,
-                    callback: function(feature, score, glyph, track)  {
-                        const p = track.getInsertSizePercentile.apply(track, arguments)
-                        if(!p) {
-                            const q = track.getOrientation.apply(track, arguments)
-                            return glyph.getStyle(feature, q || 'color_nostrand')
-                        }
-                        return glyph.getStyle(feature, p || 'color_nostrand')
-                    }
-                }
-            ];
+            this.config.style.colorSchemes = this.alignmentColorSchemes.filter(s => s.arc)
         } else if (this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedAlignment' || this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedReadCloud') {
             this._viewAsPairs = true
             this._viewAsSpans = false
-            this.config.style.colorSchemes = [
-            {
-                name: 'Color by default',
-                callback: dojo.hitch(this, 'defaultColor'),
-                selected: true
-            },
-            {
-                name: 'Color mate reversed (RNA-seq strandedness)',
-                callback: (feature, score, glyph, track) => this.defaultColor(feature, score, glyph, track, true)
-            },
-            {
-                name: 'Color by XS (RNA-seq strandedness)',
-                callback: function(feature, score, glyph, track) {
-                    const map = {
-                        '-': 'color_rev_strand',
-                        '+': 'color_fwd_strand'
-                    };
-                    return glyph.getStyle(feature, map[feature.get('xs')] || 'color_nostrand');
-                }
-            },
-            {
-                name: 'Color by TS (RNA-seq strandedness)',
-                callback: function(feature, score, glyph, track) {
-                    const map = {
-                        '-': feature.get('strand') === -1 ? 'color_fwd_strand' : 'color_rev_strand',
-                        '+': feature.get('strand') === -1 ? 'color_rev_strand' : 'color_fwd_strand'
-                    }
-                    return glyph.getStyle(feature, map[feature.get('ts')] || 'color_nostrand');
-                }
-            },
-            {
-                name: 'Color by mapping quality',
-                callback: function(feature, score, glyph, track) {
-                    const c = Math.min(feature.get('score') * 4, 200)
-                    return `rgb(${c},${c},${c})`;
-                }
-            },
-            {
-                name: 'Color by insert size',
-                insertStatsRequired: true,
-                callback: function(feature, score, glyph, track)  {
-                    const p = track.getInsertSizePercentile.apply(track, arguments)
-                    return glyph.getStyle(feature, p || 'color_nostrand')
-                }
-            },
-            {
-                name: 'Color by orientation',
-                callback: function(feature, score, glyph, track)  {
-                    const p = track.getOrientation.apply(track, arguments)
-                    return glyph.getStyle(feature, p || 'color_nostrand')
-                }
-            },
-            {
-                name: 'Color by insert size and orientation',
-                insertStatsRequired: true,
-                callback: function(feature, score, glyph, track)  {
-                    const p = track.getInsertSizePercentile.apply(track, arguments)
-                    if(!p) {
-                        const q = track.getOrientation.apply(track, arguments)
-                        return glyph.getStyle(feature, q || 'color_nostrand')
-                    }
-                    return glyph.getStyle(feature, p || 'color_nostrand')
-                }
-            }
-        ];
+            this.config.style.colorSchemes = this.alignmentColorSchemes.filter(s => s.normal)
         } else {
             this._viewAsPairs = false
             this._viewAsSpans = false
-            this.config.style.colorSchemes = [
-                {
-                    name: 'Color by default',
-                    callback: dojo.hitch(this, 'defaultColor')
-                },
-                {
-                    name: 'Color mate reversed (RNA-seq strandedness)',
-                    callback: (feature, score, glyph, track) => this.defaultColor(feature, score, glyph, track, true)
-                },
-                {
-                    name: 'Color by XS (RNA-seq strandedness)',
-                    callback: function(feature, score, glyph, track) {
-                        const map = {
-                            '-': 'color_rev_strand',
-                            '+': 'color_fwd_strand'
-                        };
-                        return glyph.getStyle(feature, map[feature.get('xs')] || 'color_nostrand');
-                    }
-                },
-                {
-                    name: 'Color by TS (RNA-seq strandedness)',
-                    callback: function(feature, score, glyph, track) {
-                        const map = {
-                            '-': feature.get('strand') === -1 ? 'color_fwd_strand' : 'color_rev_strand',
-                            '+': feature.get('strand') === -1 ? 'color_rev_strand' : 'color_fwd_strand'
-                        }
-                        return glyph.getStyle(feature, map[feature.get('ts')] || 'color_nostrand');
-                    }
-                },
-                {
-                    name: 'Color by mapping quality',
-                    callback: function(feature, score, glyph, track) {
-                        const c = Math.min(feature.get('score') * 4, 200)
-                        return `rgb(${c},${c},${c})`;
-                    }
-                },
-                {
-                    name: 'Color by insert size',
-                    insertStatsRequired: true,
-                    callback: function(feature, score, glyph, track)  {
-                        const p = track.getInsertSizePercentile.apply(track, arguments)
-                        return glyph.getStyle(feature, p || 'color_nostrand')
-                    }
-                },
-                {
-                    name: 'Color by orientation',
-                    callback: function(feature, score, glyph, track)  {
-                        const p = track.getOrientation.apply(track, arguments)
-                        return glyph.getStyle(feature, p || 'color_nostrand')
-                    }
-                },
-                {
-                    name: 'Color by insert size and orientation',
-                    insertStatsRequired: true,
-                    callback: function(feature, score, glyph, track)  {
-                        const p = track.getInsertSizePercentile.apply(track, arguments)
-                        if(!p) {
-                            const q = track.getOrientation.apply(track, arguments)
-                            return glyph.getStyle(feature, q || 'color_nostrand')
-                        }
-                        return glyph.getStyle(feature, p || 'color_nostrand')
-                    }
-                }
-            ];
+            this.config.style.colorSchemes = this.alignmentColorSchemes.filter(s => s.normal)
         }
 
 
@@ -546,81 +376,58 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
         }
     },
 
-    getInsertSizePercentile(feature) {
-        if (feature.get('is_paired')) {
-            const len = Math.abs(feature.get('template_length'))
-            if(feature.get('seq_id') != feature.get('next_seq_id')) {
-                return 'color_interchrom'
-            } else if (this.insertSizeStats.upper < len) {
-                return 'color_longinsert'
-            } else if (this.insertSizeStats.lower > len) {
-                return 'color_shortinsert'
-            }
-        }
-        return null
-    },
 
-    getOrientation(feature) {
-        const type = Util.orientationTypes[this.config.orientationType]
-        const orientation = type[feature.get('pair_orientation')]
-        return {
-            'LR': 'color_pair_lr',
-            'RR': 'color_pair_rr',
-            'RL': 'color_pair_rl',
-            'LL': 'color_pair_ll'
-        }[orientation]
-	},
+    alignmentColorSchemes: [
+        {
+            name: 'Default coloring',
+            callback: (feature, score, glyph, track) => glyph.defaultColor(feature, score, glyph, track),
+            normal: true
+        },
+        {
+            name: 'Color mate reversed (RNA-seq strandedness)',
+            callback: (feature, score, glyph, track) => glyph.defaultColor(feature, score, glyph, track, true),
+            normal: true
+        },
+        {
+            name: 'Color by XS (RNA-seq strandedness)',
+            callback: (feature, score, glyph, track) => glyph.useXS(feature, score, glyph, track),
+            normal: true
+        },
+        {
+            name: 'Color by TS (RNA-seq strandedness)',
+            callback: (feature, score, glyph, track) => glyph.useTS(feature, score, glyph, track),
+            normal: true
 
-    defaultColor(feature, score, glyph, track, useReverseTemplate) {
-        var strand = feature.get('strand');
-        if (Math.abs(strand) != 1 && strand != '+' && strand != '-') {
-            return this.colorForBase('reference');
-        } else {
-            if(feature.get('multi_segment_template')) {
-                var revflag = feature.get('multi_segment_first');
-                if (feature.get('multi_segment_all_correctly_aligned')) {
-                    if (revflag || !useReverseTemplate) {
-                        return strand == 1 || strand == '+'
-                              ? glyph.getStyle( feature, 'color_fwd_strand' )
-                              : glyph.getStyle( feature, 'color_rev_strand' );
-                    } else {
-                        return strand == 1 || strand == '+'
-                            ? glyph.getStyle( feature, 'color_rev_strand' )
-                            : glyph.getStyle( feature, 'color_fwd_strand' );
-                    }
-                }
-                if (feature.get('multi_segment_next_segment_unmapped')) {
-                    if (revflag || !useReverseTemplate) {
-                        return strand == 1 || strand == '+'
-                              ? glyph.getStyle( feature, 'color_fwd_missing_mate' )
-                              : glyph.getStyle( feature, 'color_rev_missing_mate' );
-                    } else{
-                        return strand == 1 || strand == '+'
-                              ? glyph.getStyle( feature, 'color_rev_missing_mate' )
-                              : glyph.getStyle( feature, 'color_fwd_missing_mate' );
-                    }
-                }
-                if (feature.get('seq_id') == feature.get('next_seq_id')) {
-                    if (revflag || !useReverseTemplate) {
-                        return strand == 1 || strand == '+'
-                              ? glyph.getStyle( feature, 'color_fwd_strand_not_proper' )
-                              : glyph.getStyle( feature, 'color_rev_strand_not_proper' );
-                    } else {
-                        return strand == 1 || strand == '+'
-                              ? glyph.getStyle( feature, 'color_rev_strand_not_proper' )
-                              : glyph.getStyle( feature, 'color_fwd_strand_not_proper' );
-                    }
-                }
-                // should only leave aberrant chr
-                return strand == 1 || strand == '+'
-                        ? glyph.getStyle( feature, 'color_fwd_diff_chr' )
-                        : glyph.getStyle( feature, 'color_rev_diff_chr' );
-            }
-            return strand == 1 || strand == '+'
-                  ? glyph.getStyle( feature, 'color_fwd_strand' )
-                  : glyph.getStyle( feature, 'color_rev_strand' );
+        },
+        {
+            name: 'Default coloring',
+            callback: (feature, score, glyph, track) => glyph.colorArcs(feature, score, glyph, track),
+            arc: true
+        },
+        {
+            name: 'Color by mapping quality',
+            callback: (feature, score, glyph, track) => glyph.colorByMAPQ(feature, score, glyph, track),
+            normal: true
+        },
+        {
+            name: 'Color by orientation',
+            callback: (feature, score, glyph, track) => glyph.colorByOrientation(feature, score, glyph, track),
+            normal: true,
+            arc: true
+        },
+        {
+            name: 'Color by insert size',
+            callback: (feature, score, glyph, track) => glyph.colorBySize(feature, score, glyph, track),
+            normal: true,
+            arc: true
+        },
+        {
+            name: 'Color by insert size and orientation',
+            callback: (feature, score, glyph, track) => glyph.colorByOrientationAndSize(feature, score, glyph, track),
+            normal: true,
+            arc: true
         }
-        return glyph.getStyle( feature, 'color_nostrand' )
-    }
+    ]
+
 });
 });

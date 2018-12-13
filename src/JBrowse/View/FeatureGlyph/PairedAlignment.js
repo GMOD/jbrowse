@@ -181,7 +181,7 @@ _drawOverlappingMismatches(context, fRect, mismatches, fstart) {
 _defaultConfig() {
     return this._mergeConfigs(dojo.clone( this.inherited(arguments) ), {
         style: {
-            connectorColor: AlignmentColoring.connectorColor,
+            connectorColor: 'black',
             connectorThickness: 1,
             overlapColor: 'lightgrey',
             overlapStroke: 'grey'
