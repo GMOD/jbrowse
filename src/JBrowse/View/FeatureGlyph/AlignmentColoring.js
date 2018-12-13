@@ -147,7 +147,6 @@ var c = {
             '-': 'color_rev_strand',
             '+': 'color_fwd_strand'
         };
-        console.log(feature.get('tags'))
         return glyph.getStyle(feature, map[feature.get('xs')||feature.get('tags').XS] || 'color_nostrand');
     },
 
