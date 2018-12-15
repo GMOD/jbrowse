@@ -1,5 +1,12 @@
 {{$NEXT}}
 
+## Bug fixes
+
+ * Fixed issue where data directories with spaces in them were giving errors
+   due to CORS on JBrowse Desktop (issue #1285, @cmdcolin)
+
+ * Fixed issue where the name store could be queried before being initialized
+   (issue #1286, @cmdcolin)
 
 # Release 1.16.0     2018-12-13 17:24:29 UTC
 
