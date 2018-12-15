@@ -2639,6 +2639,9 @@ searchNames: function( /**String*/ loc ) {
             }
             // otherwise, pop up a dialog with a list of the locations to choose from
             else if( goingTo.multipleLocations ) {
+                if(!this.view.pxPerBp) {
+                    this.navigateToLocation(this.refSeq)
+                }
                 new LocationChoiceDialog(
                     {
                         browser: this,
