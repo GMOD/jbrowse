@@ -2623,12 +2623,12 @@ diffie-hellman@^5.0.0:
     miller-rabin "^4.0.0"
     randombytes "^2.0.0"
 
-dijit@1.13.0:
-  version "1.13.0"
-  resolved "https://registry.yarnpkg.com/dijit/-/dijit-1.13.0.tgz#42eceed26d5785d06323aa459306017684e74907"
-  integrity sha512-trzi45atc86S37/AtgcUC4akByxpqeKfoOftXlgrTSoM136tjcgLbWUYGjFkP3hk2APTDrYOCSa8xTjhp3YPpw==
+dijit@1.14.2, dijit@^1.14.2:
+  version "1.14.2"
+  resolved "https://registry.yarnpkg.com/dijit/-/dijit-1.14.2.tgz#7766c92faef57abffb15dbb0434c35169d1eb0d4"
+  integrity sha512-T/jEhBVpGdU3ruw5K68S8qn8VCjn1Pv/2fC4g0QJjPD0VgxOV9BvXdjo8Fjpv5AQ69PEUdZijHrSTTcPwIo7bg==
   dependencies:
-    dojo "1.13.0"
+    dojo "1.14.2"
 
 doctrine@1.5.0:
   version "1.5.0"
@@ -2652,15 +2652,15 @@ dojo-dstore@^1.1.1:
   dependencies:
     dojo "^1.9.0"
 
-dojo-util@1.13.0:
-  version "1.13.0"
-  resolved "https://registry.yarnpkg.com/dojo-util/-/dojo-util-1.13.0.tgz#58e74023d4848e1eedeeaac485337fcaffaed61e"
-  integrity sha512-c5Vsd1T8bydfWSyLcgQK+l7k/Ln47B56P5xwxgi9htUIMckK2Ti9F8tAZjBhKhKvtvm77H4KqiuFTT6FXAnRKA==
+dojo-util@^1.14.2:
+  version "1.14.2"
+  resolved "https://registry.yarnpkg.com/dojo-util/-/dojo-util-1.14.2.tgz#b249ce8ef5c3803eed5e030c21dabc2d9db30104"
+  integrity sha512-uLFYJq78VzCnlG8FsxR0LxSIsUax59Gdtxze7zouBx6Dpl9nGa2avscsAYzXY9YrS7J62GYy6iLF4IwJspFGGA==
 
-dojo-webpack-plugin@^2.7.2:
-  version "2.7.6"
-  resolved "https://registry.yarnpkg.com/dojo-webpack-plugin/-/dojo-webpack-plugin-2.7.6.tgz#d1efd017eb644b3b29f4fd16c983053bf3318189"
-  integrity sha512-Up5nQRfBM6E/dalO3gooaE1NKi5x4XcKkULGIwd6M5Ki8K/+c9MrvSPSJxJj074ExUwJceXPPMGRZ495jcHZbA==
+dojo-webpack-plugin@^2.7.7:
+  version "2.7.7"
+  resolved "https://registry.yarnpkg.com/dojo-webpack-plugin/-/dojo-webpack-plugin-2.7.7.tgz#88f7054f1b27a4e4c3c6d1857cbef638def9a0bb"
+  integrity sha512-jSzzaYDbP5Y5X5XgjoJshttHICpBxXMTTsz8hADxT4s2iDTez7mKFLCVUhoMN6s4I6FcmuzycCOSfsHjKeyG8w==
   dependencies:
     loader-utils "1.1.0"
     node-stringify "0.2.1"
@@ -2668,23 +2668,18 @@ dojo-webpack-plugin@^2.7.2:
     tmp "0.0.30"
     webpack-plugin-compat "1.0.1"
 
-dojo@1.13.0:
-  version "1.13.0"
-  resolved "https://registry.yarnpkg.com/dojo/-/dojo-1.13.0.tgz#62a7c53628f4f7acfa791a96924c67f39cd5861b"
-  integrity sha512-mGoGvsXAbPkUrBnxCoO7m6CFH8jvWq7rAL7fP7jrhJEOyswA/bZwWdXwEH0ovs68t8S0+xOpV/3V7addYbaiAA==
-
-dojo@^1.9.0:
+dojo@1.14.2, dojo@^1.14.2, dojo@^1.9.0:
   version "1.14.2"
   resolved "https://registry.yarnpkg.com/dojo/-/dojo-1.14.2.tgz#45ca90b19068230e1486f68b1531fa4ce0e21280"
   integrity sha512-TI+Ytgfh/VfmHWERp45Jte6NFMdoJTPsvUP/uzJUvAXET8FP2h442LePWWJ/q/xZ4V0V8OtdJhx8It/GB+Zbxg==
 
-dojox@1.13.0:
-  version "1.13.0"
-  resolved "https://registry.yarnpkg.com/dojox/-/dojox-1.13.0.tgz#5847def545861f7d1cf36664461a7301b79bce82"
-  integrity sha512-mbQv39n3x7DvpZMWsTtCo7hYQzM8O/s+ylgi5zxgRhQOhQPY7V+LV2gF6z4rNk75Sw7Ssrk/PyILtJo8ZHccGw==
+dojox@^1.14.2:
+  version "1.14.2"
+  resolved "https://registry.yarnpkg.com/dojox/-/dojox-1.14.2.tgz#22e0ed2d06255fc207cd4a7a1affe961af39de55"
+  integrity sha512-IOFzVbTGTXEUWskPPL1tEuVU20ANErgRcgjiSq/rY4K3m37L0h7t9k0NRr+vSO2vJH5u3IswvVH23GUrYEDnwg==
   dependencies:
-    dijit "1.13.0"
-    dojo "1.13.0"
+    dijit "1.14.2"
+    dojo "1.14.2"
 
 domain-browser@^1.1.1:
   version "1.2.0"

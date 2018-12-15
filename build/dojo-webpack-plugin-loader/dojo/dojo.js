@@ -1,4 +1,4 @@
-module.exports = function(userConfig, defaultConfig, global, window) { this.loaderVersion = "1.13.0"; (function(
+module.exports = function(userConfig, defaultConfig, global, window) { this.loaderVersion = "1.14.2"; (function(
 	userConfig,
 	defaultConfig
 ){
@@ -61,6 +61,10 @@ module.exports = function(userConfig, defaultConfig, global, window) { this.load
 	// pack: package is used internally to reference a package object (since javascript has reserved words including "package")
 	// prid: plugin resource identifier
 	// The integer constant 1 is used in place of true and 0 in place of false.
+	//
+	// The "foreign-loader" has condition is defined if another loader is being used (e.g. webpack) and this code is only
+	// needed for resolving module identifiers based on the config.  In this case, only the functions require.toUrl and 
+	// require.toAbsMid are supported.  The require and define functions are not supported.
 
 	// define global
 	var globalObject = (function(){
@@ -82,7 +86,7 @@ module.exports = function(userConfig, defaultConfig, global, window) { this.load
 	})();
 
 	// define a minimal library to help build the loader
-	var	noop = function(){
+	var noop = function(){
 		},
 
 		isEmpty = function(it){
@@ -234,7 +238,7 @@ module.exports = function(userConfig, defaultConfig, global, window) { this.load
 
 	// the loader will use these like symbols if the loader has the traceApi; otherwise
 	// define magic numbers so that modules can be provided as part of defaultConfig
-	var	requested = 1,
+	var requested = 1,
 		arrived = 2,
 		nonmodule = 3,
 		executing = 4,
@@ -505,30 +509,31 @@ module.exports = function(userConfig, defaultConfig, global, window) { this.load
 			= 0;
 
 	if( 1 ){
-		var consumePendingCacheInsert = function(referenceModule, clear){
-				clear = clear !== false;
-				var p, item, match, now, m;
-				for(p in pendingCacheInsert){
-					item = pendingCacheInsert[p];
-					match = p.match(/^url\:(.+)/);
-					if(match){
-						cache[urlKeyPrefix + toUrl(match[1], referenceModule)] =  item;
-					}else if(p=="*now"){
-						now = item;
-					}else if(p!="*noref"){
-						m = getModuleInfo(p, referenceModule, true);
-						cache[m.mid] = cache[urlKeyPrefix + m.url] = item;
+		if (! 1 ) {
+			var consumePendingCacheInsert = function(referenceModule, clear){
+					clear = clear !== false;
+					var p, item, match, now, m;
+					for(p in pendingCacheInsert){
+						item = pendingCacheInsert[p];
+						match = p.match(/^url\:(.+)/);
+						if(match){
+							cache[urlKeyPrefix + toUrl(match[1], referenceModule)] =  item;
+						}else if(p=="*now"){
+							now = item;
+						}else if(p!="*noref"){
+							m = getModuleInfo(p, referenceModule, true);
+							cache[m.mid] = cache[urlKeyPrefix + m.url] = item;
+						}
 					}
-				}
-				if(now){
-					now(createRequire(referenceModule));
-				}
-				if(clear){
-					pendingCacheInsert = {};
-				}
-			},
-
-			escapeString = function(s){
+					if(now){
+						now(createRequire(referenceModule));
+					}
+					if(clear){
+						pendingCacheInsert = {};
+					}
+				};
+		}
+		var escapeString = function(s){
 				return s.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, function(c){ return "\\" + c; });
 			},
 
@@ -667,23 +672,24 @@ module.exports = function(userConfig, defaultConfig, global, window) { this.load
 				// aliases
 				computeAliases(config.aliases, aliases);
 
-				if(booting){
-					delayedModuleConfig.push({config:config.config});
-				}else{
-					for(p in config.config){
-						var module = getModule(p, referenceModule);
-						module.config = mix(module.config || {}, config.config[p]);
+				if (! 1 ) {
+					if(booting){
+						delayedModuleConfig.push({config:config.config});
+					}else{
+						for(p in config.config){
+							var module = getModule(p, referenceModule);
+							module.config = mix(module.config || {}, config.config[p]);
+						}
+					}
+
+					// push in any new cache values
+					if(config.cache){
+						consumePendingCacheInsert();
+						pendingCacheInsert = config.cache;
+						//inject now all depencies so cache is available for mapped module
+						consumePendingCacheInsert(0, !!config.cache["*noref"]);
 					}
 				}
-
-				// push in any new cache values
-				if(config.cache){
-					consumePendingCacheInsert();
-					pendingCacheInsert = config.cache;
-					//inject now all depencies so cache is available for mapped module
-					consumePendingCacheInsert(0, !!config.cache["*noref"]);
-				}
-
 				signal("config", [config, req.rawConfig]);
 			};
 
@@ -771,182 +777,184 @@ module.exports = function(userConfig, defaultConfig, global, window) { this.load
 	}
 
 
-	if( 0 ){
-		req.combo = req.combo || {add:noop};
-		var	comboPending = 0,
-			combosPending = [],
-			comboPendingTimer = null;
-	}
+	if (! 1 ) {
+		if( 0 ){
+			req.combo = req.combo || {add:noop};
+			var comboPending = 0,
+				combosPending = [],
+				comboPendingTimer = null;
+		}
+		
 
-
-	// build the loader machinery iaw configuration, including has feature tests
-	var	injectDependencies = function(module){
-			// checkComplete!=0 holds the idle signal; we're not idle if we're injecting dependencies
-			guardCheckComplete(function(){
-				forEach(module.deps, injectModule);
-				if( 0  && comboPending && !comboPendingTimer){
-					comboPendingTimer = setTimeout(function() {
-						comboPending = 0;
-						comboPendingTimer = null;
-						req.combo.done(function(mids, url) {
-							var onLoadCallback= function(){
-								// defQ is a vector of module definitions 1-to-1, onto mids
-								runDefQ(0, mids);
-								checkComplete();
-							};
-							combosPending.push(mids);
-							injectingModule = mids;
-							req.injectUrl(url, onLoadCallback, mids);
-							injectingModule = 0;
-						}, req);
-					}, 0);
-				}
-			});
-		},
-
-		contextRequire = function(a1, a2, a3, referenceModule, contextRequire){
-			var module, syntheticMid;
-			if(isString(a1)){
-				// signature is (moduleId)
-				module = getModule(a1, referenceModule, true);
-				if(module && module.executed){
-					return module.result;
-				}
-				throw makeError("undefinedModule", a1);
-			}
-			if(!isArray(a1)){
-				// a1 is a configuration
-				config(a1, 0, referenceModule);
-
-				// juggle args; (a2, a3) may be (dependencies, callback)
-				a1 = a2;
-				a2 = a3;
-			}
-			if(isArray(a1)){
-				// signature is (requestList [,callback])
-				if(!a1.length){
-					a2 && a2();
-				}else{
-					syntheticMid = "require*" + uid();
-
-					// resolve the request list with respect to the reference module
-					for(var mid, deps = [], i = 0; i < a1.length;){
-						mid = a1[i++];
-						deps.push(getModule(mid, referenceModule));
+		// build the loader machinery iaw configuration, including has feature tests
+		var injectDependencies = function(module){
+				// checkComplete!=0 holds the idle signal; we're not idle if we're injecting dependencies
+				guardCheckComplete(function(){
+					forEach(module.deps, injectModule);
+					if( 0  && comboPending && !comboPendingTimer){
+						comboPendingTimer = setTimeout(function() {
+							comboPending = 0;
+							comboPendingTimer = null;
+							req.combo.done(function(mids, url) {
+								var onLoadCallback= function(){
+									// defQ is a vector of module definitions 1-to-1, onto mids
+									runDefQ(0, mids);
+									checkComplete();
+								};
+								combosPending.push(mids);
+								injectingModule = mids;
+								req.injectUrl(url, onLoadCallback, mids);
+								injectingModule = 0;
+							}, req);
+						}, 0);
 					}
-
-					// construct a synthetic module to control execution of the requestList, and, optionally, callback
-					module = mix(makeModuleInfo("", syntheticMid, 0, ""), {
-						injected: arrived,
-						deps: deps,
-						def: a2 || noop,
-						require: referenceModule ? referenceModule.require : req,
-						gc: 1 //garbage collect
-					});
-					modules[module.mid] = module;
-
-					// checkComplete!=0 holds the idle signal; we're not idle if we're injecting dependencies
-					injectDependencies(module);
-
-					// try to immediately execute
-					// if already traversing a factory tree, then strict causes circular dependency to abort the execution; maybe
-					// it's possible to execute this require later after the current traversal completes and avoid the circular dependency.
-					// ...but *always* insist on immediate in synch mode
-					var strict = checkCompleteGuard && legacyMode!=sync;
-					guardCheckComplete(function(){
-						execModule(module, strict);
-					});
-					if(!module.executed){
-						// some deps weren't on board or circular dependency detected and strict; therefore, push into the execQ
-						execQ.push(module);
-					}
-					checkComplete();
-				}
-			}
-			return contextRequire;
-		},
-
-		createRequire = function(module){
-			if(!module){
-				return req;
-			}
-			var result = module.require;
-			if(!result){
-				result = function(a1, a2, a3){
-					return contextRequire(a1, a2, a3, module, result);
-				};
-				module.require = mix(result, req);
-				result.module = module;
-				result.toUrl = function(name){
-					return toUrl(name, module);
-				};
-				result.toAbsMid = function(mid){
-					return toAbsMid(mid, module);
-				};
-				if( 0 ){
-					result.undef = function(mid){
-						req.undef(mid, module);
-					};
-				}
-				if( 0 ){
-					result.syncLoadNls = function(mid){
-						var nlsModuleInfo = getModuleInfo(mid, module),
-							nlsModule = modules[nlsModuleInfo.mid];
-						if(!nlsModule || !nlsModule.executed){
-							cached = cache[nlsModuleInfo.mid] || cache[urlKeyPrefix + nlsModuleInfo.url];
-							if(cached){
-								evalModuleText(cached);
-								nlsModule = modules[nlsModuleInfo.mid];
-							}
-						}
-						return nlsModule && nlsModule.executed && nlsModule.result;
-					};
-				}
-
-			}
-			return result;
-		},
-
-		execQ =
-			// The list of modules that need to be evaluated.
-			[],
-
-		defQ =
-			// The queue of define arguments sent to loader.
-			[],
-
-		waiting =
-			// The set of modules upon which the loader is waiting for definition to arrive
-			{},
-
-		setRequested = function(module){
-			module.injected = requested;
-			waiting[module.mid] = 1;
-			if(module.url){
-				waiting[module.url] = module.pack || 1;
-			}
-			startTimer();
-		},
-
-		setArrived = function(module){
-			module.injected = arrived;
-			delete waiting[module.mid];
-			if(module.url){
-				delete waiting[module.url];
-			}
-			if(isEmpty(waiting)){
-				clearTimer();
-				 0  && legacyMode==xd && (legacyMode = sync);
-			}
-		},
-
-		execComplete = req.idle =
-			// says the loader has completed (or not) its work
-			function(){
-				return !defQ.length && isEmpty(waiting) && !execQ.length && !checkCompleteGuard;
+				});
 			},
 
-		runMapProg = function(targetMid, map){
+			contextRequire = function(a1, a2, a3, referenceModule, contextRequire){
+				var module, syntheticMid;
+				if(isString(a1)){
+					// signature is (moduleId)
+					module = getModule(a1, referenceModule, true);
+					if(module && module.executed){
+						return module.result;
+					}
+					throw makeError("undefinedModule", a1);
+				}
+				if(!isArray(a1)){
+					// a1 is a configuration
+					config(a1, 0, referenceModule);
+
+					// juggle args; (a2, a3) may be (dependencies, callback)
+					a1 = a2;
+					a2 = a3;
+				}
+				if(isArray(a1)){
+					// signature is (requestList [,callback])
+					if(!a1.length){
+						a2 && a2();
+					}else{
+						syntheticMid = "require*" + uid();
+
+						// resolve the request list with respect to the reference module
+						for(var mid, deps = [], i = 0; i < a1.length;){
+							mid = a1[i++];
+							deps.push(getModule(mid, referenceModule));
+						}
+
+						// construct a synthetic module to control execution of the requestList, and, optionally, callback
+						module = mix(makeModuleInfo("", syntheticMid, 0, ""), {
+							injected: arrived,
+							deps: deps,
+							def: a2 || noop,
+							require: referenceModule ? referenceModule.require : req,
+							gc: 1 //garbage collect
+						});
+						modules[module.mid] = module;
+
+						// checkComplete!=0 holds the idle signal; we're not idle if we're injecting dependencies
+						injectDependencies(module);
+
+						// try to immediately execute
+						// if already traversing a factory tree, then strict causes circular dependency to abort the execution; maybe
+						// it's possible to execute this require later after the current traversal completes and avoid the circular dependency.
+						// ...but *always* insist on immediate in synch mode
+						var strict = checkCompleteGuard && legacyMode!=sync;
+						guardCheckComplete(function(){
+							execModule(module, strict);
+						});
+						if(!module.executed){
+							// some deps weren't on board or circular dependency detected and strict; therefore, push into the execQ
+							execQ.push(module);
+						}
+						checkComplete();
+					}
+				}
+				return contextRequire;
+			},
+
+			createRequire = function(module){
+				if(!module){
+					return req;
+				}
+				var result = module.require;
+				if(!result){
+					result = function(a1, a2, a3){
+						return contextRequire(a1, a2, a3, module, result);
+					};
+					module.require = mix(result, req);
+					result.module = module;
+					result.toUrl = function(name){
+						return toUrl(name, module);
+					};
+					result.toAbsMid = function(mid){
+						return toAbsMid(mid, module);
+					};
+					if( 0 ){
+						result.undef = function(mid){
+							req.undef(mid, module);
+						};
+					}
+					if( 0 ){
+						result.syncLoadNls = function(mid){
+							var nlsModuleInfo = getModuleInfo(mid, module),
+								nlsModule = modules[nlsModuleInfo.mid];
+							if(!nlsModule || !nlsModule.executed){
+								cached = cache[nlsModuleInfo.mid] || cache[urlKeyPrefix + nlsModuleInfo.url];
+								if(cached){
+									evalModuleText(cached);
+									nlsModule = modules[nlsModuleInfo.mid];
+								}
+							}
+							return nlsModule && nlsModule.executed && nlsModule.result;
+						};
+					}
+
+				}
+				return result;
+			},
+
+		  execQ =
+				// The list of modules that need to be evaluated.
+				[],
+
+			defQ =
+				// The queue of define arguments sent to loader.
+				[],
+
+			waiting =
+				// The set of modules upon which the loader is waiting for definition to arrive
+				{},
+
+			setRequested = function(module){
+				module.injected = requested;
+				waiting[module.mid] = 1;
+				if(module.url){
+					waiting[module.url] = module.pack || 1;
+				}
+				startTimer();
+			},
+
+			setArrived = function(module){
+				module.injected = arrived;
+				delete waiting[module.mid];
+				if(module.url){
+					delete waiting[module.url];
+				}
+				if(isEmpty(waiting)){
+					clearTimer();
+					 0  && legacyMode==xd && (legacyMode = sync);
+				}
+			},
+
+			execComplete = req.idle =
+				// says the loader has completed (or not) its work
+				function(){
+					return !defQ.length && isEmpty(waiting) && !execQ.length && !checkCompleteGuard;
+				};
+	}
+
+	var runMapProg = function(targetMid, map){
 			// search for targetMid in map; return the map item if found; falsy otherwise
 			if(map){
 			for(var i = 0; i < map.length; i++){
@@ -1050,7 +1058,7 @@ module.exports = function(userConfig, defaultConfig, global, window) { this.load
 			if(mapItem){
 				url = mapItem[1] + mid.substring(mapItem[3]);
 			}else if(pid){
-				url = pack.location + "/" + midInPackage;
+				url = (pack.location.slice(-1) === '/' ? pack.location.slice(0, -1) : pack.location) + "/" + midInPackage;
 			}else if( 0 ){
 				url = "../" + mid;
 			}else{
@@ -1066,60 +1074,62 @@ module.exports = function(userConfig, defaultConfig, global, window) { this.load
 
 		getModuleInfo = function(mid, referenceModule, fromPendingCache){
 			return getModuleInfo_(mid, referenceModule, packs, modules, req.baseUrl, mapProgs, pathsMapProg, aliases, undefined, fromPendingCache);
-		},
+		};
 
-		resolvePluginResourceId = function(plugin, prid, referenceModule){
-			return plugin.normalize ? plugin.normalize(prid, function(mid){return toAbsMid(mid, referenceModule);}) : toAbsMid(prid, referenceModule);
-		},
+	if (! 1 ) {
+		var resolvePluginResourceId = function(plugin, prid, referenceModule){
+				return plugin.normalize ? plugin.normalize(prid, function(mid){return toAbsMid(mid, referenceModule);}) : toAbsMid(prid, referenceModule);
+			},
 
-		dynamicPluginUidGenerator = 0,
+			dynamicPluginUidGenerator = 0,
 
-		getModule = function(mid, referenceModule, immediate){
-			// compute and optionally construct (if necessary) the module implied by the mid with respect to referenceModule
-			var match, plugin, prid, result;
-			match = mid.match(/^(.+?)\!(.*)$/);
-			if(match){
-				// name was <plugin-module>!<plugin-resource-id>
-				plugin = getModule(match[1], referenceModule, immediate);
+			getModule = function(mid, referenceModule, immediate){
+				// compute and optionally construct (if necessary) the module implied by the mid with respect to referenceModule
+				var match, plugin, prid, result;
+				match = mid.match(/^(.+?)\!(.*)$/);
+				if(match){
+					// name was <plugin-module>!<plugin-resource-id>
+					plugin = getModule(match[1], referenceModule, immediate);
 
-				if( 0  && legacyMode == sync && !plugin.executed){
-					injectModule(plugin);
-					if(plugin.injected===arrived && !plugin.executed){
-						guardCheckComplete(function(){
-							execModule(plugin);
-						});
+					if( 0  && legacyMode == sync && !plugin.executed){
+						injectModule(plugin);
+						if(plugin.injected===arrived && !plugin.executed){
+							guardCheckComplete(function(){
+								execModule(plugin);
+							});
+						}
+						if(plugin.executed){
+							promoteModuleToPlugin(plugin);
+						}else{
+							// we are in xdomain mode for some reason
+							execQ.unshift(plugin);
+						}
 					}
-					if(plugin.executed){
+
+
+
+					if(plugin.executed === executed && !plugin.load){
+						// executed the module not knowing it was a plugin
 						promoteModuleToPlugin(plugin);
-					}else{
-						// we are in xdomain mode for some reason
-						execQ.unshift(plugin);
 					}
-				}
 
-
-
-				if(plugin.executed === executed && !plugin.load){
-					// executed the module not knowing it was a plugin
-					promoteModuleToPlugin(plugin);
-				}
-
-				// if the plugin has not been loaded, then can't resolve the prid and  must assume this plugin is dynamic until we find out otherwise
-				if(plugin.load){
-					prid = resolvePluginResourceId(plugin, match[2], referenceModule);
-					mid = (plugin.mid + "!" + (plugin.dynamic ? ++dynamicPluginUidGenerator + "!" : "") + prid);
+					// if the plugin has not been loaded, then can't resolve the prid and  must assume this plugin is dynamic until we find out otherwise
+					if(plugin.load){
+						prid = resolvePluginResourceId(plugin, match[2], referenceModule);
+						mid = (plugin.mid + "!" + (plugin.dynamic ? ++dynamicPluginUidGenerator + "!" : "") + prid);
+					}else{
+						prid = match[2];
+						mid = plugin.mid + "!" + (++dynamicPluginUidGenerator) + "!waitingForPlugin";
+					}
+					result = {plugin:plugin, mid:mid, req:createRequire(referenceModule), prid:prid};
 				}else{
-					prid = match[2];
-					mid = plugin.mid + "!" + (++dynamicPluginUidGenerator) + "!waitingForPlugin";
+					result = getModuleInfo(mid, referenceModule);
 				}
-				result = {plugin:plugin, mid:mid, req:createRequire(referenceModule), prid:prid};
-			}else{
-				result = getModuleInfo(mid, referenceModule);
-			}
-			return modules[result.mid] || (!immediate && (modules[result.mid] = result));
-		},
+				return modules[result.mid] || (!immediate && (modules[result.mid] = result));
+			};
+	}
 
-		toAbsMid = req.toAbsMid = function(mid, referenceModule){
+	var toAbsMid = req.toAbsMid = function(mid, referenceModule){
 			return getModuleInfo(mid, referenceModule).mid;
 		},
 
@@ -1132,216 +1142,218 @@ module.exports = function(userConfig, defaultConfig, global, window) { this.load
 				// "/x.js" since getModuleInfo automatically appends ".js" and we appended "/x" to make name look like a module id
 				url.substring(0, url.length-5)
 			);
-		},
+		};
 
-		nonModuleProps = {
-			injected: arrived,
-			executed: executed,
-			def: nonmodule,
-			result: nonmodule
-		},
+	if (! 1 ) {
+		var nonModuleProps = {
+				injected: arrived,
+				executed: executed,
+				def: nonmodule,
+				result: nonmodule
+			},
 
-		makeCjs = function(mid){
-			return modules[mid] = mix({mid:mid}, nonModuleProps);
-		},
+			makeCjs = function(mid){
+				return modules[mid] = mix({mid:mid}, nonModuleProps);
+			},
 
-		cjsRequireModule = makeCjs("require"),
-		cjsExportsModule = makeCjs("exports"),
-		cjsModuleModule = makeCjs("module"),
+			cjsRequireModule = makeCjs("require"),
+			cjsExportsModule = makeCjs("exports"),
+			cjsModuleModule = makeCjs("module"),
 
-		runFactory = function(module, args){
-			req.trace("loader-run-factory", [module.mid]);
-			var factory = module.def,
-				result;
-			 0  && syncExecStack.unshift(module);
-			if( 0 ){
-				try{
-					result= isFunction(factory) ? factory.apply(null, args) : factory;
-				}catch(e){
-					signal(error, module.result = makeError("factoryThrew", [module, e]));
-				}
-			}else{
-				result= isFunction(factory) ? factory.apply(null, args) : factory;
-			}
-			module.result = result===undefined && module.cjs ? module.cjs.exports : result;
-			 0  && syncExecStack.shift(module);
-		},
-
-		abortExec = {},
-
-		defOrder = 0,
-
-		promoteModuleToPlugin = function(pluginModule){
-			var plugin = pluginModule.result;
-			pluginModule.dynamic = plugin.dynamic;
-			pluginModule.normalize = plugin.normalize;
-			pluginModule.load = plugin.load;
-			return pluginModule;
-		},
-
-		resolvePluginLoadQ = function(plugin){
-			// plugins is a newly executed module that has a loadQ waiting to run
-
-			// step 1: traverse the loadQ and fixup the mid and prid; remember the map from original mid to new mid
-			// recall the original mid was created before the plugin was on board and therefore it was impossible to
-			// compute the final mid; accordingly, prid may or may not change, but the mid will definitely change
-			var map = {};
-			forEach(plugin.loadQ, function(pseudoPluginResource){
-				// manufacture and insert the real module in modules
-				var prid = resolvePluginResourceId(plugin, pseudoPluginResource.prid, pseudoPluginResource.req.module),
-					mid = plugin.dynamic ? pseudoPluginResource.mid.replace(/waitingForPlugin$/, prid) : (plugin.mid + "!" + prid),
-					pluginResource = mix(mix({}, pseudoPluginResource), {mid:mid, prid:prid, injected:0});
-				if(!modules[mid] || !modules[mid].injected /*for require.undef*/){
-					// create a new (the real) plugin resource and inject it normally now that the plugin is on board
-					injectPlugin(modules[mid] = pluginResource);
-				} // else this was a duplicate request for the same (plugin, rid) for a nondynamic plugin
-
-				// pluginResource is really just a placeholder with the wrong mid (because we couldn't calculate it until the plugin was on board)
-				// mark is as arrived and delete it from modules; the real module was requested above
-				map[pseudoPluginResource.mid] = modules[mid];
-				setArrived(pseudoPluginResource);
-				delete modules[pseudoPluginResource.mid];
-			});
-			plugin.loadQ = 0;
-
-			// step2: replace all references to any placeholder modules with real modules
-			var substituteModules = function(module){
-				for(var replacement, deps = module.deps || [], i = 0; i<deps.length; i++){
-					replacement = map[deps[i].mid];
-					if(replacement){
-						deps[i] = replacement;
-					}
-				}
-			};
-			for(var p in modules){
-				substituteModules(modules[p]);
-			}
-			forEach(execQ, substituteModules);
-		},
-
-		finishExec = function(module){
-			req.trace("loader-finish-exec", [module.mid]);
-			module.executed = executed;
-			module.defOrder = defOrder++;
-			 0  && forEach(module.provides, function(cb){ cb(); });
-			if(module.loadQ){
-				// the module was a plugin
-				promoteModuleToPlugin(module);
-				resolvePluginLoadQ(module);
-			}
-			// remove all occurrences of this module from the execQ
-			for(i = 0; i < execQ.length;){
-				if(execQ[i] === module){
-					execQ.splice(i, 1);
-				}else{
-					i++;
-				}
-			}
-			// delete references to synthetic modules
-			if (/^require\*/.test(module.mid)) {
-				delete modules[module.mid];
-			}
-		},
-
-		circleTrace = [],
-
-		execModule = function(module, strict){
-			// run the dependency vector, then run the factory for module
-			if(module.executed === executing){
-				req.trace("loader-circular-dependency", [circleTrace.concat(module.mid).join("->")]);
-				return (!module.def || strict) ? abortExec :  (module.cjs && module.cjs.exports);
-			}
-			// at this point the module is either not executed or fully executed
-
-
-			if(!module.executed){
-				if(!module.def){
-					return abortExec;
-				}
-				var mid = module.mid,
-					deps = module.deps || [],
-					arg, argResult,
-					args = [],
-					i = 0;
-
+			runFactory = function(module, args){
+				req.trace("loader-run-factory", [module.mid]);
+				var factory = module.def,
+					result;
+				 0  && syncExecStack.unshift(module);
 				if( 0 ){
-					circleTrace.push(mid);
-					req.trace("loader-exec-module", ["exec", circleTrace.length, mid]);
-				}
-
-				// for circular dependencies, assume the first module encountered was executed OK
-				// modules that circularly depend on a module that has not run its factory will get
-				// the pre-made cjs.exports===module.result. They can take a reference to this object and/or
-				// add properties to it. When the module finally runs its factory, the factory can
-				// read/write/replace this object. Notice that so long as the object isn't replaced, any
-				// reference taken earlier while walking the deps list is still valid.
-				module.executed = executing;
-				while((arg = deps[i++])){
-					argResult = ((arg === cjsRequireModule) ? createRequire(module) :
-									((arg === cjsExportsModule) ? module.cjs.exports :
-										((arg === cjsModuleModule) ? module.cjs :
-											execModule(arg, strict))));
-					if(argResult === abortExec){
-						module.executed = 0;
-						req.trace("loader-exec-module", ["abort", mid]);
-						 0  && circleTrace.pop();
-						return abortExec;
+					try{
+						result= isFunction(factory) ? factory.apply(null, args) : factory;
+					}catch(e){
+						signal(error, module.result = makeError("factoryThrew", [module, e]));
 					}
-					args.push(argResult);
+				}else{
+					result= isFunction(factory) ? factory.apply(null, args) : factory;
 				}
-				runFactory(module, args);
-				finishExec(module);
-				 0  && circleTrace.pop();
-			}
-			// at this point the module is guaranteed fully executed
+				module.result = result===undefined && module.cjs ? module.cjs.exports : result;
+				 0  && syncExecStack.shift(module);
+			},
 
-			return module.result;
-		},
+			abortExec = {},
 
+			defOrder = 0,
 
-		checkCompleteGuard = 0,
+			promoteModuleToPlugin = function(pluginModule){
+				var plugin = pluginModule.result;
+				pluginModule.dynamic = plugin.dynamic;
+				pluginModule.normalize = plugin.normalize;
+				pluginModule.load = plugin.load;
+				return pluginModule;
+			},
 
-		guardCheckComplete = function(proc){
-			try{
-				checkCompleteGuard++;
-				proc();
-			}catch(e){
-				// https://bugs.dojotoolkit.org/ticket/16617
-				throw e;
-			}finally{
-				checkCompleteGuard--;
-			}
-			if(execComplete()){
-				signal("idle", []);
-			}
-		},
+			resolvePluginLoadQ = function(plugin){
+				// plugins is a newly executed module that has a loadQ waiting to run
 
-		checkComplete = function(){
-			// keep going through the execQ as long as at least one factory is executed
-			// plugins, recursion, cached modules all make for many execution path possibilities
-			if(checkCompleteGuard){
-				return;
-			}
-			guardCheckComplete(function(){
-				checkDojoRequirePlugin();
-				for(var currentDefOrder, module, i = 0; i < execQ.length;){
-					currentDefOrder = defOrder;
-					module = execQ[i];
-					execModule(module);
-					if(currentDefOrder!=defOrder){
-						// defOrder was bumped one or more times indicating something was executed (note, this indicates
-						// the execQ was modified, maybe a lot (for example a later module causes an earlier module to execute)
-						checkDojoRequirePlugin();
-						i = 0;
+				// step 1: traverse the loadQ and fixup the mid and prid; remember the map from original mid to new mid
+				// recall the original mid was created before the plugin was on board and therefore it was impossible to
+				// compute the final mid; accordingly, prid may or may not change, but the mid will definitely change
+				var map = {};
+				forEach(plugin.loadQ, function(pseudoPluginResource){
+					// manufacture and insert the real module in modules
+					var prid = resolvePluginResourceId(plugin, pseudoPluginResource.prid, pseudoPluginResource.req.module),
+						mid = plugin.dynamic ? pseudoPluginResource.mid.replace(/waitingForPlugin$/, prid) : (plugin.mid + "!" + prid),
+						pluginResource = mix(mix({}, pseudoPluginResource), {mid:mid, prid:prid, injected:0});
+					if(!modules[mid] || !modules[mid].injected /*for require.undef*/){
+						// create a new (the real) plugin resource and inject it normally now that the plugin is on board
+						injectPlugin(modules[mid] = pluginResource);
+					} // else this was a duplicate request for the same (plugin, rid) for a nondynamic plugin
+
+					// pluginResource is really just a placeholder with the wrong mid (because we couldn't calculate it until the plugin was on board)
+					// mark is as arrived and delete it from modules; the real module was requested above
+					map[pseudoPluginResource.mid] = modules[mid];
+					setArrived(pseudoPluginResource);
+					delete modules[pseudoPluginResource.mid];
+				});
+				plugin.loadQ = 0;
+
+				// step2: replace all references to any placeholder modules with real modules
+				var substituteModules = function(module){
+					for(var replacement, deps = module.deps || [], i = 0; i<deps.length; i++){
+						replacement = map[deps[i].mid];
+						if(replacement){
+							deps[i] = replacement;
+						}
+					}
+				};
+				for(var p in modules){
+					substituteModules(modules[p]);
+				}
+				forEach(execQ, substituteModules);
+			},
+
+			finishExec = function(module){
+				req.trace("loader-finish-exec", [module.mid]);
+				module.executed = executed;
+				module.defOrder = defOrder++;
+				 0  && forEach(module.provides, function(cb){ cb(); });
+				if(module.loadQ){
+					// the module was a plugin
+					promoteModuleToPlugin(module);
+					resolvePluginLoadQ(module);
+				}
+				// remove all occurrences of this module from the execQ
+				for(i = 0; i < execQ.length;){
+					if(execQ[i] === module){
+						execQ.splice(i, 1);
 					}else{
-						// nothing happened; check the next module in the exec queue
 						i++;
 					}
 				}
-			});
-		},
+				// delete references to synthetic modules
+				if (/^require\*/.test(module.mid)) {
+					delete modules[module.mid];
+				}
+			},
 
-		fixupUrl= typeof userConfig.fixupUrl == "function" ? userConfig.fixupUrl : function(url){
+			circleTrace = [],
+
+			execModule = function(module, strict){
+				// run the dependency vector, then run the factory for module
+				if(module.executed === executing){
+					req.trace("loader-circular-dependency", [circleTrace.concat(module.mid).join("->")]);
+					return (!module.def || strict) ? abortExec :  (module.cjs && module.cjs.exports);
+				}
+				// at this point the module is either not executed or fully executed
+
+
+				if(!module.executed){
+					if(!module.def){
+						return abortExec;
+					}
+					var mid = module.mid,
+						deps = module.deps || [],
+						arg, argResult,
+						args = [],
+						i = 0;
+
+					if( 0 ){
+						circleTrace.push(mid);
+						req.trace("loader-exec-module", ["exec", circleTrace.length, mid]);
+					}
+
+					// for circular dependencies, assume the first module encountered was executed OK
+					// modules that circularly depend on a module that has not run its factory will get
+					// the pre-made cjs.exports===module.result. They can take a reference to this object and/or
+					// add properties to it. When the module finally runs its factory, the factory can
+					// read/write/replace this object. Notice that so long as the object isn't replaced, any
+					// reference taken earlier while walking the deps list is still valid.
+					module.executed = executing;
+					while((arg = deps[i++])){
+						argResult = ((arg === cjsRequireModule) ? createRequire(module) :
+										((arg === cjsExportsModule) ? module.cjs.exports :
+											((arg === cjsModuleModule) ? module.cjs :
+												execModule(arg, strict))));
+						if(argResult === abortExec){
+							module.executed = 0;
+							req.trace("loader-exec-module", ["abort", mid]);
+							 0  && circleTrace.pop();
+							return abortExec;
+						}
+						args.push(argResult);
+					}
+					runFactory(module, args);
+					finishExec(module);
+					 0  && circleTrace.pop();
+				}
+				// at this point the module is guaranteed fully executed
+
+				return module.result;
+			},
+
+
+			checkCompleteGuard = 0,
+
+			guardCheckComplete = function(proc){
+				try{
+					checkCompleteGuard++;
+					proc();
+				}catch(e){
+					// https://bugs.dojotoolkit.org/ticket/16617
+					throw e;
+				}finally{
+					checkCompleteGuard--;
+				}
+				if(execComplete()){
+					signal("idle", []);
+				}
+			},
+
+			checkComplete = function(){
+				// keep going through the execQ as long as at least one factory is executed
+				// plugins, recursion, cached modules all make for many execution path possibilities
+				if(checkCompleteGuard){
+					return;
+				}
+				guardCheckComplete(function(){
+					checkDojoRequirePlugin();
+					for(var currentDefOrder, module, i = 0; i < execQ.length;){
+						currentDefOrder = defOrder;
+						module = execQ[i];
+						execModule(module);
+						if(currentDefOrder!=defOrder){
+							// defOrder was bumped one or more times indicating something was executed (note, this indicates
+							// the execQ was modified, maybe a lot (for example a later module causes an earlier module to execute)
+							checkDojoRequirePlugin();
+							i = 0;
+						}else{
+							// nothing happened; check the next module in the exec queue
+							i++;
+						}
+					}
+				});
+			};
+	}
+
+	var fixupUrl= typeof userConfig.fixupUrl == "function" ? userConfig.fixupUrl : function(url){
 			url += ""; // make sure url is a Javascript string (some paths may be a Java string)
 			return url + (cacheBust ? ((/\?/.test(url) ? "&" : "?") + cacheBust) : "");
 		};
@@ -1363,7 +1375,7 @@ module.exports = function(userConfig, defaultConfig, global, window) { this.load
 			 0 && has.add("dojo-loader-eval-hint-url", 1);
 		}
 
-		var	injectPlugin = function(
+		var injectPlugin = function(
 				module
 			){
 				// injects the plugin module given by module; may have to inject the plugin itself
@@ -1749,7 +1761,7 @@ module.exports = function(userConfig, defaultConfig, global, window) { this.load
 					errorDisconnector = domOn(node, "error", "onerror", function(e){
 						loadDisconnector();
 						errorDisconnector();
-						signal(error, makeError("scriptError", [url, e]));
+						signal(error, makeError("scriptError: " + url, [url, e]));
 					});
 
 				node.type = "text/javascript";
@@ -1816,96 +1828,98 @@ module.exports = function(userConfig, defaultConfig, global, window) { this.load
 	}else{
 		req.trace = noop;
 	}
+	if (! 1 ) {
+		var def = function(
+			mid,		  //(commonjs.moduleId, optional)
+			dependencies, //(array of commonjs.moduleId, optional) list of modules to be loaded before running factory
+			factory		  //(any)
+		){
+			///
+			// Advises the loader of a module factory. //Implements http://wiki.commonjs.org/wiki/Modules/AsynchronousDefinition.
+			///
+			//note
+			// CommonJS factory scan courtesy of http://requirejs.org
 
-	var def = function(
-		mid,		  //(commonjs.moduleId, optional)
-		dependencies, //(array of commonjs.moduleId, optional) list of modules to be loaded before running factory
-		factory		  //(any)
-	){
-		///
-		// Advises the loader of a module factory. //Implements http://wiki.commonjs.org/wiki/Modules/AsynchronousDefinition.
-		///
-		//note
-		// CommonJS factory scan courtesy of http://requirejs.org
+			var arity = arguments.length,
+				defaultDeps = ["require", "exports", "module"],
+				// the predominate signature...
+				args = [0, mid, dependencies];
+			if(arity==1){
+				args = [0, (isFunction(mid) ? defaultDeps : []), mid];
+			}else if(arity==2 && isString(mid)){
+				args = [mid, (isFunction(dependencies) ? defaultDeps : []), dependencies];
+			}else if(arity==3){
+				args = [mid, dependencies, factory];
+			}
 
-		var arity = arguments.length,
-			defaultDeps = ["require", "exports", "module"],
-			// the predominate signature...
-			args = [0, mid, dependencies];
-		if(arity==1){
-			args = [0, (isFunction(mid) ? defaultDeps : []), mid];
-		}else if(arity==2 && isString(mid)){
-			args = [mid, (isFunction(dependencies) ? defaultDeps : []), dependencies];
-		}else if(arity==3){
-			args = [mid, dependencies, factory];
-		}
+			if( 0  && args[1]===defaultDeps){
+				args[2].toString()
+					.replace(/(\/\*([\s\S]*?)\*\/|\/\/(.*)$)/mg, "")
+					.replace(/require\(["']([\w\!\-_\.\/]+)["']\)/g, function(match, dep){
+					args[1].push(dep);
+				});
+			}
 
-		if( 0  && args[1]===defaultDeps){
-			args[2].toString()
-				.replace(/(\/\*([\s\S]*?)\*\/|\/\/(.*)$)/mg, "")
-				.replace(/require\(["']([\w\!\-_\.\/]+)["']\)/g, function(match, dep){
-				args[1].push(dep);
-			});
-		}
-
-		req.trace("loader-define", args.slice(0, 2));
-		var targetModule = args[0] && getModule(args[0]),
-			module;
-		if(targetModule && !waiting[targetModule.mid]){
-			// given a mid that hasn't been requested; therefore, defined through means other than injecting
-			// consequent to a require() or define() application; examples include defining modules on-the-fly
-			// due to some code path or including a module in a script element. In any case,
-			// there is no callback waiting to finish processing and nothing to trigger the defQ and the
-			// dependencies are never requested; therefore, do it here.
-			injectDependencies(defineModule(targetModule, args[1], args[2]));
-		}else if(! 0  || ! 1  || injectingCachedModule){
-			// not IE path: anonymous module and therefore must have been injected; therefore, onLoad will fire immediately
-			// after script finishes being evaluated and the defQ can be run from that callback to detect the module id
-			defQ.push(args);
-		}else{
-			// IE path: possibly anonymous module and therefore injected; therefore, cannot depend on 1-to-1,
-			// in-order exec of onLoad with script eval (since it's IE) and must manually detect here
-			targetModule = targetModule || injectingModule;
-			if(!targetModule){
-				for(mid in waiting){
-					module = modules[mid];
-					if(module && module.node && module.node.readyState === 'interactive'){
-						targetModule = module;
-						break;
-					}
-				}
-				if( 0  && !targetModule){
-					for(var i = 0; i<combosPending.length; i++){
-						targetModule = combosPending[i];
-						if(targetModule.node && targetModule.node.readyState === 'interactive'){
+			req.trace("loader-define", args.slice(0, 2));
+			var targetModule = args[0] && getModule(args[0]),
+				module;
+			if(targetModule && !waiting[targetModule.mid]){
+				// given a mid that hasn't been requested; therefore, defined through means other than injecting
+				// consequent to a require() or define() application; examples include defining modules on-the-fly
+				// due to some code path or including a module in a script element. In any case,
+				// there is no callback waiting to finish processing and nothing to trigger the defQ and the
+				// dependencies are never requested; therefore, do it here.
+				injectDependencies(defineModule(targetModule, args[1], args[2]));
+			}else if(! 0  || ! 1  || injectingCachedModule){
+				// not IE path: anonymous module and therefore must have been injected; therefore, onLoad will fire immediately
+				// after script finishes being evaluated and the defQ can be run from that callback to detect the module id
+				defQ.push(args);
+			}else{
+				// IE path: possibly anonymous module and therefore injected; therefore, cannot depend on 1-to-1,
+				// in-order exec of onLoad with script eval (since it's IE) and must manually detect here
+				targetModule = targetModule || injectingModule;
+				if(!targetModule){
+					for(mid in waiting){
+						module = modules[mid];
+						if(module && module.node && module.node.readyState === 'interactive'){
+							targetModule = module;
 							break;
 						}
-						targetModule= 0;
+					}
+					if( 0  && !targetModule){
+						for(var i = 0; i<combosPending.length; i++){
+							targetModule = combosPending[i];
+							if(targetModule.node && targetModule.node.readyState === 'interactive'){
+								break;
+							}
+							targetModule= 0;
+						}
 					}
 				}
-			}
-			if( 0  && isArray(targetModule)){
-				injectDependencies(defineModule(getModule(targetModule.shift()), args[1], args[2]));
-				if(!targetModule.length){
-					combosPending.splice(i, 1);
+				if( 0  && isArray(targetModule)){
+					injectDependencies(defineModule(getModule(targetModule.shift()), args[1], args[2]));
+					if(!targetModule.length){
+						combosPending.splice(i, 1);
+					}
+				}else if(targetModule){
+					consumePendingCacheInsert(targetModule);
+					injectDependencies(defineModule(targetModule, args[1], args[2]));
+				}else{
+					signal(error, makeError("ieDefineFailed", args[0]));
 				}
-			}else if(targetModule){
-				consumePendingCacheInsert(targetModule);
-				injectDependencies(defineModule(targetModule, args[1], args[2]));
-			}else{
-				signal(error, makeError("ieDefineFailed", args[0]));
+				checkComplete();
 			}
-			checkComplete();
+		};
+		def.amd = {
+			vendor:"dojotoolkit.org"
+		};
+
+		if( 0 ){
+			req.def = def;
 		}
-	};
-	def.amd = {
-		vendor:"dojotoolkit.org"
-	};
-
-	if( 0 ){
-		req.def = def;
+	} else {
+		var def = noop;
 	}
-
 	// allow config to override default implementation of named functions; this is useful for
 	// non-browser environments, e.g., overriding injectUrl, getText, log, etc. in node.js, Rhino, etc.
 	// also useful for testing and monkey patching loader
@@ -1982,7 +1996,7 @@ module.exports = function(userConfig, defaultConfig, global, window) { this.load
 		}
 	}
 
-	if( 1 ){
+	if( 1  && ! 1 ){
 		forEach(delayedModuleConfig, function(c){ config(c); });
 		var bootDeps = dojoSniffConfig.deps ||	userConfig.deps || defaultConfig.deps,
 			bootCallback = dojoSniffConfig.callback || userConfig.callback || defaultConfig.callback;
