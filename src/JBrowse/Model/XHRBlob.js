@@ -18,6 +18,7 @@ function fetchBinaryRange(url, start, end) {
         if(url.slice(0, 4) === 'http') {
             mfetch = electronRequire('node-fetch')
         } else {
+            url = url.replace('%20', ' ')
             mfetch = fetch
         }
     } else {
