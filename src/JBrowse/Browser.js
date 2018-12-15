@@ -2489,7 +2489,7 @@ navigateTo: function(loc) {
     var thisB = this;
     this.afterMilestone( 'initView', function() {
         // lastly, try to search our feature names for it
-        thisB.searchNames( loc )
+        var ret = thisB.searchNames( loc )
            .then( function( found ) {
                       if( found )
                           return;
@@ -2607,61 +2607,59 @@ navigateToLocation: function( location ) {
  * view location to any that match.
  */
 searchNames: function( /**String*/ loc ) {
-    var thisB = this;
-    return this.nameStore.query({ name: loc })
-        .then(
-            function( nameMatches ) {
-                // if we have no matches, pop up a dialog saying so, and
-                // do nothing more
-                if( ! nameMatches.length ) {
-                    return false;
-                }
-
-                var goingTo;
-
-                //first check for exact case match
-                for (var i = 0; i < nameMatches.length; i++) {
-                    if( nameMatches[i].name  == loc )
-                        goingTo = nameMatches[i];
-                }
-                //if no exact case match, try a case-insentitive match
-                if( !goingTo ) {
-                    for( i = 0; i < nameMatches.length; i++ ) {
-                        if( nameMatches[i].name.toLowerCase() == loc.toLowerCase() )
-                            goingTo = nameMatches[i];
-                    }
-                }
-                //else just pick a match
-                if( !goingTo ) goingTo = nameMatches[0];
-
-                // if it has one location, go to it
-                if( goingTo.location ) {
-                    //go to location, with some flanking region
-                    thisB.showRegionAfterSearch( goingTo.location );
-                }
-                // otherwise, pop up a dialog with a list of the locations to choose from
-                else if( goingTo.multipleLocations ) {
-                    new LocationChoiceDialog(
-                        {
-                            browser: thisB,
-                            locationChoices: goingTo.multipleLocations,
-                            title: 'Choose '+goingTo.name+' location',
-                            prompt: '"'+goingTo.name+'" is found in multiple locations.  Please choose a location to view.'
-                        })
-                        .show();
-                }
-                return true;
-            },
-            function(e) {
-                console.error( e );
-                new InfoDialog(
-                    {
-                        title: 'Error',
-                        content: 'Error reading from name store.'
-                    }).show();
+    return this._getDeferred('loadNames').then(() => {
+        return this.nameStore.query({ name: loc }).then(nameMatches => {
+            // if we have no matches, pop up a dialog saying so, and
+            // do nothing more
+            if( ! nameMatches.length ) {
                 return false;
             }
-   );
+
+            var goingTo;
+
+            //first check for exact case match
+            for (var i = 0; i < nameMatches.length; i++) {
+                if( nameMatches[i].name  == loc )
+                    goingTo = nameMatches[i];
+            }
+            //if no exact case match, try a case-insentitive match
+            if( !goingTo ) {
+                for( i = 0; i < nameMatches.length; i++ ) {
+                    if( nameMatches[i].name.toLowerCase() == loc.toLowerCase() )
+                        goingTo = nameMatches[i];
+                }
+            }
+            //else just pick a match
+            if( !goingTo ) goingTo = nameMatches[0];
+
+            // if it has one location, go to it
+            if( goingTo.location ) {
+                //go to location, with some flanking region
+                this.showRegionAfterSearch( goingTo.location );
+            }
+            // otherwise, pop up a dialog with a list of the locations to choose from
+            else if( goingTo.multipleLocations ) {
+                new LocationChoiceDialog(
+                    {
+                        browser: this,
+                        locationChoices: goingTo.multipleLocations,
+                        title: 'Choose '+goingTo.name+' location',
+                        prompt: '"'+goingTo.name+'" is found in multiple locations.  Please choose a location to view.'
+                    })
+                    .show();
+            }
+            return true;
+        },
+        function(e) {
+            console.error( e );
+            new InfoDialog(
+                {
+                    title: 'Error',
+                    content: 'Error reading from name store.'
+                }).show();
+            return false;
+        });
+    });
 },
 
 
@@ -3148,17 +3146,16 @@ createNavBox: function( parent ) {
     var refSeqSelectBoxPlaceHolder = dojo.create('span', {id:'search-refseq'}, searchbox );
 
     // make the location search box
-    this.locationBox = new dijitComboBox(
-        {
-            id: "location",
-            name: "location",
-            style: { width: locationWidth },
-            maxLength: 400,
-            searchAttr: "name",
-            title: 'Enter a chromosomal position, symbol or ID to search'
-        },
-        dojo.create('input', {}, searchbox) );
-        this.afterMilestone( 'loadNames', dojo.hitch(this, function() {
+    this.locationBox = new dijitComboBox({
+        id: "location",
+        name: "location",
+        style: { width: locationWidth },
+        maxLength: 400,
+        searchAttr: "name",
+        title: 'Enter a chromosomal position, symbol or ID to search'
+    }, dojo.create('input', {}, searchbox) );
+
+    this.afterMilestone( 'loadNames', dojo.hitch(this, function() {
         if( this.nameStore ) {
             this.locationBox.set( 'store', this.nameStore );
         }
