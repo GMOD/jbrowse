@@ -63,8 +63,7 @@ function (
         },
         electronData: queryParams.electronData || (Util.isElectron() && electronRequire('electron').remote.app.getPath('userData'))
     };
-
-    window.addEventListener('load', () => {
+    dojo.addOnLoad(() => {
         // see if we can load some configuration from the data-config attribute of our container
         try {
             let elementConfig = document.getElementById(config.containerID).getAttribute('data-config')
