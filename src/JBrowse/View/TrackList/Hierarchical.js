@@ -211,9 +211,8 @@ return declare(
             dom.create('span', { className: 'key', innerHTML: trackConf.key || trackConf.label }, labelNode );
 
             category.tracks[ trackLabel ] = { checkbox: checkbox, checkListener: checkListener, labelNode: labelNode };
-
-            this._updateTitles( category );
         }, this );
+        this._updateAllTitles()
     },
     // called when item checkbox is clicked.
     itemClick: function(checkbox,trackConf) {
