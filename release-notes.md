@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+## Minor improvements
+
+ * Made a change to make Hierarchical track selector much faster on intial
+   browser load for very large tracklists (@cmdcolin)
+
 ## Bug fixes
 
  * Fixed issue where data directories with spaces in them were giving errors
