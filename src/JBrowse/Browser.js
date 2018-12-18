@@ -2489,37 +2489,35 @@ navigateTo: function(loc) {
     var thisB = this;
     this.afterMilestone( 'initView', function() {
         // lastly, try to search our feature names for it
-        var ret = thisB.searchNames( loc )
-           .then( function( found ) {
-                      if( found )
-                          return;
+        var ref = thisB.findReferenceSequence( loc );
+        if( ref ) {
+            thisB.navigateToLocation( { ref: ref.name } );
+            return;
+        }
 
-                      // First check if loc is the name of a ref seq before attempting to parse the locstring for basepair location info
-                      var ref = thisB.findReferenceSequence( loc );
-                      if( ref ) {
-                          thisB.navigateToLocation( { ref: ref.name } );
-                          return;
-                      }
+        // Not a known ref seq name - now lets parse the loc string
+        // if it's a foo:123..456 location, go there
+        var location = typeof loc == 'string' ? Util.parseLocString( loc ) :  loc;
+        // only call navigateToLocation() directly if location has start and end, otherwise try and fill in start/end from 'location' cookie
+        if( location && ("start" in location) && ("end" in location)) {
+            thisB.navigateToLocation( location );
+            return;
+        }
 
-                      // Not a known ref seq name - now lets parse the loc string
-                      // if it's a foo:123..456 location, go there
-                      var location = typeof loc == 'string' ? Util.parseLocString( loc ) :  loc;
-                      // only call navigateToLocation() directly if location has start and end, otherwise try and fill in start/end from 'location' cookie
-                      if( location && ("start" in location) && ("end" in location)) {
-                          thisB.navigateToLocation( location );
-                          return;
-                      }
+        thisB.searchNames( loc ).then(found => {
+            if( found )
+                return;
 
-                      new InfoDialog(
-                          {
-                              title: 'Not found',
-                              content: 'Not found: <span class="locString">'+loc+'</span>',
-                              className: 'notfound-dialog'
-                          }).show();
-                      if(!thisB.view.pxPerBp) {
-                          thisB.navigateToLocation(thisB.refSeq)
-                      }
-                  });
+            new InfoDialog(
+                {
+                    title: 'Not found',
+                    content: 'Not found: <span class="locString">'+loc+'</span>',
+                    className: 'notfound-dialog'
+                }).show();
+            if(!thisB.view.pxPerBp) {
+                thisB.navigateToLocation(thisB.refSeq)
+            }
+        });
     });
 },
 
