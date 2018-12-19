@@ -68,12 +68,6 @@ function fetchBinaryRange(url, start, end) {
         )
       }
 
-      // if we now still have no content-range header, the most common reason
-      // is because the remote server doesn't support CORS
-      if (!headers['content-range']) {
-          throw new Error(`could not read Content-Range for ${url}, the remote server may not support JBrowse (need CORS and HTTP Range requests)`)
-      }
-
       // return the response headers, and the data buffer
       return res.arrayBuffer()
         .then(arrayBuffer => ({
