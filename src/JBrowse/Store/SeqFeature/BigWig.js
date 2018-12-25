@@ -158,7 +158,7 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
                      while((c = d.getChar()) && c.charCodeAt() != 0) {
                          string += c;
                      }
-                     thisB.parseAutoSql(string);
+                     this.autoSql = Util.parseAutoSql(string);
                  }).call(this);
             }
 
@@ -361,29 +361,6 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
         }
     },
 
-    parseAutoSql: function(string) {
-        string = string.trim();
-        var res = string.split('\n');
-        this.autoSql = {
-            name: /table\s+(\w+)/.exec(res[0])[1],
-            description: /"(.*)"/.exec(res[1])[1],
-            fields: []
-        };
-        var i = 3;
-        var field;
-        while(res[i].trim() != ')') {
-            if(field = /([\w\[\]0-9]+)\s*(\w+)\s*;\s*"(.*)"/.exec(res[i].trim())) {
-                this.autoSql.fields.push({
-                    type: field[1],
-                    name: field[2],
-                    description: field[3]
-                });
-            } else {
-                console.warn('autosql line not parsed', res[i]);
-            }
-            i++;
-        }
-    },
 
 
     saveStore: function() {

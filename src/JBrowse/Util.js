@@ -1,5 +1,5 @@
 const url = cjsRequire('url')
-
+const parser = cjsRequire('./Util/AutoSql.js')
 /**
  * Miscellaneous utility functions.
  */
@@ -633,8 +633,12 @@ Util = {
             "R2R1": "RL",
             "F1F2": "RL"
         }
-    }
+    },
 
+
+    parseAutoSql(string) {
+        return parser.parse(string)
+    }
 };
 
     return Util;
