@@ -158,7 +158,7 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
                      while((c = d.getChar()) && c.charCodeAt() != 0) {
                          string += c;
                      }
-                     this.autoSql = Util.parseAutoSql(string);
+                     this.autoSql = Util.parseAutoSql(string) || Util.defaultAutoSql;
                  }).call(this);
             }
 

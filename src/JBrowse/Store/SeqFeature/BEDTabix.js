@@ -12,6 +12,7 @@ define([
             'JBrowse/Model/BlobFilehandleWrapper',
             'JBrowse/Model/XHRBlob',
             'JBrowse/Model/SimpleFeature',
+            'JBrowse/Util',
             './BED/Parser'
         ],
         function(
@@ -26,6 +27,7 @@ define([
             BlobFilehandleWrapper,
             XHRBlob,
             SimpleFeature,
+            Util,
             Parser
         ) {
 
@@ -63,13 +65,14 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
             csiFilehandle: csiBlob && new BlobFilehandleWrapper(csiBlob),
             chunkSizeLimit: args.chunkSizeLimit || 1000000,
             renameRefSeqs: n => this.browser.regularizeReferenceName(n)
-        });
+        })
 
         this.parser = new Parser({
             commentCallback: (this.config.commentCallback || function(i) {  }),
             store: this
-        });
+        })
 
+        this.autoSql = Util.parseAutoSql(args.autoSql) || Util.defaultAutoSql
 
         this.getHeader()
             .then( function( header ) {
@@ -149,28 +152,9 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
     //read the line
     lineToFeature: function( columnNumbers, line ){
         const fields = line.split("\t")
-
-
-        for (var i = 0; i < fields.length; i++) {
-            if(fields[i] == '.') {
-                fields[i] = null;
-            }
-        }
-
-        var featureData = {
-            start:  parseInt(fields[columnNumbers.start - 1]),
-            end:    parseInt(fields[columnNumbers.end - 1]),
-            seq_id: fields[columnNumbers.ref - 1],
-            name:   fields[3],
-            score:  fields[4] || null,
-            strand: {'+':1,'-':-1}[fields[5]] || 0,
-            thick_start: fields[6],
-            thick_end: fields[7],
-            itemrgb: fields[8],
-            block_count: fields[9],
-            block_sizes: fields[10],
-            chrom_starts: fields[11],
-        };
+        const start = parseInt(fields[columnNumbers.start - 1])
+        const end = parseInt(fields[columnNumbers.end - 1])
+        var featureData = Util.parseBedText(start, end, fields, this.autoSql)
 
         var f = new SimpleFeature({
             id: fields.slice(0,5).join('/'),

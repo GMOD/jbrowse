@@ -1,5 +1,7 @@
 const url = cjsRequire('url')
+const snakeCase = cjsRequire('snake-case')
 const parser = cjsRequire('./Util/AutoSql.js')
+
 /**
  * Miscellaneous utility functions.
  */
@@ -7,7 +9,6 @@ define( [
             'dojo/_base/array',
             'dojo/_base/lang',
             'dojo/Deferred',
-
             'dojox/lang/functional/object',
             'dojox/lang/functional/fold'
         ],
@@ -636,10 +637,119 @@ Util = {
     },
 
 
+    defaultAutoSql: {
+        name: 'BigBED file',
+        description: 'this file has no associated autoSQL',
+        fields: [
+            {
+                type: 'string',
+                name: 'chrom',
+                description: 'Name of chromosome ',
+            },
+            {
+                type: 'uint',
+                name: 'chromStart',
+                description: 'Start position (first base is 0).',
+            },
+            {
+                type: 'uint',
+                name: 'chromEnd',
+                description: 'End position plus one (chromEnd – chromStart = size).',
+            },
+            {
+                type: 'string',
+                name: 'name',
+                description: 'Name of feature.',
+            },
+            {
+                type: 'float',
+                name: 'score',
+                description: 'A number between 0 and 1000 that controls shading of item (0 if unused).',
+            },
+            {
+                type: 'string',
+                name: 'strand',
+                description: '+ or – (or . for unknown).',
+            },
+            {
+                type: 'uint',
+                name: 'thickStart',
+                description: 'Start position where feature is drawn as thicker line; used for CDS start for genes.',
+            },
+            {
+                type: 'uint',
+                name: 'thickEnd',
+                description: 'Position where thicker part of feature ends.',
+            },
+            {
+                type: 'string',
+                name: 'itemRgb',
+                description: 'Comma-separated list of red, green, blue values from 0-255 (0 if unused).',
+            },
+        ]
+    },
+
     parseAutoSql(string) {
-        return parser.parse(string)
-    }
+        return string && parser.parse(string)
+    },
+
+
+    /**
+     * parse the `rest` field of a binary bed data section, using
+     * the autosql schema defined for this file
+     *
+     * @returns {Object} feature data with native BED field names
+     */
+    parseBedText(start, end, rest, asql) {
+        // include ucsc-style names as well as jbrowse-style names
+        const featureData = {
+            start: start,
+            end: end,
+        }
+
+        const bedColumns = lang.isArray(rest) ? rest : rest.split('\t')
+        const numericTypes = ['uint', 'int', 'float', 'long']
+        // first three columns (chrom,start,end) are not included in bigBed
+        for (let i = 3; i < asql.fields.length; i++) {
+            if (bedColumns[i-3] !== '.' && bedColumns[i-3] !== '') {
+                const autoField = asql.fields[i]
+                let columnVal = bedColumns[i-3]
+
+                // for speed, cache some of the tests we need inside the autofield definition
+                if (!autoField._requestWorkerCache) {
+                    const match = /^(\w+)\[/.exec(autoField.type)
+                    autoField._requestWorkerCache = {
+                        isNumeric: numericTypes.includes(autoField.type),
+                        isArray: !!match,
+                        arrayIsNumeric: match && numericTypes.includes(match[1])
+                    }
+                }
+                if (autoField._requestWorkerCache.isNumeric) {
+                    let num = Number(columnVal)
+                    // if the number parse results in NaN, somebody probably
+                    // listed the type erroneously as numeric, so don't use
+                    // the parsed number
+                    columnVal = isNaN(num) ? columnVal : num
+                } else if(autoField._requestWorkerCache.isArray) {
+                    // parse array values
+                    columnVal = columnVal.split(',')
+                    if (columnVal[columnVal.length-1] === '') columnVal.pop()
+                    if (autoField._requestWorkerCache.arrayIsNumeric)
+                        columnVal = columnVal.map(str => Number(str))
+                }
+
+                featureData[snakeCase(autoField.name)] = columnVal
+            }
+        }
+
+        if (featureData.strand) {
+            featureData.strand = {'-': -1, '+': 1}[featureData.strand]
+        }
+
+        return featureData
+    },
 };
+
 
     return Util;
 });
