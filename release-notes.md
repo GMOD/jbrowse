@@ -13,6 +13,9 @@
  * Fixed issue where the name store could be queried before being initialized
    (issue #1286, @cmdcolin)
 
+ * Fixed an issue for large BAM headers failing to load post-@gmod/bam
+   integration (@cmdcolin)
+
 # Release 1.16.0     2018-12-13 17:24:29 UTC
 
 ## Major improvements
