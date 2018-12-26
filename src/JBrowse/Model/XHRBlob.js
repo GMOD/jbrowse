@@ -11,19 +11,21 @@ define( [ 'dojo/_base/declare',
         ],
         function( declare, Util, FileBlob  ) {
 
+let mfetch
+if(Util.isElectron()) {
+    if(url.slice(0, 4) === 'http') {
+        mfetch = electronRequire('node-fetch')
+    } else {
+        url = url.replace('%20', ' ')
+        mfetch = fetch
+    }
+} else {
+    mfetch = tenaciousFetch
+}
+
 function fetchBinaryRange(url, start, end) {
     const requestDate = new Date()
-    let mfetch
-    if(Util.isElectron()) {
-        if(url.slice(0, 4) === 'http') {
-            mfetch = electronRequire('node-fetch')
-        } else {
-            url = url.replace('%20', ' ')
-            mfetch = fetch
-        }
-    } else {
-        mfetch = tenaciousFetch
-    }
+
     return mfetch(url, {
       method: 'GET',
       headers: { range: `bytes=${start}-${end}` },
@@ -141,19 +143,39 @@ var XHRBlob = declare( FileBlob,
 
     fetch( callback, failCallback ) {
         const length = this.end === undefined ? undefined : this.end - this.start + 1
-        if (length < 0) debugger
-        globalCache.getRange(this.url, this.start, length)
-            .then(
-                this._getResponseArrayBuffer.bind(this,callback),
-                failCallback,
-            )
+        console.log('fetch',length,this.start,this.end,this.url)
+        if (length < 0) {
+            throw new Error('Length less than 0 received')
+        } else if(length == undefined) {
+            if(this.start == 0) {
+                console.log('normal fetch')
+                mfetch(this.url).then(
+                    this._getResponseArrayBuffer.bind(this,callback),
+                    failCallback
+                )
+            }
+        } else {
+            globalCache.getRange(this.url, this.start, length)
+                .then(
+                    this._getResponseArrayBuffer.bind(this,callback),
+                    failCallback,
+                )
+        }
     },
 
     async fetchBufferPromise() {
         const length = this.end === undefined ? undefined : this.end - this.start + 1
-        if (length < 0) debugger
-        const range = await globalCache.getRange(this.url, this.start, length)
-        return range.buffer
+        if (length < 0) {
+            throw new Error('Length less than 0 received')
+        } else if(length == undefined) {
+            if(this.start == 0) {
+                const range = await mfetch(this.url);
+                return await range.arrayBuffer();
+            }
+        } else {
+            var range = await globalCache.getRange(this.url, this.start, length)
+            return range.buffer
+        }
     },
 
     _getResponseArrayBuffer(callback,{buffer}) {
