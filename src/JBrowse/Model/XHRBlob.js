@@ -1,5 +1,6 @@
 cjsRequire('whatwg-fetch')
 const tenaciousFetch = cjsRequire('tenacious-fetch').default
+const LRU = cjsRequire('quick-lru')
 
 
 const { HttpRangeFetcher } = cjsRequire('http-range-fetcher')
@@ -10,6 +11,8 @@ define( [ 'dojo/_base/declare',
           'JBrowse/Model/FileBlob',
         ],
         function( declare, Util, FileBlob  ) {
+
+const fetchCache = new LRU({ maxSize: 20 })
 
 function getfetch(url, opts = {}) {
     let mfetch
@@ -23,7 +26,11 @@ function getfetch(url, opts = {}) {
     } else {
         mfetch = tenaciousFetch
     }
-    return mfetch(url, Object.assign({
+    var r = fetchCache.get(url)
+    if(r) {
+        return r
+    }
+    var p = mfetch(url, Object.assign({
         method: 'GET',
         credentials: 'same-origin',
         retries: 5,
@@ -33,6 +40,8 @@ function getfetch(url, opts = {}) {
             console.warn(`${url} request failed, retrying (${retriesLeft} retries left)`)
         }
     }, opts))
+    fetchCache.set(p)
+    return p
 }
 
 function fetchBinaryRange(url, start, end) {
@@ -87,14 +96,13 @@ function fetchBinaryRange(url, start, end) {
     }, res => {
         throw new Error(`HTTP ${res.status} when fetching ${url} bytes ${start}-${end}`)
     })
-  }
-  const globalCache = new HttpRangeFetcher({
-      fetch: fetchBinaryRange,
-      size: 50 * 1024 * 1024, // 50MB
-      chunkSize: Math.pow(2,18), // 256KB
-      aggregationTime: 50,
-  })
-
+}
+const globalCache = new HttpRangeFetcher({
+    fetch: fetchBinaryRange,
+    size: 50 * 1024 * 1024, // 50MB
+    chunkSize: Math.pow(2,18), // 256KB
+    aggregationTime: 50,
+})
 
 var XHRBlob = declare( FileBlob,
 /**
