@@ -65,14 +65,13 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
             csiFilehandle: csiBlob && new BlobFilehandleWrapper(csiBlob),
             chunkSizeLimit: args.chunkSizeLimit || 1000000,
             renameRefSeqs: n => this.browser.regularizeReferenceName(n)
-        })
+        });
 
         this.parser = new Parser({
             commentCallback: (this.config.commentCallback || function(i) {  }),
             store: this
-        })
+        });
 
-        console.log(args.autoSql)
         this.autoSql = Util.parseAutoSql(args.autoSql) || Util.defaultAutoSql
 
         this.getHeader()

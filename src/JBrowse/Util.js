@@ -689,6 +689,8 @@ Util = {
         ]
     },
 
+
+
     parseAutoSql(string) {
         return string && parser.parse(string)
     },
@@ -719,9 +721,9 @@ Util = {
                 if (!autoField._requestWorkerCache) {
                     const match = /^(\w+)\[/.exec(autoField.type)
                     autoField._requestWorkerCache = {
-                        isNumeric: numericTypes.includes(autoField.type),
-                        isArray: !!match,
-                        arrayIsNumeric: match && numericTypes.includes(match[1])
+                        isNumeric: !autoField.size && numericTypes.includes(autoField.type),
+                        isArray: autoField.size,
+                        arrayIsNumeric: autoField.size && numericTypes.includes(autoField.type)
                     }
                 }
                 if (autoField._requestWorkerCache.isNumeric) {
