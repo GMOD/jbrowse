@@ -23,20 +23,23 @@ if(Util.isElectron()) {
     mfetch = tenaciousFetch
 }
 
+let mfetchOptions = {
+  method: 'GET',
+  credentials: 'same-origin',
+  retries: 5,
+  retryDelay: 1000, // 1 sec, 2 sec, 3 sec
+  retryStatus: [500, 404, 503],
+  onRetry: ({retriesLeft, retryDelay}) => {
+    console.warn(`${url} bytes ${start}-${end} request failed, retrying (${retriesLeft} retries left)`)
+  }
+}
 function fetchBinaryRange(url, start, end) {
     const requestDate = new Date()
+    const headers = Object.assign(Object.assign({}, mfetchOptions), {
+      headers: { range: `bytes=${start}-${end}` }
+    })
 
-    return mfetch(url, {
-      method: 'GET',
-      headers: { range: `bytes=${start}-${end}` },
-      credentials: 'same-origin',
-      retries: 5,
-      retryDelay: 1000, // 1 sec, 2 sec, 3 sec
-      retryStatus: [500, 404, 503],
-      onRetry: ({retriesLeft, retryDelay}) => {
-        console.warn(`${url} bytes ${start}-${end} request failed, retrying (${retriesLeft} retries left)`)
-      }
-    }).then(res => {
+    return mfetch(url, headers).then(res => {
       const responseDate = new Date()
       if (res.status !== 206 && res.status !== 200)
         throw new Error(
@@ -137,16 +140,15 @@ var XHRBlob = declare( FileBlob,
 
     fetch( callback, failCallback ) {
         const length = this.end === undefined ? undefined : this.end - this.start + 1
-        console.log('fetch',length,this.start,this.end,this.url)
         if (length < 0) {
             throw new Error('Length less than 0 received')
         } else if(length == undefined) {
             if(this.start == 0) {
-                console.log('normal fetch')
-                mfetch(this.url).then(
-                    this._getResponseArrayBuffer.bind(this,callback),
-                    failCallback
-                )
+                mfetch(this.url, mfetchOptions).then(response => {
+                    response.arrayBuffer().then(res => {
+                        callback(res)
+                    }, failCallback)
+                }, failCallback)
             }
         } else {
             globalCache.getRange(this.url, this.start, length)
@@ -163,8 +165,8 @@ var XHRBlob = declare( FileBlob,
             throw new Error('Length less than 0 received')
         } else if(length == undefined) {
             if(this.start == 0) {
-                const range = await mfetch(this.url);
-                return await range.arrayBuffer();
+                const range = await mfetch(this.url, mfetchOptions)
+                return new Buffer(await range.arrayBuffer())
             }
         } else {
             var range = await globalCache.getRange(this.url, this.start, length)
