@@ -1,5 +1,6 @@
+
 declaration
-    = type:declareType _ name:declareName _ comment:comment _ '(' _ fields:fieldList _ ')' _ { return { type, name, comment, fields } }
+	= type:declareType _ name:declareName _ comment:comment _ '(' _ fields:fieldList _ ')' _ { return { type, name, comment, fields } }
 
 declareType =
    'simple'/
@@ -7,7 +8,7 @@ declareType =
    'table'
 
 declareName
-    =   name /
+    =	name /
         name indexType /
         name 'auto' /
         name indexType 'auto'
@@ -18,7 +19,7 @@ indexType =
         'unique'
 
 comment =
-    quotedString
+	quotedString
 
 fieldList =
     f1:field _ fds:(_ w:field { return w; })* _  {
@@ -29,7 +30,8 @@ fieldList =
 field =
         type:fieldType _ name:fieldName _ ';' _ comment:comment { return { type, name, comment } } /
         type:fieldType _ '[' _ size:fieldSize _ ']' _ name:name _ ';' _ comment:comment { return { type, size, name, comment } } /
-        type:fieldType _ '(' _ vals:fieldValues _ ')' _ name:name _ ';' _ comment:comment { return { type, vals, name, comment } }
+        type:fieldType _ '(' _ vals:fieldValues _ ')' _ name:name _ ';' _ comment:comment { return { type, vals, name, comment } } /
+        type:fieldType _ name:fieldName _ ';' _ { return { type, name } }
 
 fieldName = name
 
@@ -40,10 +42,11 @@ fieldValues
     }
 
 fieldType =
-    'int'/'uint'/'short'/'ushort'/'byte'/'ubyte'/'float'/'char'/'string'/'lstring'/'enum'/'set'/
-    declareType _ declareName
+    "int"/"uint"/"short"/"ushort"/"byte"/"ubyte"/"float"/"char"/"string"/"lstring"/"enum"/"set"/
+	declareType _ declareName
 
-fieldSize = number/fieldName
+fieldSize = number /
+             fieldName
 
 name = t:([a-zA-Z][a-zA-Z0-9_]*) { return text() }
 
@@ -54,3 +57,5 @@ number "integer"
 
 _ "whitespace"
   = [ \t\n\r]*
+
+

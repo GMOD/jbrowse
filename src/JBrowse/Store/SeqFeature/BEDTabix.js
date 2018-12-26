@@ -72,6 +72,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
             store: this
         })
 
+        console.log(args.autoSql)
         this.autoSql = Util.parseAutoSql(args.autoSql) || Util.defaultAutoSql
 
         this.getHeader()
