@@ -5,6 +5,8 @@
  * Made a change to make Hierarchical track selector much faster on intial
    browser load for very large tracklists (@cmdcolin)
 
+ * Updated to webpack 4 for some faster build times (pull #1270, @cmdcolin)
+
 ## Bug fixes
 
  * Fixed issue where data directories with spaces in them were giving errors
@@ -15,6 +17,9 @@
 
  * Fixed an issue for large BAM headers failing to load post-@gmod/bam
    integration (@cmdcolin)
+
+ * Fixed access to some cross-origin resources (issue #1289, pull #1292,
+   @cmdcolin)
 
 # Release 1.16.0     2018-12-13 17:24:29 UTC
 
