@@ -11,35 +11,38 @@ define( [ 'dojo/_base/declare',
         ],
         function( declare, Util, FileBlob  ) {
 
-let mfetch
-if(Util.isElectron()) {
-    if(url.slice(0, 4) === 'http') {
-        mfetch = electronRequire('node-fetch')
-    } else {
-        url = url.replace('%20', ' ')
-        mfetch = fetch
+const mfetchOptions = {
+    method: 'GET',
+    credentials: 'same-origin',
+    retries: 5,
+    retryDelay: 1000, // 1 sec, 2 sec, 3 sec
+    retryStatus: [500, 404, 503],
+    onRetry: ({retriesLeft, retryDelay}) => {
+        console.warn(`${url} bytes ${start}-${end} request failed, retrying (${retriesLeft} retries left)`)
     }
-} else {
-    mfetch = tenaciousFetch
+}
+function getfetch(url, opts = {}) {
+    let mfetch
+    if(Util.isElectron()) {
+        if(url.slice(0, 4) === 'http') {
+            mfetch = electronRequire('node-fetch')
+        } else {
+            url = url.replace('%20', ' ')
+            mfetch = fetch
+        }
+    } else {
+        mfetch = tenaciousFetch
+    }
+    return mfetch(url, Object.assign(Object.assign({}, mfetchOptions), opts))
 }
 
-let mfetchOptions = {
-  method: 'GET',
-  credentials: 'same-origin',
-  retries: 5,
-  retryDelay: 1000, // 1 sec, 2 sec, 3 sec
-  retryStatus: [500, 404, 503],
-  onRetry: ({retriesLeft, retryDelay}) => {
-    console.warn(`${url} bytes ${start}-${end} request failed, retrying (${retriesLeft} retries left)`)
-  }
-}
 function fetchBinaryRange(url, start, end) {
     const requestDate = new Date()
-    const headers = Object.assign(Object.assign({}, mfetchOptions), {
-      headers: { range: `bytes=${start}-${end}` }
-    })
+    const headers = {
+        headers: { range: `bytes=${start}-${end}` }
+    }
 
-    return mfetch(url, headers).then(res => {
+    return getfetch(url, headers).then(res => {
       const responseDate = new Date()
       if (res.status !== 206 && res.status !== 200)
         throw new Error(
@@ -144,7 +147,7 @@ var XHRBlob = declare( FileBlob,
             throw new Error('Length less than 0 received')
         } else if(length == undefined) {
             if(this.start == 0) {
-                mfetch(this.url, mfetchOptions).then(response => {
+                getfetch(this.url).then(response => {
                     response.arrayBuffer().then(res => {
                         callback(res)
                     }, failCallback)
@@ -165,7 +168,7 @@ var XHRBlob = declare( FileBlob,
             throw new Error('Length less than 0 received')
         } else if(length == undefined) {
             if(this.start == 0) {
-                const range = await mfetch(this.url, mfetchOptions)
+                const range = await getfetch(this.url)
                 return new Buffer(await range.arrayBuffer())
             }
         } else {
