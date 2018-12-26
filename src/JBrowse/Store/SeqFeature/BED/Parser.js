@@ -52,7 +52,7 @@ return declare( null, {
                 continue;
 
             // parse meta line using the parseHeader configuration callback function
-            var metaData = (this.config.parseHeader||function() {})(line);
+            var metaData = (this.parseHeader||function() {})(line);
             var key = metaData.key;
             headData[key] = metaData.value;
         }

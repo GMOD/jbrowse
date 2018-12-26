@@ -700,7 +700,7 @@ Util = {
      *
      * @returns {Object} feature data with native BED field names
      */
-    parseBedText(start, end, rest, asql) {
+    parseBedText(start, end, rest, asql, offset = 0) {
         // include ucsc-style names as well as jbrowse-style names
         const featureData = {
             start: start,
@@ -710,10 +710,10 @@ Util = {
         const bedColumns = lang.isArray(rest) ? rest : rest.split('\t')
         const numericTypes = ['uint', 'int', 'float', 'long']
         // first three columns (chrom,start,end) are not included in bigBed
-        for (let i = 3; i < asql.fields.length; i++) {
-            if (bedColumns[i-3] !== '.' && bedColumns[i-3] !== '') {
+        for (let i = offset; i < asql.fields.length; i++) {
+            if (bedColumns[i - offset] !== '.' && bedColumns[i - offset] !== '') {
                 const autoField = asql.fields[i]
-                let columnVal = bedColumns[i-3]
+                let columnVal = bedColumns[i - offset]
 
                 // for speed, cache some of the tests we need inside the autofield definition
                 if (!autoField._requestWorkerCache) {
@@ -742,9 +742,7 @@ Util = {
             }
         }
 
-        if (featureData.strand) {
-            featureData.strand = {'-': -1, '+': 1}[featureData.strand]
-        }
+        featureData.strand = {'-': -1, '+': 1}[featureData.strand] || 0
 
         return featureData
     },

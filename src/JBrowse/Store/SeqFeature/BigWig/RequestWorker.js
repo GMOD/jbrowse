@@ -285,8 +285,7 @@ var RequestWorker = declare( null,
                     break;
                 }
             }
-
-            const featureData = Util.parseBedText(start, end, rest, this.window.autoSql)
+            const featureData = Util.parseBedText(start, end, rest, this.window.autoSql, 3)
             featureData.id = `bb-${startOffset + offset}`
             this.maybeCreateFeature(start,end,featureData)
         }
