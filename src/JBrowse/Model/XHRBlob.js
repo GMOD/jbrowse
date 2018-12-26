@@ -11,16 +11,6 @@ define( [ 'dojo/_base/declare',
         ],
         function( declare, Util, FileBlob  ) {
 
-const mfetchOptions = {
-    method: 'GET',
-    credentials: 'same-origin',
-    retries: 5,
-    retryDelay: 1000, // 1 sec, 2 sec, 3 sec
-    retryStatus: [500, 404, 503],
-    onRetry: ({retriesLeft, retryDelay}) => {
-        console.warn(`${url} bytes ${start}-${end} request failed, retrying (${retriesLeft} retries left)`)
-    }
-}
 function getfetch(url, opts = {}) {
     let mfetch
     if(Util.isElectron()) {
@@ -33,13 +23,25 @@ function getfetch(url, opts = {}) {
     } else {
         mfetch = tenaciousFetch
     }
-    return mfetch(url, Object.assign(Object.assign({}, mfetchOptions), opts))
+    return mfetch(url, Object.assign({
+        method: 'GET',
+        credentials: 'same-origin',
+        retries: 5,
+        retryDelay: 1000, // 1 sec, 2 sec, 3 sec
+        retryStatus: [500, 404, 503],
+        onRetry: ({retriesLeft, retryDelay}) => {
+            console.warn(`${url} request failed, retrying (${retriesLeft} retries left)`)
+        }
+    }, opts))
 }
 
 function fetchBinaryRange(url, start, end) {
     const requestDate = new Date()
     const headers = {
-        headers: { range: `bytes=${start}-${end}` }
+        headers: { range: `bytes=${start}-${end}` },
+        onRetry: ({retriesLeft, retryDelay}) => {
+            console.warn(`${url} bytes ${start}-${end} request failed, retrying (${retriesLeft} retries left)`)
+        }
     }
 
     return getfetch(url, headers).then(res => {
@@ -145,14 +147,12 @@ var XHRBlob = declare( FileBlob,
         const length = this.end === undefined ? undefined : this.end - this.start + 1
         if (length < 0) {
             throw new Error('Length less than 0 received')
-        } else if(length == undefined) {
-            if(this.start == 0) {
-                getfetch(this.url).then(response => {
-                    response.arrayBuffer().then(res => {
-                        callback(res)
-                    }, failCallback)
+        } else if(length == undefined && this.start == 0) {
+            getfetch(this.url).then(response => {
+                response.arrayBuffer().then(res => {
+                    callback(res)
                 }, failCallback)
-            }
+            }, failCallback)
         } else {
             globalCache.getRange(this.url, this.start, length)
                 .then(
@@ -166,11 +166,9 @@ var XHRBlob = declare( FileBlob,
         const length = this.end === undefined ? undefined : this.end - this.start + 1
         if (length < 0) {
             throw new Error('Length less than 0 received')
-        } else if(length == undefined) {
-            if(this.start == 0) {
-                const range = await getfetch(this.url)
-                return new Buffer(await range.arrayBuffer())
-            }
+        } else if(length == undefined && this.start == 0) {
+            const range = await getfetch(this.url)
+            return new Buffer(await range.arrayBuffer())
         } else {
             var range = await globalCache.getRange(this.url, this.start, length)
             return range.buffer
