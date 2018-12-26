@@ -11,8 +11,7 @@ define( [ 'dojo/_base/declare',
         ],
         function( declare, Util, FileBlob  ) {
 
-function fetchBinaryRange(url, start, end) {
-    const requestDate = new Date()
+function getfetch(url, opts = {}) {
     let mfetch
     if(Util.isElectron()) {
         if(url.slice(0, 4) === 'http') {
@@ -24,17 +23,28 @@ function fetchBinaryRange(url, start, end) {
     } else {
         mfetch = tenaciousFetch
     }
-    return mfetch(url, {
-      method: 'GET',
-      headers: { range: `bytes=${start}-${end}` },
-      credentials: 'same-origin',
-      retries: 5,
-      retryDelay: 1000, // 1 sec, 2 sec, 3 sec
-      retryStatus: [500, 404, 503],
-      onRetry: ({retriesLeft, retryDelay}) => {
-        console.warn(`${url} bytes ${start}-${end} request failed, retrying (${retriesLeft} retries left)`)
-      }
-    }).then(res => {
+    return mfetch(url, Object.assign({
+        method: 'GET',
+        credentials: 'same-origin',
+        retries: 5,
+        retryDelay: 1000, // 1 sec, 2 sec, 3 sec
+        retryStatus: [500, 404, 503],
+        onRetry: ({retriesLeft, retryDelay}) => {
+            console.warn(`${url} request failed, retrying (${retriesLeft} retries left)`)
+        }
+    }, opts))
+}
+
+function fetchBinaryRange(url, start, end) {
+    const requestDate = new Date()
+    const headers = {
+        headers: { range: `bytes=${start}-${end}` },
+        onRetry: ({retriesLeft, retryDelay}) => {
+            console.warn(`${url} bytes ${start}-${end} request failed, retrying (${retriesLeft} retries left)`)
+        }
+    }
+
+    return getfetch(url, headers).then(res => {
       const responseDate = new Date()
       if (res.status !== 206 && res.status !== 200)
         throw new Error(
@@ -66,12 +76,6 @@ function fetchBinaryRange(url, start, end) {
         )
       }
 
-      // if we now still have no content-range header, the most common reason
-      // is because the remote server doesn't support CORS
-      if (!headers['content-range']) {
-          throw new Error(`could not read Content-Range for ${url}, the remote server may not support JBrowse (need CORS and HTTP Range requests)`)
-      }
-
       // return the response headers, and the data buffer
       return res.arrayBuffer()
         .then(arrayBuffer => ({
@@ -83,14 +87,13 @@ function fetchBinaryRange(url, start, end) {
     }, res => {
         throw new Error(`HTTP ${res.status} when fetching ${url} bytes ${start}-${end}`)
     })
-  }
-  const globalCache = new HttpRangeFetcher({
-      fetch: fetchBinaryRange,
-      size: 50 * 1024 * 1024, // 50MB
-      chunkSize: Math.pow(2,18), // 256KB
-      aggregationTime: 50,
-  })
-
+}
+const globalCache = new HttpRangeFetcher({
+    fetch: fetchBinaryRange,
+    size: 50 * 1024 * 1024, // 50MB
+    chunkSize: Math.pow(2,18), // 256KB
+    aggregationTime: 50,
+})
 
 var XHRBlob = declare( FileBlob,
 /**
@@ -141,19 +144,33 @@ var XHRBlob = declare( FileBlob,
 
     fetch( callback, failCallback ) {
         const length = this.end === undefined ? undefined : this.end - this.start + 1
-        if (length < 0) debugger
-        globalCache.getRange(this.url, this.start, length)
-            .then(
-                this._getResponseArrayBuffer.bind(this,callback),
-                failCallback,
-            )
+        if (length < 0) {
+            throw new Error('Length less than 0 received')
+        } else if(length == undefined && this.start == 0) {
+            getfetch(this.url)
+                .then(res => res.arrayBuffer())
+                .then(callback)
+                .catch(failCallback)
+        } else {
+            globalCache.getRange(this.url, this.start, length)
+                .then(
+                    this._getResponseArrayBuffer.bind(this,callback),
+                    failCallback,
+                )
+        }
     },
 
     async fetchBufferPromise() {
         const length = this.end === undefined ? undefined : this.end - this.start + 1
-        if (length < 0) debugger
-        const range = await globalCache.getRange(this.url, this.start, length)
-        return range.buffer
+        if (length < 0) {
+            throw new Error('Length less than 0 received')
+        } else if(length == undefined && this.start == 0) {
+            const range = await getfetch(this.url)
+            return new Buffer(await range.arrayBuffer())
+        } else {
+            var range = await globalCache.getRange(this.url, this.start, length)
+            return range.buffer
+        }
     },
 
     _getResponseArrayBuffer(callback,{buffer}) {
