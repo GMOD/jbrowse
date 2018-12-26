@@ -22,6 +22,7 @@ return declare( null, {
 
     constructor: function( args ) {
         lang.mixin( this, {
+                        headerCallback:    args.headerCallback || function() {},
                         featureCallback:   args.featureCallback || function() {},
                         endCallback:       args.endCallback || function() {},
                         commentCallback:   args.commentCallback || function() {},
@@ -52,7 +53,7 @@ return declare( null, {
                 continue;
 
             // parse meta line using the parseHeader configuration callback function
-            var metaData = (this.parseHeader||function() {})(line);
+            var metaData = this.headerCallback(line);
             var key = metaData.key;
             headData[key] = metaData.value;
         }
