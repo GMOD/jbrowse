@@ -72,10 +72,12 @@ style.color = function(feature) {
 * Very large .conf files (thousands of lines) files can take longer to parse than equivalent JSON
 * An array of values can be built up over multiple lines. NOTE: A quirk of the format is that there cannot be more than 4 spaces before the + sign in each item. Example:
 
+```
     [trackMetadata]
     sources =
        + data/mymeta.csv
        + data/more_meta.csv
+```
 
 ### Callback-function specific considerations for the text-based .conf format
 
