@@ -10,6 +10,8 @@
 
  * Updated to webpack 4 for some faster build times (pull #1270, @cmdcolin)
 
+ * Updated to use dojo/dijit/dojox 1.14 (@cmdcolin)
+
  * Updated NeatCanvasFeatures to allow non-coding transcripts to be colored
    differently with `style->unprocessedTranscriptColor`. Thanks to @billzt
    for the bug report (issue #1298, @cmdcolin)
