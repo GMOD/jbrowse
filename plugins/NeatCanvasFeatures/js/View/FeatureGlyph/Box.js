@@ -18,10 +18,10 @@ function (
             style = style || lang.hitch(this, 'getStyle');
 
             var height = this._getFeatureHeight(viewInfo, feature);
-            if (!height)            {
+            if (!height) {
                 return;
             }
-            if (height != overallHeight)            {
+            if (height != overallHeight) {
                 top += Math.round((overallHeight - height) / 2);
             }
 
@@ -70,12 +70,12 @@ function (
                     context.lineWidth = lineWidth;
                     context.strokeStyle = borderColor;
 
-            // need to stroke a smaller rectangle to remain within
-            // the bounds of the feature's overall height and
-            // width, because of the way stroking is done in
-            // canvas.  thus the +0.5 and -1 business.
+                    // need to stroke a smaller rectangle to remain within
+                    // the bounds of the feature's overall height and
+                    // width, because of the way stroking is done in
+                    // canvas.  thus the +0.5 and -1 business.
                     context.strokeRect(left + lineWidth / 2, top + lineWidth / 2, width - lineWidth, height - lineWidth);
-                }            else {
+                } else {
                     context.globalAlpha = lineWidth * 2 / width;
                     context.fillStyle = borderColor;
                     context.fillRect(left, top, Math.max(1, width), height);
@@ -305,7 +305,7 @@ function colourNameToHex(colour)  {
         'yellowgreen': '#9acd32'
     };
 
-    if (typeof colours[colour.toLowerCase()] !== 'undefined')        {
+    if (typeof colours[colour.toLowerCase()] !== 'undefined') {
         return colours[colour.toLowerCase()];
     }
 
