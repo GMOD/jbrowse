@@ -4,22 +4,28 @@ define([
     'dojo/_base/array',
     'JBrowse/View/FeatureGlyph/Gene',
     './Box',
-    './ProcessedTranscript'
+    './ProcessedTranscript',
+    './UnprocessedTranscript'
 ],
 function (
     declare,
     lang,
     array,
     Gene,
-    BoxGlyph,
-    ProcessedTranscriptGlyph
+    Box,
+    ProcessedTranscript,
+    UnprocessedTranscript,
+
 ) {
     return declare(Gene, {
         _boxGlyph: function () {
-            return this.__boxGlyph || (this.__boxGlyph = new BoxGlyph({ track: this.track, browser: this.browser, config: this.config }));
+            return this.__boxGlyph || (this.__boxGlyph = new Box({ track: this.track, browser: this.browser, config: this.config }));
         },
         _ptGlyph: function () {
-            return this.__ptGlyph || (this.__ptGlyph = new ProcessedTranscriptGlyph({ track: this.track, browser: this.browser, config: this.config }));
-        }
+            return this.__ptGlyph || (this.__ptGlyph = new ProcessedTranscript({ track: this.track, browser: this.browser, config: this.config }));
+        },
+        _ntGlyph: function() {
+            return this.__ntGlyph || ( this.__ntGlyph = new UnprocessedTranscript({ track: this.track, browser: this.browser, config: this.config }) );
+        },
     });
 });

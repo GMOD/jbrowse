@@ -2,15 +2,15 @@ define([
     'dojo/_base/declare',
     'dojo/_base/array',
     'dojox/color/Palette',
-    'JBrowse/View/FeatureGlyph/ProcessedTranscript',
+    'JBrowse/View/FeatureGlyph/UnprocessedTranscript',
     './Segments'
 ],
 function (
     declare,
     array,
     Palette,
-    ProcessedTranscript,
+    UnprocessedTranscript,
     Segments
 ) {
-    return declare([ProcessedTranscript, Segments])
+    return declare([Segments,UnprocessedTranscript])
 });
