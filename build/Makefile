@@ -24,8 +24,9 @@ release: release-dev release-min release-electron-all release-notes.html
 
 release-electron-setup:
 	echo "Setting up electron"
-	cd $(RELEASE_MIN) && cp -r ../node_modules ../extlib . && ./setup.sh && cd ..
-	cp -R browser $(RELEASE_MIN)
+	cp -R node_modules extlib browser $(RELEASE_MIN)
+	cd $(RELEASE_MIN) && ./setup.sh && rm -rf node_modules && yarn install --production && cd ..
+
 
 release-electron-darwin: release-min release-electron-setup
 	echo "Building mac electron"
