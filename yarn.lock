@@ -120,10 +120,10 @@
   dependencies:
     arrify "^1.0.1"
 
-"@gmod/bam@^1.0.13":
-  version "1.0.13"
-  resolved "https://registry.yarnpkg.com/@gmod/bam/-/bam-1.0.13.tgz#daa9e68f7854deb32ee84b0bd085c32fcfc1839a"
-  integrity sha512-3VYsJm73vwNVn2+5V3s5uXcFgwKZ1oI7vDXwkTuD/Pum7V74tkwut3EQqqL1L9/dKPU9bsjxrP0qJRpKq3FnoQ==
+"@gmod/bam@^1.0.14":
+  version "1.0.14"
+  resolved "https://registry.yarnpkg.com/@gmod/bam/-/bam-1.0.14.tgz#928c645165d2c1896f732a4e46952be8c63bb04f"
+  integrity sha512-X4BsRV3lYDqJsoZ08VWLqi0zYQTMOlKznRkXPZ0R3NXbbzQUkxLsBqk58M/LAqvUpAaF7PPvad071kDSaDd7IQ==
   dependencies:
     "@gmod/bgzf-filehandle" "^1.2.2"
     buffer-crc32 "^0.2.13"

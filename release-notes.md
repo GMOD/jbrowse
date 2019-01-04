@@ -9,6 +9,8 @@
  * Improve error message when refSeqs=file.fai config fails to load
    (@cmdcolin)
 
+ * Fix CSI indexes having missing hasRefSeq method since 1.16.0 (@cmdcolin)
+
 
 # Release 1.16.1     2018-12-28 02:24:11 UTC
 
