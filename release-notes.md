@@ -6,6 +6,9 @@
    to config file requests. This helps with situations such as Amazon signed
    URLs (@cmdcolin)
 
+ * Improve error message when refSeqs=file.fai config fails to load
+   (@cmdcolin)
+
 
 # Release 1.16.1     2018-12-28 02:24:11 UTC
 

@@ -463,6 +463,9 @@ fatalError: function( error ) {
 
     function formatError(error) {
         if( error ) {
+            if( error.status ) {
+                error = error.status +' ('+error.statusText+') when attempting to fetch '+error.url;
+            }
             console.error( error.stack || ''+error );
             error = error+'';
             if( ! /\.$/.exec(error) )
