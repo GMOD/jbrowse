@@ -42,7 +42,7 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
             var that = this;
             if( args.config.url ) {
                 var url = Util.resolveUrl( args.baseUrl || window.location.href, args.config.url );
-                return request( url+'?v='+Math.random(), { handleAs: 'text', headers: {'X-Requested-With': null} })
+                return request( url+(args.config.cacheBuster?'?v='+Math.random():''), { handleAs: 'text', headers: {'X-Requested-With': null} })
                     .then( function( o ) {
                                o = that.parse_conf( o, args ) || {};
                                o.sourceUrl = url;

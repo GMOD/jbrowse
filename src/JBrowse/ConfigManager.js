@@ -5,7 +5,6 @@ define(
         'dojo/_base/array',
         'dojo/Deferred',
         'dojo/promise/all',
-
         'JBrowse/Util',
         'JBrowse/ConfigAdaptor/AdaptorUtil'
     ],
@@ -15,7 +14,6 @@ define(
         array,
         Deferred,
         all,
-
         Util,
         AdaptorUtil
     ) {
@@ -37,6 +35,11 @@ constructor: function( args ) {
     this.skipValidation = args.skipValidation;
 
     this.bootConfig = (this._regularizeIncludes ([ this.bootConfig ])) [0];
+    if(this.bootConfig.cacheBuster === false) {
+        this.bootConfig.cacheBuster = false
+    } else {
+        this.bootConfig.cacheBuster = true
+    }
     var thisB = this;
     this._getConfigAdaptor( this.bootConfig )
         .then( function( adaptor ) {
@@ -141,16 +144,11 @@ _loadIncludes: function( inputConfig ) {
         );
         delete config.include;
 
-        var loads = array.map(
-            includes, function( include ) {
-                return thisB._loadInclude( include, sourceUrl )
-                    .then( function( includedData ) {
-                               return _loadRecur(
-                                   includedData,
-                                   newUpstreamConf
-                               );
-                           });
-            });
+        var loads = includes.map(include => {
+            include.cacheBuster = inputConfig.cacheBuster
+            return thisB._loadInclude( include, sourceUrl )
+                .then(includedData => _loadRecur(includedData, newUpstreamConf))
+        });
         return all( loads )
             .then( function( includedDataObjects ) {
                        array.forEach( includedDataObjects, function( includedData ) {
