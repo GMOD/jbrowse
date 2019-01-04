@@ -19,7 +19,7 @@ At the most basic level, to set up JBrowse Desktop:
 
   - Download a zip file script from jbrowse.org e.g. from the latest release at
     <http://jbrowse.org/blog/>. Linux, Windows, and Darwin variants are
-    available as `JBrowse-1.15.4-desktop-<system>-x64.zip`.
+    available as JBrowse-<version>-desktop-<system>-x64.zip.
   - After downloading, unzip the file to somewhere. There is no official
     installer but you can move it to the Program files or Applications
     directory as needed.

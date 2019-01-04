@@ -27,6 +27,7 @@ before_install:
   - sudo apt-get -qq update
   - sudo apt-get install wine1.6 # this is for building windows electron images
 install:
+- if [[ $TRAVIS_COMMIT_MESSAGE =~ (\[update docs only\]) ]]; then echo "Updating docs"; exit 0; fi;
 - mkdir ~/geckodriver_$GECKODRIVER_VERSION;
 - wget -O - https://github.com/mozilla/geckodriver/releases/download/v0.19.1/geckodriver-v$GECKODRIVER_VERSION-linux64.tar.gz | tar -xzf - -C ~/geckodriver_$GECKODRIVER_VERSION;
 - export PATH=$PATH:$HOME/geckodriver_$GECKODRIVER_VERSION
@@ -95,5 +96,5 @@ deploy:
   skip_cleanup: true
   on:
     perl: 5.26
-    condition: $TRAVIS_COMMIT_MESSAGE =~ (\[update docs\])
+    condition: $TRAVIS_COMMIT_MESSAGE =~ (\[update docs\]) || $TRAVIS_COMMIT_MESSAGE =~ (\[update docs only\])
     all_branches: true

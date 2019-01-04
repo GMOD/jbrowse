@@ -10,27 +10,31 @@ title: JBrowse FAQ
 
 Most established HTTP servers such as Apache or nginx can work. You can
 just unpack JBrowse into your http web directory (/var/www/html, or
-htdocs, or similar) and follow the setup instructions
-<http://jbrowse.org/code/JBrowse-1.12.1/docs/tutorial/>.
+htdocs, or similar) and follow the setup instructions.
 
-Other configuration about your server will depend on your needs, but
-generally no special setup is needed for the http server, and there is
+After downloading follow the [installation guide](installation.html)
+
+Other web server configuration will depend on your needs, but
+generally no special setup is needed for the HTTP server, and there is
 no "server side" code used by JBrowse (cgi, php, etc).
 
-Note: servers like "SimpleHTTPServer" from Python or "http-server" from
-NPM are generally not full featured enough to run all JBrowse features
-correctly (SimpleHTTPServer does not support Range queries, and
-http-server interprets tabix files incorrectly). RangeHTTPServer does
-pass the test suite for jbrowse though, so it should work for tests
-<https://github.com/danvk/RangeHTTPServer> (but not for compressed json
-files).
+* Note 1: If you do not care about using a web server, consider using
+  [JBrowse desktop](jbrowse_desktop.html)
 
-Also note: sometimes, people will download JBrowse and double click the
-html file and open up <file:///c/myfolder/jbrowse/index.html> in the
-webbrowser, however, running JBrowse like this is not recommended. This
-may appear to work for some limited cases but will fail on many others.
-You can use JBrowse Desktop if you want to use jbrowse locally without a
-webserver.
+* Note 2: servers like "SimpleHTTPServer" from Python or "http-server" from
+  NPM are generally not full featured enough to run all JBrowse features
+  correctly (Specifically, SimpleHTTPServer does not support Range queries, and
+  http-server interprets tabix files incorrectly). RangeHTTPServer does
+  pass the test suite for jbrowse though, so it should work for tests
+  <https://github.com/danvk/RangeHTTPServer> (but not for compressed json
+  files).
+
+* Note 3: sometimes, people will download JBrowse and double click the
+  html file and open up <file:///c/myfolder/jbrowse/index.html> in the
+  webbrowser, however, running JBrowse like this is not recommended. This
+  may appear to work for some limited cases but will fail on many others.
+  You can use JBrowse Desktop if you want to use jbrowse locally without a
+  webserver.
 
 ### How do I run the code using the github clone
 
