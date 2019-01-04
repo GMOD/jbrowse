@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+## Minor improvements
+
+ * Allow configuring the cache busting behavior for adding random ?v= value
+   to config file requests. This helps with situations such as Amazon signed
+   URLs (@cmdcolin)
+
 
 # Release 1.16.1     2018-12-28 02:24:11 UTC
 
