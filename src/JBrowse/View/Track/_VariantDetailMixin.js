@@ -164,7 +164,7 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
         for( var gname in genotypes ) {
             if( genotypes.hasOwnProperty( gname ) ) {
                 // increment the appropriate count
-                var gtVals = genotypes[gname].GT.values
+                var gtVals = (genotypes[gname].GT||{}).values
                 if (gtVals === null) gtVals = ['.']
                 var gt = gtVals[0].split(/\||\//);
                 if( lang.isArray( gt ) ) {
