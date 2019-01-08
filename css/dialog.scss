@@ -254,3 +254,11 @@ a.dialog-new-window {
         margin: 0
     }
 }
+
+
+.customsequence {
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    height: 100px;
+    overflow: auto;
+}
