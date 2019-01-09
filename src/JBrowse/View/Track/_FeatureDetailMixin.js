@@ -82,19 +82,10 @@ return declare( FeatureDescriptionMixin, {
         this._renderAdditionalTagsDetail( track, f, featDiv, container );
 
         if (!this.config.hideSequenceBox) {
-         console.log('wtf')
-
-            if (f.get('type') === 'gene') {
-                f.children()
-                    .filter(f => f.get('type') === 'mRNA' || f.get('type') === 'transcript')
-                    .map(fp => this._renderSequence(track, fp, featDiv, container, 'peptide'))
-            }
-            else if (f.get('type') === 'mRNA') {
+            if(f.get('type') == 'mRNA') {
                 this._renderSequence(track, f, featDiv, container, 'peptide');
-                // this._renderCDSSequence(track, f, featDiv, cc);
-                // this._rendercDNASequence(track, f, featDiv, cc);
             }
-            //this._renderUnderlyingReferenceSequence( track, f, featDiv, container );
+            this._renderUnderlyingReferenceSequence( track, f, featDiv, container );
         }
 
         this._renderSubfeaturesDetail( track, f, featDiv, container, layer );
@@ -192,6 +183,7 @@ return declare( FeatureDescriptionMixin, {
                 className: 'value feature_sequence'
             }, field_container);
         var maxSize = this.config.maxFeatureSizeForUnderlyingRefSeq;
+
         if( maxSize < (f.get('end') - f.get('start')) ) {
             valueContainer.innerHTML = 'Not displaying underlying reference sequence, feature is longer than maximum of '+Util.humanReadableNumber(maxSize)+'bp';
         } else {
