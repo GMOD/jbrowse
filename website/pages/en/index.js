@@ -56,7 +56,7 @@ const ExtraInfo = props => (
     <p>JBrowse development is funded by the <a href="http://genome.gov/">NHGRI</a>.</p>
 
     <h2>Citing JBrowse</h2>
-    <p>If you use JBrowse in a project that you publish, please cite the most recent JBrowse paper, which is <a href="http://genome.cshlp.org/content/19/9/1630.full">here</a> in Genome Research.</p>
+    <p>If you use JBrowse in a project that you publish, please cite the most recent JBrowse paper listed on the <a href="references.html">References</a> page</p>
 
     <h2>License</h2>
     <p>JBrowse is released under the GNU LGPL or the Artistic License, see the JBrowse <a href="http://jbrowse.org/code/latest-release/LICENSE">LICENSE</a> file.</p>
