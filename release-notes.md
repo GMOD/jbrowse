@@ -9,9 +9,13 @@
  * Improve error message when refSeqs=file.fai config fails to load
    (@cmdcolin)
 
- * Fix CSI indexes having missing hasRefSeq method since 1.16.0 (@cmdcolin)
+## Bug fixes
+
+ * Fix ability to use CSI indexes with BAM files since 1.16.0 (@cmdcolin)
 
  * Fix ability to read some CRAM files with unmapped mates (@cmdcolin)
+
+ * Fix issue with the browser loading NaN locations on startup (@cmdcolin)
 
 # Release 1.16.1     2018-12-28 02:24:11 UTC
 

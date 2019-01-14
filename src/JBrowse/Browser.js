@@ -206,8 +206,9 @@ constructor: function(params) {
 
                        thisB.initView().then( function() {
                            Touch.loadTouch(); // init touch device support
-                           if( initialLocString )
-                               thisB.navigateTo( initialLocString );
+                           if( initialLocString ) {
+                               thisB.navigateTo( initialLocString, true );
+                           }
 
                            // figure out what initial track list we will use:
                            var tracksToShow = [];
@@ -2486,7 +2487,7 @@ showRegion: function( location ) {
  * &lt;feature name/ID&gt;
  */
 
-navigateTo: function(loc) {
+navigateTo: function(loc, initial) {
     var thisB = this;
     this.afterMilestone( 'initView', function() {
         // lastly, try to search our feature names for it
@@ -2497,6 +2498,7 @@ navigateTo: function(loc) {
 
                       // First check if loc is the name of a ref seq before attempting to parse the locstring for basepair location info
                       var ref = thisB.findReferenceSequence( loc );
+
                       if( ref ) {
                           thisB.navigateToLocation( { ref: ref.name } );
                           return;
@@ -2507,9 +2509,12 @@ navigateTo: function(loc) {
                       var location = typeof loc == 'string' ? Util.parseLocString( loc ) :  loc;
                       // only call navigateToLocation() directly if location has start and end, otherwise try and fill in start/end from 'location' cookie
                       if( location && ("start" in location) && ("end" in location)) {
+                          location.initial = initial
                           thisB.navigateToLocation( location );
                           return;
                       }
+
+
 
                       new InfoDialog(
                           {
@@ -2542,7 +2547,17 @@ navigateToLocation: function( location ) {
         // regularize the ref seq name we were passed
         var ref = location.ref ? this.findReferenceSequence( location.ref.name || location.ref )
                                : this.refSeq;
-        if( !ref ) return;
+        if( location.initial && !ref) {
+            new InfoDialog({
+                title: 'Not found',
+                content: 'Not found: <span class="locString">'+Util.assembleLocString( location, false )+'</span>',
+                className: 'notfound-dialog'
+            }).show();
+            ref = this.refSeq
+        }
+        if( !ref ) {
+            return;
+        }
         location.ref = ref.name;
 
         if( 'ref' in location && !( 'start' in location && 'end' in location ) ) {
