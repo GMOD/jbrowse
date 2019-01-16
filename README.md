@@ -1,4 +1,4 @@
-[![Build status](https://travis-ci.org/GMOD/jbrowse.svg?branch=dev)](https://travis-ci.org/GMOD/jbrowse)
+[![Build status](https://travis-ci.org/GMOD/jbrowse.svg?branch=dev)](https://travis-ci.org/GMOD/jbrowse) [![Greenkeeper badge](https://badges.greenkeeper.io/GMOD/jbrowse.svg)](https://greenkeeper.io/)
 
 # Installing JBrowse
 
