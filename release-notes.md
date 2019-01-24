@@ -9,6 +9,11 @@
  * Improve error message when refSeqs=file.fai config fails to load
    (@cmdcolin)
 
+ * Adds `fixBounds` config for XYPlot tracks which can be set to false to
+   disable the behavior of rounding up or down on the min_score/max_score
+   variables for the ruler. Thanks to @scottcain for the suggestion
+   (pull #1306, @cmdcolin)
+
 ## Bug fixes
 
  * Fix ability to use CSI indexes with BAM files since 1.16.0 (@cmdcolin)
