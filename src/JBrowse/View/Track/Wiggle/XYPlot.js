@@ -69,7 +69,7 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
 
                 // update our track y-scale to reflect it
                 this.makeYScale({
-                    fixBounds: true,
+                    fixBounds: 'fixBounds' in this.config ? this.config.fixBounds : true,
                     min: scaling.min,
                     max: scaling.max
                 });

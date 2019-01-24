@@ -75,6 +75,7 @@ Here is an example track configuration stanza for a Wiggle color-density track d
 |`scoreType`|The scoreType to be used at the summary level. Options: maxScore, avgScore, score, minScore. Default: score is the backwards compatible default which is an average score when zoomed out, max score when zoomed in. maxScore is max score zoomed out and max score zoomed in. avgScore is both average score zoomed in and average score zoomed out. avgScore added in 1.12.0. maxScore/minScore added in 1.11.6.|
 |`logScaleOption`|Add or remove the "Log scale" checkbox for the track menu. Default: true. Added in 1.11.6.|
 |`noFill`|Draw the bigwig track as a "scatterplot" by not filling in the boxes. Default: false. Added in 1.12.3|
+|`fixBounds`|Rounds the min and max values that are more friendly for the tick marks on the ruler. Default, 'major'. Can also be 'none', 'micro', 'minor', and 'major'. Added in 1.16.2|
 
 ## BigWig File Compatibility
 

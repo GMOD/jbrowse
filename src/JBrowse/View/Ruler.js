@@ -58,8 +58,8 @@ Ruler.prototype.render_to = function( target_div ) {
                             fill: 'transparent',
                             min: this.min,
                             max: this.max,
-                            fixLower: this.fixBounds ? 'major' : 'none',
-                            fixUpper: this.fixBounds ? 'major' : 'none',
+                            fixLower: this.fixBounds ? (typeof this.fixBounds=='string' ? this.fixBounds : 'major') : 'none',
+                            fixUpper: this.fixBounds ? (typeof this.fixBounds=='string' ? this.fixBounds : 'major') : 'none',
                             leftBottom: this.leftBottom
                             // minorTickStep: 0.5,
                             // majorTickStep: 1
