@@ -56,14 +56,15 @@ return declare( ExportBase,
                           }),
             function( tag ) {
                 return [ tag.toLowerCase(), thisB.stringifyAttributeValue( feature.get(tag) ) ];
-            });
+            }).filter(t => !!t[1]);
 
 
-        return featLine.join("\t")+"\n" + array.map( qualifiers, function( q ) { return "\t\t\t"+q.join("\t")+"\n"; } ).join('') + array.map(feature.children(), f => this.formatFeature(f))
+        return featLine.join("\t")+"\n" + array.map( qualifiers, function( q ) { return "\t\t\t"+q.join("\t")+"\n"; } ).join('') +
+            array.map(feature.children(), f => this.formatFeature(f)).join('')
     },
 
     stringifyAttributeValue: function( val ) {
-        if(val == null) val = ''
+        if(val == null) return null
         return val.hasOwnProperty( 'toString' )
                    ? val.toString() :
                val instanceof Array
