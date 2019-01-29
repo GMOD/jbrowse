@@ -52,27 +52,27 @@ return declare( ExportBase,
         // make the qualifiers
         var qualifiers = array.map(
             array.filter( feature.tags(), function(t) {
-                              return ! { start: 1, end: 1, type: 1, strand: 1, seq_id: 1 }[ t.toLowerCase() ];
+                              return ! { start: 1, end: 1, type: 1, strand: 1, seq_id: 1, subfeatures: 1 }[ t.toLowerCase() ];
                           }),
             function( tag ) {
                 return [ tag.toLowerCase(), thisB.stringifyAttributeValue( feature.get(tag) ) ];
             });
 
-        return featLine.join("\t")+"\n" + array.map( qualifiers, function( q ) { return "\t\t\t"+q.join("\t")+"\n"; } ).join('');
+
+        return featLine.join("\t")+"\n" + array.map( qualifiers, function( q ) { return "\t\t\t"+q.join("\t")+"\n"; } ).join('') + array.map(feature.children(), f => this.formatFeature(f))
     },
 
     stringifyAttributeValue: function( val ) {
+        if(val == null) val = ''
         return val.hasOwnProperty( 'toString' )
                    ? val.toString() :
-               val.values
-                   ? function(val) {
-                       return val instanceof Array
-                           ? val.join(',')
-                           : val;
-                   }.call(this,val.values) :
                val instanceof Array
                    ? val.join(',')
+                   :
+               val.values instanceof Array
+                   ? val.join(',')
                    : val;
+
     }
 });
 });
