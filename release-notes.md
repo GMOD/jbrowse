@@ -22,6 +22,9 @@
 
  * Fix issue with the browser loading NaN locations on startup (@cmdcolin)
 
+ * Add fix for exporting GFF3 for newer browsers that have Array.values()
+   enabled. Thanks to Scott Cain for reporting (@cmdcolin)
+
 # Release 1.16.1     2018-12-28 02:24:11 UTC
 
 ## Minor improvements
