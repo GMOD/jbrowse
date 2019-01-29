@@ -30,7 +30,7 @@ return declare( bedExport,
 
     formatFeature: function( f ) {
         return [
-            f.get('seq_id'),
+            f.get('seq_id')||this.refSeq.name,
             f.get('start'),
             f.get('end'),
             f.get('score')

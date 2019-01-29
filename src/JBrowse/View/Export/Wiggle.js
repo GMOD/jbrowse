@@ -41,7 +41,7 @@ return declare( ExportBase,
             region,
             dojo.hitch( this, function(f) {
                 var span = f.get('end') - f.get('start');
-                var ref = f.get('seq_id');
+                var ref = f.get('seq_id')||this.refSeq.name;
                 if( !( curspan == span && ref == curref ) ) {
                     this._printStep( span, ref == curref ? null : ref );
                     curref = ref;
