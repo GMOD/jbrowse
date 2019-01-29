@@ -197,17 +197,19 @@ return declare( ExportBase,
             if(!val) {
                 continue;
             }
+
             var valstring = val.hasOwnProperty( 'toString' )
                                 ? gff.util.escape( val.toString() ) :
-                            val.values
-                                ? function(val) {
-                                    return val instanceof Array
-                                        ? array.map( val, lang.hitch(this,'_gff3_escape') ).join(',')
-                                        : gff.util.escape( val );
-                                  }.call(this,val.values) :
+
                             val instanceof Array
-                                ? array.map( val, lang.hitch(this,'_gff3_escape') ).join(',')
-                                : gff.util.escape( val );
+                                ? array.map( val, s => gff.util.escape( s ) ).join(',')
+                                :
+
+                            val.values
+                                ? val instanceof Array
+                                        ? array.map( val, s => gff.util.escape( s ) ).join(',')
+                                        : gff.util.escape( val )
+                                  : gff.util.escape(val)
             attrOrder.push( gff.util.escape( tag )+'='+valstring);
         }
         return attrOrder.join(';') || '.';
