@@ -7,9 +7,6 @@
    user @sandilyaamit for reporting, this is actually important to disable
    when using Amazon presigned URLs (@cmdcolin)
 
- * Improve error message when refSeqs=file.fai config fails to load
-   (@cmdcolin)
-
  * Adds `fixBounds` config for XYPlot tracks which can be set to false to
    disable the behavior of rounding up or down on the min_score/max_score
    variables for the ruler. Thanks to @scottcain for the suggestion
@@ -25,6 +22,9 @@
 
  * Add fix for exporting GFF3 for newer browsers that have Array.values()
    enabled. Thanks to Scott Cain for reporting (@cmdcolin)
+
+ * Improve error message when refSeqs=file.fai config fails to load
+   (@cmdcolin)
 
 # Release 1.16.1     2018-12-28 02:24:11 UTC
 
