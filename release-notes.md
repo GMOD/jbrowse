@@ -3,8 +3,9 @@
 ## Minor improvements
 
  * Allow configuring the cache busting behavior for adding random ?v= value
-   to config file requests. This helps with situations such as Amazon signed
-   URLs (@cmdcolin)
+   to config file requests. This can be configured in index.html. Thanks to
+   user @sandilyaamit for reporting, this is actually important to disable
+   when using Amazon presigned URLs (@cmdcolin)
 
  * Improve error message when refSeqs=file.fai config fails to load
    (@cmdcolin)
