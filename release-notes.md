@@ -9,6 +9,10 @@
    features. Thanks to @mara-sangiovanni for reporting (issue #1311,
    @cmdcolin)
 
+ * Fix issue for exporting GFF3 for some nested attributes by dumping
+   JSON into the value field. Thanks to @dionnezaal for reporting
+   (issue #1309, @cmdcolin)
+
 # Release 1.16.2     2019-02-01 03:31:36 UTC
 
 ## Minor improvements
