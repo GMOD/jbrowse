@@ -16,8 +16,32 @@ function (
                 glyph: lang.hitch(this, 'guessGlyphType')
             });
         },
-        guessGlyphType: function (feature) {
-            return 'NeatCanvasFeatures/View/FeatureGlyph/' + ({'gene': 'Gene', 'mRNA': 'ProcessedTranscript', 'transcript': 'ProcessedTranscript' }[feature.get('type')] || 'Box');
+
+        guessGlyphType: function(feature) {
+            // first try to guess by its SO type
+            let guess = {
+                'gene': 'Gene',
+                'pseudogene': 'Gene',
+                'mRNA': 'ProcessedTranscript',
+                'transcript': 'ProcessedTranscript',
+                'ncRNA': 'UnprocessedTranscript',
+                'lncRNA': 'UnprocessedTranscript',
+                'lnc_RNA': 'UnprocessedTranscript',
+                'miRNA': 'UnprocessedTranscript'
+            }[feature.get('type')]
+
+            // otherwise, make it Segments if it has children,
+            // a BED if it has block_count/thick_start,
+            // or a Box otherwise
+            if (!guess) {
+                let children = feature.children()
+                if (children && children.length)
+                    guess = 'Segments'
+                else
+                    guess = 'Box'
+            }
+
+            return 'NeatCanvasFeatures/View/FeatureGlyph/'+guess
         }
     });
 });

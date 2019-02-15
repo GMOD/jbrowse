@@ -1,5 +1,13 @@
 {{$NEXT}}
 
+## Bug fixes
+
+ * Pin BioPerl at version 1.7.2 to fix missing Bio::DB::SeqFeature::Store
+   (issue #1310, @cmdcolin)
+
+ * Fix issue with NeatCanvasFeatures not drawing gradients on some
+   features. Thanks to @mara-sangiovanni for reporting (issue #1311,
+   @cmdcolin)
 
 # Release 1.16.2     2019-02-01 03:31:36 UTC
 

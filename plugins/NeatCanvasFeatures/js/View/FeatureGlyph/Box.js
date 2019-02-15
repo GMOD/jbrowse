@@ -34,7 +34,7 @@ function (
                 context.fillStyle = '#fdfdfd';
                 // this.colorShift(bgcolor,4.5);
             } else {
-                if (feature.get('type')==="CDS" && this.config.gradient) {
+                if (this.config.gradient) {
                     bgcolor = this.colorShift(bgcolor,0);
 
                     var grd = context.createLinearGradient(left, top, left, top+height);
