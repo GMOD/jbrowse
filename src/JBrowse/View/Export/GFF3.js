@@ -206,7 +206,7 @@ return declare( ExportBase,
                                 :
 
                             val instanceof Object
-                                ? JSON.stringify(val)
+                                ? gff.util.escape(JSON.stringify(val))
                                 :
                             val.values
                                 ? val instanceof Array
