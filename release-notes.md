@@ -3,10 +3,7 @@
 ## Bug fixes
 
  * Fix BioPerl setup after changes to the BioPerl distribution caused
-   setup.sh to fail in all past JBrowse versions. Note if you are stuck
-   using an older version of JBrowse, then you can download the last
-   working version of BioPerl using `rm -rf extlib; cpanm Bio::Perl@1.7.2;
-   ./setup.sh` (issue #1310, @cmdcolin)
+   setup.sh to fail in all past JBrowse versions (issue #1310, @cmdcolin)
 
  * Fix issue with NeatCanvasFeatures not drawing gradients on some
    features. Thanks to @mara-sangiovanni for reporting (issue #1311,
