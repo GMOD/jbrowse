@@ -208,7 +208,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
                             errorCallback(error)
                         } else console.error(error)
                     },
-                )
+                ).catch(errorCallback)
         }, errorCallback)
     },
 
