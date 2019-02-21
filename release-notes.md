@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+## Bug fixes
+
+ * Added better error reporting to GFF3Tabix tracks for if a parsing
+   error occured. Thanks to @nathanhaigh for reporting (@cmdcolin)
 
 # Release 1.16.3     2019-02-21 00:48:52 UTC
 
