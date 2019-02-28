@@ -11,7 +11,6 @@ define([
            'JBrowse/Store/DeferredStatsMixin',
            'JBrowse/Store/DeferredFeaturesMixin',
            'JBrowse/Store/SeqFeature/IndexedStatsEstimationMixin',
-           'JBrowse/Store/SeqFeature/RegionStatsMixin',
            'JBrowse/Model/BlobFilehandleWrapper',
            'JBrowse/Model/XHRBlob',
        ],
@@ -24,12 +23,11 @@ define([
            DeferredStatsMixin,
            DeferredFeaturesMixin,
            IndexedStatsEstimationMixin,
-           RegionStatsMixin,
            BlobFilehandleWrapper,
            XHRBlob,
        ) {
 
-return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, IndexedStatsEstimationMixin, RegionStatsMixin ],
+return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, IndexedStatsEstimationMixin],
 {
     supportsFeatureTransforms: true,
 
@@ -283,8 +281,106 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
             tbiUrlTemplate: ((this.config.tbi)||{}).url,
             csiUrlTemplate: ((this.config.csi)||{}).url
         };
-    }
+    },
 
+    async getRegionFeatureDensities(query, successCallback, errorCallback) {
+        let numBins;
+        let basesPerBin;
+
+        // console.log('input query', query)
+        this.scoreMax = this.scoreMax || 0;
+
+        // var lineCountData = await this.indexedData.lineCount('nonexistent');
+        // console.log('line count data',lineCountData)
+        //
+        // var lineCountChromosome = await this.indexedData.lineCount(this.browser.regularizeReferenceName(query.ref),true);
+        // console.log('finla2 line count chromosome',lineCountChromosome)
+
+        if (query.numBins) {
+            numBins = query.numBins;
+            basesPerBin = (query.end - query.start) / numBins
+        } else if (query.basesPerBin) {
+            basesPerBin = query.basesPerBin || query.ref.basesPerBin
+            numBins = Math.ceil((query.end - query.start) / basesPerBin)
+        } else {
+            throw new Error('numBins or basesPerBin arg required for getRegionFeatureDensities')
+        }
+
+        const statEntry = (function (basesPerBin, stats) {
+            for (var i = 0; i < stats.length; i++) {
+                if (stats[i].basesPerBin >= basesPerBin) {
+                    return stats[i]
+                }
+            }
+            return undefined
+        })(basesPerBin, []);
+
+        const stats = {}
+        stats.basesPerBin = basesPerBin
+
+        stats.max = 0;
+        const firstServerBin = Math.floor(query.start / basesPerBin);
+        const histogram = [];
+        const binRatio = 1 / basesPerBin;
+
+        for (var bin = 0; bin < numBins; bin++) {
+            histogram[bin] = 0;
+        }
+
+        var baseStart;
+        var baseEnd;
+        const regularizedReferenceName = this.browser.regularizeReferenceName(
+            query.ref,
+        );
+        for (var bin = 0; bin < numBins; bin++) {
+            baseStart = query.start + (bin * basesPerBin);
+            baseEnd = query.start + ((bin + 1) * basesPerBin);
+
+            // console.log(bin, baseStart, baseEnd)
+            await this.indexedData.getLines(
+                regularizedReferenceName || this.refSeq.name,
+                baseStart,
+                baseEnd,
+                line => {
+                    histogram[bin] = (histogram[bin] || 0) + 1
+                    if (histogram[bin] > stats.max) {
+                        stats.max = histogram[bin]
+                        if(stats.max > this.scoreMax) {
+                            this.scoreMax = stats.max
+                        }
+                    }
+                },
+                errorCallback
+            );
+        }
+;
+        stats.max = this.scoreMax;
+        successCallback({ bins: histogram, stats: stats})
+
+        // this._getFeatures(query,
+        //     feature => {
+        //         let binValue = Math.round( (feature.get('start') - query.start )* binRatio)
+        //         let binValueEnd = Math.round( (feature.get('end')- query.start )* binRatio)
+        //         for(let bin = binValue; bin <= binValueEnd; bin++) {
+        //             if(bin >= 0 && bin < numBins) {
+        //                 histogram[bin] = (histogram[bin] || 0) + 1
+        //                 if (histogram[bin] > stats.max) {
+        //                     stats.max = histogram[bin]
+        //                     if(stats.max > this.scoreMax) {
+        //                         this.scoreMax = stats.max
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //     },
+        //     () => {
+        //         stats.max = this.scoreMax
+        //         successCallback({ bins: histogram, stats: stats})
+        //     },
+        //     errorCallback
+        // );
+
+    }
 
 });
 });
