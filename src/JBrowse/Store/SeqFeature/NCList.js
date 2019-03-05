@@ -82,7 +82,7 @@ return declare( SeqFeatureStore,
                 handleAs: 'json',
                 failOk: true,
                 headers: {
-                    'X-Requested-With': null 
+                    'X-Requested-With': null
                 }
             })
                .then( function( trackInfo, request ) {
@@ -226,7 +226,7 @@ return declare( SeqFeatureStore,
                                successCallback({ bins: hist, stats: statEntry });
                            });
                    }
-               }, errorCallback );
+               }).catch( errorCallback );
     },
 
 
