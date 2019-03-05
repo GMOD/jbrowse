@@ -44,7 +44,7 @@
     "@gmod/cram": "^1.5.1",
     "@gmod/gff": "^1.1.1",
     "@gmod/indexedfasta": "^1.0.11",
-    "@gmod/tabix": "^1.1.3",
+    "@gmod/tabix": "^1.1.5",
     "@gmod/tribble-index": "^2.0.3",
     "@gmod/twobit": "^1.1.2",
     "@gmod/vcf": "^2.0.2",
