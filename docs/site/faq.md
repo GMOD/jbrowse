@@ -1357,7 +1357,7 @@ storeClass=JBrowse/Store/SeqFeature/BAM
 You can set the following
 config
 
-`collapseCategories=ParentCategory1/ChildCategory,ParentCategory2/ChildCategory`
+`collapsedCategories=ParentCategory1/ChildCategory,ParentCategory2/ChildCategory`
 
 etc. to your jbrowse.conf. This is a comma separated list (don't include
 spaces around the slashes though). Remember, don't quote the values in
