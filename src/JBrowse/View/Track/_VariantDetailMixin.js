@@ -62,7 +62,7 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
         if( ! gCount )
             return;
 
-        var alt = f.get('alternative_alleles').values;
+        var alt = (f.get('alternative_alleles') || {}).values;
 
         var gContainer = domConstruct.create(
             'div',
@@ -142,7 +142,7 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
     _mungeGenotypeVal: function( values, alt, underlyingRefSeq ) {
         // handle the GT field specially, translating the genotype indexes into the actual ALT strings
         let value_parse;
-        if (values === null) value_parse = '.';
+        if (values == null) value_parse = '.';
         else value_parse = values[0];
 
         var splitter = (value_parse.match(/[\|\/]/g)||[])[0]; // only accept | and / splitters since . can mean no call
@@ -165,7 +165,7 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
             if( genotypes.hasOwnProperty( gname ) ) {
                 // increment the appropriate count
                 var gtVals = (genotypes[gname].GT||{}).values
-                if (gtVals === null) gtVals = ['.']
+                if (gtVals == null) gtVals = ['.']
                 var gt = gtVals[0].split(/\||\//);
                 if( lang.isArray( gt ) ) {
                     // if all zero, non-variant/hom-ref
