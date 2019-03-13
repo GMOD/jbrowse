@@ -11,17 +11,31 @@ define( [ 'dojo/_base/declare',
         ],
         function( declare, Util, FileBlob  ) {
 
+//throw 404 errors for plain-old-fetch xref https://github.com/github/fetch/issues/155
+function fetchwrapper(f) {
+  return function(url, options) {
+    return f(url, options).then(function(res) {
+        if (res.status >= 200 && res.status < 300) {
+          return Promise.resolve(res)
+        } else {
+          const error = new Error(`HTTP ${res.status} when fetching ${res.url}`)
+          error.response = res
+          return Promise.reject(error)
+        }
+      })
+  }
+}
 function getfetch(url, opts = {}) {
     let mfetch
     if(Util.isElectron()) {
         if(url.slice(0, 4) === 'http') {
-            mfetch = electronRequire('node-fetch')
+            mfetch = fetchwrapper(electronRequire('node-fetch'))
         } else {
             url = url.replace('%20', ' ')
-            mfetch = fetch
+            mfetch = fetchwrapper(fetch)
         }
     } else {
-        mfetch = tenaciousFetch
+        mfetch = tenaciousFetch // already throws on 404
     }
     return mfetch(url, Object.assign({
         method: 'GET',
@@ -162,14 +176,24 @@ var XHRBlob = declare( FileBlob,
 
     async fetchBufferPromise() {
         const length = this.end === undefined ? undefined : this.end - this.start + 1
-        if (length < 0) {
-            throw new Error('Length less than 0 received')
-        } else if(length == undefined && this.start == 0) {
-            const range = await getfetch(this.url)
-            return new Buffer(await range.arrayBuffer())
-        } else {
-            var range = await globalCache.getRange(this.url, this.start, length)
-            return range.buffer
+        try {
+            if (length < 0) {
+                throw new Error('Length less than 0 received')
+            } else if(length == undefined && this.start == 0) {
+                const range = await getfetch(this.url)
+                return new Buffer(await range.arrayBuffer())
+            } else {
+                var range = await globalCache.getRange(this.url, this.start, length)
+                return range.buffer
+            }
+        } catch(e) {
+            if(!e.message) {
+                const bytes = length? ` bytes ${this.start}-${this.end}` : ''
+                throw new Error(
+                    `HTTP ${e.status} when fetching ${e.url} ${bytes}`
+                )
+            }
+            throw e
         }
     },
 
