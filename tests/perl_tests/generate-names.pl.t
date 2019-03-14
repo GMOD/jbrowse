@@ -81,6 +81,18 @@ run_with (
     # or diag explain read_names($tempdir);
 }
 
+$tempdir = new_volvox_sandbox_tabix_indexedFeatures();
+run_with (
+    '--dir'   => "$tempdir",
+    '--tracks' => 'volvox_gff3_tabix'
+    );
+{
+    my $got = read_names($tempdir);
+    my $expected = read_names('tests/data/volvox_tabix_names_indexedFeatures');
+    is_deeply( $got, $expected, 'same data using tabix indexedFeature config' );
+    # or diag explain read_names($tempdir);
+}
+
 $tempdir = new_generate_names_failure();
 run_with (
     '--dir'   => "$tempdir",
@@ -119,6 +131,19 @@ sub new_volvox_sandbox {
 sub new_volvox_sandbox_tabix_nameattributes {
     my $tempdir = File::Temp->newdir( CLEANUP => $ENV{KEEP_ALL} ? 0 : 1 );
     dircopy( 'tests/data/volvox_tabix_names', $tempdir );
+    copy( 'sample_data/raw/volvox/volvox.sort.gff3.gz.1',
+          "$tempdir/volvox.sort.gff3.gz.1"
+          ) or die $!;
+    copy( 'sample_data/raw/volvox/volvox.sort.gff3.gz.tbi',
+          "$tempdir/volvox.sort.gff3.gz.tbi"
+          ) or die $!;
+    rmtree( "$tempdir/names" );
+    return $tempdir;
+}
+
+sub new_volvox_sandbox_tabix_indexedFeatures {
+    my $tempdir = File::Temp->newdir( CLEANUP => $ENV{KEEP_ALL} ? 0 : 1 );
+    dircopy( 'tests/data/volvox_tabix_names_indexedFeatures', $tempdir );
     copy( 'sample_data/raw/volvox/volvox.sort.gff3.gz.1',
           "$tempdir/volvox.sort.gff3.gz.1"
           ) or die $!;
