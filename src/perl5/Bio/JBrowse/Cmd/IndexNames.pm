@@ -623,6 +623,7 @@ sub make_names_iterator {
                                 @computedFields = map { $feature->{attributes}{$_} || [] } @fields;
                             }
                             @names = @fields ? @computedFields : $Name->[0] ? (@$Name, @$ID) : @$ID;
+                    }
                     last if scalar @names;
                 }
             }
