@@ -607,23 +607,21 @@ sub make_names_iterator {
                     } elsif(ref(\$file_record->{indexedFeatures}) eq 'SCALAR') {
                         @featureTypes = split /\s*,\s*/, $file_record->{indexedFeatures};
                     }
-                    if(@featureTypes) {
-                        if(grep $_ eq $type, @featureTypes) {
-                            my $Name = $feature->{attributes}{Name} || [];
-                            my $ID = $feature->{attributes}{ID} || [];
-                            my $Alias = $feature->{attributes}{Alias} || [];
-                            my @fields;
-                            my @computedFields;
-                            if(ref(\$file_record->{nameAttributes}) eq 'ARRAY') {
-                                @fields = $file_record->{nameAttributes}
-                            } elsif(ref(\$file_record->{nameAttributes}) eq 'SCALAR') {
-                                @fields = split /\s*,\s*/, $file_record->{nameAttributes};
-                            }
-                            if(@fields) {
-                                @computedFields = map { $feature->{attributes}{$_} || [] } @fields;
-                            }
-                            @names = @fields ? @computedFields : $Name->[0] ? (@$Name, @$ID) : @$ID;
+                    if( (!@featureTypes) || (@featureTypes && (grep $_ eq $type, @featureTypes)) ) {
+                        my $Name = $feature->{attributes}{Name} || [];
+                        my $ID = $feature->{attributes}{ID} || [];
+                        my $Alias = $feature->{attributes}{Alias} || [];
+                        my @fields;
+                        my @computedFields;
+                        if(ref(\$file_record->{nameAttributes}) eq 'ARRAY') {
+                            @fields = $file_record->{nameAttributes}
+                        } elsif(ref(\$file_record->{nameAttributes}) eq 'SCALAR') {
+                            @fields = split /\s*,\s*/, $file_record->{nameAttributes};
                         }
+                        if(@fields) {
+                            @computedFields = map { $feature->{attributes}{$_} || [] } @fields;
+                        }
+                        @names = @fields ? @computedFields : $Name->[0] ? (@$Name, @$ID) : @$ID;
                     }
                     last if scalar @names;
                 }
