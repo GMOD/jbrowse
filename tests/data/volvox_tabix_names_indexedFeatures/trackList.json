@@ -6,8 +6,8 @@
    },
    "tracks" : [
       {
+         "indexedFeatures" : "gene",
          "label" : "volvox_gff3_tabix",
-         "indexedFeatures" : "gene,mRNA",
          "storeClass" : "JBrowse/Store/SeqFeature/GFF3Tabix",
          "tbiUrlTemplate" : "volvox.sort.gff3.gz.tbi",
          "type" : "CanvasFeatures",

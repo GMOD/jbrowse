@@ -207,6 +207,7 @@ sub make_file_record {
         return {
             gzipped => $gzipped,
             nameAttributes => $track->{nameAttributes},
+            indexedFeatures => $track->{indexedFeatures},
             fullpath => $file,
             type => $type,
             trackName => $track->{label}
