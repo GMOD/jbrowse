@@ -1,5 +1,12 @@
 {{$NEXT}}
 
+## Minor improvements
+
+ * Added `indexedFeatures` tracklist attribute for GFF3Tabix track types
+   which controls the feature types from a GFF3Tabix file that are
+   indexed. Thanks to @loraine-gueguen for the idea and implementation!
+   (pull #1337, @loraine-guegen)
+
 ## Bug fixes
 
  * Added better error reporting to GFF3Tabix tracks for if a parsing
