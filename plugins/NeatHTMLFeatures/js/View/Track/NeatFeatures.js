@@ -121,6 +121,7 @@ function (
             // if feature has subfeatures
             if (subNodes.length) {
                 dojo.setStyle(featureNode, {
+                    'background': 'none',
                     'background-color': 'transparent',
                     'border-width': '0px'
                 });
