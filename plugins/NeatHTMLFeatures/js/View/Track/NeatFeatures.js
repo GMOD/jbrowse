@@ -33,7 +33,7 @@ function (
                 var subNodes = [];
                 for (var i = 0; i < subNodesX.length; i++) {
                     var attr = dojo.attr(subNodesX[i], 'class');
-                    if (attr.indexOf('splice-site') === -1  && attr.indexOf('stop_codon_read_through') === -1) {
+                    if (attr.indexOf('splice-site') === -1  && attr.indexOf('stop_codon_read_through') === -1 && attr.indexOf('intron') === -1) {
                         subNodes.push(subNodesX[i]);
                     }
                 }
@@ -121,6 +121,7 @@ function (
             // if feature has subfeatures
             if (subNodes.length) {
                 dojo.setStyle(featureNode, {
+                    'background': 'none',
                     'background-color': 'transparent',
                     'border-width': '0px'
                 });
@@ -193,4 +194,3 @@ function (
         }
     });
 });
-
