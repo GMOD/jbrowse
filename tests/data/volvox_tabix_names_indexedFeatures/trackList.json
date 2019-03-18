@@ -1,0 +1,17 @@
+{
+   "formatVersion" : 1,
+   "names" : {
+      "type" : "Hash",
+      "url" : "names/"
+   },
+   "tracks" : [
+      {
+         "indexedFeatures" : "gene",
+         "label" : "volvox_gff3_tabix",
+         "storeClass" : "JBrowse/Store/SeqFeature/GFF3Tabix",
+         "tbiUrlTemplate" : "volvox.sort.gff3.gz.tbi",
+         "type" : "CanvasFeatures",
+         "urlTemplate" : "volvox.sort.gff3.gz.1"
+      }
+   ]
+}

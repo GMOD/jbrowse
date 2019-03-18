@@ -43,10 +43,12 @@ View bin/generate-names.pl --help for more options. Note that if you are getting
 
 ## Indexing custom fields in GFF
 
-By defeault, the Name, ID, and Alias fields are indexed by generate-names.pl
+By default, the Name, ID, and Alias fields, for all feature types (gene, mRNA, CDs, exon, etc.), are indexed by generate-names.pl
 
 If you want to index more or different custom fields, you can run flatfile-to-json.pl (not generate-names.pl!) with --nameAttributes "name,id,alias,gene_id" for example, then it will also load the "gene_id" field as a name, and then you can re-run generate-names.pl and the gene_id can be searched for.
 
-Also note that if you have a GFF3Tabix track (which is not loaded via flatfile-to-json.pl) then you can add a nameAttributes=name,id,alias,gene_id to the config for example
+Also note that if you have a GFF3Tabix track (which is not loaded via flatfile-to-json.pl) then you can add a nameAttributes=name,id,alias,gene_id to the config for example.
+
+If you have a GFF3Tabix track, you can also select the feature types that you want to index, by adding indexedFeatures=gene,mRNA to the config for example. Other feature types will not be indexed.
 
 
