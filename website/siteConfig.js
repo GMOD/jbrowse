@@ -32,7 +32,7 @@ const v = {
 const siteVariables = {
     "version": v.version,
     "setup_snip": [
-        `    curl -O https://github.com/GMOD/jbrowse/releases/download/${v.version}-release/JBrowse-${v.version}.zip`,
+        `    curl -L -O https://github.com/GMOD/jbrowse/releases/download/${v.version}-release/JBrowse-${v.version}.zip`,
         `    unzip JBrowse-${v.version}.zip`,
         `    sudo mv JBrowse-${v.version} /var/www/html/jbrowse`,
         '    cd /var/www/html',
