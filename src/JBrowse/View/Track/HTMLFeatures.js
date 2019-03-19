@@ -702,14 +702,37 @@ define( [
              */
             addFeatureToBlock: function( feature, uniqueId, block, scale, labelScale, descriptionScale,
                                          containerStart, containerEnd ) {
-                var featDiv = this.renderFeature( feature, uniqueId, block, scale, labelScale, descriptionScale,
-                    containerStart, containerEnd );
-                if( ! featDiv )
-                    return null;
+                var thisB = this;
 
-                block.domNode.appendChild( featDiv );
-                if( this.config.style.centerChildrenVertically )
-                    this._centerChildrenVertically( featDiv );
+                if ((typeof this.browser.config.inferHTMLSubfeatures === 'undefined' || this.browser.config.inferHTMLSubfeatures===true) && feature.get('type') == 'gene') {
+                    var d = dojo.create('div');
+                    var feats = feature.get('subfeatures');
+                    if(!feats) {
+                        return null;
+                    }
+                    feats.forEach(function( feat ) {
+                        if (!thisB._featureIsRendered(uniqueId + '_' + feat.get('id'))) {
+                            featDiv = thisB.renderFeature(feat, uniqueId + '_' + feat.get('id'), block, scale, labelScale, descriptionScale, containerStart, containerEnd);
+                            d.appendChild( featDiv );
+                        }
+                    });
+                    block.domNode.appendChild( d );
+                    if( this.config.style.centerChildrenVertically ) {
+                        d.childNodes.forEach(function( featDiv ) {
+                            thisB._centerChildrenVertically( featDiv );
+                        });
+                    }
+                    return d;
+                } else {
+                    var featDiv = this.renderFeature( feature, uniqueId, block, scale, labelScale, descriptionScale,
+                        containerStart, containerEnd );
+                    if( ! featDiv )
+                        return null;
+
+                    block.domNode.appendChild( featDiv );
+                    if( this.config.style.centerChildrenVertically )
+                        this._centerChildrenVertically( featDiv );
+                }
                 return featDiv;
             },
 
@@ -1173,6 +1196,11 @@ define( [
                         this.renderSubfeature( feature, featDiv,
                             subfeatures[i],
                             displayStart, displayEnd, block );
+                        var subfeature = subfeatures[i];
+                        var subtype = subfeature.get('type');
+                        if(subtype == 'mRNA'){
+                            this.handleSubFeatures(subfeature,featDiv,displayStart,displayEnd,block);
+                        }
                     }
                 }
             },
