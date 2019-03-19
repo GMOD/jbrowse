@@ -703,7 +703,8 @@ define( [
             addFeatureToBlock: function( feature, uniqueId, block, scale, labelScale, descriptionScale,
                                          containerStart, containerEnd ) {
                 var thisB = this;
-                if( feature.get('type') == 'gene') {
+
+                if ((typeof this.browser.config.inferHTMLSubfeatures === 'undefined' || this.browser.config.inferHTMLSubfeatures===true) && feature.get('type') == 'gene') {
                     var d = dojo.create('div');
                     var feats = feature.get('subfeatures');
                     if(!feats) {
