@@ -9,3 +9,4 @@ set -x
 cd ${0%/*}
 yarn
 yarn build
+cp -R ../img build/jbrowse/docs/assets/img
