@@ -711,8 +711,8 @@ define( [
                         return null;
                     }
                     feats.forEach(function( feat ) {
-                        if (!thisB._featureIsRendered(uniqueId + '_' + feat.get('id'))) {
-                            featDiv = thisB.renderFeature(feat, uniqueId + '_' + feat.get('id'), block, scale, labelScale, descriptionScale, containerStart, containerEnd);
+                        if (!thisB._featureIsRendered(uniqueId + '_' + feat.get('uniqueId'))) {
+                            featDiv = thisB.renderFeature(feat, uniqueId + '_' + feat.get('uniqueId'), block, scale, labelScale, descriptionScale, containerStart, containerEnd);
                             d.appendChild( featDiv );
                         }
                     });
@@ -946,6 +946,11 @@ define( [
 
             getFeatDiv: function( feature )  {
                 var id = this.getId( feature );
+
+                if ((typeof this.browser.config.inferHTMLSubfeatures === 'undefined' || this.browser.config.inferHTMLSubfeatures===true) && feature.parent() && feature.parent().get('type') == "gene") {
+                    id = this.getId( feature.parent() ) + '_' + feature.get('uniqueId');
+                }
+
                 if( ! id )
                     return null;
 
