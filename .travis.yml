@@ -68,6 +68,8 @@ after_failure:
 - cat setup.log
 before_cache:
 - rm -f node_modules/.cache
+before_deploy:
+    - website/build.sh
 deploy:
 # upload both minified and non-minified builds to GitHub releases
 - provider: releases
@@ -90,9 +92,13 @@ deploy:
     repo: GMOD/jbrowse
     perl: 5.26
     tags: true
-- provider: script
-  script: website/deploy.sh
+- provider: s3
+  access_key_id: $AWS_ACCESS_KEY
+  secret_access_key: $AWS_SECRET_KEY
+  bucket: "jbrowse-org"
   skip_cleanup: true
+  upload-dir: travis-builds
+  local-dir: website/build/
   on:
     perl: 5.26
     condition: $TRAVIS_COMMIT_MESSAGE =~ (\[update docs\])
