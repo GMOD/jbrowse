@@ -64,6 +64,7 @@ script:
     MOZ_HEADLESS=1 SELENIUM_BROWSER=firefox NOSEOPTS="-I jasmine" JBROWSE_URL=http://localhost:9000/JBrowse-$RELEASE_VERSION/index.html tests/selenium_tests/travis_wrapper.sh;
   fi
 - set +e
+- website/build.sh
 after_failure:
 - cat setup.log
 before_cache:
@@ -90,10 +91,14 @@ deploy:
     repo: GMOD/jbrowse
     perl: 5.26
     tags: true
-- provider: script
-  script: website/deploy.sh
+- provider: s3
+  access_key_id: $AWS_ACCESS_KEY
+  secret_access_key: $AWS_SECRET_KEY
+  bucket: "jbrowse-org"
   skip_cleanup: true
+  local-dir: website/build/jbrowse/
   on:
     perl: 5.26
+    repo: GMOD/jbrowse
     condition: $TRAVIS_COMMIT_MESSAGE =~ (\[update docs\])
     all_branches: true
