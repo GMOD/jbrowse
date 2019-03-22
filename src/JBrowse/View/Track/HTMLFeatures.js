@@ -946,18 +946,22 @@ define( [
 
             getFeatDiv: function( feature )  {
                 var id = this.getId( feature );
+                var gene_id;
 
                 if ((typeof this.browser.config.inferHTMLSubfeatures === 'undefined' || this.browser.config.inferHTMLSubfeatures===true) && feature.parent() && feature.parent().get('type') == "gene") {
-                    id = this.getId( feature.parent() ) + '_' + this.getId(feature);
+                    gene_id = this.getId( feature.parent() ) + '_' + this.getId(feature);
                 }
 
-                if( ! id )
+                if( ! id  && ! gene_id )
                     return null;
 
                 for( var i = 0; i < this.blocks.length; i++ ) {
                     var b = this.blocks[i];
                     if( b && b.featureNodes ) {
                         var f = b.featureNodes[id];
+                        if( f )
+                            return f;
+                        f = b.featureNodes[gene_id];
                         if( f )
                             return f;
                     }
