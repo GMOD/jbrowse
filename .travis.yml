@@ -55,5 +55,16 @@ deploy:
   local-dir: website/build/
   on:
     perl: 5.26
+    repo: GMOD/jbrowse
     condition: $TRAVIS_COMMIT_MESSAGE =~ (\[update docs\])
     all_branches: true
+- provider: s3
+  access_key_id: $AWS_ACCESS_KEY
+  secret_access_key: $AWS_SECRET_KEY
+  bucket: "jbrowse-org"
+  skip_cleanup: true
+  upload-dir: travis-builds
+  local-dir: JBrowse-*/
+  on:
+    repo: GMOD/jbrowse
+    perl: 5.26
