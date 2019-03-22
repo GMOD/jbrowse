@@ -23,7 +23,7 @@ class Help extends React.Component {
         title: 'Join the community',
       },
       {
-        content: "Find out what's new with this project",
+          content: "Find out what's new with this project on the release announcements <a href='http://jbrowse.org/blog'>blog</a> or follow our github",
         title: 'Stay up to date',
       },
     ];

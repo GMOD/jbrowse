@@ -90,13 +90,6 @@ deploy:
     repo: GMOD/jbrowse
     perl: 5.26
     tags: true
-- provider: script
-  script: website/deploy.sh
-  skip_cleanup: true
-  on:
-    perl: 5.26
-    condition: $TRAVIS_COMMIT_MESSAGE =~ (\[update docs\])
-    all_branches: true
 - provider: s3
   access_key_id: $AWS_ACCESS_KEY
   secret_access_key: $AWS_SECRET_KEY
