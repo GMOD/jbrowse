@@ -492,7 +492,7 @@ sub makeSubfeatures {
     $thick_start = int($thick_start);
     $thick_end = int($thick_end);
 
-    my $parent_strand = $strand ? ($strand eq '+' ? 1 : -1) : 0;
+    my $parent_strand = $strand;
 
     if (defined($block_count) && ($block_count > 0)) {
         if (($block_count != ($#$length_list + 1))
