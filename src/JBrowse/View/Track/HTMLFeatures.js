@@ -704,7 +704,7 @@ define( [
                                          containerStart, containerEnd ) {
                 var thisB = this;
 
-                if ((typeof this.browser.config.inferHTMLSubfeatures === 'undefined' || this.browser.config.inferHTMLSubfeatures===true) && feature.get('type') == 'gene') {
+                if ((typeof this.browser.config.inferHTMLSubfeatures === 'undefined' || this.browser.config.inferHTMLSubfeatures===true) && feature.get('type') == 'gene' && feature.get('subfeatures')) {
                     var d = dojo.create('div');
                     var feats = feature.get('subfeatures');
                     if(!feats) {
@@ -952,7 +952,7 @@ define( [
                     gene_id = this.getId( feature.parent() ) + '_' + this.getId(feature);
                 }
 
-                if( ! id  && ! gene_id )
+                if( ! id && ! gene_id )
                     return null;
 
                 for( var i = 0; i < this.blocks.length; i++ ) {
