@@ -85,7 +85,7 @@ class Index extends React.Component {
         <div className="flexContainer" style={{display: 'flex'}}>
           <div>
             <HeaderInfo />
-            <iframe width="100%" height="600" src="/code/latest-release/?loc=ctgA%3A9892..32101&tracks=DNA%2CTranscript%2Cvolvox_microarray_bw_density%2Cvolvox_microarray_bw_xyplot%2Cvolvox-sorted-vcf%2Cvolvox-sorted_bam_coverage%2Cvolvox-sorted_bam&data=sample_data%2Fjson%2Fvolvox&tracklist=0"></iframe>
+            <iframe width="100%" height="600" src="https://jbrowse.org/code/latest-release/?loc=ctgA%3A9892..32101&tracks=DNA%2CTranscript%2Cvolvox_microarray_bw_density%2Cvolvox_microarray_bw_xyplot%2Cvolvox-sorted-vcf%2Cvolvox-sorted_bam_coverage%2Cvolvox-sorted_bam&data=sample_data%2Fjson%2Fvolvox&tracklist=0"></iframe>
             <div className="mainContainer">
               <FeatureCallout />
               <BrowserCompat />
