@@ -87,8 +87,6 @@ to create a release on GitHub under https://github.com/GMOD/jbrowse/releases
 
 1. Add release notes to the new GitHub release that Travis created. Can just paste these from release-notes.md, which is in Markdown format.
 
-1. Update the latest-release code checkout on the site, which the "Latest Release" demo on the jbrowse.org points to, to be an unzipped-and-set-up copy of the latest release.
-
 1. Write a twitter post for usejbrowse and JBrowseGossip with the announcement link to the blogpost
 
 1. Write an email announcing the release, sending to gmod-ajax. If it is a major release, add gmod-announce and make a GMOD news item.
