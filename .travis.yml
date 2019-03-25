@@ -97,6 +97,7 @@ deploy:
   bucket: "jbrowse.org"
   skip_cleanup: true
   local-dir: website/build/jbrowse/
+  cache_control: "max-age=1800"
   on:
     perl: 5.26
     repo: GMOD/jbrowse
