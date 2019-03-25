@@ -61,6 +61,31 @@ const siteVariables = {
     '  </div>',
     '</div>'
   ].join('\n'),
+  div_embed_snip: [
+    '<div style="padding: 0 1em; margin: 1em 0; border: 1px solid black; background: blue; color: white">',
+    '  <h1>Volvox JBrowse Embedded in a <code>div</code></h1>',
+    '  <div',
+    '    class="jbrowse"',
+    '    id="GenomeBrowser"',
+    '    data-config=\'',
+    `      "baseUrl": "../code/JBrowse-${v.version}/",`,
+    '      "dataRoot": "sample_data/json/volvox",',
+    '      "show_nav": false,',
+    '      "show_tracklist": false,',
+    '      "show_overview": false,',
+    '      "update_browser_title": false,',
+    '      "updateBrowserURL": false',
+    '    \'',
+    '    style="height: 300px;width: 600px;padding: 0;margin-left: 5em;border: 1px solid #ccc"',
+    '  >',
+    '    <div id="LoadingScreen" style="padding: 50px;">',
+    '      <h1>Loading...</h1>',
+    '      <p>If this does not load, try viewing this page with <a href="http://jbrowse.org/docs/embedding.html">HTTP instead of HTTPS</a></p>',
+    '    </div>',
+    '  </div>',
+    '</div>',
+    `<script type="text/javascript" src="../code/JBrowse-${v.version}/dist/main.bundle.js" charset="utf-8"></script>`,
+  ].join('\n')
 };
 
 
