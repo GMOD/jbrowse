@@ -10,9 +10,7 @@ In this tutorial, we will use "indexed file formats", which exemplifies using pl
 
 To begin, we'll pretend as though we are setting up the genome of *Volvox mythicus*, a mythical species in the genus [Volvox](https://en.wikipedia.org/wiki/Volvox). The Volvox genome was sequenced by your sequencing core in 2018 and they'd like to setup JBrowse now. They give us a link to their FASTA file that we'll download
 
-
-    mkdir data
-    curl -L http://jbrowse.org/code/latest-release/docs/tutorial/data_files/volvox.fa > data/volvox.fa
+{@inject: fasta_download_snip}
 
 We are going to use samtools to create a "FASTA index" using their faidx command. FASTA indexing allows even very large FASTA files to be downloaded into JBrowse "on demand" e.g. only downloading the sequence required for a certain view.
 
@@ -47,7 +45,7 @@ At this point, you should be able to open up http://localhost/jbrowse/?data=data
 
 We will use the newly generated "gene annotation" file that was generated for Volvox mythicus
 
-    curl -L http://jbrowse.org/code/latest-release/docs/tutorial/data_files/volvox.gff3 > data/volvox.gff3
+{@inject: gff3_download_snip}
 
 When we are processing GFF3 for usage in JBrowse, we can aim to use GFF3Tabix format. Tabix allows random access to genomic regions similar to Indexed FASTA. We must first sort the GFF to prepare it for tabx
 
@@ -73,7 +71,7 @@ If you have been given sequenced alignments, you can also create a Alignments tr
 
 For volvox, we are given a file
 
-    curl -L http://jbrowse.org/code/latest-release/docs/tutorial/data_files/volvox-sorted.bam > data/volvox-sorted.bam
+{@inject: bam_download_snip}
 
 Note that this BAM file is already sorted. If your BAM is not sorted, it must be sorted to use in JBrowse. Next index this file
 

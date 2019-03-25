@@ -27,20 +27,39 @@ const createVariableInjectionPlugin = variables => {
 };
 
 const v = {
-    "version": "1.16.3"
+  "version": "1.16.3"
 };
 const siteVariables = {
-    "version": v.version,
-    "setup_snip": [
-        `    curl -L -O https://github.com/GMOD/jbrowse/releases/download/${v.version}-release/JBrowse-${v.version}.zip`,
-        `    unzip JBrowse-${v.version}.zip`,
-        `    sudo mv JBrowse-${v.version} /var/www/html/jbrowse`,
-        '    cd /var/www/html',
-        '    sudo chown `whoami` jbrowse',
-        '    cd jbrowse',
-        '    ./setup.sh # don\'t do sudo ./setup.sh'
-    ].join('\n'),
-    "download_snip": `https://github.com/GMOD/jbrowse/archive/${v.version}-release.tar.gz`
+  version: v.version,
+  setup_snip: [
+    `    curl -L -O https://github.com/GMOD/jbrowse/releases/download/${v.version}-release/JBrowse-${v.version}.zip`,
+    `    unzip JBrowse-${v.version}.zip`,
+    `    sudo mv JBrowse-${v.version} /var/www/html/jbrowse`,
+    '    cd /var/www/html',
+    '    sudo chown `whoami` jbrowse',
+    '    cd jbrowse',
+    '    ./setup.sh # don\'t do sudo ./setup.sh'
+  ].join('\n'),
+  download_snip: `https://github.com/GMOD/jbrowse/archive/${v.version}-release.tar.gz`,
+  fasta_download_snip: [
+    '    mkdir data',
+    `    curl -L https://jbrowse.org/code/JBrowse-${v.version}/docs/tutorial/data_files/volvox.fa > data/volvox.fa`
+  ].join('\n'),
+  gff3_download_snip: `   curl -L https://jbrowse.org/code/JBrowse-${v.version}/docs/tutorial/data_files/volvox.gff3 > data/volvox.gff3`,
+  bam_download_snip: `    curl -L https://jbrowse.org/code/JBrowse-${v.version}/docs/tutorial/data_files/volvox-sorted.bam > data/volvox-sorted.bam`,
+  iframe_embed_snip: [
+    '<div style="padding: 0 1em; margin: 1em 0; border: 1px solid black">',
+    '  <h1>Volvox JBrowse Embedded in an <code>iframe</code></h1>',
+    '  <div style="width: 600px; margin: 0 auto;">',
+    '    <iframe',
+    `      src="https://jbrowse.org/code/JBrowse-${v.version}/?data=sample_data/json/volvox&tracklist=0&nav=0&overview=0&tracks=DNA%2CExampleFeatures%2CNameTest%2CMotifs%2CAlignments%2CGenes%2CReadingFrame%2CCDS%2CTranscript%2CClones%2CEST"`,
+    '      style="border: 1px solid black"',
+    '      width="600"',
+    '      height="300"',
+    '    />',
+    '  </div>',
+    '</div>'
+  ].join('\n'),
 };
 
 
