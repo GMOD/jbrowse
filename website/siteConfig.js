@@ -56,7 +56,8 @@ const siteVariables = {
     '      style="border: 1px solid black"',
     '      width="600"',
     '      height="300"',
-    '    />',
+    '    >',
+    '    </iframe>',
     '  </div>',
     '</div>'
   ].join('\n'),
