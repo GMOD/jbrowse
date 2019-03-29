@@ -7,6 +7,10 @@
    indexed. Thanks to @loraine-gueguen for the idea and implementation!
    (pull #1337, @loraine-guegen)
 
+ * Added `inferHTMLSubfeatures` which automatically creates multiple
+   mRNA transcripts from a single gene parent feature. Thanks to
+   @abretaud for the idea and implementation! (pull #1343, pull #1340)
+
 ## Bug fixes
 
  * Added better error reporting to GFF3Tabix tracks for if a parsing
@@ -19,6 +23,11 @@
    this. The problem was that older tabix which hadn't invented CSI would
    generate invalid tabix indexes in this case. Thanks to Hans Vasquez-Gross
    for reporting (@cmdcolin)
+
+ * Fixed link in documentation. Thanks @agarciamontoro (pull #1341)
+
+ * Updated jbrowse.org website to run entirely off amazon S3 (pull #1347,
+   pull #1348)
 
 # Release 1.16.3     2019-02-21 00:48:52 UTC
 
