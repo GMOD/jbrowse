@@ -14,6 +14,12 @@
 
  * Added fix for VCF that don't contain alternative alleles (@cmdcolin)
 
+ * Added better error handling if there is a case where a tabix file is
+   loaded that is on a genome longer tha 2^29. CSI indexes are needed for
+   this. The problem was that older tabix which hadn't invented CSI would
+   generate invalid tabix indexes in this case. Thanks to Hans Vasquez-Gross
+   for reporting (@cmdcolin)
+
 # Release 1.16.3     2019-02-21 00:48:52 UTC
 
 ## Bug fixes

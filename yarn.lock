@@ -82,6 +82,14 @@
     esutils "^2.0.2"
     js-tokens "^3.0.0"
 
+"@babel/runtime-corejs2@^7.3.1":
+  version "7.3.4"
+  resolved "https://registry.yarnpkg.com/@babel/runtime-corejs2/-/runtime-corejs2-7.3.4.tgz#63f8bbc77622da202e9ea6f8f6e3bf28991832d9"
+  integrity sha512-QwPuQE65kNxjsNKk34Rfgen2R5fk0J2So99SD45uXBp34QOfyz11SqVgJ4xvyCpnCIieSQ0X0hSSc9z/ymlJJw==
+  dependencies:
+    core-js "^2.5.7"
+    regenerator-runtime "^0.12.0"
+
 "@babel/template@7.0.0-beta.44":
   version "7.0.0-beta.44"
   resolved "https://registry.yarnpkg.com/@babel/template/-/template-7.0.0-beta.44.tgz#f8832f4fdcee5d59bf515e595fc5106c529b394f"
@@ -178,13 +186,15 @@
     "@gmod/bgzf-filehandle" "^1.2.2"
     es6-promisify "^6.0.1"
 
-"@gmod/tabix@^1.1.3":
-  version "1.1.3"
-  resolved "https://registry.yarnpkg.com/@gmod/tabix/-/tabix-1.1.3.tgz#b6962fb59646c4a03e512c05beff958a65144e59"
+"@gmod/tabix@^1.1.5":
+  version "1.1.5"
+  resolved "https://registry.yarnpkg.com/@gmod/tabix/-/tabix-1.1.5.tgz#1af802971b43140d0f57a520a1a5e0a8f2d884a2"
+  integrity sha512-2ZjPUy2I0b06aBuABIMq5u8sFtG6VRqgELZHdYuFlzgXzBkINtyOPZzs16FnWRr+KKDImXtGeAgLRSGN8VO5Wg==
   dependencies:
+    "@babel/runtime-corejs2" "^7.3.1"
     es6-promisify "^6.0.1"
     long "^4.0.0"
-    pako "1.0.6"
+    pako "1.0.10"
     quick-lru "^2.0.0"
 
 "@gmod/tribble-index@^2.0.3":
@@ -2096,6 +2106,11 @@ core-js@^2.0.0, core-js@^2.4.0, core-js@^2.5.0:
   version "2.5.7"
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-2.5.7.tgz#f972608ff0cead68b841a16a932d0b183791814e"
 
+core-js@^2.5.7:
+  version "2.6.5"
+  resolved "https://registry.yarnpkg.com/core-js/-/core-js-2.6.5.tgz#44bc8d249e7fb2ff5d00e0341a7ffb94fbf67895"
+  integrity sha512-klh/kDpwX8hryYL14M9w/xei6vrv6sE8gTHDG7/T/+SEovB/G4ejwcfE/CBzO6Edsu+OETZMZ3wcX/EjUkrl5A==
+
 core-util-is@1.0.2, core-util-is@~1.0.0:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/core-util-is/-/core-util-is-1.0.2.tgz#b5fd54220aa2bc5ab57aab7140c940754503c1a7"
@@ -2535,10 +2550,10 @@ dojo-util@^1.14.2:
   resolved "https://registry.yarnpkg.com/dojo-util/-/dojo-util-1.14.2.tgz#b249ce8ef5c3803eed5e030c21dabc2d9db30104"
   integrity sha512-uLFYJq78VzCnlG8FsxR0LxSIsUax59Gdtxze7zouBx6Dpl9nGa2avscsAYzXY9YrS7J62GYy6iLF4IwJspFGGA==
 
-dojo-webpack-plugin@^2.7.7:
-  version "2.7.7"
-  resolved "https://registry.yarnpkg.com/dojo-webpack-plugin/-/dojo-webpack-plugin-2.7.7.tgz#88f7054f1b27a4e4c3c6d1857cbef638def9a0bb"
-  integrity sha512-jSzzaYDbP5Y5X5XgjoJshttHICpBxXMTTsz8hADxT4s2iDTez7mKFLCVUhoMN6s4I6FcmuzycCOSfsHjKeyG8w==
+dojo-webpack-plugin@^2.8.5:
+  version "2.8.5"
+  resolved "https://registry.yarnpkg.com/dojo-webpack-plugin/-/dojo-webpack-plugin-2.8.5.tgz#a9e61c1033104d5571261b89808b47548a27c52d"
+  integrity sha512-uJiq2lB47TU8r/3v88KiizpV1PyRFTuCPG/rUgwuCCPF0bmbbsrm99nQ5YbwOJG9uv0/H0v08d+ZKMVjkzywHQ==
   dependencies:
     loader-utils "1.1.0"
     node-stringify "0.2.1"
@@ -5446,7 +5461,12 @@ package-json@^4.0.0:
     registry-url "^3.0.3"
     semver "^5.1.0"
 
-pako@1.0.6, pako@^1.0.6, pako@~1.0.5:
+pako@1.0.10:
+  version "1.0.10"
+  resolved "https://registry.yarnpkg.com/pako/-/pako-1.0.10.tgz#4328badb5086a426aa90f541977d4955da5c9732"
+  integrity sha512-0DTvPVU3ed8+HNXOu5Bs+o//Mbdj9VNQMUOe9oKCwh8l0GNwpTDMKCWbRjgtD291AWnkAgkqA/LOnQS8AmS1tw==
+
+pako@^1.0.6, pako@~1.0.5:
   version "1.0.6"
   resolved "https://registry.yarnpkg.com/pako/-/pako-1.0.6.tgz#0101211baa70c4bca4a0f63f2206e97b7dfaf258"
 
@@ -6270,6 +6290,11 @@ regenerator-runtime@^0.10.5:
 regenerator-runtime@^0.11.0:
   version "0.11.1"
   resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.11.1.tgz#be05ad7f9bf7d22e056f9726cee5017fbf19e2e9"
+
+regenerator-runtime@^0.12.0:
+  version "0.12.1"
+  resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.12.1.tgz#fa1a71544764c036f8c49b13a08b2594c9f8a0de"
+  integrity sha512-odxIc1/vDlo4iZcfXqRYFj0vpXFNoGdKMAUieAlFYO6m/nl5e9KR/beGf41z4a1FI+aQgtjhuaSlDxQ0hmkrHg==
 
 regenerator-transform@^0.10.0:
   version "0.10.1"
