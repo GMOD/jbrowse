@@ -704,15 +704,15 @@ define( [
                                          containerStart, containerEnd ) {
                 var thisB = this;
 
-                if ((typeof this.browser.config.inferHTMLSubfeatures === 'undefined' || this.browser.config.inferHTMLSubfeatures===true) && feature.get('type') == 'gene') {
+                if ((typeof this.browser.config.inferHTMLSubfeatures === 'undefined' || this.browser.config.inferHTMLSubfeatures===true) && feature.get('type') == 'gene' && feature.get('subfeatures')) {
                     var d = dojo.create('div');
                     var feats = feature.get('subfeatures');
                     if(!feats) {
                         return null;
                     }
                     feats.forEach(function( feat ) {
-                        if (!thisB._featureIsRendered(uniqueId + '_' + feat.get('id'))) {
-                            featDiv = thisB.renderFeature(feat, uniqueId + '_' + feat.get('id'), block, scale, labelScale, descriptionScale, containerStart, containerEnd);
+                        if (!thisB._featureIsRendered(uniqueId + '_' + thisB.getId(feat))) {
+                            featDiv = thisB.renderFeature(feat, uniqueId + '_' + thisB.getId(feat), block, scale, labelScale, descriptionScale, containerStart, containerEnd);
                             d.appendChild( featDiv );
                         }
                     });
@@ -946,13 +946,22 @@ define( [
 
             getFeatDiv: function( feature )  {
                 var id = this.getId( feature );
-                if( ! id )
+                var gene_id;
+
+                if ((typeof this.browser.config.inferHTMLSubfeatures === 'undefined' || this.browser.config.inferHTMLSubfeatures===true) && feature.parent() && feature.parent().get('type') == "gene") {
+                    gene_id = this.getId( feature.parent() ) + '_' + this.getId(feature);
+                }
+
+                if( ! id && ! gene_id )
                     return null;
 
                 for( var i = 0; i < this.blocks.length; i++ ) {
                     var b = this.blocks[i];
                     if( b && b.featureNodes ) {
                         var f = b.featureNodes[id];
+                        if( f )
+                            return f;
+                        f = b.featureNodes[gene_id];
                         if( f )
                             return f;
                     }
