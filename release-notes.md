@@ -9,7 +9,8 @@
 
  * Added `inferHTMLSubfeatures` which automatically creates multiple
    mRNA transcripts from a single gene parent feature. Thanks to
-   @abretaud for the idea and implementation! (pull #1343, pull #1340)
+   @abretaud for the idea and implementation! Note that this is enabled
+   by default now (pull #1343, pull #1340)
 
  * Updated jbrowse.org website to run entirely off amazon S3 (pull #1347,
    pull #1348)
@@ -22,10 +23,10 @@
  * Added fix for VCF that don't contain alternative alleles (@cmdcolin)
 
  * Added better error handling if there is a case where a tabix file is
-   loaded that is on a genome longer tha 2^29. CSI indexes are needed for
-   this. The problem was that older tabix which hadn't invented CSI would
-   generate invalid tabix indexes in this case. Thanks to Hans Vasquez-Gross
-   for reporting (@cmdcolin)
+   loaded that is on a genome longer than 2^29. CSI indexes are needed for
+   this. Old versions of tabix which hadn't invented CSI would generate
+   invalid tabix indexes in this case. Thanks to Hans Vasquez-Gross for
+   reporting (@cmdcolin)
 
  * Fixed link in documentation. Thanks @agarciamontoro (pull #1341)
 
