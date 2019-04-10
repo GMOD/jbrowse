@@ -38,7 +38,14 @@ const siteVariables = {
     '    cd /var/www/html',
     '    sudo chown `whoami` jbrowse',
     '    cd jbrowse',
-    '    ./setup.sh # don\'t do sudo ./setup.sh'
+    '    ./setup.sh'
+  ].join('\n'),
+  setup_alt: [
+    `    git clone https://github.com/gmod/jbrowse`,
+    `    cd jbrowse`,
+    `    git checkout ${v.version}-release # or version of your choice`,
+    `    ./setup.sh`,
+    `    npm run start # starts a express.js dev server on port 8082, alternatively move the entire jbrowse dir to /var/www/html as above`
   ].join('\n'),
   download_snip: `https://github.com/GMOD/jbrowse/archive/${v.version}-release.tar.gz`,
   fasta_download_snip: [

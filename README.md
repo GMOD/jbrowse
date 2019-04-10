@@ -13,10 +13,11 @@ To install from GitHub, you can simply clone the repo and run the setup.sh scrip
     cd jbrowse
     ./setup.sh
 
-At this point, if you are in the web root of your Apache or nginx folder, you can access it as http://localhost/jbrowse/?data=sample_data/json/volvox
 
-Alternatively, run `utils/jb_run.js -p 3000` and access http://localhost:3000/index.html?data=sample_data/json/volvox
+Then run `npm run start` http://localhost:8082/index.html?data=sample_data/json/volvox
  to see the code running from a small express.js server.
+
+You can alternatively just move this entire folder into a nginx or apache root directory e.g. /var/www/html and then navigate to http://localhost/jbrowse
 
 *Note: you should avoid using sudo tasks like ./setup.sh and instead use chown/chmod on folders to your own user as necessary.*
 
@@ -36,7 +37,6 @@ To setup a simple instance, you can use
     node_modules/.bin/jb_run.js
 
 Then visit http://localhost:3000/?data=sample_data/json/volvox
-
 
 # Contributing
 

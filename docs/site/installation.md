@@ -34,7 +34,7 @@ On CentOS/RedHat
     sudo yum groupinstall "Development Tools"
     sudo yum install zlib-devel perl-ExtUtils-MakeMaker
 
-## Download JBrowse
+## Download JBrowse minified release
 
 
 Download a JBrowse release from GitHub
@@ -42,9 +42,18 @@ Download a JBrowse release from GitHub
 
 {@inject: setup_snip}
 
-**IMPORTANT NOTE: if you are using JBrowse plugins, you must download the source code or use git clone of https://github.com/GMOD/jbrowse instead of the minified release. Then you must run ./setup.sh or npm run build/npm run watch when you are adding or building plugin code or the jbrowse source code**
+## Alternative JBrowse setup needed if you use plugins
+
+JBrowse now bundles plugins at build time, so if you use plugins or want to modify jbrowse source code yourself
+you must download  the source code or use git clone of https://github.com/GMOD/jbrowse
+
+{@inject: setup_alt}
+
+Note: use `npm run watch` to automatically pick up changes to the code that you make (need to restart if you add or remove files though)
 
 
-Source code:
+## Congratulations
 
- {@inject: download_snip}
+You should see a message that says "Congratulations, JBrowse is on the web" with a link to the "Volvox example data"
+
+If you don't see this then you may have missed a setup step

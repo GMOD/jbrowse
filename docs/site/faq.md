@@ -6,12 +6,31 @@ title: JBrowse FAQ
 
 ## General
 
+
+### How do I get started with JBrowse quickly
+
+
+    git clone https://github.com/gmod/jbrowse
+    ./setup.sh
+    npm run start
+
+See https://github.com/gmod/jbrowse#install-jbrowse-from-github-for-developers for details
+
+Using `npm run start` launches an express.js server on port 8082
+
+You can also just copy and paste your entire jbrowse directory that you cloned into your webserver folder if you have an existing apache or nginx server
+
+
 ### What webserver is needed for JBrowse
 
 Most established HTTP servers such as Apache or nginx can work. You can
 just unpack JBrowse into your http web directory (/var/www/html, or
 htdocs, or similar) and follow the setup instructions
 <http://jbrowse.org/code/JBrowse-1.12.1/docs/tutorial/>.
+
+JBrowse also comes bundled with an express.js server that works for most
+purposes. You can use `npm run start` to start the server on port 8082.
+
 
 Other configuration about your server will depend on your needs, but
 generally no special setup is needed for the http server, and there is
