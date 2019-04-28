@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+## Minor improvements
+
+ * Add better error reporting if there is a BAI file for a genome that
+   is longer than 2^29 and requires a CSI index
 
 # Release 1.16.4     2019-04-10 16:58:02 UTC
 
