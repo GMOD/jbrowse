@@ -98,7 +98,7 @@
     core-js "^2.6.5"
     regenerator-runtime "^0.13.2"
 
-"@babel/runtime@^7.3.4":
+"@babel/runtime@^7.3.4", "@babel/runtime@^7.4.4":
   version "7.4.4"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.4.4.tgz#dc2e34982eb236803aa27a07fea6857af1b9171d"
   integrity sha512-w0+uT71b6Yi7i5SE0co4NioIpSYS6lLiXvCzWzGSKvpK5vdQtCbICHMj+gbAKAOtxiV6HsVh/MBdaF9EQ6faSg==
@@ -3820,11 +3820,15 @@ http-errors@~1.6.2:
     setprototypeof "1.1.0"
     statuses ">= 1.4.0 < 2"
 
-http-range-fetcher@^1.1.2:
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/http-range-fetcher/-/http-range-fetcher-1.1.2.tgz#b6d3f7173fc751ebd270ff545421172c4d2d15c4"
+http-range-fetcher@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/http-range-fetcher/-/http-range-fetcher-1.2.1.tgz#98bd6e8e2e1c434b82041494a6f047d04d0f32b4"
+  integrity sha512-Htyrjh3vG4ZLks27bhP8bYpz8msnJvNlf4oCmTmaSzRGIrlseYuFDTBc9ACLfDGzuZ8SqDxSHAJeJEQQ/GwN/A==
   dependencies:
+    "@babel/runtime" "^7.4.4"
+    abortcontroller-polyfill "^1.2.9"
     cross-fetch "^2.2.2"
+    object.entries-ponyfill "^1.0.1"
     quick-lru "^2.0.0"
 
 http-signature@~1.2.0:
@@ -5348,6 +5352,11 @@ object-visit@^1.0.0:
   resolved "https://registry.yarnpkg.com/object-visit/-/object-visit-1.0.1.tgz#f79c4493af0c5377b59fe39d395e41042dd045bb"
   dependencies:
     isobject "^3.0.0"
+
+object.entries-ponyfill@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/object.entries-ponyfill/-/object.entries-ponyfill-1.0.1.tgz#29abdf77cbfbd26566dd1aa24e9d88f65433d256"
+  integrity sha1-Kavfd8v70mVm3RqiTp2I9lQz0lY=
 
 object.omit@^2.0.0:
   version "2.0.1"
