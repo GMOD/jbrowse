@@ -332,7 +332,7 @@ initPlugins: function() {
                 p.css = configEntry.css ? configEntry.pluginDir+'/'+configEntry.css : false
                 p.js = configEntry.location
             } else {
-                this.fatalError(`plugin ${p.name} not found, please ensure the plugin was included in this JBrowse build`)
+                this.fatalError(`plugin ${p.name} not found. You can rebuild JBrowse with a -dev release or github clone with this plugin in the plugin folder`)
             }
         });
 

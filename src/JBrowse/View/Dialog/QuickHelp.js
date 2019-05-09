@@ -65,8 +65,6 @@ return declare( InfoDialog, {
                 + '<dt>JBrowse Documentation</dt>'
                 + '<dd><ul><li><a target="_blank" href="docs/tutorial/">Quick-start tutorial</a></li>'
                 + '        <li><a target="_blank" href="http://gmod.org/wiki/JBrowse">JBrowse Configuration Guide</a></li>'
-                + '        <li><a target="_blank" href="docs/config.html"><tt>biodb-to-json.pl</tt> reference</a></li>'
-                + '        <li><a target="_blank" href="docs/featureglyphs.html">HTMLFeatures class reference</a></li>'
                 + '    </ul>'
                 + '</dd>'
                 + '</dl>'

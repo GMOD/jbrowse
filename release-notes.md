@@ -5,6 +5,17 @@
  * Add better error reporting if there is a BAI file for a genome that
    is longer than 2^29 and requires a CSI index
 
+## Bug fixes
+
+ * Fixed a long standing issue with BigWig files not accessing the
+   lowest summary zoom level (e.g. the first one after unzoomed).
+   (@cmdcolin, issue #1359)
+
+
+ * Fixed a bug with using the scoreType: maxScore configuration on
+   Wiggle tracks failing at non-summary zoom levels. Thanks to
+   @patrickcng90 for reporting
+
 # Release 1.16.4     2019-04-10 16:58:02 UTC
 
 ## Minor improvements

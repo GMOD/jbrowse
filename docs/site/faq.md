@@ -20,6 +20,32 @@ Using `npm run start` launches an express.js server on port 8082
 
 You can also just copy and paste your entire jbrowse directory that you cloned into your webserver folder if you have an existing apache or nginx server
 
+### How do I use plugins with JBrowse
+
+In JBrowse 1.13.0 and later, you must rebuild JBrowse
+
+* download the "-dev" version of JBrowse (or use a git clone, this is equivalent)
+* put the plugin(s) in the plugins folder
+* run ./setup.sh
+
+This will build the plugins properly. The ./setup.sh automatically downloads the npm modules needed for building the codebase.
+
+
+Reason: JBrowse switched to a webpack based build system in 1.13.0 which bundles all dependencies at build time so there is no notion of run-time module resolution
+
+
+### How do I modify JBrowse source code
+
+In modify JBrowse source code you must use `npm run watch` (equivalently `yarn watch`) to watch for changes to the codebase
+
+This uses `webpack -w` in the background to dynamically include your changes as you are developing.
+
+When you are done modifying the source code, use ./setup.sh to create a minified final build.
+
+Note: this applies to JBrowse core and for plugins, as plugins will also be watched by this process.
+
+Also note: if you add or remove files, you should kill the watch process and restart
+
 
 ### What webserver is needed for JBrowse
 
