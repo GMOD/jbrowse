@@ -396,15 +396,18 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
     },
 
     _calculatePixelScores: function( canvasWidth, features, featureRects ) {
-        var scoreType = this.config.scoreType;
+        var scoreType = this.config.scoreType || "maxScore";
         var pixelValues = new Array( canvasWidth );
-        if(!scoreType||scoreType=="maxScore") {
+        if (scoreType=="maxScore") {
             // make an array of the max score at each pixel on the canvas
             dojo.forEach( features, function( f, i ) {
                 var store = f.source;
                 var fRect = featureRects[i];
                 var jEnd = fRect.r;
-                var score = scoreType?f.get(scoreType):f.get('score');
+                var score =  f.get(scoreType)
+                if (score === undefined) {
+                    score = f.get('score') // we are not in a summary block and have no maxScore so use regular score
+                }
                 for( var j = Math.round(fRect.l); j < jEnd; j++ ) {
                     if ( pixelValues[j] && pixelValues[j]['lastUsedStore'] == store ) {
                         /* Note: if the feature is from a different store, the condition should fail,
@@ -427,7 +430,7 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
                 }
             }
         }
-        else if(scoreType=="avgScore") {
+        else if(scoreType == "avgScore") {
             // make an array of the average score at each pixel on the canvas
             dojo.forEach( features, function( f, i ) {
                 var store = f.source;
