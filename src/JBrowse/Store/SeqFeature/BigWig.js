@@ -336,7 +336,7 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
         var maxLevel = this.zoomLevels.length;
         if( ! this.fileSize ) // if we don't know the file size, we can't fetch the highest zoom level :-(
             maxLevel--;
-        for( var i = maxLevel; i > 0; i-- ) {
+        for( var i = maxLevel; i >= 0; i-- ) {
             var zh = this.zoomLevels[i];
             if( zh && zh.reductionLevel <= 2*basesPerPx ) {
                 var indexLength = i < this.zoomLevels.length - 1
