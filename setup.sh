@@ -121,7 +121,7 @@ if [ -f "src/JBrowse/Browser.js" ]; then
     ) >>setup.log 2>&1;
     done_message "" "" "FAILURE NOT ALLOWED"
 else
-    log_echo "Minimal release, skipping node and Webpack build"
+    log_echo "Minimal release, skipping node and Webpack build (note: this version will not allow using plugins. Use a github clone or a dev version of JBrowse to use plugins"
 fi
 
 log_echo  -n "Installing Perl prerequisites ..."
