@@ -10,7 +10,13 @@ describe( 'centralized ref seq name regularization', function() {
     var testCases = [
         [ 'ctgA', 'ctga' ],
         [ 'MT', 'chrm' ],
+        [ 'Pt', 'pt' ],
+        [ 'C9', 'c9' ],
+        [ 'chrM', 'chrm' ],
+        [ 'chrMT', 'chrm' ],
+        [ 'ChrC', 'chrc' ],
         [ 'chrom01', 'chr1' ],
+        [ 'Bvchr1_un.sca002', 'bvchr1_un.sca002' ],
         [ 'chr01', 'chr1' ],
         [ 'CHROMOSOME11', 'chr11' ],
         [ 'SCAFFOLD0231', 'scaffold231' ],
