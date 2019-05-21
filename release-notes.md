@@ -11,10 +11,13 @@
    lowest summary zoom level (e.g. the first one after unzoomed).
    (@cmdcolin, issue #1359)
 
-
  * Fixed a bug with using the scoreType: maxScore configuration on
    Wiggle tracks failing at non-summary zoom levels. Thanks to
    @patrickcng90 for reporting
+
+ * Fixed a bug with name regularizing that particularly affected CRAM
+   on mitochondrial chromosomes. Thanks to @sachalau for patience and
+   sample data for debugging this issue! (issue #1367, @cmdcolin)
 
 # Release 1.16.4     2019-04-10 16:58:02 UTC
 
