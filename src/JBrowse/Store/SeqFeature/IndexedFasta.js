@@ -70,7 +70,12 @@ return declare( [ SeqFeatureStore, DeferredFeaturesMixin ],
         if(query.start < 0) {
             query.start = 0;
         }
-        this.fasta.getResiduesByName( this.refSeq.name, query.start, query.end ).then((seq) => {
+        var refname = query.ref;
+        // if they both regularize to the same thing, use this.refSeq.name since that is guaranteed to be from refseq store
+        if(!this.browser.compareReferenceNames( this.refSeq.name, refname ) )
+            refname = this.refSeq.name;
+
+        this.fasta.getResiduesByName( refname, query.start, query.end ).then(seq => {
             featCallback(new SimpleFeature({data: {seq, start: query.start, end: query.end}}))
             endCallback()
         },

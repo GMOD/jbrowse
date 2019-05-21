@@ -10,11 +10,12 @@ require([
             aspect,
             XHRBlob
         ) {
-    
+
 describe(".2bit data store with T_ko.2bit", function() {
 
     var t = new TwoBitStore({
             browser: new Browser({ unitTestMode: true }),
+            refSeq: { name: 'chr1', start: 1, end: 500001 },
             blob: new XHRBlob("../data/T_ko.2bit")
         });
 
@@ -55,17 +56,18 @@ describe(".2bit data store with T_ko.2bit", function() {
             function() { done = true; });
 
         waitsFor( function() { return done; }, 2000);
-        runs(function(){ 
+        runs(function(){
             expect(features.length).toEqual(0);
         });
     });
-   
+
 });
 
 describe(".2bit data store with volvox.2bit", function() {
 
     var t2 = new TwoBitStore({
             browser: new Browser({ unitTestMode: true }),
+            refSeq: { name: 'chr1', start: 1, end: 500001 },
             blob: new XHRBlob("../data/volvox.2bit")
         });
 
@@ -122,19 +124,20 @@ describe(".2bit data store with volvox.2bit", function() {
             function() { done = true; });
 
         waitsFor( function() { return done; }, 2000);
-        runs(function(){ 
+        runs(function(){
             expect(features.length).toEqual(0);
         });
     });
-   
+
 });
 
     var seqString = "NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNACTCTATCTATCTATCTATCTATCTTTTTCCCCCCGGGGGGagagagagactctagcatcctcctacctcacNNacCNctTGGACNCcCaGGGatttcNNNcccNNCCNCgN";
 
 describe(".2bit data store with random data foo.2bit", function() {
-    
+
     var t3 = new TwoBitStore({
         browser: new Browser({unitTestMode: true }),
+        refSeq: { name: 'chr1', start: 1, end: 500001 },
         blob: new XHRBlob("../data/foo.2bit")
     });
 
@@ -182,6 +185,7 @@ describe(".2bit data store with random data foo.2bit", function() {
 describe("empty 2bit", function() {
     var t4 = new TwoBitStore({
         browser: new Browser({ unitTestMode: true }),
+        refSeq: { name: 'chr1', start: 1, end: 500001 },
         blob: new XHRBlob("../data/empty.2bit")
     });
 
@@ -192,9 +196,9 @@ describe("empty 2bit", function() {
     it("returns no data, but doesn't crash", function() {
         var done;
         var features = [];
-        t4.getFeatures({ref: "unimportant", start: 0, end: 4000}, 
+        t4.getFeatures({ref: "unimportant", start: 0, end: 4000},
             function(feature) {
-                features.push(feature); 
+                features.push(feature);
             },
             function() { done = true; },
             function(err) { console.log(err); });

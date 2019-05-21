@@ -79,7 +79,12 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin], {
         if (start < 0) {
             start = 0
         }
-        this.twoBit.getSequence(query.ref, start, query.end)
+        var refname = query.ref;
+        // if they both regularize to the same thing, use this.refSeq.name since that is guaranteed to be from refseq store
+        if(!this.browser.compareReferenceNames( this.refSeq.name, refname ) )
+            refname = this.refSeq.name;
+
+        this.twoBit.getSequence(refname, start, query.end)
             .then(seq => {
                 if (seq !== undefined) {
                     featCallback(new SimpleFeature({

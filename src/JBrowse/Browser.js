@@ -730,6 +730,13 @@ regularizeReferenceName: function( refname ) {
         return refname;
 
     refname = refname.toLowerCase()
+
+    // special case of double regularizing behaving badly
+    if(refname.match(/^chrm/)) {
+        return 'chrm'
+    }
+
+    refname = refname
                      .replace(/^chro?m?(osome)?/,'chr')
                      .replace(/^co?n?ti?g/,'ctg')
                      .replace(/^scaff?o?l?d?/,'scaffold')
