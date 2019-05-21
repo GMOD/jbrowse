@@ -48,6 +48,7 @@ return declare( SeqFeatureStore,
         errorCallback = errorCallback || function(e) { console.error(e); };
 
         var refname = query.ref;
+        // if they both regularize to the same thing, use this.refSeq.name since that is guaranteed to be from refseq store
         if( ! this.browser.compareReferenceNames( this.refSeq.name, refname ) )
             refname = this.refSeq.name;
 
