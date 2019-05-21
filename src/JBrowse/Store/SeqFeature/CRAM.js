@@ -21,7 +21,6 @@ class CramSlightlyLazyFeature {
     _get_strand() { return this.record.isReverseComplemented() ? -1 : 1 }
     _get_read_group_id() { return this.record.readGroupId }
     _get_qual() { return (this.record.qualityScores || []).map(q => q+33).join(' ')}
-    _get_seq() { return this.record.readBases}
     _get_seq_id() { return this._store._refIdToName(this.record.sequenceId)}
     _get_qc_failed() { return this.record.isFailedQc()}
     _get_secondary_alignment() { return this.record.isSecondary()}
