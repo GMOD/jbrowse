@@ -9,6 +9,7 @@ describe( 'centralized ref seq name regularization', function() {
 
     var testCases = [
         [ 'ctgA', 'ctga' ],
+        [ 'MT', 'chrm' ],
         [ 'chrom01', 'chr1' ],
         [ 'chr01', 'chr1' ],
         [ 'CHROMOSOME11', 'chr11' ],
@@ -19,11 +20,21 @@ describe( 'centralized ref seq name regularization', function() {
         [ '01', 'chr1' ],
         [ '1', 'chr1' ]
     ];
+
+
+
     array.forEach( testCases, function( testCase ) {
         it( 'works for '+testCase[0], function() {
             expect( b.regularizeReferenceName( testCase[0] ) ).toEqual( testCase[1] );
         });
     });
 
+    array.forEach( testCases, function( testCase ) {
+        it( 'double regularizing works for '+testCase[1], function() {
+            expect( b.regularizeReferenceName( testCase[1] ) ).toEqual( testCase[1] );
+        });
+    });
+})
+
 });
-});
+
