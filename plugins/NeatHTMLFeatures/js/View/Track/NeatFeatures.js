@@ -19,8 +19,10 @@ function (
             var featureNode = this.inherited(arguments);
             var thisB = this;
 
-            thisB.insertIntrons(featureNode);
-            thisB.paintNeatFeatures(featureNode);
+            if (featureNode) { // In case the feature was not rendered (too many)
+                thisB.insertIntrons(featureNode);
+                thisB.paintNeatFeatures(featureNode);
+            }
             return featureNode;
         },
         insertIntrons: function (featureNode) {

@@ -713,7 +713,9 @@ define( [
                     feats.forEach(function( feat ) {
                         if (!thisB._featureIsRendered(uniqueId + '_' + thisB.getId(feat))) {
                             featDiv = thisB.renderFeature(feat, uniqueId + '_' + thisB.getId(feat), block, scale, labelScale, descriptionScale, containerStart, containerEnd);
-                            d.appendChild( featDiv );
+                            if (featDiv) { // In case the feature was not rendered (too many)
+                                d.appendChild( featDiv );
+                            }
                         }
                     });
                     block.domNode.appendChild( d );
