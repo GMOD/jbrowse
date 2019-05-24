@@ -34,7 +34,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
     supportsFeatureTransforms: true,
 
     constructor( args ) {
-        this.dontRedispatch = (args.dontRedispatch||"").split( /\s*,\s*/ );
+        this.dontRedispatch = (args.dontRedispatch || 'chromosome,region').split( /\s*,\s*/ );
         var csiBlob, tbiBlob;
 
         if(args.csi || this.config.csiUrlTemplate) {
