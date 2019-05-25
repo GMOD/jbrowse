@@ -3,12 +3,26 @@ require('@babel/polyfill')
 
 const DojoWebpackPlugin = require("dojo-webpack-plugin")
 const CopyWebpackPlugin = require("copy-webpack-plugin")
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 
 const path = require("path")
 const glob = require('glob')
 const webpack = require("webpack")
+const bbmod = {
+    loader: 'babel-loader',
+    options: {
+        sourceType: 'unambiguous',
+        presets: ['@babel/preset-env'],
+        plugins: ['@babel/plugin-transform-runtime']
+    }
+}
+const bb = {
+    loader: 'babel-loader',
+    options: {
+        presets: ['@babel/preset-env'],
+        plugins: ['@babel/plugin-transform-runtime']
+    }
+}
 
 // if JBROWSE_BUILD_MIN env var is 1 or true, then we also minimize the JS
 // and forego generating source maps
@@ -57,12 +71,24 @@ var webpackConf = {
     ],
     module: {
         rules: [
+            // {
+            //     test: /quick-lru/,
+            //     use: [{
+            //         loader: 'regexp-replace-loader',
+            //         options: {
+            //             match: {
+            //                 pattern: 'module.exports = ',
+            //                 flags: 'g'
+            //             },
+            //             replaceWith: 'export default '
+            //         }
+            //     }, bb]
+            // },
+
             {
                 test: /\.js$/,
                 exclude: /node_modules\/(?!(quick-lru|@gmod\/cram|@gmod\/bam|@gmod\/indexedfasta|@gmod\/tabix|@gmod\/tribble-index|@gmod\/binary-parser|@gmod\/bgzf-filehandle))/,
-                use: {
-                  loader: 'babel-loader',
-                }
+                use: bbmod
             },
             {
                 test: /src\/JBrowse\/main.js|src\/JBrowse\/standalone.js|tests\/js_tests\/main.js/,
@@ -75,7 +101,7 @@ var webpackConf = {
             {
                 // regex replace all JBrowse plugin JS to just remove any use of dojo/domReady!
                 test: filepath => filepath.indexOf(__dirname+'/plugins')===0 && /\.js$/.test(filepath),
-                use: {
+                use: [bb, {
                     loader: 'regexp-replace-loader',
                     options: {
                         match: {
@@ -84,7 +110,7 @@ var webpackConf = {
                         },
                         replaceWith: '"JBrowse/has"'
                     }
-                }
+                }]
             }
         ]
     },
@@ -99,16 +125,17 @@ var webpackConf = {
     },
     resolve: {
         symlinks: false
-    }
+    },
+    devtool: false
 }
 
 if (DEBUG) {
     webpackConf.mode = 'development'
     webpackConf.entry.run_jasmine = 'tests/js_tests/main.js'
     webpackConf.plugins.push( new webpack.optimize.AggressiveMergingPlugin() )
+
 } else {
     webpackConf.mode = 'production'
-    webpackConf.plugins.push( new UglifyJsPlugin())
 }
 
 module.exports = webpackConf
