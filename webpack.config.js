@@ -62,7 +62,7 @@ var webpackConf = {
         rules: [
             {
                 test: /\.js$/,
-                exclude: /node_modules\/(?!(quick-lru|@gmod\/cram|@gmod\/bam|@gmod\/indexedfasta|@gmod\/tabix|@gmod\/tribble-index|@gmod\/binary-parser|@gmod\/bgzf-filehandle))/,
+                exclude: /node_modules\/(?!quick-lru)/,
                 use: {
                     loader: 'babel-loader',
                     options: {

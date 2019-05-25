@@ -32,8 +32,6 @@
   },
   "license": "(LGPL-2.1 OR Artistic-2.0)",
   "dependencies": {
-    "@babel/core": "^7.4.5",
-    "@babel/preset-env": "^7.4.5",
     "express": "^4.15.4",
     "fs-extra": "^4.0.1",
     "node-fetch": "^2.2.0",
@@ -42,10 +40,12 @@
     "shelljs": "^0.7.8"
   },
   "devDependencies": {
+    "@babel/core": "^7.4.5",
+    "@babel/preset-env": "^7.4.5",
     "@babel/plugin-transform-runtime": "^7.4.4",
     "@babel/polyfill": "^7.4.4",
     "@gmod/bam": "^1.0.15",
-    "@gmod/cram": "^1.5.1",
+    "@gmod/cram": "^1.5.3",
     "@gmod/gff": "^1.1.1",
     "@gmod/indexedfasta": "^1.0.11",
     "@gmod/tabix": "^1.1.5",
