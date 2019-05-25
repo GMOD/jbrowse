@@ -22,7 +22,6 @@ const JBrowseModuleIds =
     .filter( mid => ! /\.profile$/.test(mid) )
     .reverse()
 
-console.log(JBrowseModuleIds.includes('JBrowse/ConfigAdaptor/JB_json_v1'))
 log(`building ${JBrowseModuleIds.length} JBrowse modules`)
 
 const pluginModuleIds =
@@ -49,7 +48,6 @@ log(`discovered a total of ${mids.length} modules`)
 
 // tiny Webpack Loader that replaces "//! webpackRequireGlob" expressions with a big bunch of requires
 module.exports = function(content,map,meta) {
-    console.log('HERERERER')
     return content.replace(
         '//!! glob-loader, please include every JBrowse and plugin module here',
         function (match) {
