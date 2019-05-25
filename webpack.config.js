@@ -3,6 +3,7 @@ require('@babel/polyfill')
 
 const DojoWebpackPlugin = require("dojo-webpack-plugin")
 const CopyWebpackPlugin = require("copy-webpack-plugin")
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 
 const path = require("path")
@@ -136,6 +137,7 @@ if (DEBUG) {
 
 } else {
     webpackConf.mode = 'production'
+    webpackConf.plugins.push( new UglifyJsPlugin())
 }
 
 module.exports = webpackConf
