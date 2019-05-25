@@ -9,21 +9,8 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 const path = require("path")
 const glob = require('glob')
 const webpack = require("webpack")
-const bbmod = {
-    loader: 'babel-loader',
-    options: {
-        sourceType: 'unambiguous',
-        presets: ['@babel/preset-env'],
-        plugins: ['@babel/plugin-transform-runtime']
-    }
-}
-const bb = {
-    loader: 'babel-loader',
-    options: {
-        presets: ['@babel/preset-env'],
-        plugins: ['@babel/plugin-transform-runtime']
-    }
-}
+
+
 
 // if JBROWSE_BUILD_MIN env var is 1 or true, then we also minimize the JS
 // and forego generating source maps
@@ -71,11 +58,19 @@ var webpackConf = {
         ),
     ],
     module: {
+        // the order of these rules does matter
         rules: [
             {
                 test: /\.js$/,
                 exclude: /node_modules\/(?!(quick-lru|@gmod\/cram|@gmod\/bam|@gmod\/indexedfasta|@gmod\/tabix|@gmod\/tribble-index|@gmod\/binary-parser|@gmod\/bgzf-filehandle))/,
-                use: bbmod
+                use: {
+                    loader: 'babel-loader',
+                    options: {
+                        sourceType: 'unambiguous', // this bypasses some things with using module.exports and export es6
+                        presets: ['@babel/preset-env'],
+                        plugins: ['@babel/plugin-transform-runtime']
+                    }
+                }
             },
             {
                 test: /src\/JBrowse\/main.js|src\/JBrowse\/standalone.js|tests\/js_tests\/main.js/,
@@ -88,7 +83,7 @@ var webpackConf = {
             {
                 // regex replace all JBrowse plugin JS to just remove any use of dojo/domReady!
                 test: filepath => filepath.indexOf(__dirname+'/plugins')===0 && /\.js$/.test(filepath),
-                use: [bb, {
+                use: {
                     loader: 'regexp-replace-loader',
                     options: {
                         match: {
@@ -97,7 +92,7 @@ var webpackConf = {
                         },
                         replaceWith: '"JBrowse/has"'
                     }
-                }]
+                }
             }
         ]
     },
