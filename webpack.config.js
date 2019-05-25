@@ -72,20 +72,6 @@ var webpackConf = {
     ],
     module: {
         rules: [
-            // {
-            //     test: /quick-lru/,
-            //     use: [{
-            //         loader: 'regexp-replace-loader',
-            //         options: {
-            //             match: {
-            //                 pattern: 'module.exports = ',
-            //                 flags: 'g'
-            //             },
-            //             replaceWith: 'export default '
-            //         }
-            //     }, bb]
-            // },
-
             {
                 test: /\.js$/,
                 exclude: /node_modules\/(?!(quick-lru|@gmod\/cram|@gmod\/bam|@gmod\/indexedfasta|@gmod\/tabix|@gmod\/tribble-index|@gmod\/binary-parser|@gmod\/bgzf-filehandle))/,
