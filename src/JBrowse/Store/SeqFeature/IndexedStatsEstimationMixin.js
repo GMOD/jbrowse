@@ -14,22 +14,22 @@ return declare( GlobalStats, {
      * estimate the feature density of the store.
      * @private
      */
-    async _estimateGlobalStats(refseq) {
+    _estimateGlobalStats(refseq) {
         refseq = refseq || this.refSeq
-        let featCount
+        let featCountP
         if (this.indexedData) {
-            featCount = await this.indexedData.lineCount(this.browser.regularizeReferenceName(refseq.name))
+            featCountP = this.indexedData.lineCount(this.browser.regularizeReferenceName(refseq.name))
         } else if (this.bam) {
             const chr = this.browser.regularizeReferenceName(refseq.name)
             const chrId = this.bam.chrToIndex && this.bam.chrToIndex[chr]
-            featCount = await this.bam.index.lineCount(chrId, true)
-        }
-        if (featCount == -1) {
-            return this.inherited('_estimateGlobalStats', arguments)
+            featCountP = this.bam.index.lineCount(chrId, true)
+        } else {
+            return this.inherited(arguments)
         }
         const correctionFactor = (this.getConf('topLevelFeaturesPercent') || 100) / 100
-        const featureDensity = featCount / (refseq.end - refseq.start) * correctionFactor
-        return { featureDensity }
+        return featCountP.then(featCount =>
+          ( {featureDensity: featCount / (refseq.end - refseq.start) * correctionFactor})
+        )
     }
 
 });

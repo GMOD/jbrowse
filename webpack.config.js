@@ -68,7 +68,7 @@ var webpackConf = {
                     options: {
                         sourceType: 'unambiguous', // this bypasses some things with using module.exports and export es6
                         presets: ['@babel/preset-env'],
-                        plugins: ['@babel/plugin-transform-runtime']
+                        //plugins: ['@babel/plugin-transform-runtime']
                     }
                 }
             },
