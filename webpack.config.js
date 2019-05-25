@@ -126,8 +126,7 @@ var webpackConf = {
     },
     resolve: {
         symlinks: false
-    },
-    devtool: false
+    }
 }
 
 if (DEBUG) {
