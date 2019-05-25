@@ -1,6 +1,6 @@
 __webpack_public_path__ = '../../dist/'
 
-import 'babel-polyfill'
+import '@babel/polyfill'
 
 var jasmine = window.jasmine;
 var jasmineEnv = jasmine.getEnv();

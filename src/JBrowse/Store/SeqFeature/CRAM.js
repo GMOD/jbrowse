@@ -1,6 +1,5 @@
 const LRU = cjsRequire('quick-lru')
 const { IndexedCramFile, CraiIndex } = cjsRequire('@gmod/cram')
-const { CramSizeLimitError } = cjsRequire('@gmod/cram/errors')
 
 const cramIndexedFilesCache = new LRU({ maxSize: 5 })
 
@@ -322,9 +321,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
             })
             .catch(err => {
                 // map the CramSizeLimitError to JBrowse Errors.DataOverflow
-                if (err instanceof CramSizeLimitError) {
-                    err = new Errors.DataOverflow(err)
-                }
+                    err = new Error(err)
 
                 errorCallback(err)
             })

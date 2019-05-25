@@ -1,4 +1,5 @@
-import 'babel-polyfill'
+import "@babel/polyfill";
+
 
 require([
     'JBrowse/Browser',
