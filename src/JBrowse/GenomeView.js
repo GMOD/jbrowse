@@ -685,11 +685,20 @@ wheelScroll: function( event ) {
     delta.x = Math.round( delta.x * 2 );
     delta.y = Math.round( delta.y );
 
-    if( delta.x )
+    var didScroll = false
+
+    if( delta.x ) {
         this.keySlideX( -delta.x );
-    if( delta.y )
+    }
+    if( delta.y ) {
         // 60 pixels per mouse wheel event
-        this.setY( this.getY() - delta.y );
+        var prevY = this.getY()
+        var currY = this.setY( prevY - delta.y );
+        // check if clamping happened
+        if(currY !== prevY) {
+            didScroll = true
+        }
+    }
 
     //the timeout is so that we don't have to run showVisibleBlocks
     //for every scroll wheel click (we just wait until so many ms
@@ -705,7 +714,8 @@ wheelScroll: function( event ) {
         this.wheelScrollTimeout = null;
     }, 100));
 
-    dojo.stopEvent(event);
+    // allow event to bubble out of iframe for example
+    if(didScroll) dojo.stopEvent(event);
 },
 
 getX: function() {
