@@ -1,5 +1,5 @@
 /* eslint-env node */
-require('babel-polyfill')
+require('@babel/polyfill')
 
 const DojoWebpackPlugin = require("dojo-webpack-plugin")
 const CopyWebpackPlugin = require("copy-webpack-plugin")
@@ -9,6 +9,8 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 const path = require("path")
 const glob = require('glob')
 const webpack = require("webpack")
+
+
 
 // if JBROWSE_BUILD_MIN env var is 1 or true, then we also minimize the JS
 // and forego generating source maps
@@ -56,17 +58,18 @@ var webpackConf = {
         ),
     ],
     module: {
+        // the order of these rules does matter
         rules: [
             {
                 test: /\.js$/,
-                exclude: /node_modules\/(?!(quick-lru|@gmod\/cram|@gmod\/bam|@gmod\/indexedfasta|@gmod\/tabix|@gmod\/tribble-index|@gmod\/binary-parser|@gmod\/bgzf-filehandle))/,
+                exclude: /node_modules\/(?!quick-lru)/,
                 use: {
-                  loader: 'babel-loader',
-                  options: {
-                    presets: ['es2015-without-strict'],
-                    plugins: ['transform-async-to-generator','transform-es2015-classes'],
-                    cacheDirectory: true
-                  }
+                    loader: 'babel-loader',
+                    options: {
+                        sourceType: 'unambiguous', // this bypasses some things with using module.exports and export es6
+                        presets: ['@babel/preset-env'],
+                        //plugins: ['@babel/plugin-transform-runtime']
+                    }
                 }
             },
             {
@@ -111,6 +114,7 @@ if (DEBUG) {
     webpackConf.mode = 'development'
     webpackConf.entry.run_jasmine = 'tests/js_tests/main.js'
     webpackConf.plugins.push( new webpack.optimize.AggressiveMergingPlugin() )
+
 } else {
     webpackConf.mode = 'production'
     webpackConf.plugins.push( new UglifyJsPlugin())

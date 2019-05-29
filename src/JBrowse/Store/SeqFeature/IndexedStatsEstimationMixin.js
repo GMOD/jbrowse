@@ -14,9 +14,12 @@ return declare( GlobalStats, {
      * estimate the feature density of the store.
      * @private
      */
-    async _estimateGlobalStats(refseq) {
-        refseq = refseq || this.refSeq
+    _estimateGlobalStats: async function _estimateGlobalStats(query) {
+        const refseq = query || this.refSeq || {}
         let featCount
+        if(!refseq.name || !refseq.name.length) {
+            featCount = -1
+        }
         if (this.indexedData) {
             featCount = await this.indexedData.lineCount(this.browser.regularizeReferenceName(refseq.name))
         } else if (this.bam) {
@@ -25,7 +28,7 @@ return declare( GlobalStats, {
             featCount = await this.bam.index.lineCount(chrId, true)
         }
         if (featCount == -1) {
-            return this.inherited('_estimateGlobalStats', arguments)
+            return this.inherited(_estimateGlobalStats, arguments)
         }
         const correctionFactor = (this.getConf('topLevelFeaturesPercent') || 100) / 100
         const featureDensity = featCount / (refseq.end - refseq.start) * correctionFactor

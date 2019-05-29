@@ -81,10 +81,10 @@ return declare( ExportBase,
         return this._gff3_reserved_attributes_by_lcname[ fieldname.toLowerCase() ];
     },
 
-    exportRegion(region, callback) {
+    exportRegion: function exportRegion(region, callback) {
         this.print( "##gff-version 3\n");
         this.print( `##sequence-region ${region.ref} ${region.start+1} ${region.end}\n` );
-        this.inherited(arguments)
+        this.inherited(exportRegion, arguments)
     },
 
     /**
