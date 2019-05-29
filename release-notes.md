@@ -5,6 +5,9 @@
  * Add better error reporting if there is a BAI file for a genome that
    is longer than 2^29 and requires a CSI index
 
+ * Add default dontRedispatch=chromosome,region which avoids long
+   GFF3Tabix redispatching for common gff3 types that don't need it.
+
 ## Bug fixes
 
  * Fixed a long standing issue with BigWig files not accessing the
@@ -18,6 +21,10 @@
  * Fixed a bug with name regularizing that particularly affected CRAM
    on mitochondrial chromosomes. Thanks to @sachalau for patience and
    sample data for debugging this issue! (issue #1367, @cmdcolin)
+
+ * Fixed issue with GFF3/Tabix types colliding their attribute names
+   with the field e.g. if start=0 was in column 9. Thanks to
+   @loraine-gueguen for reporting.
 
 # Release 1.16.4     2019-04-10 16:58:02 UTC
 
