@@ -187,8 +187,10 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats, GlobalStatsEs
         delete f.attributes;
         f.start -= 1; // convert to interbase
         f.strand = {'+': 1, '-': -1, '.': 0, '?': undefined }[data.strand];
+        const defaultFields = ['start','end','seq_id','score','type','source','phase','strand'];
         for (var a in data.attributes) {
             let b = a.toLowerCase();
+            if(defaultFields.includes(b)) b += '2'//reproduce behavior of NCList
             f[b] = data.attributes[a]
             if(f[b].length == 1) f[b] = f[b][0]
         }
