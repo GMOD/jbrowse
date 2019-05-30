@@ -211,6 +211,7 @@ Also also note: Your mouseover will crash if your features do not have an ID or 
 
 Feature tracks can be configured to display a context menu of options when a user right-clicks a feature item. Here is an example of a track configured with a multi-level right-click context menu:
 
+
      {
         "feature" : [
            "match"
@@ -339,6 +340,7 @@ Or a structure containing options like:
            "url" : "http://www.ncbi.nlm.nih.gov/gquery/?term={name}",
            "label" : "Search for {name} at NCBI",
            "title" : "function(track,feature,div) { return 'Searching for '+feature.get('name')+' at NCBI'; }"
+           // optional: "hideIframeDialogUrl": true
         }
 
 The available options for a click action are:
@@ -346,7 +348,7 @@ The available options for a click action are:
 - iconClass: Used only for click actions in context menus. Usually, you will want to specify one of the Dijit icon classes here. Although they are not well documented, a list of available icon classes can be seen at <https://github.com/dojo/dijit/blob/1.7.2/icons/commonIcons.css>.
 - action: Either a JavaScript function to run in response to the click (e.g. "function(){..}"), or one of the following special strings:
 
--   "iframeDialog" - the default - causes the given **url** to be opened in a popup dialog box within JBrowse, in an `iframe` element.
+-   "iframeDialog" - the default - causes the given **url** to be opened in a popup dialog box within JBrowse, in an `iframe` element. special note: setting the track config `hideIframeDialogUrl` hides the URL link in the dialog title
 -   "newWindow" - causes the given **url** to be opened in a new browser window.
 -   "navigateTo" - added in JBrowse 1.10.8, opens the given **url** in the same browser window, navigating the user away from JBrowse.
 -   "contentDialog" - causes the JavaScript string or callback set in the **content** option to be displayed in the dialog box.

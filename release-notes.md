@@ -2,11 +2,14 @@
 
 ## Minor improvements
 
- * Add better error reporting if there is a BAI file for a genome that
+ * Added better error reporting if there is a BAI file for a genome that
    is longer than 2^29 and requires a CSI index
 
- * Add default dontRedispatch=chromosome,region which avoids long
+ * Added default dontRedispatch=chromosome,region which avoids long
    GFF3Tabix redispatching for common gff3 types that don't need it.
+
+ * Added a `hideIframeDialogUrl` option to hide the iframe url in a
+   `iframeDialog` popup. Thanks to @mictadlo for the suggestion.
 
 ## Bug fixes
 

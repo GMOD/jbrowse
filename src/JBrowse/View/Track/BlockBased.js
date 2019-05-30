@@ -1020,6 +1020,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
 
     _openDialog: function( spec, evt, context ) {
         context = context || {};
+        console.log(spec,evt,context)
         var type = spec.action;
         type = type.replace(/Dialog/,'');
         var featureName = context.feature && (context.feature.get('name')||context.feature.get('id'));
@@ -1083,7 +1084,8 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
                 });
 
             dialog.set( 'content', iframe );
-            dojo.create( 'a', {
+            if(!spec.hideIframeDialogUrl) {
+                dojo.create( 'a', {
                              href: spec.url,
                              target: '_blank',
                              className: 'dialog-new-window',
@@ -1091,6 +1093,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
                              onclick: dojo.hitch(dialog,'hide'),
                              innerHTML: spec.url
                          }, dialog.titleBar );
+            }
             var updateIframeSize = function() {
                 // hitch a ride on the dialog box's
                 // layout function, which is called on
