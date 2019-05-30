@@ -9,7 +9,8 @@
    GFF3Tabix redispatching for common gff3 types that don't need it.
 
  * Added a `hideIframeDialogUrl` option to hide the iframe url in a
-   `iframeDialog` popup. Thanks to @mictadlo for the suggestion.
+   `iframeDialog` popup. Thanks to @mictadlo for the suggestion (issue
+   #1365)
 
 ## Bug fixes
 
@@ -27,7 +28,10 @@
 
  * Fixed issue with GFF3/Tabix types colliding their attribute names
    with the field e.g. if start=0 was in column 9. Thanks to
-   @loraine-gueguen for reporting.
+   @loraine-gueguen for reporting (issue #1364).
+
+ * Fixed an issue with NeatHTMLFeatures when zoomed out. Thanks to
+   @abretaud for the implementation and fix (pull #1368).
 
 # Release 1.16.4     2019-04-10 16:58:02 UTC
 
