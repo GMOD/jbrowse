@@ -24,7 +24,6 @@ env:
         - GECKODRIVER_VERSION=0.19.1
 before_install:
   - sudo dpkg --add-architecture i386
-  - sudo apt-get -qq update
   - sudo apt-get install wine1.6 # this is for building windows electron images
 install:
 - mkdir ~/geckodriver_$GECKODRIVER_VERSION;
