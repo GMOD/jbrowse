@@ -715,7 +715,7 @@ wheelScroll: function( event ) {
     }, 100));
 
     // allow event to bubble out of iframe for example
-    if(didScroll) dojo.stopEvent(event);
+    if(didScroll || this.config.alwaysStopScrollBubble) dojo.stopEvent(event);
 },
 
 getX: function() {
