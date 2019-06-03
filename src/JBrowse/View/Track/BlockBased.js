@@ -1020,7 +1020,6 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
 
     _openDialog: function( spec, evt, context ) {
         context = context || {};
-        console.log(spec,evt,context)
         var type = spec.action;
         type = type.replace(/Dialog/,'');
         var featureName = context.feature && (context.feature.get('name')||context.feature.get('id'));

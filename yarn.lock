@@ -113,6 +113,13 @@
   dependencies:
     regenerator-runtime "^0.13.2"
 
+"@babel/runtime@^7.4.3":
+  version "7.4.5"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.4.5.tgz#582bb531f5f9dc67d2fcb682979894f75e253f12"
+  integrity sha512-TuI4qpWZP6lGOGIuGWtp9sPluqYICmbk8T/1vpSysqJxRPkudh/ofFWyqdcMsDf2s7KvDL4/YHgKyvcS3g9CJQ==
+  dependencies:
+    regenerator-runtime "^0.13.2"
+
 "@babel/template@7.0.0-beta.44":
   version "7.0.0-beta.44"
   resolved "https://registry.yarnpkg.com/@babel/template/-/template-7.0.0-beta.44.tgz#f8832f4fdcee5d59bf515e595fc5106c529b394f"
@@ -230,13 +237,14 @@
     "@gmod/bgzf-filehandle" "^1.2.2"
     es6-promisify "^6.0.1"
 
-"@gmod/tabix@^1.1.5":
-  version "1.1.5"
-  resolved "https://registry.yarnpkg.com/@gmod/tabix/-/tabix-1.1.5.tgz#1af802971b43140d0f57a520a1a5e0a8f2d884a2"
-  integrity sha512-2ZjPUy2I0b06aBuABIMq5u8sFtG6VRqgELZHdYuFlzgXzBkINtyOPZzs16FnWRr+KKDImXtGeAgLRSGN8VO5Wg==
+"@gmod/tabix@^1.1.7":
+  version "1.1.7"
+  resolved "https://registry.yarnpkg.com/@gmod/tabix/-/tabix-1.1.7.tgz#c62531285a2d21ba3a017a1ea44ac48705302619"
+  integrity sha512-Xm1wYWHK6PBAXqTUi+nZf1e1d0Bax6HgAXSYb+kkNdBzmsbfKB/nncuSMqLTlKku8Gecg6bEXWwUAWkS9QlYZA==
   dependencies:
     "@babel/runtime-corejs2" "^7.3.1"
     es6-promisify "^6.0.1"
+    generic-filehandle "^1.0.9"
     long "^4.0.0"
     pako "1.0.10"
     quick-lru "^2.0.0"
@@ -3234,6 +3242,11 @@ file-entry-cache@^2.0.0:
     flat-cache "^1.2.1"
     object-assign "^4.0.1"
 
+file-uri-to-path@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/file-uri-to-path/-/file-uri-to-path-1.0.0.tgz#553a7b8446ff6f684359c445f1e37a05dacc33dd"
+  integrity sha512-0Zt+s3L7Vf1biwWZ29aARiVYLx7iMGnEUl9x33fbB/j3jR81u/O2LbqK+Bm1CDSNDKVtJ/YjwY7TUd5SkeLQLw==
+
 filename-regex@^2.0.0:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/filename-regex/-/filename-regex-2.0.1.tgz#c1c4b9bee3e09725ddb106b75c1e301fe2f18b26"
@@ -3511,6 +3524,15 @@ gaze@^1.0.0, gaze@~1.1.2:
   resolved "https://registry.yarnpkg.com/gaze/-/gaze-1.1.3.tgz#c441733e13b927ac8c0ff0b4c3b033f28812924a"
   dependencies:
     globule "^1.0.0"
+
+generic-filehandle@^1.0.9:
+  version "1.0.9"
+  resolved "https://registry.yarnpkg.com/generic-filehandle/-/generic-filehandle-1.0.9.tgz#2a67e5cdb6ffa7727d76f135e56b0d4913a06ddd"
+  integrity sha512-1uZb20DQkyO6baZTwCHVOKb5eypuzQyvgAQkfVU42AM6lYLaNpg90EVdFh0j3RoIEE3dM7HsvROc12KAiTX1PQ==
+  dependencies:
+    "@babel/runtime" "^7.4.3"
+    es6-promisify "^6.0.1"
+    file-uri-to-path "^1.0.0"
 
 get-caller-file@^1.0.1:
   version "1.0.3"
