@@ -1,4 +1,4 @@
-module.exports = function(userConfig, defaultConfig, global, window) { this.loaderVersion = "1.14.2"; (function(
+module.exports = function(userConfig, defaultConfig, global, window) { this.loaderVersion = "1.15.0"; (function(
 	userConfig,
 	defaultConfig
 ){
