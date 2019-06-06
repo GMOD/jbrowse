@@ -12,6 +12,9 @@
    `iframeDialog` popup. Thanks to @mictadlo for the suggestion (issue
    #1365)
 
+ * Updated @gmod/tabix to enable more progressive streaming of
+   chunk results
+
 ## Bug fixes
 
  * Fixed a long standing issue with BigWig files not accessing the
@@ -32,6 +35,9 @@
 
  * Fixed an issue with NeatHTMLFeatures when zoomed out. Thanks to
    @abretaud for the implementation and fix (pull #1368).
+
+ * Restore ability to access widest zoom level from bigwig. Thanks
+   to @lukaw3d for noticing and debugging (issue #1375, @cmdcolin)
 
 # Release 1.16.4     2019-04-10 16:58:02 UTC
 
