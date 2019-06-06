@@ -157,23 +157,22 @@
   dependencies:
     arrify "^1.0.1"
 
-"@gmod/bam@^1.0.15":
-  version "1.0.19"
-  resolved "https://registry.yarnpkg.com/@gmod/bam/-/bam-1.0.19.tgz#f3f0f34c11804ea7cb25611d6e8f8f4f7e806300"
-  integrity sha512-uLlbkSnGEqnuf+IhO63fMq4hvtOt+58q/r3Tr0B3oF3AI3SDjAufyfJ/aNS6X4VkwL4JhStVJKB75BXSoHGxig==
+"@gmod/bam@^1.0.20":
+  version "1.0.20"
+  resolved "https://registry.yarnpkg.com/@gmod/bam/-/bam-1.0.20.tgz#484cd6b79a817b21991a7b2e0eecd56e42c43653"
+  integrity sha512-Cv08tX3EMK9HclKRFUva7Vd78rZOscJ5c9EuR8etD5eAG7kyj2GRgZGWLdvX6cIt80u4INT3NDHJkRql5ALzeQ==
   dependencies:
     "@babel/runtime" "^7.4.3"
-    "@gmod/bgzf-filehandle" "^1.2.3"
     abortable-promise-cache "^1.0.1"
-    buffer-crc32 "^0.2.13"
     cross-fetch "^3.0.2"
     es6-promisify "^6.0.1"
-    generic-filehandle "^1.0.9"
+    generic-filehandle "^2.0.0"
     long "^4.0.0"
     object.entries-ponyfill "^1.0.1"
+    pako "^1.0.10"
     quick-lru "^2.0.0"
 
-"@gmod/bgzf-filehandle@^1.2.3", "@gmod/bgzf-filehandle@^1.2.4":
+"@gmod/bgzf-filehandle@^1.2.4":
   version "1.2.4"
   resolved "https://registry.yarnpkg.com/@gmod/bgzf-filehandle/-/bgzf-filehandle-1.2.4.tgz#4f17c52c00eac00694e63997854a411e8fb9a4d8"
   integrity sha512-DkhZl0kaquywX7bvd7CYGQqegzynXMeaVOL3JuK55tSgved3Hb5JMnD5W+2LPkbvpxgEa0l9SvPzoOM7+C1Ahg==
@@ -3894,15 +3893,6 @@ gaze@^1.0.0, gaze@~1.1.2:
   integrity sha512-BRdNm8hbWzFzWHERTrejLqwHDfS4GibPoq5wjTPIoJHoBtKGPg3xAFfxmM+9ztbXelxcf2hwQcaz1PtmFeue8g==
   dependencies:
     globule "^1.0.0"
-
-generic-filehandle@^1.0.9:
-  version "1.0.9"
-  resolved "https://registry.yarnpkg.com/generic-filehandle/-/generic-filehandle-1.0.9.tgz#2a67e5cdb6ffa7727d76f135e56b0d4913a06ddd"
-  integrity sha512-1uZb20DQkyO6baZTwCHVOKb5eypuzQyvgAQkfVU42AM6lYLaNpg90EVdFh0j3RoIEE3dM7HsvROc12KAiTX1PQ==
-  dependencies:
-    "@babel/runtime" "^7.4.3"
-    es6-promisify "^6.0.1"
-    file-uri-to-path "^1.0.0"
 
 generic-filehandle@^2.0.0:
   version "2.0.0"

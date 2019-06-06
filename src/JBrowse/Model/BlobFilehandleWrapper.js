@@ -11,7 +11,7 @@ class BlobFilehandleWrapper {
     async read(buffer, offset = 0, length, position) {
         const data = await this.blob.readBufferPromise(position, length)
         data.copy(buffer, offset)
-        return data.length
+        return {bytesRead: data.length, buffer}
     }
 
     async readFile() {
