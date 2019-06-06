@@ -15,6 +15,10 @@
  * Updated @gmod/tabix to enable more progressive streaming of
    chunk results
 
+ * Add regularization of chromosome names using roman numerals,
+   common in both S. cerevisiae and C. elegans genome communities.
+   Thanks to @scottcain for assistance (pull #1376, @cmdcolin)
+
 ## Bug fixes
 
  * Fixed a long standing issue with BigWig files not accessing the
