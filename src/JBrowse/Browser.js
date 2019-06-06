@@ -742,7 +742,8 @@ regularizeReferenceName: function( refname ) {
                      .replace(/^scaff?o?l?d?/,'scaffold')
                      .replace(/^([a-z]*)0+/,'$1')
                      .replace(/^(\d+|x|y)$/, 'chr$1' )
-                     .replace(/^mt$/, 'chrm');
+                     .replace(/^(x?)(ix|iv|v?i{0,3})$/, 'chr$1$2' )
+                     .replace(/^mt?$/, 'chrm');
 
     return refname;
 },
