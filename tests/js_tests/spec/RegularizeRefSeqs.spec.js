@@ -58,7 +58,8 @@ describe( 'centralized ref seq name regularization', function() {
         [ 'XIV', 'chrxiv' ] ,
         [ 'XV', 'chrxv' ] ,
         [ 'XVI', 'chrxvi' ] ,
-        [ 'mt', 'chrm' ]
+        [ 'mt', 'chrm' ],
+        [ 'M', 'chrm' ]
     ];
 
 
