@@ -91,8 +91,8 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
     },
 
     _load: function() {
-        var thisB = this;
-        this._read( 0, 2000, lang.hitch( this, function( bytes ) {
+        this._read( 0, 2000, async ( bytes ) => {
+            const res = await this.data.statPromise()
             if( ! bytes ) {
                 this._failAllDeferred( 'BBI header not readable' );
                 return;
@@ -114,7 +114,7 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
             }
             this.type = magic == this.BIG_BED_MAGIC ? 'bigbed' : 'bigwig';
 
-            this.fileSize = bytes.fileSize;
+            this.fileSize = (res||{}).size
             if( ! this.fileSize )
                 console.warn("cannot get size of BigWig/BigBed file, widest zoom level not available");
 
@@ -187,7 +187,7 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
                 },
                 lang.hitch( this, '_failAllDeferred' )
             );
-        }),
+        },
         lang.hitch( this, '_failAllDeferred' )
        );
     },
