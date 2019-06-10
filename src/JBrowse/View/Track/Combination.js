@@ -149,9 +149,17 @@ constructor: function( args ) {
             "JBrowse/View/Track/HTMLFeatures": "set",
             "JBrowse/View/Track/HTMLVariants": "set",
             "JBrowse/View/Track/CanvasFeatures": "set",
+            "JBrowse/View/Track/CanvasVariants": "set",
+            "CanvasFeatures": "set",
+            "HTMLFeatures": "set",
+            "HTMLVariants": "set",
+            "CanvasVariants": "set",
+            "NeatCanvasFeatures/View/Track/NeatFeatures": "set",
+            "NeatHTMLFeatures/View/Track/NeatFeatures": "set",
             "JBrowse/View/Track/Alignments2": "BAM",
             "JBrowse/View/Track/SNPCoverage": "BAM",
             "JBrowse/Store/BigWig": "quantitative",
+            "JBrowse/Store/SeqFeature/BigWig": "quantitative",
             "JBrowse/Store/SeqFeature/BAM": "BAM",
             "JBrowse/Store/SeqFeature/BAMCombination": "BAM",
             "JBrowse/Store/SeqFeature/Combination": "set",
@@ -289,11 +297,11 @@ _attachDndEvents: function() {
 
        // Additional logic to disqualify bad tracks - if one node is unacceptable, the whole group is disqualified
        for(var i = 0; accept && nodes[i]; i++) {
-       var trackConfig = source.getItem(nodes[i].id).data;
-       accept = accept && (trackConfig.resultsTrack || thisB.supportedBy[trackConfig.storeClass] || thisB.supportedBy[trackConfig.type]);
+           var trackConfig = source.getItem(nodes[i].id).data;
+           accept = accept && (trackConfig.resultsTrack || thisB.supportedBy[trackConfig.storeClass] || thisB.supportedBy[trackConfig.type]);
        }
 
-     return accept;
+       return accept;
      };
 },
 
