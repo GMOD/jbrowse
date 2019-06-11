@@ -1,4 +1,13 @@
-define( ['dojo/_base/declare','JBrowse/Util'], function( declare, Util ) {
+define([
+    'dojo/_base/declare',
+    'dojo/request',
+    'JBrowse/Util'
+],
+function(
+    declare,
+    request,
+    Util
+) {
 return declare('JBrowse.Store.LazyTrie', null,
 /**
  * @lends JBrowse.Store.LazyTrie.prototype
@@ -63,24 +72,22 @@ return declare('JBrowse.Store.LazyTrie', null,
         this.chunkTempl = chunkTempl;
         var trie = this;
 
-        dojo.xhrGet({url: rootURL,
-                     handleAs: "json",
-                     load: function(o) {
-                         if (!o) {
-                             console.log("failed to load trie");
-                             return;
-                         }
-                         trie.root = o;
-                         trie.extra = o[0];
-                         if (trie.deferred) {
-                             trie.deferred.callee.apply(trie, trie.deferred);
-                             delete trie.deferred;
-                         }
-                     },
-                     error: error => {
-                         this.error = error;
-                     }
-                    });
+        request(rootURL, {handleAs: "json"}).then(function(o) {
+            if (!o) {
+                console.log("failed to load trie");
+                return;
+            }
+            trie.root = o;
+            trie.extra = o[0];
+            if (trie.deferred) {
+                trie.deferred.callee.apply(trie, trie.deferred);
+                delete trie.deferred;
+            }
+        },
+        error => {
+            console.log('No name store configuration found and requesting the default root.json not found. Likely you have not run generate-names.pl yet. This is not essential for running JBrowse but will remove this message if it is run')
+            this.error = error;
+        })
     },
 
     chunkUrl: function(prefix) {
