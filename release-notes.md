@@ -45,6 +45,10 @@
  * Restore ability to access widest zoom level from bigwig. Thanks
    to @lukaw3d for noticing and debugging (issue #1375, @cmdcolin)
 
+ * Fix some minor parsing of 'b' type data series in CRAM files,
+   which happens when CRAM is not using reference based compression
+   so it is uncommon (@cmdcolin)
+
 # Release 1.16.4     2019-04-10 16:58:02 UTC
 
 ## Minor improvements
