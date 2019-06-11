@@ -12,8 +12,10 @@
    `iframeDialog` popup. Thanks to @mictadlo for the suggestion (issue
    #1365)
 
- * Updated @gmod/tabix to enable more progressive streaming of
-   chunk results
+ * Updated @gmod/tabix and @gmod/bam to unzip bgzf chunks as they are
+   received instead of performing chunk merges. This also allows
+   actual fileOffset to be used instead of CRC32 hash of the line
+   (@cmdcolin)
 
  * Add regularization of chromosome names using roman numerals,
    common in both S. cerevisiae and C. elegans genome communities.
