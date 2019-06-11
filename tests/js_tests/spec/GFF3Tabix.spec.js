@@ -64,7 +64,7 @@ describe( 'GFF3 tabix store', function() {
                             "id": "EDEN",
                             "name": "EDEN",
                             "note": "protein kinase",
-                            "uniqueID": "offset-167615281",
+                            "uniqueID": "offset-873",
                             "subfeatures": [
                                 {
                                     "data": {
@@ -81,7 +81,7 @@ describe( 'GFF3 tabix store', function() {
                                         "name": "EDEN.1",
                                         "note": "Eden splice form 1",
                                         "index": "1",
-                                        "uniqueID": "offset-2318828125",
+                                        "uniqueID": "offset-945",
                                         "subfeatures": [
                                             {
                                                 "data": {
@@ -94,9 +94,9 @@ describe( 'GFF3 tabix store', function() {
                                                     "strand": 1,
                                                     "phase": null,
                                                     "parent": "EDEN.1",
-                                                    "uniqueID": "offset-3270127361"
+                                                    "uniqueID": "offset-1145"
                                                 },
-                                                "_uniqueID": "offset-3270127361"
+                                                "_uniqueID": "offset-1145"
                                             },
                                             {
                                                 "data": {
@@ -109,9 +109,9 @@ describe( 'GFF3 tabix store', function() {
                                                     "strand": 1,
                                                     "phase": "0",
                                                     "parent": "EDEN.1",
-                                                    "uniqueID": "offset-4012716000"
+                                                    "uniqueID": "offset-1584"
                                                 },
-                                                "_uniqueID": "offset-4012716000"
+                                                "_uniqueID": "offset-1584"
                                             },
                                             {
                                                 "data": {
@@ -124,9 +124,9 @@ describe( 'GFF3 tabix store', function() {
                                                     "strand": 1,
                                                     "phase": "0",
                                                     "parent": "EDEN.1",
-                                                    "uniqueID": "offset-4031704770"
+                                                    "uniqueID": "offset-2148"
                                                 },
-                                                "_uniqueID": "offset-4031704770"
+                                                "_uniqueID": "offset-2148"
                                             },
                                             {
                                                 "data": {
@@ -139,9 +139,9 @@ describe( 'GFF3 tabix store', function() {
                                                     "strand": 1,
                                                     "phase": "0",
                                                     "parent": "EDEN.1",
-                                                    "uniqueID": "offset-892571587"
+                                                    "uniqueID": "offset-2627"
                                                 },
-                                                "_uniqueID": "offset-892571587"
+                                                "_uniqueID": "offset-2627"
                                             },
                                             {
                                                 "data": {
@@ -154,9 +154,9 @@ describe( 'GFF3 tabix store', function() {
                                                     "strand": 1,
                                                     "phase": "0",
                                                     "parent": "EDEN.1",
-                                                    "uniqueID": "offset-2031141327"
+                                                    "uniqueID": "offset-3432"
                                                 },
-                                                "_uniqueID": "offset-2031141327"
+                                                "_uniqueID": "offset-3432"
                                             },
                                             {
                                                 "data": {
@@ -169,13 +169,13 @@ describe( 'GFF3 tabix store', function() {
                                                     "strand": 1,
                                                     "phase": null,
                                                     "parent": "EDEN.1",
-                                                    "uniqueID": "offset-2724921247"
+                                                    "uniqueID": "offset-3758"
                                                 },
-                                                "_uniqueID": "offset-2724921247"
+                                                "_uniqueID": "offset-3758"
                                             }
                                         ]
                                     },
-                                    "_uniqueID": "offset-2318828125"
+                                    "_uniqueID": "offset-945"
                                 },
                                 {
                                     "data": {
@@ -192,7 +192,7 @@ describe( 'GFF3 tabix store', function() {
                                         "name": "EDEN.2",
                                         "note": "Eden splice form 2",
                                         "index": "1",
-                                        "uniqueID": "offset-3243473185",
+                                        "uniqueID": "offset-1045",
                                         "subfeatures": [
                                             {
                                                 "data": {
@@ -205,9 +205,9 @@ describe( 'GFF3 tabix store', function() {
                                                     "strand": 1,
                                                     "phase": null,
                                                     "parent": "EDEN.2",
-                                                    "uniqueID": "offset-1541635771"
+                                                    "uniqueID": "offset-1203"
                                                 },
-                                                "_uniqueID": "offset-1541635771"
+                                                "_uniqueID": "offset-1203"
                                             },
                                             {
                                                 "data": {
@@ -220,9 +220,9 @@ describe( 'GFF3 tabix store', function() {
                                                     "strand": 1,
                                                     "phase": "0",
                                                     "parent": "EDEN.2",
-                                                    "uniqueID": "offset-1982103130"
+                                                    "uniqueID": "offset-1631"
                                                 },
-                                                "_uniqueID": "offset-1982103130"
+                                                "_uniqueID": "offset-1631"
                                             },
                                             {
                                                 "data": {
@@ -235,9 +235,9 @@ describe( 'GFF3 tabix store', function() {
                                                     "strand": 1,
                                                     "phase": "0",
                                                     "parent": "EDEN.2",
-                                                    "uniqueID": "offset-2889539193"
+                                                    "uniqueID": "offset-2674"
                                                 },
-                                                "_uniqueID": "offset-2889539193"
+                                                "_uniqueID": "offset-2674"
                                             },
                                             {
                                                 "data": {
@@ -250,9 +250,9 @@ describe( 'GFF3 tabix store', function() {
                                                     "strand": 1,
                                                     "phase": "0",
                                                     "parent": "EDEN.2",
-                                                    "uniqueID": "offset-3759771765"
+                                                    "uniqueID": "offset-3479"
                                                 },
-                                                "_uniqueID": "offset-3759771765"
+                                                "_uniqueID": "offset-3479"
                                             },
                                             {
                                                 "data": {
@@ -265,13 +265,13 @@ describe( 'GFF3 tabix store', function() {
                                                     "strand": 1,
                                                     "phase": null,
                                                     "parent": "EDEN.2",
-                                                    "uniqueID": "offset-996388389"
+                                                    "uniqueID": "offset-3817"
                                                 },
-                                                "_uniqueID": "offset-996388389"
+                                                "_uniqueID": "offset-3817"
                                             }
                                         ]
                                     },
-                                    "_uniqueID": "offset-3243473185"
+                                    "_uniqueID": "offset-1045"
                                 },
                                 {
                                     "data": {
@@ -288,7 +288,7 @@ describe( 'GFF3 tabix store', function() {
                                         "name": "EDEN.3",
                                         "note": "Eden splice form 3",
                                         "index": "1",
-                                        "uniqueID": "offset-1668623262",
+                                        "uniqueID": "offset-1678",
                                         "subfeatures": [
                                             {
                                                 "data": {
@@ -301,9 +301,9 @@ describe( 'GFF3 tabix store', function() {
                                                     "strand": 1,
                                                     "phase": null,
                                                     "parent": "EDEN.3",
-                                                    "uniqueID": "offset-1464770976"
+                                                    "uniqueID": "offset-1778"
                                                 },
-                                                "_uniqueID": "offset-1464770976"
+                                                "_uniqueID": "offset-1778"
                                             },
                                             {
                                                 "data": {
@@ -316,9 +316,9 @@ describe( 'GFF3 tabix store', function() {
                                                     "strand": 1,
                                                     "phase": null,
                                                     "parent": "EDEN.3",
-                                                    "uniqueID": "offset-2809047738"
+                                                    "uniqueID": "offset-2195"
                                                 },
-                                                "_uniqueID": "offset-2809047738"
+                                                "_uniqueID": "offset-2195"
                                             },
                                             {
                                                 "data": {
@@ -331,9 +331,9 @@ describe( 'GFF3 tabix store', function() {
                                                     "strand": 1,
                                                     "phase": "0",
                                                     "parent": "EDEN.3",
-                                                    "uniqueID": "offset-4219678302"
+                                                    "uniqueID": "offset-2327"
                                                 },
-                                                "_uniqueID": "offset-4219678302"
+                                                "_uniqueID": "offset-2327"
                                             },
                                             {
                                                 "data": {
@@ -346,9 +346,9 @@ describe( 'GFF3 tabix store', function() {
                                                     "strand": 1,
                                                     "phase": "1",
                                                     "parent": "EDEN.3",
-                                                    "uniqueID": "offset-1657156871"
+                                                    "uniqueID": "offset-2721"
                                                 },
-                                                "_uniqueID": "offset-1657156871"
+                                                "_uniqueID": "offset-2721"
                                             },
                                             {
                                                 "data": {
@@ -361,9 +361,9 @@ describe( 'GFF3 tabix store', function() {
                                                     "strand": 1,
                                                     "phase": "1",
                                                     "parent": "EDEN.3",
-                                                    "uniqueID": "offset-186086013"
+                                                    "uniqueID": "offset-3385"
                                                 },
-                                                "_uniqueID": "offset-186086013"
+                                                "_uniqueID": "offset-3385"
                                             },
                                             {
                                                 "data": {
@@ -376,19 +376,20 @@ describe( 'GFF3 tabix store', function() {
                                                     "strand": 1,
                                                     "phase": null,
                                                     "parent": "EDEN.3",
-                                                    "uniqueID": "offset-424522511"
+                                                    "uniqueID": "offset-3699"
                                                 },
-                                                "_uniqueID": "offset-424522511"
+                                                "_uniqueID": "offset-3699"
                                             }
                                         ]
                                     },
-                                    "_uniqueID": "offset-1668623262"
+                                    "_uniqueID": "offset-1678"
                                 }
                             ]
                         },
                         "_uniqueID": "EDEN",
                         "_reg_seq_id": "ctga"
                     }
+
                 ))
 
                 expect( eden.children().length ).toEqual( 3 );
