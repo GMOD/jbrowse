@@ -13,11 +13,24 @@ To install from GitHub, you can simply clone the repo and run the setup.sh scrip
     cd jbrowse
     ./setup.sh
 
+## Note for users in China
 
-Then run `npm run start` http://localhost:8082/index.html?data=sample_data/json/volvox
- to see the code running from a small express.js server.
+It has been recommended to set these commands before running setup.sh for users in China
 
-You can alternatively just move this entire folder into a nginx or apache root directory e.g. /var/www/html and then navigate to http://localhost/jbrowse
+```
+npm config set registry http://r.cnpmjs.org
+npm config set puppeteer_download_host=http://cnpmjs.org/mirrors
+export ELECTRON_MIRROR="http://cnpmjs.org/mirrors/electron/"
+```
+
+
+## Notes on setting up a JBrowse server
+
+* If you don't have a webserver such as apache or nginx, you can run `npm run start` and open http://localhost:8082/index.html?data=sample_data/json/volvox to see the code running from a small express.js server.
+
+* You can alternatively just move the jbrowse folder into a nginx or apache root directory e.g. /var/www/html and then navigate to http://localhost/jbrowse
+
+
 
 *Note: you should avoid using sudo tasks like ./setup.sh and instead use chown/chmod on folders to your own user as necessary.*
 
