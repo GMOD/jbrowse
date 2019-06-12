@@ -14,7 +14,7 @@
 
  * Updated @gmod/tabix and @gmod/bam to unzip bgzf chunks as they are
    received instead of performing chunk merges. This also allows
-   actual fileOffset to be used instead of CRC32 hash of the line
+   actual fileOffset to be used as a feature ID instead of CRC32 hash
    (@cmdcolin)
 
  * Added regularization of chromosome names using roman numerals,
