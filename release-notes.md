@@ -17,9 +17,15 @@
    actual fileOffset to be used instead of CRC32 hash of the line
    (@cmdcolin)
 
- * Add regularization of chromosome names using roman numerals,
+ * Added regularization of chromosome names using roman numerals,
    common in both S. cerevisiae and C. elegans genome communities.
    Thanks to @scottcain for assistance (pull #1376, @cmdcolin)
+
+ * Added ability for vertical scroll events to bubble out of the jbrowse
+   div or iframe, which can be more intuitive in embedded jbrowse's.
+   Otherwise, the GenomeView stopped all vertical scroll events in it's
+   area. If you need the old behavior use `alwaysStopScrollBubble`.
+   (@cmdcolin, pull #1373)
 
 ## Bug fixes
 
@@ -42,14 +48,14 @@
  * Fixed an issue with NeatHTMLFeatures when zoomed out. Thanks to
    @abretaud for the implementation and fix (pull #1368).
 
- * Restore ability to access widest zoom level from bigwig. Thanks
+ * Restored ability to access widest zoom level from bigwig. Thanks
    to @lukaw3d for noticing and debugging (issue #1375, @cmdcolin)
 
- * Fix some minor parsing of 'b' type data series in CRAM files,
+ * Fixed some minor parsing of 'b' type data series in CRAM files,
    which happens when CRAM is not using reference based compression
    so it is uncommon (@cmdcolin)
 
- * Add some more checks for track types for combination tracks (issue
+ * Added some more checks for track types for combination tracks (issue
    #1361)
 
 # Release 1.16.4     2019-04-10 16:58:02 UTC
