@@ -49,6 +49,9 @@
    which happens when CRAM is not using reference based compression
    so it is uncommon (@cmdcolin)
 
+ * Add some more checks for track types for combination tracks (issue
+   #1361)
+
 # Release 1.16.4     2019-04-10 16:58:02 UTC
 
 ## Minor improvements

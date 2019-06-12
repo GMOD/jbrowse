@@ -15,13 +15,11 @@ To install from GitHub, you can simply clone the repo and run the setup.sh scrip
 
 ## Note for users in China
 
-It has been recommended to set these commands before running setup.sh for users in China
+In order to make downloads faster you can set a mirror for the npm registry
 
-```
-npm config set registry http://r.cnpmjs.org
-npm config set puppeteer_download_host=http://cnpmjs.org/mirrors
-export ELECTRON_MIRROR="http://cnpmjs.org/mirrors/electron/"
-```
+    npm config set registry http://r.cnpmjs.org
+    npm config set puppeteer_download_host=http://cnpmjs.org/mirrors
+    export ELECTRON_MIRROR="http://cnpmjs.org/mirrors/electron/"
 
 
 ## Notes on setting up a JBrowse server

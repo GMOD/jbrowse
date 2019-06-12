@@ -51,6 +51,14 @@ you must download  the source code or use git clone of https://github.com/GMOD/j
 
 Note: use `npm run watch` to automatically pick up changes to the code that you make (need to restart if you add or remove files though)
 
+Also note: for users in China it has been recommended to set a mirror to npm when you use this alternative setup
+
+    npm config set registry http://r.cnpmjs.org
+    npm config set puppeteer_download_host=http://cnpmjs.org/mirrors
+    export ELECTRON_MIRROR="http://cnpmjs.org/mirrors/electron/"
+
+
+
 
 ## Congratulations
 
