@@ -95,6 +95,19 @@ deploy:
   secret_access_key: $AWS_SECRET_KEY
   bucket: "jbrowse.org"
   skip_cleanup: true
+  local-dir: JBrowse_$RELEASE_VERSION
+  upload-dir: code
+  cache_control: "max-age=1800"
+  on:
+#    repo: GMOD/jbrowse
+#    perl: 5.26
+#    tags: true
+    condition: $TRAVIS_COMMIT_MESSAGE =~ (\[test\]) # add this extra condition so that it basically corresponds with the real build published and not a test tag
+- provider: s3
+  access_key_id: $AWS_ACCESS_KEY
+  secret_access_key: $AWS_SECRET_KEY
+  bucket: "jbrowse.org"
+  skip_cleanup: true
   local-dir: website/build/jbrowse/
   cache_control: "max-age=1800"
   on:
