@@ -94,6 +94,6 @@
     "webpack": "^4.26.1",
     "webpack-cli": "^3.1.2",
     "whatwg-fetch": "^2.0.4",
-    "yarn": "^1.12.3"
+    "yarn": "^1.16.0"
   }
 }
