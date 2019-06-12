@@ -42,7 +42,7 @@ export ELECTRON_MIRROR="http://cnpmjs.org/mirrors/electron/"
 
 To install jbrowse from NPM directly, you can run.
 
-    npm install GMOD/jbrowse
+    npm install @gmod/jbrowse
 
 To setup a simple instance, you can use
 
