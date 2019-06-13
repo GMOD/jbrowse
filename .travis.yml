@@ -64,6 +64,9 @@ script:
   fi
 - set +e
 - website/build.sh
+# remove symlink and copy actual files to dir for upload to s3
+- rm JBrowse-$RELEASE_VERSION/sample_data/raw/volvox
+- cp -R docs/tutorial/data_files JBrowse-$RELEASE_VERSION/sample_data/raw/volvox
 after_failure:
 - cat setup.log
 before_cache:
@@ -90,6 +93,7 @@ deploy:
     repo: GMOD/jbrowse
     perl: 5.26
     tags: true
+# upload built jbrowse to s3 bucket for demo on main site
 - provider: s3
   access_key_id: $AWS_ACCESS_KEY
   secret_access_key: $AWS_SECRET_KEY
@@ -103,6 +107,7 @@ deploy:
     repo: GMOD/jbrowse
     perl: 5.26
     condition: $TRAVIS_COMMIT_MESSAGE =~ (\[update docs\]) # add this extra condition so that it basically corresponds with the real build published and not a test tag
+# upload the docusaurus website to the s3 bucket also
 - provider: s3
   access_key_id: $AWS_ACCESS_KEY
   secret_access_key: $AWS_SECRET_KEY
