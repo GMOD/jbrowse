@@ -3,18 +3,18 @@ define([
     'dojo/request',
     'JBrowse/Util'
 ],
-function(
+function (
     declare,
     request,
     Util
 ) {
-return declare('JBrowse.Store.LazyTrie', null,
-/**
+    return declare('JBrowse.Store.LazyTrie', null,
+        /**
  * @lends JBrowse.Store.LazyTrie.prototype
  */
-{
+        {
 
-    /**
+            /**
      * <pre>
      * Implements a lazy PATRICIA tree.
      *  This structure is a map where the keys are strings.  The map supports fast
@@ -67,221 +67,217 @@ return declare('JBrowse.Store.LazyTrie', null,
      *
      * @constructs
      */
-    constructor: function(rootURL, chunkTempl) {
-        this.rootURL = rootURL;
-        this.chunkTempl = chunkTempl;
-        var trie = this;
-
-        request(rootURL, {handleAs: "json"}).then(function(o) {
-            if (!o) {
-                console.log("failed to load trie");
-                return;
-            }
-            trie.root = o;
-            trie.extra = o[0];
-            if (trie.deferred) {
-                trie.deferred.callee.apply(trie, trie.deferred);
-                delete trie.deferred;
-            }
-        },
-        error => {
-            console.log('No name store configuration found and requesting the default root.json not found. Likely you have not run generate-names.pl yet. This is not essential for running JBrowse but will remove this message if it is run')
-            this.error = error;
-        })
-    },
-
-    chunkUrl: function(prefix) {
-        var chunkUrl = this.chunkTempl.replace("\{Chunk\}", prefix);
-        return Util.resolveUrl(this.rootURL, chunkUrl);
-    },
-
-    pathToPrefix: function(path) {
-        var node = this.root;
-        var result = "";
-        loop: for (var i = 0; i < path.length; i++) {
-            switch(typeof node[path[i]][0]) {
-            case 'string': // regular node
-                result += node[path[i]][0];
-                break;
-            case 'number': // lazy node
-                result += node[path[i]][1];
-                break loop;
-            }
-            node = node[path[i]];
-        }
-        return result;
-    },
-
-    valuesFromPrefix: function(query, callback) {
-        var trie = this;
-        this.findNode(query, function(prefix, node) {
-                          callback(trie.valuesFromNode(node));
-                      },
-                      function() {
-                          callback([]);
-                      }
-                     );
-    },
-
-    mappingsFromPrefix: function(query, callback) {
-        var trie = this;
-        this.findNode(query, function(prefix, node) {
-                          callback(trie.mappingsFromNode(prefix, node));
-                      },
-                      function() {
-                          callback([]);
-                      }
-                     );
-    },
-
-    mappingsFromNode: function(prefix, node) {
-        var results = [];
-        if (node[1] !== null)
-            results.push([prefix, node[1]]);
-        for (var i = 2; i < node.length; i++) {
-            if ("string" == typeof node[i][0]) {
-                results = results.concat(this.mappingsFromNode(prefix + node[i][0],
-                                                               node[i]));
-            }
-        }
-        return results;
-    },
-
-    valuesFromNode: function(node) {
-        var results = [];
-        if (node[1] !== null)
-            results.push(node[1]);
-        for (var i = 2; i < node.length; i++)
-            results = results.concat(this.valuesFromNode(node[i]));
-        return results;
-    },
-
-    exactMatch: function(key, callback, notfoundCallback ) {
-        notfoundCallback = notfoundCallback || function() {};
-        if (this.error) {
-            notfoundCallback()
-            return
-        }
-
-        var trie = this;
-        this.findNode(key,
-                      function(prefix, node) {
-                          if ((prefix.toLowerCase() == key.toLowerCase()) && node[1])
-                              callback(node[1]);
-                      },
-                      notfoundCallback
-                     );
-    },
-
-    findNode: function(query, foundCallback, notfoundCallback ) {
-        notfoundCallback = notfoundCallback || function() {};
-
-        if (this.error) {
-            notfoundCallback()
-            return
-        }
-
-        var trie = this;
-        this.findPath(query, function(path) {
-                          var node = trie.root;
-                          for (var i = 0; i < path.length; i++)
-                              node = node[path[i]];
-                          var foundPrefix = trie.pathToPrefix(path);
-                          foundCallback(foundPrefix, node);
-                      }, notfoundCallback);
-    },
-
-    findPath: function(query, foundCallback, notfoundCallback) {
-        if (this.error) {
-            notfoundCallback()
-            return
-        }
-
-        notfoundCallback = notfoundCallback || function() {};
-
-        if (!this.root) {
-            notfoundCallback()
-            return;
-        }
-        query = query.toLowerCase();
-        var node = this.root;
-        var qStart = 0;
-        var childIndex;
-
-        var path = [];
-
-        while(true) {
-            childIndex = this.binarySearch(node, query.charAt(qStart));
-            if (childIndex < 0) {
-                notfoundCallback();
-                return;
-            }
-            path.push(childIndex);
-
-            if ("number" == typeof node[childIndex][0]) {
-                // lazy node
+            constructor: function (rootURL, chunkTempl) {
+                this.rootURL = rootURL;
+                this.chunkTempl = chunkTempl;
                 var trie = this;
-                dojo.xhrGet({url: this.chunkUrl(this.pathToPrefix(path)),
-                             handleAs: "json",
-                             load: function(o) {
-                                 node[childIndex] = o;
-                                 trie.findPath(query, foundCallback);
-                             },
-                             error: err => { this.error = err }
-                            });
-                return;
-            }
 
-            node = node[childIndex];
+                request(rootURL, {handleAs: 'json'}).then(function (o) {
+                    if (!o) {
+                        console.log('failed to load trie');
+                        return;
+                    }
+                    trie.root = o;
+                    trie.extra = o[0];
+                    if (trie.deferred) {
+                        trie.deferred.callee.apply(trie, trie.deferred);
+                        delete trie.deferred;
+                    }
+                },
+                error => {
+                    console.log('No name store configuration found and requesting the default root.json not found. Likely you have not run generate-names.pl yet. This is not essential for running JBrowse but will remove this message if it is run');
+                    this.error = error;
+                });
+            },
 
-            // if the current edge string doesn't match the
-            // relevant part of the query string, then there's no
-            // match
-            if (query.substr(qStart, node[0].length)
+            chunkUrl: function (prefix) {
+                var chunkUrl = this.chunkTempl.replace('\{Chunk\}', prefix);
+                return Util.resolveUrl(this.rootURL, chunkUrl);
+            },
+
+            pathToPrefix: function (path) {
+                var node = this.root;
+                var result = '';
+                loop: for (var i = 0; i < path.length; i++) {
+                    switch (typeof node[path[i]][0]) {
+                    case 'string': // regular node
+                        result += node[path[i]][0];
+                        break;
+                    case 'number': // lazy node
+                        result += node[path[i]][1];
+                        break loop;
+                    }
+                    node = node[path[i]];
+                }
+                return result;
+            },
+
+            valuesFromPrefix: function (query, callback) {
+                var trie = this;
+                this.findNode(query, function (prefix, node) {
+                    callback(trie.valuesFromNode(node));
+                },
+                function () {
+                    callback([]);
+                }
+                );
+            },
+
+            mappingsFromPrefix: function (query, callback) {
+                var trie = this;
+                this.findNode(query, function (prefix, node) {
+                    callback(trie.mappingsFromNode(prefix, node));
+                },
+                function () {
+                    callback([]);
+                }
+                );
+            },
+
+            mappingsFromNode: function (prefix, node) {
+                var results = [];
+                if (node[1] !== null) {results.push([prefix, node[1]]);}
+                for (var i = 2; i < node.length; i++) {
+                    if (typeof node[i][0] === 'string') {
+                        results = results.concat(this.mappingsFromNode(prefix + node[i][0],
+                            node[i]));
+                    }
+                }
+                return results;
+            },
+
+            valuesFromNode: function (node) {
+                var results = [];
+                if (node[1] !== null) {results.push(node[1]);}
+                for (var i = 2; i < node.length; i++) {results = results.concat(this.valuesFromNode(node[i]));}
+                return results;
+            },
+
+            exactMatch: function (key, callback, notfoundCallback) {
+                notfoundCallback = notfoundCallback || function () {};
+                if (this.error) {
+                    notfoundCallback();
+                    return;
+                }
+
+                var trie = this;
+                this.findNode(key,
+                    function (prefix, node) {
+                        if ((prefix.toLowerCase() == key.toLowerCase()) && node[1]) {callback(node[1]);}
+                    },
+                    notfoundCallback
+                );
+            },
+
+            findNode: function (query, foundCallback, notfoundCallback) {
+                notfoundCallback = notfoundCallback || function () {};
+
+                if (this.error) {
+                    notfoundCallback();
+                    return;
+                }
+
+                var trie = this;
+                this.findPath(query, function (path) {
+                    var node = trie.root;
+                    for (var i = 0; i < path.length; i++) {node = node[path[i]];}
+                    var foundPrefix = trie.pathToPrefix(path);
+                    foundCallback(foundPrefix, node);
+                }, notfoundCallback);
+            },
+
+            findPath: function (query, foundCallback, notfoundCallback) {
+                if (this.error) {
+                    notfoundCallback();
+                    return;
+                }
+
+                notfoundCallback = notfoundCallback || function () {};
+
+                if (!this.root) {
+                    notfoundCallback();
+                    return;
+                }
+                query = query.toLowerCase();
+                var node = this.root;
+                var qStart = 0;
+                var childIndex;
+
+                var path = [];
+
+                while (true) {
+                    childIndex = this.binarySearch(node, query.charAt(qStart));
+                    if (childIndex < 0) {
+                        notfoundCallback();
+                        return;
+                    }
+                    path.push(childIndex);
+
+                    if (typeof node[childIndex][0] === 'number') {
+                        // lazy node
+                        var trie = this;
+                        dojo.xhrGet({url: this.chunkUrl(this.pathToPrefix(path)),
+                            handleAs: 'json',
+                            load: function (o) {
+                                node[childIndex] = o;
+                                trie.findPath(query, foundCallback);
+                            },
+                            error: err => { this.error = err; }
+                        });
+                        return;
+                    }
+
+                    node = node[childIndex];
+
+                    // if the current edge string doesn't match the
+                    // relevant part of the query string, then there's no
+                    // match
+                    if (query.substr(qStart, node[0].length)
                 != node[0].substr(0, Math.min(node[0].length,
-                                              query.length - qStart))) {
-                notfoundCallback();
-                return;
+                    query.length - qStart))) {
+                        notfoundCallback();
+                        return;
+                    }
+
+                    qStart += node[0].length;
+                    if (qStart >= query.length) {
+                        // we've reached the end of the query string, and we
+                        // have some matches
+                        foundCallback(path);
+                        return;
+                    }
+                }
+            },
+
+            binarySearch: function (a, firstChar) {
+                var low = 2; // skip edge string (in 0) and data item (in 1)
+                var high = a.length - 1;
+                var mid, midVal;
+                while (low <= high) {
+                    mid = (low + high) >>> 1;
+                    switch (typeof a[mid][0]) {
+                    case 'string': // regular node
+                        midVal = a[mid][0].charAt(0);
+                        break;
+                    case 'number': // lazy node
+                        midVal = a[mid][1].charAt(0);
+                        break;
+                    }
+
+                    if (midVal < firstChar) {
+                        low = mid + 1;
+                    } else if (midVal > firstChar) {
+                        high = mid - 1;
+                    } else {
+                        return mid; // key found
+                    }
+                }
+
+                return -(low + 1);  // key not found.
             }
 
-            qStart += node[0].length;
-            if (qStart >= query.length) {
-                // we've reached the end of the query string, and we
-                // have some matches
-                foundCallback(path);
-                return;
-            }
-        }
-    },
-
-    binarySearch: function(a, firstChar) {
-        var low = 2; // skip edge string (in 0) and data item (in 1)
-        var high = a.length - 1;
-        var mid, midVal;
-        while (low <= high) {
-            mid = (low + high) >>> 1;
-            switch(typeof a[mid][0]) {
-            case 'string': // regular node
-                midVal = a[mid][0].charAt(0);
-                break;
-            case 'number': // lazy node
-                midVal = a[mid][1].charAt(0);
-                break;
-            }
-
-            if (midVal < firstChar) {
-                low = mid + 1;
-            } else if (midVal > firstChar) {
-                high = mid - 1;
-            } else {
-                return mid; // key found
-            }
-        }
-
-        return -(low + 1);  // key not found.
-    }
-
-}); });
+        });
+});
 
 /*
 

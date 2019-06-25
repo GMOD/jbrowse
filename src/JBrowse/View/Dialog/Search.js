@@ -110,11 +110,11 @@ function (
                 }, 500);
             }));
         },
-        searchBoxProcess: function() {
+        searchBoxProcess: function () {
             var loc = this.searchBox.get('value');
             this.numResults.innerHTML = '';
             if (!this.exactCheckbox.checked) {
-                loc += "*";
+                loc += '*';
             }
             function handleError(error) {
                 console.error(error);
@@ -128,12 +128,12 @@ function (
                 var promises = nameMatches.map((match) => this.browser.nameStore.query({ name: match.name }));
                 Promise.all(promises).then((res) => {
                     var grid = [];
-                    for(var i = 0; i < res.length; i++) {
+                    for (var i = 0; i < res.length; i++) {
                         var elt = res[i];
-                        if(elt.length) {
+                        if (elt.length) {
                             elt = elt[0];
-                            if(elt.multipleLocations) {
-                                for(var j = 0; j < elt.multipleLocations.length; j++) {
+                            if (elt.multipleLocations) {
+                                for (var j = 0; j < elt.multipleLocations.length; j++) {
                                     var track = elt.multipleLocations[j].tracks.length ? elt.multipleLocations[j].tracks[0] : {};
                                     grid.push({
                                         locstring: Util.assembleLocString(elt.multipleLocations[j]),
@@ -144,7 +144,7 @@ function (
                                     });
                                 }
                             } else {
-                                var track = (elt.location.tracks||[]).length ? elt.location.tracks[0] : {};
+                                var track = (elt.location.tracks || []).length ? elt.location.tracks[0] : {};
                                 grid.push({
                                     locstring: Util.assembleLocString(elt.location),
                                     location: elt.location,
@@ -155,7 +155,7 @@ function (
                             }
                         }
                     }
-                    this.numResults.innerHTML = "Num. results: " + grid.length;
+                    this.numResults.innerHTML = 'Num. results: ' + grid.length;
                     var g = this.locationListView.grid;
                     (g.store || g.collection).setData(grid);
                     g.refresh();

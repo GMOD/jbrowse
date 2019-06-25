@@ -1,7 +1,6 @@
-define( [],
-        function() {
-
-/**
+define([],
+    function () {
+        /**
  * @class JBrowse.Model.ArrayRepr
  * @constructor
  *
@@ -96,114 +95,104 @@ define( [],
  *
  * That's what this class facilitates.
  */
-function ArrayRepr (classes) {
-    this.classes = classes;
-    this.fields = [];
-    for (var cl = 0; cl < classes.length; cl++) {
-        this.fields[cl] = {};
-        for (var f = 0; f < classes[cl].attributes.length; f++) {
-            this.fields[cl][classes[cl].attributes[f]] = f + 1;
+        function ArrayRepr(classes) {
+            this.classes = classes;
+            this.fields = [];
+            for (var cl = 0; cl < classes.length; cl++) {
+                this.fields[cl] = {};
+                for (var f = 0; f < classes[cl].attributes.length; f++) {
+                    this.fields[cl][classes[cl].attributes[f]] = f + 1;
+                }
+                if (classes[cl].proto === undefined) {classes[cl].proto = {};}
+                if (classes[cl].isArrayAttr === undefined) {classes[cl].isArrayAttr = {};}
+            }
         }
-        if (classes[cl].proto === undefined)
-            classes[cl].proto = {};
-        if (classes[cl].isArrayAttr === undefined)
-            classes[cl].isArrayAttr = {};
-    }
-}
 
-/**
+        /**
  * @private
  */
-ArrayRepr.prototype.attrIndices = function(attr) {
-    return this.classes.map(
-        function(x) {
-            return (x.attributes.indexOf(attr)+1) || (x.attributes.indexOf(attr.toLowerCase())+1) || undefined;
-        }
-    );
-};
+        ArrayRepr.prototype.attrIndices = function (attr) {
+            return this.classes.map(
+                function (x) {
+                    return (x.attributes.indexOf(attr) + 1) || (x.attributes.indexOf(attr.toLowerCase()) + 1) || undefined;
+                }
+            );
+        };
 
-ArrayRepr.prototype.get = function(obj, attr) {
-    if (attr in this.fields[obj[0]]) {
-        return obj[this.fields[obj[0]][attr]];
-    }
-    else {
-        // try lowercase
-        var lcattr = attr.toLowerCase();
-        if( lcattr in this.fields[obj[0]]) {
-            return obj[this.fields[obj[0]][lcattr]];
-        }
-        else {
+        ArrayRepr.prototype.get = function (obj, attr) {
+            if (attr in this.fields[obj[0]]) {
+                return obj[this.fields[obj[0]][attr]];
+            }
+
+            // try lowercase
+            var lcattr = attr.toLowerCase();
+            if (lcattr in this.fields[obj[0]]) {
+                return obj[this.fields[obj[0]][lcattr]];
+            }
+
             var adhocIndex = this.classes[obj[0]].attributes.length + 1;
             if ((adhocIndex >= obj.length) || (!(attr in obj[adhocIndex]))) {
-                if (attr in this.classes[obj[0]].proto)
-                    return this.classes[obj[0]].proto[attr];
+                if (attr in this.classes[obj[0]].proto) {return this.classes[obj[0]].proto[attr];}
                 return undefined;
             }
             return obj[adhocIndex][attr];
-        }
-    }
-};
+        };
 
-ArrayRepr.prototype.set = function(obj, attr, val) {
-    if (attr in this.fields[obj[0]]) {
-        obj[this.fields[obj[0]][attr]] = val;
-    } else {
-        // try lowercase
-        var lcattr = attr.toLowerCase();
-        if( lcattr in this.fields[obj[0]]) {
-            obj[this.fields[obj[0]][lcattr]] = val;
-        }
-        else {
-            var adhocIndex = this.classes[obj[0]].attributes.length + 1;
-            if (adhocIndex >= obj.length)
-                obj[adhocIndex] = {};
-            obj[adhocIndex][attr] = val;
-        }
-    }
-};
+        ArrayRepr.prototype.set = function (obj, attr, val) {
+            if (attr in this.fields[obj[0]]) {
+                obj[this.fields[obj[0]][attr]] = val;
+            } else {
+                // try lowercase
+                var lcattr = attr.toLowerCase();
+                if (lcattr in this.fields[obj[0]]) {
+                    obj[this.fields[obj[0]][lcattr]] = val;
+                } else {
+                    var adhocIndex = this.classes[obj[0]].attributes.length + 1;
+                    if (adhocIndex >= obj.length) {obj[adhocIndex] = {};}
+                    obj[adhocIndex][attr] = val;
+                }
+            }
+        };
 
-ArrayRepr.prototype.makeSetter = function(attr) {
-    var self = this;
-    return function(obj, val) { self.set(obj, attr, val); };
-};
+        ArrayRepr.prototype.makeSetter = function (attr) {
+            var self = this;
+            return function (obj, val) { self.set(obj, attr, val); };
+        };
 
-ArrayRepr.prototype.makeGetter = function(attr) {
-    var self = this;
-    return function(obj) { return self.get(obj, attr); };
-};
+        ArrayRepr.prototype.makeGetter = function (attr) {
+            var self = this;
+            return function (obj) { return self.get(obj, attr); };
+        };
 
-ArrayRepr.prototype.makeFastSetter = function(attr) {
-    // can be used only if attr is guaranteed to be in
-    // the "classes" array for this object
-    var indices = this.attrIndices(attr);
-    return function(obj, val) {
-        if (indices[obj[0]] !== undefined)
-            obj[indices[obj[0]]] = val;
-    };
-};
+        ArrayRepr.prototype.makeFastSetter = function (attr) {
+            // can be used only if attr is guaranteed to be in
+            // the "classes" array for this object
+            var indices = this.attrIndices(attr);
+            return function (obj, val) {
+                if (indices[obj[0]] !== undefined) {obj[indices[obj[0]]] = val;}
+            };
+        };
 
-ArrayRepr.prototype.makeFastGetter = function(attr) {
-    // can be used only if attr is guaranteed to be in
-    // the "classes" array for this object
-    var indices = this.attrIndices(attr);
-    return function(obj) {
-        if (indices[obj[0]] !== undefined)
-            return obj[indices[obj[0]]];
-        else
-            return undefined;
-    };
-};
+        ArrayRepr.prototype.makeFastGetter = function (attr) {
+            // can be used only if attr is guaranteed to be in
+            // the "classes" array for this object
+            var indices = this.attrIndices(attr);
+            return function (obj) {
+                if (indices[obj[0]] !== undefined) {return obj[indices[obj[0]]];}
+                return undefined;
+            };
+        };
 
-ArrayRepr.prototype.construct = function(self, obj, klass) {
-    var result = new Array(self.classes[klass].length);
-    for (var attr in obj) {
-        this.set(result, attr, obj[attr]);
-    }
-    return result;
-};
+        ArrayRepr.prototype.construct = function (self, obj, klass) {
+            var result = new Array(self.classes[klass].length);
+            for (var attr in obj) {
+                this.set(result, attr, obj[attr]);
+            }
+            return result;
+        };
 
 
-/**
+        /**
 
 Returns fast pre-compiled getter and setter functions for use with
 Arrays that use this representation.
@@ -222,86 +211,81 @@ feature.get = accessors.get;
 console.log( feature.get('start') + ',' + feature.get('end') );
 
 */
-ArrayRepr.prototype.accessors = function () {
-    return this._accessors = this._accessors || this._makeAccessors();
-};
+        ArrayRepr.prototype.accessors = function () {
+            return this._accessors = this._accessors || this._makeAccessors();
+        };
 
-/**
+        /**
  * @private
  */
-ArrayRepr.prototype._makeAccessors = function() {
-    var that = this,
-        indices = {},
-        tags,
-        accessors = {
-            get: function(field) {
-                var f = this.get.field_accessors[field.toLowerCase()];
-                if( f )
-                    return f.call(this);
-                else
-                    return undefined;
-            },
-            set: function(field,val) {
-                var f = this.set.field_accessors[field];
-                if( f )
-                    return f.call(this,val);
-                else
-                    return undefined;
-            },
-            tags: function() {
-                return tags[ this[0] ] || [];
+        ArrayRepr.prototype._makeAccessors = function () {
+            var that = this,
+                indices = {},
+                tags,
+                accessors = {
+                    get: function (field) {
+                        var f = this.get.field_accessors[field.toLowerCase()];
+                        if (f) {return f.call(this);}
+                        return undefined;
+                    },
+                    set: function (field, val) {
+                        var f = this.set.field_accessors[field];
+                        if (f) {return f.call(this, val);}
+                        return undefined;
+                    },
+                    tags: function () {
+                        return tags[ this[0] ] || [];
+                    }
+                };
+            accessors.get.field_accessors = {};
+            accessors.set.field_accessors = {};
+
+            // make a data structure as: { attr_name: [offset,offset,offset], }
+            // that will be convenient for finding the location of the attr
+            // for a given class like: indexForAttr{attrname}[classnum]
+            dojo.forEach(this.classes, function (cdef, classnum) {
+                dojo.forEach(cdef.attributes || [], function (attrname, offset) {
+                    indices[attrname] = indices[attrname] || [];
+                    indices[attrname][classnum] = offset + 1;
+
+                    attrname = attrname.toLowerCase();
+
+                    indices[attrname] = indices[attrname] || [];
+                    indices[attrname][classnum] = offset + 1;
+                });
+            });
+
+            // lowercase all the class attributes
+            tags = dojo.map(this.classes, function (c) {
+                return c.attributes;
+            });
+
+            // use that to make precalculated get and set accessors for each field
+            for (var attrname in indices) {
+                if (!indices.hasOwnProperty(attrname)) continue;
+
+                // get
+                accessors.get.field_accessors[ attrname ] = (function () {
+                    var attr_indices = indices[attrname];
+                    return !attr_indices ? function () { return undefined; } : function () {
+                        return this[ attr_indices[ this[0] ] ];
+                    };
+                })();
+
+                // set
+                accessors.set.field_accessors[ attrname ] = (function () {
+                    var attr_indices =  indices[attrname];
+                    return !attr_indices ? function () { return undefined; } : function (v) {
+                        return (this[ attr_indices[ this[0] ] ] = v);
+                    };
+                })();
             }
+
+            return accessors;
         };
-    accessors.get.field_accessors = {};
-    accessors.set.field_accessors = {};
 
-    // make a data structure as: { attr_name: [offset,offset,offset], }
-    // that will be convenient for finding the location of the attr
-    // for a given class like: indexForAttr{attrname}[classnum]
-    dojo.forEach( this.classes, function(cdef,classnum) {
-        dojo.forEach( cdef.attributes || [], function(attrname,offset) {
-            indices[attrname] = indices[attrname] || [];
-            indices[attrname][classnum] = offset + 1;
-
-            attrname = attrname.toLowerCase();
-
-            indices[attrname] = indices[attrname] || [];
-            indices[attrname][classnum] = offset + 1;
-        });
+        return ArrayRepr;
     });
-
-    // lowercase all the class attributes
-    tags = dojo.map( this.classes, function(c) {
-        return c.attributes;
-    });
-
-    // use that to make precalculated get and set accessors for each field
-    for( var attrname in indices ) {
-        if( ! indices.hasOwnProperty(attrname) ) continue;
-
-        // get
-        accessors.get.field_accessors[ attrname ] = (function() {
-            var attr_indices = indices[attrname];
-            return !attr_indices ? function() { return undefined; } : function() {
-                return this[ attr_indices[ this[0] ] ];
-            };
-        })();
-
-        // set
-        accessors.set.field_accessors[ attrname ] = (function() {
-            var attr_indices =  indices[attrname];
-            return !attr_indices ? function() { return undefined; } : function(v) {
-                return ( this[ attr_indices[ this[0] ] ] = v );
-            };
-        })();
-    }
-
-    return accessors;
-};
-
-return ArrayRepr;
-
-});
 /*
 
 Copyright (c) 2007-2010 The Evolutionary Software Foundation
