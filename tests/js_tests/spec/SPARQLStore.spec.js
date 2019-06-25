@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 require([
     'JBrowse/Browser',
     'JBrowse/Store/SeqFeature/SPARQL'

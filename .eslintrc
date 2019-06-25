@@ -12,7 +12,11 @@
     "no-unused-vars": [2, {"varsIgnorePattern": "profile"}],
     "vars-on-top": 0,
     "prefer-arrow-callback": 0,
-    "func-names": 0
+    "func-names": 0,
+    "valid-jsdoc": 0,
+    "no-param-reassign": 0,
+    "eqeqeq": 0,
+    "no-undefined": 0
   },
   "globals": {
     "$": true,

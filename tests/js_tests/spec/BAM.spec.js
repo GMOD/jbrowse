@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* global dojo */
 require([
     'dojo/aspect',
