@@ -1,65 +1,62 @@
-define( [
-            'dojo/_base/declare',
-            'dojo/_base/lang',
-            'dojo/_base/array',
-            './BigWig',
-            './BigWig/Window',
-            'JBrowse/Model/SimpleFeature'
-        ],
-        function(
-            declare,
-            lang,
-            array,
-            BigWig,
-            Window,
-            SimpleFeature
-        ) {
+define([
+    'dojo/_base/declare',
+    'dojo/_base/lang',
+    'dojo/_base/array',
+    './BigWig',
+    './BigWig/Window',
+    'JBrowse/Model/SimpleFeature'
+],
+function (
+    declare,
+    lang,
+    array,
+    BigWig,
+    Window,
+    SimpleFeature
+) {
+    const predefinedFeatureTransforms = {
+    };
 
-const predefinedFeatureTransforms = {
-}
+    return declare(BigWig,
 
-return declare(BigWig,
-
- /**
+        /**
   * @lends JBrowse.Store.SeqFeature.BigBed
   */
-{
-    constructor(args) {
-    },
-
-    _getFeatures( query, featureCallback, endCallback, errorCallback ) {
-
-        const chrName = this.browser.regularizeReferenceName( query.ref );
-        const view = this.getUnzoomedView()
-
-        if (!view) {
-            endCallback()
-            return
-        }
-
-        view.readWigData(
-            chrName,
-            query.start,
-            query.end,
-            features => {
-                this.applyFeatureTransforms(features || [])
-                    .forEach(featureCallback)
-                endCallback()
+        {
+            constructor(args) {
             },
-            errorCallback
-        )
-    },
 
-    supportsFeatureTransforms: true,
+            _getFeatures(query, featureCallback, endCallback, errorCallback) {
+                const chrName = this.browser.regularizeReferenceName(query.ref);
+                const view = this.getUnzoomedView();
 
-    getView() {
-        return this.getUnzoomedView()
-    },
+                if (!view) {
+                    endCallback();
+                    return;
+                }
 
-    getPredefinedFeatureTransform: function getPredefinedFeatureTransform(name) {
-        return predefinedFeatureTransforms[name] || this.inherited(getPredefinedFeatureTransform,arguments)
-    }
+                view.readWigData(
+                    chrName,
+                    query.start,
+                    query.end,
+                    features => {
+                        this.applyFeatureTransforms(features || [])
+                            .forEach(featureCallback);
+                        endCallback();
+                    },
+                    errorCallback
+                );
+            },
 
-});
+            supportsFeatureTransforms: true,
 
+            getView() {
+                return this.getUnzoomedView();
+            },
+
+            getPredefinedFeatureTransform: function getPredefinedFeatureTransform(name) {
+                return predefinedFeatureTransforms[name] || this.inherited(getPredefinedFeatureTransform, arguments);
+            }
+
+        });
 });

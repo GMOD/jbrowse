@@ -1,44 +1,43 @@
-require(['JBrowse/ConfigManager'], function( ConfigManager ) {
-
-describe("ConfigManager", function () {
-    it( "should work with a config with no includes", function() {
+require(['JBrowse/ConfigManager'], function (ConfigManager) {
+    describe('ConfigManager', function () {
+        it('should work with a config with no includes', function () {
             var m = new ConfigManager({
                 bootConfig: { foo: 1 },
-                browser: { fatalError: function(error) { throw error; } },
+                browser: { fatalError: function (error) { throw error; } },
                 skipValidation: true
             });
             var config;
             expect(m).toBeTruthy();
-            waitsFor( function() { return config; }, 1000 );
-            m.getFinalConfig().then( function(c) {
+            waitsFor(function () { return config; }, 1000);
+            m.getFinalConfig().then(function (c) {
                 config = c;
             });
-            runs(function() {
+            runs(function () {
                 expect(config.foo).toEqual(1);
             });
-    });
+        });
 
-    it( "should work with a config with one include", function() {
+        it('should work with a config with one include', function () {
             var m = new ConfigManager({
                 bootConfig: {
                     include: [ '../data/conf/no_includes.json'],
                     overrideMe: 'rootConfig',
                     foo: 1,
                     tracks: [
-                        { label: "zoo", zonk: "quux"},
-                        { label: "zaz", honk: "beep", root: "root!"}
+                        { label: 'zoo', zonk: 'quux'},
+                        { label: 'zaz', honk: 'beep', root: 'root!'}
                     ]
                 },
-                browser: { fatalError: function(error) { throw error; } },
+                browser: { fatalError: function (error) { throw error; } },
                 skipValidation: true
             });
             var config;
             expect(m).toBeTruthy();
-            waitsFor( function() { return config; }, 1000 );
-            m.getFinalConfig().then( function(c) {
+            waitsFor(function () { return config; }, 1000);
+            m.getFinalConfig().then(function (c) {
                 config = c;
             });
-            runs(function() {
+            runs(function () {
                 expect(config.foo).toEqual(1);
                 expect(config.bar).toEqual(42);
                 expect(config.overrideMe).toEqual('rootConfig');
@@ -52,29 +51,29 @@ describe("ConfigManager", function () {
                 expect(config.tracks[2].label).toEqual('noinclude');
                 expect(config.tracks[0].label).toEqual('zoo');
             });
-    });
+        });
 
-    it( "should work with a config with nested includes", function() {
+        it('should work with a config with nested includes', function () {
             var m = new ConfigManager({
                 bootConfig: {
                     include: [ '../data/conf/includes.json'],
                     overrideMe: 'rootConfig',
                     foo: 1,
                     tracks: [
-                        { label: "zoo", zonk: "quux"},
-                        { label: "zaz", honk: "beep", root: "root!"}
+                        { label: 'zoo', zonk: 'quux'},
+                        { label: 'zaz', honk: 'beep', root: 'root!'}
                     ]
                 },
-                browser: { fatalError: function(error) { throw error; } },
+                browser: { fatalError: function (error) { throw error; } },
                 skipValidation: true
             });
             var config;
             expect(m).toBeTruthy();
-            waitsFor( function() { return config; }, 1000 );
-            m.getFinalConfig().then( function(c) {
+            waitsFor(function () { return config; }, 1000);
+            m.getFinalConfig().then(function (c) {
                 config = c;
             });
-            runs(function() {
+            runs(function () {
                 expect(config.foo).toEqual(1);
                 expect(config.bar).toEqual(42);
                 expect(config.overrideMe).toEqual('rootConfig');
@@ -93,68 +92,64 @@ describe("ConfigManager", function () {
                 expect(config.tracks[3].label).toEqual('noinclude');
                 expect(config.tracks[0].label).toEqual('zoo');
             });
-    });
+        });
 
-    it( "should work with dataRoot specified in baseConfig", function() {
+        it('should work with dataRoot specified in baseConfig', function () {
             var m = new ConfigManager({
                 bootConfig: { dataRoot: 'notdefault' },
                 defaults: { dataRoot: 'data' },
-                browser: { fatalError: function(error) { throw error; } },
+                browser: { fatalError: function (error) { throw error; } },
                 skipValidation: true
             });
             var config;
             expect(m).toBeTruthy();
-            waitsFor( function() { return config; }, 1000 );
-            m.getFinalConfig().then( function(c) {
+            waitsFor(function () { return config; }, 1000);
+            m.getFinalConfig().then(function (c) {
                 config = c;
             });
-            runs(function() {
+            runs(function () {
                 expect(config.dataRoot).toEqual('notdefault');
             });
-    });
+        });
 
 
-    it( "should work with dataRoot not specified in baseConfig", function() {
+        it('should work with dataRoot not specified in baseConfig', function () {
             var m = new ConfigManager({
                 bootConfig: { foo: 'a' },
                 defaults: { dataRoot: 'data' },
-                browser: { fatalError: function(error) { throw error; } },
+                browser: { fatalError: function (error) { throw error; } },
                 skipValidation: true
             });
             var config;
             expect(m).toBeTruthy();
-            waitsFor( function() { return config; }, 1000 );
-            m.getFinalConfig().then( function(c) {
+            waitsFor(function () { return config; }, 1000);
+            m.getFinalConfig().then(function (c) {
                 config = c;
             });
-            runs(function() {
+            runs(function () {
                 expect(config.dataRoot).toEqual('data');
             });
-    });
+        });
 
 
-    it( "should work with a config with dataRoot in it", function() {
+        it('should work with a config with dataRoot in it', function () {
             var m = new ConfigManager({
                 bootConfig: {
-                    include: [ '../data/conf/dataRoot.json'],
+                    include: [ '../data/conf/dataRoot.json']
                 },
                 defaults: { dataRoot: 'data' },
-                browser: { fatalError: function(error) { throw error; } },
+                browser: { fatalError: function (error) { throw error; } },
                 skipValidation: true
             });
             var config;
             expect(m).toBeTruthy();
-            waitsFor( function() { return config; }, 1000 );
-            m.getFinalConfig().then( function(c) {
+            waitsFor(function () { return config; }, 1000);
+            m.getFinalConfig().then(function (c) {
                 config = c;
             });
-            runs(function() {
+            runs(function () {
                 expect(config.dataRoot).toEqual('notdefault');
             });
+        });
     });
-
-
-
-
-});
 });

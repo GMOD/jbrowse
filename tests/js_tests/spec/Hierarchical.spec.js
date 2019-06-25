@@ -2,20 +2,20 @@ require([
     'dojo/aspect',
     'dojo/_base/declare',
     'JBrowse/Browser',
-    'JBrowse/View/TrackList/Hierarchical',
+    'JBrowse/View/TrackList/Hierarchical'
 ],
-function(
+function (
     aspect,
     declare,
     Browser,
     Hierarchical
 ) {
-    describe( 'Hierarchical.sort', function() {
-        var browser = new Browser({ unitTestMode: true })
-        browser.container = document.createElement('div')
-        var tracklist = new Hierarchical({ browser })
+    describe('Hierarchical.sort', function () {
+        var browser = new Browser({ unitTestMode: true });
+        browser.container = document.createElement('div');
+        var tracklist = new Hierarchical({ browser });
 
-        it( 'performs a custom sort', function() {
+        it('performs a custom sort', function () {
             var tracks = [{
                 category: 't1'
             }, {
@@ -23,7 +23,7 @@ function(
             }, {
                 category: 't3'
             }];
-            tracks = tracklist.induceCategoryOrder(tracks, 't1,t2,t3')
+            tracks = tracklist.induceCategoryOrder(tracks, 't1,t2,t3');
 
 
             expect(tracks).toEqual([{
@@ -34,7 +34,7 @@ function(
                 category: 't3'
             }]);
         });
-        it( 'sorted explicitly', function() {
+        it('sorted explicitly', function () {
             var tracks = [{
                 category: 't1'
             }, {
@@ -42,7 +42,7 @@ function(
             }, {
                 category: 't3'
             }];
-            tracks = tracklist.induceCategoryOrder(tracks, 't3,t2,t1')
+            tracks = tracklist.induceCategoryOrder(tracks, 't3,t2,t1');
 
 
             expect(tracks).toEqual([{
@@ -53,7 +53,7 @@ function(
                 category: 't1'
             }]);
         });
-        it( 'partial sort', function() {
+        it('partial sort', function () {
             var tracks = [{
                 category: 't1'
             }, {
@@ -61,7 +61,7 @@ function(
             }, {
                 category: 't3'
             }];
-            tracks = tracklist.induceCategoryOrder(tracks, 't3')
+            tracks = tracklist.induceCategoryOrder(tracks, 't3');
 
 
             expect(tracks).toEqual([{
@@ -73,7 +73,7 @@ function(
             }]);
         });
 
-        it( 'subcategory', function() {
+        it('subcategory', function () {
             var tracks = [{
                 category: 't1/s1'
             }, {
@@ -81,7 +81,7 @@ function(
             }, {
                 category: 't3/s3'
             }];
-            tracks = tracklist.induceCategoryOrder(tracks, 't3/s3,t2,t1 / s1')
+            tracks = tracklist.induceCategoryOrder(tracks, 't3/s3,t2,t1 / s1');
 
 
             expect(tracks).toEqual([{

@@ -1,39 +1,39 @@
-define( [
-            'dojo/_base/declare',
-            'JBrowse/View/InfoDialog'
-        ],
-        function(
-            declare,
-            InfoDialog
-        ) {
-return declare( InfoDialog, {
+define([
+    'dojo/_base/declare',
+    'JBrowse/View/InfoDialog'
+],
+function (
+    declare,
+    InfoDialog
+) {
+    return declare(InfoDialog, {
 
-    title: "JBrowse Help",
+        title: 'JBrowse Help',
 
-    constructor: function(args) {
-        this.browser = args.browser;
-        this.defaultContent = this._makeDefaultContent();
+        constructor: function (args) {
+            this.browser = args.browser;
+            this.defaultContent = this._makeDefaultContent();
 
-        if( ! args.content && ! args.href ) {
+            if (!args.content && !args.href) {
             // make a div containing our help text
-            this.content = this.defaultContent;
-        }
-    },
+                this.content = this.defaultContent;
+            }
+        },
 
-    _makeDefaultContent: function() {
-        return    ''
+        _makeDefaultContent: function () {
+            return    ''
                 + '<div class="jbrowse help_dialog">'
                 + '<div class="main" style="float: left; width: 49%;">'
 
                 + '<dl>'
                 + '<dt>Moving</dt>'
                 + '<dd><ul>'
-                + '    <li>Move the view by clicking and dragging in the track area, or by clicking <img class="icon nav" id="moveLeftSmall" src="'+this.browser.resolveUrl('img/Empty.png')+'">  or <img class="icon nav" id="moveRightSmall" src="'+this.browser.resolveUrl('img/Empty.png')+'"> in the navigation bar, or by pressing the left and right arrow keys.</li>'
+                + '    <li>Move the view by clicking and dragging in the track area, or by clicking <img class="icon nav" id="moveLeftSmall" src="' + this.browser.resolveUrl('img/Empty.png') + '">  or <img class="icon nav" id="moveRightSmall" src="' + this.browser.resolveUrl('img/Empty.png') + '"> in the navigation bar, or by pressing the left and right arrow keys.</li>'
                 + '    <li>Center the view at a point by clicking on either the track scale bar or overview bar, or by shift-clicking in the track area.</li>'
                 + '</ul></dd>'
                 + '<dt>Zooming</dt>'
                 + '<dd><ul>'
-                + '    <li>Zoom in and out by clicking <img class="icon nav" id="zoomInSmall" src="'+this.browser.resolveUrl('img/Empty.png')+'"> or <img class="icon nav" id="zoomOutSmall" src="'+this.browser.resolveUrl('img/Empty.png')+'"> in the navigation bar, or by pressing the up and down arrow keys while holding down "shift".</li>'
+                + '    <li>Zoom in and out by clicking <img class="icon nav" id="zoomInSmall" src="' + this.browser.resolveUrl('img/Empty.png') + '"> or <img class="icon nav" id="zoomOutSmall" src="' + this.browser.resolveUrl('img/Empty.png') + '"> in the navigation bar, or by pressing the up and down arrow keys while holding down "shift".</li>'
                 + '    <li>Select a region and zoom to it ("rubber-band" zoom) by clicking and dragging in the overview or track scale bar, or shift-clicking and dragging in the track area.</li>'
                 + '    </ul>'
                 + '</dd>'
@@ -71,6 +71,6 @@ return declare( InfoDialog, {
                 + '</div>'
                 + '</div>'
             ;
-    }
-});
+        }
+    });
 });
