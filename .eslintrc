@@ -16,7 +16,11 @@
     "valid-jsdoc": 0,
     "no-param-reassign": 0,
     "eqeqeq": 0,
-    "no-undefined": 0
+    "no-undefined": 0,
+    "no-nested-ternary": 0,
+    "one-var": 0,
+    "new-cap": 0,
+    "camelcase": 0
   },
   "globals": {
     "$": true,

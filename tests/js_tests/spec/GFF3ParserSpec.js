@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 require(['JBrowse/Store/SeqFeature/GFF3/GFF3Parser'], function (GFF3Parser) {
     describe('GFF3Parser (low level tests)', function () {
         // GFF3Parser takes a GFF3 URL and converts it to an array of hash refs where each

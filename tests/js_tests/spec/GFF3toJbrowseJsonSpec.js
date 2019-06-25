@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 require(['JBrowse/Store/SeqFeature/GFF3/GFF3Parser', 'JBrowse/Store/SeqFeature/GFF3'], function (GFF3Parser, GFF3Store) {
     // now GFF3Store is the GFF3 store class (actually just an object that
     // you use for prototype inheritance, since javascript does not

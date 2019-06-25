@@ -1,3 +1,4 @@
+/* eslint-disable no-redeclare */
 /* global dojo */
 require([
     'JBrowse/Browser',

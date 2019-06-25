@@ -3199,14 +3199,14 @@ function (
                     // if there are not tons of refseqs, pick the longest-named
                     // one.  otherwise just pick the last one
                     var ref = this.refSeqOrder.length < 1000 && function () {
-                            var longestNamedRef;
-                            array.forEach(this.refSeqOrder, function (name) {
-                                var ref = this.allRefs[name];
-                                if (!ref.length) {ref.length = ref.end - ref.start + 1;}
-                                if (!longestNamedRef || longestNamedRef.length < ref.length) {longestNamedRef = ref;}
-                            }, this);
-                            return longestNamedRef;
-                        }.call(this)
+                        var longestNamedRef;
+                        array.forEach(this.refSeqOrder, function (name) {
+                            var ref = this.allRefs[name];
+                            if (!ref.length) {ref.length = ref.end - ref.start + 1;}
+                            if (!longestNamedRef || longestNamedRef.length < ref.length) {longestNamedRef = ref;}
+                        }, this);
+                        return longestNamedRef;
+                    }.call(this)
                         || this.refSeqOrder.length && this.allRefs[ this.refSeqOrder[ this.refSeqOrder.length - 1 ] ]
                         || 20;
 

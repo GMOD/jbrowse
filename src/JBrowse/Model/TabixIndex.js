@@ -222,8 +222,7 @@ function (
             for (i = n_off = 0; i < bins.length; ++i) {
                 if ((chunks = binIndex[ bins[i] ])) {
                     for (var j = 0; j < chunks.length; ++j) {
-                        if (min_off.compareTo(chunks[j].maxv) < 0)
-                            off[n_off++] = new Chunk(chunks[j].minv, chunks[j].maxv, chunks[j].bin);
+                        if (min_off.compareTo(chunks[j].maxv) < 0) {off[n_off++] = new Chunk(chunks[j].minv, chunks[j].maxv, chunks[j].bin);}
                     }
                 }
             }
