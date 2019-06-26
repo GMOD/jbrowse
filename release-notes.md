@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+## Minor improvements
+
+ * Add name regularization for drosophila style chromsome naming so that
+   2L maps to chr2L and vice versa (@scottcain)
+
 
 # Release 1.16.5     2019-06-12 16:57:19 UTC
 
