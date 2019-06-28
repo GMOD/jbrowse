@@ -201,6 +201,7 @@ sub make_file_record {
     my $type = $file =~ /\.txtz?$/                ? 'txt'  :
                $file =~ /\.jsonz?$/               ? 'json' :
                $file =~ /\.vcf(\.gz)?$/           ? 'vcf'  :
+               $file =~ /\.bed(\.gz)?$/           ? 'bed'  :
                $file =~ /\.gff3?(\.gz)?(\.\d+)?$/ ? 'gff'  :
                                                     undef;
     if( $type ) {
@@ -384,6 +385,19 @@ sub find_names_files {
             }
             else {
                 warn "VCF file '$path' not found, or not readable.  Skipping.\n";
+            }
+        }
+
+        # try to detect BED tracks and index their BED files
+        if( $track->{urlTemplate} && $track->{urlTemplate} =~ /\.bed\.gz/
+             || ($track->{storeClass}||'') =~ /BEDTabix$/
+            ) {
+            my $path = File::Spec->catfile( $self->opt('dir'), $track->{urlTemplate} );
+            if( -r $path ) {
+                push @files, $self->make_file_record( $track, $path );
+            }
+            else {
+                warn "BED file '$path' not found, or not readable.  Skipping.\n";
             }
         }
 
@@ -587,6 +601,24 @@ sub make_names_iterator {
             $start--;
             my @names = split /\s*;\s*/, $name;
             return [\@names,$file_record->{trackName},$name,$ref, $start, $start+length($basevar)];
+        };
+    }
+    elsif( $file_record->{type} eq 'bed' ) {
+        my $input_fh = $self->open_names_file( $file_record );
+        no warnings 'uninitialized';
+        return sub {
+            my $line;
+            while( ($line = <$input_fh>) =~ /^#/ ) {}
+            return unless $line;
+
+            $self->{stats}{name_input_records}++;
+            $self->{stats}{total_namerec_bytes} += length $line;
+
+            chomp($line);
+            my ( $ref, $start, $end, $name) = split "\t", $line;
+            my @names = split /\s*;\s*/, $name;
+            return [\@names,$file_record->{trackName},$name,$ref, $start, $end];
+
         };
     }
     elsif( $file_record->{type} eq 'gff' ) {
