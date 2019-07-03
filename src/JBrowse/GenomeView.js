@@ -689,6 +689,7 @@ wheelScroll: function( event ) {
 
     if( delta.x ) {
         this.keySlideX( -delta.x );
+        didScroll = true
     }
     if( delta.y ) {
         // 60 pixels per mouse wheel event
