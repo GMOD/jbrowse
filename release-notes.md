@@ -5,6 +5,14 @@
  * Add name regularization for drosophila style chromsome naming so that
    2L maps to chr2L and vice versa (@scottcain)
 
+ * Add ability to index names in a BEDTabix file, enabled by default.
+   Thanks to @billzt for the idea and implementation (pull #1393)
+
+## Bug fixes
+
+ * Fix the side scrolling on Mac misbehaving and triggering the browser's
+   back action (a bug that existed only in 1.16.5). Thanks to @nathandunn
+   for debugging (issue #1397)
 
 # Release 1.16.5     2019-06-12 16:57:19 UTC
 
