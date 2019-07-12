@@ -27,7 +27,7 @@ const createVariableInjectionPlugin = variables => {
 };
 
 const v = {
-  "version": "1.16.5"
+  "version": "1.16.6"
 };
 const siteVariables = {
   version: v.version,

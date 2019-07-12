@@ -1,4 +1,4 @@
-{{$NEXT}}
+# Release 1.16.6     2019-07-12 01:20:19 UTC
 
 ## Minor improvements
 
