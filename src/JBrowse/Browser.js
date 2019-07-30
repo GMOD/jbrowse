@@ -743,7 +743,7 @@ regularizeReferenceName: function( refname ) {
                      .replace(/^([a-z]*)0+/,'$1')
                      .replace(/^(\d+l?r?|x|y)$/, 'chr$1' )
                      .replace(/^(x?)(ix|iv|v?i{0,3})$/, 'chr$1$2' )
-                     .replace(/^mt?$/, 'chrm');
+                     .replace(/^mt?(dna)?$/, 'chrm');
 
     return refname;
 },
