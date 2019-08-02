@@ -1,3 +1,5 @@
+const hash = cjsRequire('object-hash')
+
 define( [ 'dojo/_base/declare',
           'dojo/_base/lang',
           'dojo/_base/array',
@@ -255,7 +257,7 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
                 {
                     storeConf.name = 'refseqs';
                 } else {
-                    storeConf.name = 'store'+digest.objectFingerprint( storeConf );
+                    storeConf.name = 'store'+hash( storeConf );
                 }
                 // record it
                 mainconf.stores[storeConf.name] = storeConf;
