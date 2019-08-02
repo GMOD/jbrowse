@@ -11,6 +11,10 @@
    contain a lot of data. Thanks to @scottcain for reporting (#pull #1412,
    @cmdcolin)
 
+
+ * Fixed ability to access remote data directories in desktop app
+   (issue #1413)
+
 # Release 1.16.6     2019-07-12 01:20:19 UTC
 
 ## Minor improvements
