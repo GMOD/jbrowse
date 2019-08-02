@@ -1,5 +1,15 @@
 {{$NEXT}}
 
+## Minor improvements
+
+ * Add name regularization for refseqs named MtDNA (pull #1408,
+   @scottcain, @cmdcolin)
+
+## Bug fixes
+
+ * Added a fix for a performance regularization for large tracklists that
+   contain a lot of data. Thanks to @scottcain for reporting (#pull #1412,
+   @cmdcolin)
 
 # Release 1.16.6     2019-07-12 01:20:19 UTC
 
