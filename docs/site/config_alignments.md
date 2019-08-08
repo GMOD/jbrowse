@@ -176,6 +176,7 @@ They display everything that `Alignments2` tracks do, plus they support the same
 |`baiUrlTemplate`|URL for the corresponding BAM index (BAI) file. If not set, this is assumed to be the same URL as `urlTemplate` with `.bai` appended.|
 |`csiUrlTemplate`|URL for the corresponding BAM index (CSI) file. Must be set manually in the case that it is being used.|
 |`chunkSizeLimit`|Maximum size in bytes of BAM chunks that the browser will try to deal with. Default 5000000 (5 MiB). When this is exceeded, most tracks will display some kind of "Too much data" message. If you increase this, be careful. You could blow up your web browser.|
+|`fetchSizeLimit`|Maximum size in bytes of a single BAM request that the browser will try to deal with. Default 100000000 (100 MiB). When this is exceeded, most tracks will display some kind of "Too much data" message. If you increase this, be careful. You could blow up your web browser.|
 
 `Note: you can also increase maxFeatureScreenDensity if you get the "Too much data to show; zoom in to see detail".`
 
