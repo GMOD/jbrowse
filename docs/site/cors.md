@@ -9,10 +9,11 @@ Because of JavaScript's same-origin security policy, if data files shown in JBro
 Example wide-open CORS configuration for Apache:
 
 ```
- <IfModule mod_headers.c>
-   Header onsuccess set Access-Control-Allow-Origin *
-   Header onsuccess set Access-Control-Allow-Headers X-Requested-With,Range
- </IfModule>
+ <IfModule mod_headers.c>
+   Header onsuccess set Access-Control-Allow-Origin *
+   Header onsuccess set Access-Control-Allow-Headers X-Requested-With,Range
+   Header onsuccess set Access-Control-Expose-Headers Content-Length,Content-Range
+ </IfModule>
 ```
 
 The CORS Range header is needed to support loading byte-range pieces of BAM, VCF, and other large files from Remote URLs. If you receive an error that says "Unable to fetch <your file>" using Remote URLs, then check to make sure that the proper CORS settings are enabled on the server that you are loading the file from.
