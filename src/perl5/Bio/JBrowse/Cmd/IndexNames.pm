@@ -109,8 +109,8 @@ sub run {
     # set up the name store in the trackList.json
     $gdb->modifyTrackList( sub {
                                my ( $data ) = @_;
-                               $data->{names}{type} = 'Hash';
-                               $data->{names}{url}  = 'names/';
+                               $data->{names}{type} ||= 'Hash';
+                               $data->{names}{url}  ||= 'names/';
                                return $data;
                            });
 
