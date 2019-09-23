@@ -108,8 +108,8 @@ Note:  `colorBySize`, `colorByOrientationAndSize` invoke insert size stats estim
 |Option|Value|
 |------|-----|
 |`cacheMismatches`|Cache mismatch calculations so that long reads are faster to browser. Default: false. Added in 1.12.3|
-|`renderAlignments`|Add a text display of the BAM alignment on a single line in the View details popup. Default: false|
-|`renderPrettyAlignments`|Add a text display of the BAM alignment using prettier "BLAST style" to the View details popup. Default: false|
+|`renderAlignment`|Add a text display of the BAM alignment on a single line in the View details popup. Default: false|
+|`renderPrettyAlignment`|Add a text display of the BAM alignment using prettier "BLAST style" to the View details popup. Default: false|
 |`orientationType`|Set the orientation pattern. Default is 'fr' according to illumina adapters that face each other. Other options are 'rf' and 'ff'. See https://software.broadinstitute.org/software/igv/interpreting_pair_orientations for more info. Added in 1.16.0|
 
 # Alignments2 coloring schemes
