@@ -345,6 +345,7 @@ sub CORS_htaccess {
 <IfModule mod_headers.c>
     Header onsuccess set Access-Control-Allow-Origin *
     Header onsuccess set Access-Control-Allow-Headers X-Requested-With,Range
+    Header onsuccess set Access-Control-Expose-Headers Content-Length,Content-Range
 </IfModule>
 EOA
 
