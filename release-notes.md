@@ -5,15 +5,27 @@
  * Add name regularization for refseqs named MtDNA (pull #1408,
    @scottcain, @cmdcolin)
 
+ * Improved performance of startup time with large tracklists (pull #1412,
+   @cmdcolin)
+
 ## Bug fixes
 
  * Added a fix for a performance regularization for large tracklists that
    contain a lot of data. Thanks to @scottcain for reporting (#pull #1412,
    @cmdcolin)
 
-
  * Fixed ability to access remote data directories in desktop app
    (issue #1413)
+
+ * Fixed ability to open FASTA files with the .fasta extension in the
+   desktop app. Thanks to @iankorf for reporting (issue #1415, pull #1426,
+   @cmdcolin)
+
+ * Fixed generate-names.pl to not overwrite the name store class (@Bjoernsen,
+   issue #1297, pull #1423)
+
+ * Fixed some documentation for Content-Range CORs headers and
+   renderAlignment configs (@cmdcolin)
 
 # Release 1.16.6     2019-07-12 01:20:19 UTC
 
