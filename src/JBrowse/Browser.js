@@ -567,58 +567,71 @@ loadRefSeqs: function() {
             };
         }
 
-        // check refseq urls
-        if( this.config.refSeqs.url && this.config.refSeqs.url.match(/.fai$/) ) {
-            new IndexedFasta({browser: this, faiUrlTemplate: this.config.refSeqs.url})
-                .getRefSeqs(function(refSeqs) {
-                    thisB.addRefseqs(refSeqs);
-                    deferred.resolve({success:true});
-                }, function(error) {
-                    deferred.reject(error);
-                });
-            return;
-        } else if( this.config.refSeqs.url && this.config.refSeqs.url.match(/.2bit$/) ) {
-            new TwoBit({browser: this, urlTemplate: this.config.refSeqs.url})
-                .getRefSeqs(function(refSeqs) {
-                    thisB.addRefseqs(refSeqs);
-                    deferred.resolve({success:true});
-                }, function(error) {
-                    deferred.reject(error);
-                });
-        } else if( this.config.refSeqs.url && this.config.refSeqs.url.match(/.fa$/) ) {
-            new UnindexedFasta({browser: this, urlTemplate: this.config.refSeqs.url})
-                .getRefSeqs(function(refSeqs) {
-                    thisB.addRefseqs(refSeqs);
-                    deferred.resolve({success:true});
-                }, function(error) {
-                    deferred.reject(error);
-                });
-        } else if( this.config.refSeqs.url && this.config.refSeqs.url.match(/.sizes/) ) {
-            new ChromSizes({browser: this, urlTemplate: this.config.refSeqs.url})
-                .getRefSeqs(function(refSeqs) {
-                    thisB.addRefseqs(refSeqs);
-                    deferred.resolve({success:true});
-                }, function(error) {
-                    deferred.reject(error);
-                });
-        } else if( 'data' in this.config.refSeqs ) {
-            this.addRefseqs( this.config.refSeqs.data );
-            deferred.resolve({success:true});
+        if(this.config.refSeqs.storeClass) {
+            dojo.global.require([this.config.refSeqs.storeClass],
+                (CLASS) => {
+                    const r = new CLASS(Object.assign({browser: this},this.config.refSeqs))
+                    r.getRefSeqs(function(refSeqs) {
+                        thisB.addRefseqs(refSeqs);
+                        deferred.resolve({success:true})
+                    }, function(error) {
+                        deferred.reject(error)
+                    })
+            })
         } else {
-            request(this.resolveUrl(this.config.refSeqs.url), {
-                handleAs: 'text',
-                headers: {
-                    'X-Requested-With': null
-                }
-            } )
-                .then( function(o) {
-                           thisB.addRefseqs( dojo.fromJson(o) );
-                           deferred.resolve({success:true});
-                       },
-                       function( e ) {
-                           deferred.reject( 'Could not load reference sequence definitions. '+e );
-                       }
-                     );
+            // check refseq urls
+            if( this.config.refSeqs.url && this.config.refSeqs.url.match(/.fai$/) ) {
+                new IndexedFasta({browser: this, faiUrlTemplate: this.config.refSeqs.url})
+                    .getRefSeqs(function(refSeqs) {
+                        thisB.addRefseqs(refSeqs);
+                        deferred.resolve({success:true});
+                    }, function(error) {
+                        deferred.reject(error);
+                    });
+                return;
+            } else if( this.config.refSeqs.url && this.config.refSeqs.url.match(/.2bit$/) ) {
+                new TwoBit({browser: this, urlTemplate: this.config.refSeqs.url})
+                    .getRefSeqs(function(refSeqs) {
+                        thisB.addRefseqs(refSeqs);
+                        deferred.resolve({success:true});
+                    }, function(error) {
+                        deferred.reject(error);
+                    });
+            } else if( this.config.refSeqs.url && (this.config.refSeqs.url.match(/.fa$/)||this.config.refSeqs.url.match(/.fasta$/)) ) {
+                new UnindexedFasta({browser: this, urlTemplate: this.config.refSeqs.url})
+                    .getRefSeqs(function(refSeqs) {
+                        thisB.addRefseqs(refSeqs);
+                        deferred.resolve({success:true});
+                    }, function(error) {
+                        deferred.reject(error);
+                    });
+            } else if( this.config.refSeqs.url && this.config.refSeqs.url.match(/.sizes/) ) {
+                new ChromSizes({browser: this, urlTemplate: this.config.refSeqs.url})
+                    .getRefSeqs(function(refSeqs) {
+                        thisB.addRefseqs(refSeqs);
+                        deferred.resolve({success:true});
+                    }, function(error) {
+                        deferred.reject(error);
+                    });
+            } else if( 'data' in this.config.refSeqs ) {
+                this.addRefseqs( this.config.refSeqs.data );
+                deferred.resolve({success:true});
+            } else {
+                request(this.resolveUrl(this.config.refSeqs.url), {
+                    handleAs: 'text',
+                    headers: {
+                        'X-Requested-With': null
+                    }
+                } )
+                    .then( function(o) {
+                               thisB.addRefseqs( dojo.fromJson(o) );
+                               deferred.resolve({success:true});
+                           },
+                           function( e ) {
+                               deferred.reject( 'Could not load reference sequence definitions. '+e );
+                           }
+                         );
+            }
         }
     });
 },
@@ -1341,7 +1354,7 @@ openFastaElectron: function() {
                     trackList.tracks[0].urlTemplate = fasta;
                     trackList.tracks[0].faiUrlTemplate = fai;
                     trackList.tracks[0].gziUrlTemplate = gzi;
-                    trackList.refSeqs = fai;
+                    trackList.refSeqs = {faiUrlTemplate: fai, storeClass:  'JBrowse/Store/SeqFeature/BgzipIndexedFasta', gziUrlTemplate: gzi};
                 }
                 else if( confs[0].store.fasta && confs[0].store.fai ) {
                     var fasta = Util.replacePath( confs[0].store.fasta.url );
@@ -1349,18 +1362,20 @@ openFastaElectron: function() {
                     trackList.tracks[0].storeClass= 'JBrowse/Store/SeqFeature/IndexedFasta';
                     trackList.tracks[0].urlTemplate = fasta;
                     trackList.tracks[0].faiUrlTemplate = fai;
-                    trackList.refSeqs = fai;
+                    trackList.refSeqs = {faiUrlTemplate: fai, storeClass:  'JBrowse/Store/SeqFeature/IndexedFasta'};
                 }
                 else if( confs[0].store.type == 'JBrowse/Store/SeqFeature/TwoBit' ) {
                     var f2bit = Util.replacePath( confs[0].store.blob.url );
                     trackList.tracks[0].storeClass = 'JBrowse/Store/SeqFeature/TwoBit';
                     trackList.tracks[0].urlTemplate = f2bit;
                     trackList.refSeqs = f2bit;
+                    trackList.refSeqs = {urlTemplate: f2bit, storeClass:  'JBrowse/Store/SeqFeature/TwoBit'};
                 }
                 else if( confs[0].store.type == 'JBrowse/Store/SeqFeature/ChromSizes' ) {
                     var sizes = Util.replacePath( confs[0].store.blob.url );
                     delete trackList.tracks;
                     trackList.refSeqs = sizes;
+                    trackList.refSeqs = {urlTemplate: sizes, storeClass:  'JBrowse/Store/SeqFeature/ChromSizes'};
                 }
                 else {
                     var fasta = Util.replacePath( confs[0].store.fasta.url );
@@ -1375,7 +1390,7 @@ openFastaElectron: function() {
                     }
                     trackList.tracks[0].storeClass = 'JBrowse/Store/SeqFeature/UnindexedFasta';
                     trackList.tracks[0].urlTemplate = fasta;
-                    trackList.refSeqs = fasta;
+                    trackList.refSeqs = {urlTemplate: fasta, storeClass: 'JBrowse/Store/SeqFeature/UnindexedFasta'};
                 }
 
                 // fix dir to be user data if we are accessing a url for fasta
