@@ -665,13 +665,19 @@ wheelScroll: function( event ) {
 
     var delta = { x: 0, y: 0 };
     if( 'wheelDeltaX' in event ) {
+     console.log('in wheelDeltaX');
         delta.x = event.wheelDeltaX/2;
         delta.y = event.wheelDeltaY/2;
     }
     else if( 'deltaX' in event ) {
-        var multiplier = navigator.userAgent.indexOf("OS X 10.9")!==-1 ? -5 : -40;
+      console.log('in deltaX');
+    /*    var multiplier = navigator.userAgent.indexOf("OS X 10.9")!==-1 ? -5 : -40;
         delta.x = Math.abs(event.deltaY) > Math.abs(2*event.deltaX) ? 0 : event.deltaX*multiplier;
         delta.y = event.deltaY*-10;
+    
+*/
+        delta.x = event.deltaX/2;
+        delta.y = -1*event.deltaY/2;
     }
     else if( event.wheelDelta ) {
         delta.y = event.wheelDelta/2;
