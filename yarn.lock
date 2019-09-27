@@ -100,6 +100,14 @@
     core-js "^2.6.5"
     regenerator-runtime "^0.13.2"
 
+"@babel/runtime-corejs2@^7.5.5":
+  version "7.6.2"
+  resolved "https://registry.yarnpkg.com/@babel/runtime-corejs2/-/runtime-corejs2-7.6.2.tgz#062f8e31f3df30fc1a3dea68aa1bd854e06e9ba6"
+  integrity sha512-wdyVKnTv9Be4YlwF/7pByYNfcl23qC21aAQ0aIaZOo2ZOvhFEyJdBLJClYZ9i+Pmrz7sUQgg/MwbJa2RZTkygg==
+  dependencies:
+    core-js "^2.6.5"
+    regenerator-runtime "^0.13.2"
+
 "@babel/runtime-corejs3@^7.4.5":
   version "7.5.5"
   resolved "https://registry.yarnpkg.com/@babel/runtime-corejs3/-/runtime-corejs3-7.5.5.tgz#9744c03bdbef3091d277345bdd7131a29e67c957"
@@ -157,12 +165,15 @@
   dependencies:
     arrify "^1.0.1"
 
-"@gmod/bam@^1.0.20":
-  version "1.0.20"
-  resolved "https://registry.yarnpkg.com/@gmod/bam/-/bam-1.0.20.tgz#484cd6b79a817b21991a7b2e0eecd56e42c43653"
-  integrity sha512-Cv08tX3EMK9HclKRFUva7Vd78rZOscJ5c9EuR8etD5eAG7kyj2GRgZGWLdvX6cIt80u4INT3NDHJkRql5ALzeQ==
+"@gmod/bam@^1.0.24":
+  version "1.0.24"
+  resolved "https://registry.yarnpkg.com/@gmod/bam/-/bam-1.0.24.tgz#d945dd864f854fa8f3b8c7385af0406df7cea0ee"
+  integrity sha512-4l0zXLdKySVJuOmAz7LEg8//iNKL/qcvmF2IyTVlecQWD33oLf6mjwc1a5G/ydM2a5uwh543PqpB1G6XNNuL9A==
   dependencies:
-    "@babel/runtime" "^7.4.3"
+    "@babel/runtime-corejs2" "^7.5.5"
+    "@types/long" "^4.0.0"
+    "@types/node" "^12.7.8"
+    "@types/pako" "^1.0.1"
     abortable-promise-cache "^1.0.1"
     cross-fetch "^3.0.2"
     es6-promisify "^6.0.1"
@@ -170,7 +181,7 @@
     long "^4.0.0"
     object.entries-ponyfill "^1.0.1"
     pako "^1.0.10"
-    quick-lru "^2.0.0"
+    quick-lru "2"
 
 "@gmod/bgzf-filehandle@^1.2.4":
   version "1.2.4"
@@ -271,10 +282,25 @@
     pretty-ms "^0.2.1"
     text-table "^0.2.0"
 
+"@types/long@^4.0.0":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@types/long/-/long-4.0.0.tgz#719551d2352d301ac8b81db732acb6bdc28dbdef"
+  integrity sha512-1w52Nyx4Gq47uuu0EVcsHBxZFJgurQ+rTKS3qMHxR1GY2T8c2AJYd6vZoZ9q1rupaDjU0yT+Jc2XTyXkjeMA+Q==
+
 "@types/node@^10.1.4":
   version "10.14.14"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-10.14.14.tgz#a47955df2acf76ba7f0ac3b205d325da193dc9ad"
   integrity sha512-xXD08vZsvpv4xptQXj1+ky22f7ZoKu5ZNI/4l+/BXG3X+XaeZsmaFbbTKuhSE3NjjvRuZFxFf9sQBMXIcZNFMQ==
+
+"@types/node@^12.7.8":
+  version "12.7.8"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-12.7.8.tgz#cb1bf6800238898bc2ff6ffa5702c3cadd350708"
+  integrity sha512-FMdVn84tJJdV+xe+53sYiZS4R5yn1mAIxfj+DVoNiQjTYz1+OYmjwEZr1ev9nU0axXwda0QDbYl06QHanRVH3A==
+
+"@types/pako@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@types/pako/-/pako-1.0.1.tgz#33b237f3c9aff44d0f82fe63acffa4a365ef4a61"
+  integrity sha512-GdZbRSJ3Cv5fiwT6I0SQ3ckeN2PWNqxd26W9Z2fCK1tGrrasGy4puvNFtnddqH9UJFMQYXxEuuB7B8UK+LLwSg==
 
 "@webassemblyjs/ast@1.8.5":
   version "1.8.5"
@@ -6986,7 +7012,7 @@ querystring@0.2.0:
   resolved "https://registry.yarnpkg.com/querystring/-/querystring-0.2.0.tgz#b209849203bb25df820da756e747005878521620"
   integrity sha1-sgmEkgO7Jd+CDadW50cAWHhSFiA=
 
-quick-lru@^2.0.0:
+quick-lru@2, quick-lru@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/quick-lru/-/quick-lru-2.0.0.tgz#32b017b28d1784631c8ab0a1ed2978e094dbe181"
   integrity sha512-DqOtZziv7lDjEyuqyVQacRciAwMCEjTNrLYCHYEIIgjcE/tLEpBF82hiDIwCjRnEL9/hY2GJxA0T8ZvYvVVSSA==

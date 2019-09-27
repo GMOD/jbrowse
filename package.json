@@ -41,7 +41,7 @@
     "shelljs": "^0.7.8"
   },
   "devDependencies": {
-    "@gmod/bam": "^1.0.20",
+    "@gmod/bam": "^1.0.24",
     "@gmod/cram": "^1.5.3",
     "@gmod/gff": "^1.1.1",
     "@gmod/indexedfasta": "^1.0.11",
