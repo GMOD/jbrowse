@@ -27,6 +27,10 @@
  * Fixed some documentation for Content-Range CORs headers and
    renderAlignment configs (@cmdcolin)
 
+ * Restore the usage of crc32 BAM hash code IDs via upgrades to @gmod/bam
+   which fixes some issues seen in long reads not sharing the same ID across
+   blocks (@cmdcolin)
+
 # Release 1.16.6     2019-07-12 01:20:19 UTC
 
 ## Minor improvements
