@@ -165,23 +165,24 @@
   dependencies:
     arrify "^1.0.1"
 
-"@gmod/bam@^1.0.24":
-  version "1.0.24"
-  resolved "https://registry.yarnpkg.com/@gmod/bam/-/bam-1.0.24.tgz#d945dd864f854fa8f3b8c7385af0406df7cea0ee"
-  integrity sha512-4l0zXLdKySVJuOmAz7LEg8//iNKL/qcvmF2IyTVlecQWD33oLf6mjwc1a5G/ydM2a5uwh543PqpB1G6XNNuL9A==
+"@gmod/bam@^1.0.26":
+  version "1.0.26"
+  resolved "https://registry.yarnpkg.com/@gmod/bam/-/bam-1.0.26.tgz#ca4b79923226f8994a9ec7991b410b658e202f3b"
+  integrity sha512-u/vlsNHAcw6YQ2KD9n6txS2DaesrBiRmNDL59wGmeRWpRC1gqj4OqlTGAawuqAGTUGGESUirKlJQ+s2we5z/jg==
   dependencies:
     "@babel/runtime-corejs2" "^7.5.5"
     "@types/long" "^4.0.0"
     "@types/node" "^12.7.8"
     "@types/pako" "^1.0.1"
     abortable-promise-cache "^1.0.1"
+    buffer-crc32 "^0.2.13"
     cross-fetch "^3.0.2"
     es6-promisify "^6.0.1"
     generic-filehandle "^2.0.0"
     long "^4.0.0"
     object.entries-ponyfill "^1.0.1"
     pako "^1.0.10"
-    quick-lru "2"
+    quick-lru "^2.0.0"
 
 "@gmod/bgzf-filehandle@^1.2.4":
   version "1.2.4"
@@ -7012,7 +7013,7 @@ querystring@0.2.0:
   resolved "https://registry.yarnpkg.com/querystring/-/querystring-0.2.0.tgz#b209849203bb25df820da756e747005878521620"
   integrity sha1-sgmEkgO7Jd+CDadW50cAWHhSFiA=
 
-quick-lru@2, quick-lru@^2.0.0:
+quick-lru@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/quick-lru/-/quick-lru-2.0.0.tgz#32b017b28d1784631c8ab0a1ed2978e094dbe181"
   integrity sha512-DqOtZziv7lDjEyuqyVQacRciAwMCEjTNrLYCHYEIIgjcE/tLEpBF82hiDIwCjRnEL9/hY2GJxA0T8ZvYvVVSSA==
