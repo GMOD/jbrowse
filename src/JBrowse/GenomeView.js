@@ -670,6 +670,7 @@ wheelScroll: function( event ) {
         didScroll = true
     }
     if( y ) {
+        y = -y
         // 60 pixels per mouse wheel event
         var prevY = this.getY()
         var currY = this.setY( prevY - y );
