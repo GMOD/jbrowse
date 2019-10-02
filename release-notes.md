@@ -8,6 +8,9 @@
  * Improved performance of startup time with large tracklists (pull #1412,
    @cmdcolin)
 
+ * Improve consistency of scrolling behavior across browsers using
+   normalize-wheel npm package (@cmdcolin, @scottcain, pull #1429)
+
 ## Bug fixes
 
  * Added a fix for a performance regularization for large tracklists that
