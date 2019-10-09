@@ -127,12 +127,14 @@ return declare( HashStore,
     },
 
     // case-insensitive, and supports prefix queries like 'foo*'
-    query: function( query, options ) {
+    async query( query, options ) {
         // remove trailing asterisks from query.name
         var thisB = this;
         var name = ( query.name || '' ).toString();
 
         // lowercase the name if the store is all-lowercase
+        // wait for the ready signal to test for lower case keys
+        await this.ready
         if( this.meta.lowercase_keys )
             name = name.toLowerCase();
 
