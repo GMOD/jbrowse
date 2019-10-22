@@ -3219,30 +3219,29 @@ createNavBox: function( parent ) {
                       }
                   });
     dojo.connect( navbox, 'onselectstart', function(evt) { evt.stopPropagation(); return true; });
+
     // monkey-patch the combobox code to make a few modifications
     (function(){
-
-         // add a moreMatches class to our hacked-in "more options" option
-         var dropDownProto = eval(this.locationBox.dropDownClass).prototype;
-         var oldCreateOption = dropDownProto._createOption;
-         dropDownProto._createOption = function( item ) {
-             var option = oldCreateOption.apply( this, arguments );
-             if( item.hitLimit )
-                 dojo.addClass( option, 'moreMatches');
-             return option;
-         };
-
-         // prevent the "more matches" option from being clicked
-         var oldOnClick = dropDownProto.onClick;
-         dropDownProto.onClick = function( node ) {
-             if( dojo.hasClass(node, 'moreMatches' ) )
-                 return null;
+        var PatchedDropDownClass = dojo.declare(this.locationBox.dropDownClass, {
+            // add a moreMatches class to our hacked-in "more options" option
+            _createOption: function( item ) {
+                var option = this.inherited(arguments);
+                if( item.hitLimit )
+                    dojo.addClass( option, 'moreMatches');
+                return option;
+            },
+            // prevent the "more matches" option from being clicked
+            onClick: function( node ) {
+                if( dojo.hasClass(node, 'moreMatches' ) )
+                    return null;
 
 
-            var ret = oldOnClick.apply( this, arguments );
-            thisB.navigateTo(thisB.locationBox.get('value'))
-            return ret;
-         };
+                var ret = this.inherited(arguments);
+                thisB.navigateTo(thisB.locationBox.get('value'))
+                return ret;
+            }
+        });
+        this.locationBox.dropDownClass = PatchedDropDownClass;
     }).call(this);
 
     // make the 'Go' button
