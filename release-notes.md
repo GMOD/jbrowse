@@ -30,9 +30,14 @@
  * Fixed some documentation for Content-Range CORs headers and
    renderAlignment configs (@cmdcolin)
 
- * Restore the usage of crc32 BAM hash code IDs via upgrades to @gmod/bam
-   which fixes some issues seen in long reads not sharing the same ID across
-   blocks (@cmdcolin)
+ * Fixex rendering of CRAM hard clipping, which would display mismatches
+   incorrectly (@cmdcolin, pull #1440, issue #1438)
+
+ * Fixed issue where some BAM features were given the incorrect feature ID
+   across blocks (@cmdcolin, https://github.com/GMOD/bam-js/pull/36)
+
+ * Removed monkey patching from the dropdown refseq box, thanks to @lukaw3d
+   for finding and fixing (@lukaw3d, pull #1439)
 
 # Release 1.16.6     2019-07-12 01:20:19 UTC
 
