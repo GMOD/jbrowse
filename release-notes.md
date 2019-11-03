@@ -39,6 +39,9 @@
  * Removed monkey patching from the dropdown refseq box, thanks to @lukaw3d
    for finding and fixing (@lukaw3d, pull #1439)
 
+ * Add fix for bigbed files with large headers, e.g. large autoSql schema
+   (@cmdcolin)
+
 # Release 1.16.6     2019-07-12 01:20:19 UTC
 
 ## Minor improvements
