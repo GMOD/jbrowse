@@ -101,14 +101,12 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
                 regularizedReferenceName,
                 query.start,
                 query.end,
-                line => {
+                (line, fileOffset) => {
                     const variant = parser.parseLine(line)
                     const feature = new VCFFeature({
                         variant: variant,
                         parser: parser,
-                        id: variant.ID ?
-                            variant.ID[0] :
-                            `chr${variant.CHROM}_pos${variant.POS}_ref${variant.REF}_alt${variant.ALT}`
+                        id: 'vcf-'+fileOffset
                     })
                     featureCallback(feature)
                 }
