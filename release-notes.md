@@ -42,6 +42,9 @@
  * Add fix for bigbed files with large headers, e.g. large autoSql schema
    (@cmdcolin)
 
+ * Make VCF based features have distinct file IDs for similar overlapping features
+   with same ID, ALT, REF, etc. Thanks @scottcain for the report (@cmdcolin)
+
 # Release 1.16.6     2019-07-12 01:20:19 UTC
 
 ## Minor improvements
