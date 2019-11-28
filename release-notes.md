@@ -11,6 +11,11 @@
  * Improve consistency of scrolling behavior across browsers using
    normalize-wheel npm package (@cmdcolin, @scottcain, pull #1429)
 
+ * Add trackMetadata->sortFacets boolean flag which can be set to false
+   to disable sorting the facet categories in the left hand column of the
+   faceted track selector. Thanks to Val Wood for championing this issue
+   for pombase! (@cmdcolin)
+
 ## Bug fixes
 
  * Added a fix for a performance regularization for large tracklists that
