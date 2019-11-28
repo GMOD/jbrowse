@@ -13,7 +13,7 @@ done_message () {
         if [[ "x$3" != "x" ]]; then
             echo "setup cannot continue, aborting.";
             tail -200 setup.log;
-            exit 1;
+            return 1;
         fi
     fi
 }
@@ -35,7 +35,7 @@ check_node () {
         nodejs_executable=$(which nodejs)
         if ! [ -x "$nodejs_executable" ] ; then
             echo "No 'node' executable found. JBrowse expects node version 6 or later. Please install an updated version of node.js by following the instructions appropriate for your system https://nodejs.org/en/download/package-manager/";
-            exit 1
+            return 1
         else
             echo "Creating an alias 'node' for 'nodejs'"
             node_executable="$nodejs_executable"
@@ -44,7 +44,7 @@ check_node () {
     set -e
     if ! [ -x "$npm_executable" ] ; then
         echo "No 'npm' executable found. JBrowse expects npm version 3 or later. Please install an updated version of node.js by following the instructions appropriate for your system https://nodejs.org/en/download/package-manager/";
-        exit 1
+        return 1
     fi
     NODE_VERSION=`$node_executable -v`
     NODE_MAJOR_VERSION=`$node_executable -v | cut -dv -f2 | cut -d. -f1`
@@ -53,11 +53,11 @@ check_node () {
     NPM_MAJOR_VERSION=`$npm_executable -v | cut -d. -f1`
     if [[ $NODE_MAJOR_VERSION -lt 6 ]]; then
         echo "node $NODE_VERSION found, but node version 6 or later must be installed.  Please install an updated version of node.js by following the instructions appropriate for your system https://nodejs.org/en/download/package-manager/";
-        exit 1
+        return 1
     fi
     if [[ $NPM_MAJOR_VERSION -lt 3 ]]; then
         echo "npm $NPM_VERSION found, but npm version 3 or later must be installed.  Please install an updated version of node.js by following the instructions appropriate for your system https://nodejs.org/en/download/package-manager/";
-        exit 1
+        return 1
     fi
     echo "Node $NODE_VERSION installed at $node_executable with npm $NPM_VERSION";
 }
