@@ -41,7 +41,6 @@ use File::Spec ();
 use Digest::Crc32 ();
 use DB_File ();
 use IO::File ();
-use IO::Interactive qw(is_interactive);
 use POSIX ();
 
 my $bucket_class = 'Bio::JBrowse::HashStore::Bucket';
@@ -265,7 +264,7 @@ sub _make_progressbar {
     my ( $self, $description, $total_count ) = @_;
 
     # do not initialize a progress bar if no tty
-    if ( ! is_interactive() ) {
+    if ( ! -t STDERR) {
        return;
     }
 
