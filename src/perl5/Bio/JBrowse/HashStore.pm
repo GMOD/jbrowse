@@ -263,6 +263,11 @@ sub set {
 sub _make_progressbar {
     my ( $self, $description, $total_count ) = @_;
 
+    # do not initialize a progress bar if no tty
+    if ( ! -t STDERR) {
+       return;
+    }
+
     return unless $self->{verbose};
 
     eval { require Term::ProgressBar };
