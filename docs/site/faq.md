@@ -375,6 +375,8 @@ e.g
 
 `"metadata": {"randominfo": "<p style='color:green'>Green text</p>", "otherrandominfo": "<p style='color:red'>Red text</p>"} `
 
+**NOTE: in JBrowse 1.16.0 and later you also have to add unsafePopup to your track that has this for the HTML rendering to work in the about dialog**
+
 You can also use the fmtDetailMeta and fmtFieldMeta callback functions
 to change pre-existing values
 <http://gmod.org/wiki/JBrowse_Configuration_Guide#Additional_customizations_to_the_pop-up_boxes>
