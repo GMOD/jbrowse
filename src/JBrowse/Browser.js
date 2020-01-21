@@ -2384,11 +2384,14 @@ onFineMove: function(startbp, endbp) {
  * Asynchronously initialize our track metadata.
  */
 initTrackMetadata: function( callback ) {
+    var thisB = this
     return this._milestoneFunction( 'initTrackMetadata', function( deferred ) {
         var metaDataSourceClasses = dojo.map(
                                     (this.config.trackMetadata||{}).sources || [],
                                     function( sourceDef ) {
-                                        var url  = sourceDef.url || 'trackMeta.csv';
+                                        var url = sourceDef.relativeUrl ?
+                                            Util.resolveUrl(thisB.config.dataRoot+'/',sourceDef.relativeUrl) :
+                                            (sourceDef.url || 'trackMeta.csv');
                                         var type = sourceDef.type || (
                                                 /\.csv$/i.test(url)     ? 'csv'  :
                                                 /\.js(on)?$/i.test(url) ? 'json' :
