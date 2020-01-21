@@ -16,6 +16,11 @@
    faceted track selector. Thanks to Val Wood for championing this issue
    for pombase! (@cmdcolin)
 
+ * Add `relativeUrl` to trackMetadata config so that URLs relative to the
+   data directory can be specified (the standard `url` config is relative
+   to the jbrowse root). Thanks to @loraine-gueguen for the report
+   (issue #1457)
+
 ## Bug fixes
 
  * Added a fix for a performance regularization for large tracklists that
