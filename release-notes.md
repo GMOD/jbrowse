@@ -23,6 +23,9 @@
 
 ## Bug fixes
 
+ * Fix bug that has existed since 1.16.0 (since the introduction of @gmod/bam)
+   that caused some BAM tags to be missed.
+
  * Added a fix for a performance regularization for large tracklists that
    contain a lot of data. Thanks to @scottcain for reporting (#pull #1412,
    @cmdcolin)
@@ -40,7 +43,7 @@
  * Fixed some documentation for Content-Range CORs headers and
    renderAlignment configs (@cmdcolin)
 
- * Fixex rendering of CRAM hard clipping, which would display mismatches
+ * Fixed rendering of CRAM hard clipping, which would display mismatches
    incorrectly (@cmdcolin, pull #1440, issue #1438)
 
  * Fixed issue where some BAM features were given the incorrect feature ID
@@ -49,7 +52,7 @@
  * Removed monkey patching from the dropdown refseq box, thanks to @lukaw3d
    for finding and fixing (@lukaw3d, pull #1439)
 
- * Add fix for bigbed files with large headers, e.g. large autoSql schema
+ * Added fix for bigbed files with large headers, e.g. large autoSql schema
    (@cmdcolin)
 
  * Make VCF based features have distinct file IDs for similar overlapping features
