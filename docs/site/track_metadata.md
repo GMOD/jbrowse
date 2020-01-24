@@ -38,8 +38,9 @@ JBrowse currently supports track metadata that in Excel-compatible comma-separat
 
 |Option|Value|
 |------|-----|
-|`trackMetadata.sources`|Array of source definitions, each of which takes the form `{ type: 'csv', url: '/path/to/file' }`. The url is interpreted as relative to the url of the page containing JBrowse (index.html in default installations). Source definitions can also contain a `class` to explicitly specify the JavaScript backend used to handle this source.|
+|`trackMetadata.sources`|Array of source definitions, each of which takes the form `{ type: 'csv', url: '/path/to/file' }`. The url is interpreted as relative to the url of the page containing JBrowse (index.html in default installations). Source definitions can also contain a `class` to explicitly specify the JavaScript backend used to handle this source. Note you can also specify relativeUrl instead of `url` in order to make the resolution relative to the data directory e.g. `{ type: 'csv': 'file_inside_data_directory.csv' }`. relativeUrl added in 1.16.7|
 |`trackMetadata.indexFacets`|Optional array of facet names that should be the only ones made searchable. This can be used improve the speed and memory footprint of JBrowse on the client by not indexing unused metadata facets.|
+|`trackMetadata.sortFacets`|Boolean value to sort the facet names. Can be set to false to disable sorting. Added in JBrowse 1.16.7|
 
 Hint: to convert JBrowse JSON files to a csv, try using jq <https://stedolan.github.io/jq>
 

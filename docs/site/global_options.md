@@ -37,7 +37,7 @@ JBrowse supports some other configuration variables that customize the overall b
 |`quickHelp→href`|Sets the content of the help dialog using XHR to retrieve content.|
 |`quickHelp→title`|Sets the title of the help dialog. Note: other dijit Dialog parameter can also be passed to quickHelp, these are just the basics.|
 |`exactReferenceSequenceNames`|Disables the regularizeReferenceSequence routine. Default: false|
-|`refSeqs`|A custom URL for your refSeqs.json file (or a webservice returning something in refSeqs.json format). Example: "http://mysite/refseqs.json". Can also be a URL for a FASTA index file in 1.12.0+.|
+|`refSeqs`|A custom URL for your refSeqs.json file (or a webservice returning something in refSeqs.json format). Example: "http://mysite/refseqs.json". Can also be a URL for a FASTA index file in 1.12.0+. Can also be a full JSON object with storeClass and faiUrlTemplate or urlTemplate, this reduces the need for JBrowse to depend on checking the file extension of the refSeqs config, so instead you can supply `refSeqs=json:{"storeClass": "JBrowse/Store/SeqFeature/IndexedFasta", "faiUrlTemplate": "path/to/file.fa.fai"}`. Object notation added in JBrowse 1.16.7|
 |`alwaysOnTracks`|Comma-separated list of track \*labels\* to always show when the browser is opened. Example: "snps,genes,alignments".|
 |`classicMenu`|Boolean to use classic menu style (File) menu. Added in 1.12.0|
 |`hideGenomeOptions`|Boolean - Hide the options for opening a sequence file. Added in 1.12.0|
