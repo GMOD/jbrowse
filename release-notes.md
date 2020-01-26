@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+## Bug fixes
+
+
 
 # Release 1.16.7     2020-01-24 20:23:47 UTC
 
@@ -60,6 +63,10 @@
 
  * Make VCF based features have distinct file IDs for similar overlapping features
    with same ID, ALT, REF, etc. Thanks @scottcain for the report (@cmdcolin)
+
+ * Fixed a race-condition that prevented the ability to properly query using
+   upper-case characters in for example /?loc=UPPERCASE. Thanks to @scottcain
+   for reporting (pull #1435, @cmdcolin)
 
 # Release 1.16.6     2019-07-12 01:20:19 UTC
 
