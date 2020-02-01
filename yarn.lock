@@ -92,7 +92,15 @@
     esutils "^2.0.2"
     js-tokens "^3.0.0"
 
-"@babel/runtime-corejs2@^7.3.1", "@babel/runtime-corejs2@^7.4.3", "@babel/runtime-corejs2@^7.5.5":
+"@babel/runtime-corejs2@^7.3.1":
+  version "7.8.4"
+  resolved "https://registry.yarnpkg.com/@babel/runtime-corejs2/-/runtime-corejs2-7.8.4.tgz#e4ed23a8be40fa26b97fb649deaba8144c987593"
+  integrity sha512-7jU2FgNqNHX6yTuU/Dr/vH5/O8eVL9U85MG5aDw1LzGfCvvhXC1shdXfVzCQDsoY967yrAKeLujRv7l8BU+dZA==
+  dependencies:
+    core-js "^2.6.5"
+    regenerator-runtime "^0.13.2"
+
+"@babel/runtime-corejs2@^7.4.3", "@babel/runtime-corejs2@^7.5.5":
   version "7.8.3"
   resolved "https://registry.yarnpkg.com/@babel/runtime-corejs2/-/runtime-corejs2-7.8.3.tgz#b62a61e0c41a90d2d91181fda6de21cecd3a9734"
   integrity sha512-yxJXBKdIogkfF+wgeJrvU7Afp5ugBi92NzSgNPWWKVoQAlixH3gwMP6yYYr7SV1Dbc0HmNw7WUJkV5ksvtQuHg==
@@ -108,10 +116,17 @@
     core-js-pure "^3.0.0"
     regenerator-runtime "^0.13.2"
 
-"@babel/runtime@^7.3.1", "@babel/runtime@^7.3.4", "@babel/runtime@^7.4.3", "@babel/runtime@^7.4.4", "@babel/runtime@^7.4.5":
+"@babel/runtime@^7.3.1", "@babel/runtime@^7.4.3", "@babel/runtime@^7.4.4":
   version "7.8.3"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.8.3.tgz#0811944f73a6c926bb2ad35e918dcc1bfab279f1"
   integrity sha512-fVHx1rzEmwB130VTkLnxR+HmxcTjGzH12LYQcFFoBwakMd3aOMD4OsRN7tGG/UOYE2ektgFrS8uACAoRk1CY0w==
+  dependencies:
+    regenerator-runtime "^0.13.2"
+
+"@babel/runtime@^7.3.4", "@babel/runtime@^7.4.5":
+  version "7.8.4"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.8.4.tgz#d79f5a2040f7caa24d53e563aad49cbc05581308"
+  integrity sha512-neAp3zt80trRVBI1x0azq6c57aNBqYZH8KhMm3TaB7wEI5Q4A2SHfBHE8w9gOhI/lrqxtEbXZgQIrHP+wvSGwQ==
   dependencies:
     regenerator-runtime "^0.13.2"
 
@@ -226,15 +241,16 @@
     es6-promisify "^6.0.1"
 
 "@gmod/tabix@^1.3.2":
-  version "1.3.2"
-  resolved "https://registry.yarnpkg.com/@gmod/tabix/-/tabix-1.3.2.tgz#48f782d516561bc727aa8bab3e04a6c4a9113440"
-  integrity sha512-eH0iQdj+Eitr+VtEs2jvqhsIRxO8dDdAEw2AaGNB/Xi4OIxDeP8i8PZkmYDxX8KiBKlTCqXAafSSGbZH5WfMkg==
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@gmod/tabix/-/tabix-1.4.0.tgz#a8896339b433bacdd31aeb88620796874ce79665"
+  integrity sha512-GAMlAhl3QFUH2SMxs0BxHDrbxOBX8ibYqi1hzo69gFBFk/Vn/2j9JH979s05UMlrvIG6pskmszlhJqLwf3akJA==
   dependencies:
     "@babel/runtime-corejs2" "^7.3.1"
     "@gmod/bgzf-filehandle" "^1.3.0"
+    "@types/quick-lru" "2.0.0"
     abortable-promise-cache "^1.0.1"
     es6-promisify "^6.0.1"
-    generic-filehandle "^2.0.0"
+    generic-filehandle "^2.0.1"
     long "^4.0.0"
     quick-lru "^2.0.0"
 
@@ -288,6 +304,11 @@
   version "12.12.25"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-12.12.25.tgz#792c0afb798f1dd681dce9c4b4c431f7245a0a42"
   integrity sha512-nf1LMGZvgFX186geVZR1xMZKKblJiRfiASTHw85zED2kI1yDKHDwTKMdkaCbTlXoRKlGKaDfYywt+V0As30q3w==
+
+"@types/quick-lru@2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@types/quick-lru/-/quick-lru-2.0.0.tgz#04b3a558d45533ceef1be33950b7ed7e1202cd2f"
+  integrity sha512-bQLWvCkzO4OFPUFAQH5Ql0K8Q+9XH0uGbsODUXQlv9PfT+1hMVB++XZpiLDTKad35hu0KB2e9sYop/jVnkosVg==
 
 "@webassemblyjs/ast@1.8.5":
   version "1.8.5"
@@ -3735,7 +3756,7 @@ gaze@^1.0.0, gaze@~1.1.2:
   dependencies:
     globule "^1.0.0"
 
-generic-filehandle@^2.0.0:
+generic-filehandle@^2.0.0, generic-filehandle@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/generic-filehandle/-/generic-filehandle-2.0.1.tgz#cb3e9cb8098df52c55b510baabc5f92743f05046"
   integrity sha512-lgCI05NxjUiNI3GA1P7uJyK90h+xIg1dCLLNIqWgvFqtZu/2BJ/a5/9QIfGfiCHGAiesZOzNunKxzkCgpd3jsA==
@@ -5968,7 +5989,12 @@ package-json@^4.0.0:
     registry-url "^3.0.3"
     semver "^5.1.0"
 
-pako@^1.0.10, pako@~1.0.5:
+pako@^1.0.10:
+  version "1.0.11"
+  resolved "https://registry.yarnpkg.com/pako/-/pako-1.0.11.tgz#6c9599d340d54dfd3946380252a35705a6b992bf"
+  integrity sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==
+
+pako@~1.0.5:
   version "1.0.10"
   resolved "https://registry.yarnpkg.com/pako/-/pako-1.0.10.tgz#4328badb5086a426aa90f541977d4955da5c9732"
   integrity sha512-0DTvPVU3ed8+HNXOu5Bs+o//Mbdj9VNQMUOe9oKCwh8l0GNwpTDMKCWbRjgtD291AWnkAgkqA/LOnQS8AmS1tw==
