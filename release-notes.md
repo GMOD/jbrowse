@@ -2,7 +2,9 @@
 
 ## Bug fixes
 
-
+ * Fixed an regression that made corrupted features around bgzip block
+   boundaries. Related to @gmod/tabix 1.2.0->1.3.2 fileOffset based feature ID.
+   Bug affected JBrowse 1.16.7 (issue #1464)
 
 # Release 1.16.7     2020-01-24 20:23:47 UTC
 
