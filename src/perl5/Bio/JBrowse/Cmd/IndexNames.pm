@@ -18,7 +18,6 @@ use Storable ();
 use File::Path ();
 use File::Temp ();
 use List::Util ();
-use Data::Dumper;
 use Encode qw(decode encode);
 
 use GenomeDB ();
@@ -80,7 +79,6 @@ sub run {
     unless( @$refSeqs ) {
         die "No reference sequences defined in configuration, nothing to do.\n";
     }
-    print Dumper($gdb->trackList);
     my @tracks = grep $self->track_is_included( $_->{label} ),
                       @{ $gdb->trackList || [] };
     unless( @tracks ) {
@@ -367,7 +365,6 @@ sub find_names_files {
             # read either names.txt or names.json files
             my $name_records_iterator;
             my $names_txt  = File::Spec->catfile( $dir, 'names.txt'  );
-            print "$names_txt\n";
             if( -e decode('UTF-8',$names_txt) ) {
                 push @files, $self->make_file_record( $track, $names_txt );
             }
