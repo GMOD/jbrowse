@@ -10,6 +10,7 @@ use strict;
 use warnings;
 
 use base 'Bio::JBrowse::FeatureStream';
+use Data::Dumper;
 
 use Bio::JBrowse::FeatureStream::Genbank::LocationParser;
 
@@ -31,11 +32,12 @@ sub _aggregate_features_from_gbk_record {
     # get index of top level feature ('mRNA' at current writing)
     my $indexTopLevel;
     my $count = 0;
+    print Dumper $record;
     foreach my $feat ( @{$record->{FEATURES}} ){
-	if ( _isTopLevel( $feat ) ){
-	    $indexTopLevel = $count;
-	}
-	$count++;
+        if ( _isTopLevel( $feat ) ){
+            $indexTopLevel = $count;
+        }
+        $count++;
     }
 
     return unless defined $indexTopLevel;
@@ -54,55 +56,52 @@ sub _aggregate_features_from_gbk_record {
     delete $f->{SEQUENCE};
 
     $f->{end} = $locations[-1]{end};
-    #for my $f ( @features ) {
-        $f->{start}  += $offset + 1;
-        $f->{end}    += $offset;
-        $f->{strand} = 1 unless defined $f->{strand};
-        $f->{type}   = $record->{FEATURES}[$indexTopLevel]{name};
-        $f->{seq_id} ||= $seq_id;
+    $f->{type}   = $record->{FEATURES}[$indexTopLevel]{name};
+    $f->{seq_id} ||= $seq_id;
 
-        %$f = ( %{$record->{FEATURES}[$indexTopLevel]{feature} || {}}, %$f ); # get other attrs
-        if( $f->{type} eq 'mRNA' ) {
-            $f->{name} = $record->{FEATURES}[$indexTopLevel]{feature}{gene};
-            $f->{description} = $record->{FEATURES}[$indexTopLevel]{feature}{product} || $f->{FEATURES}[$indexTopLevel]{feature}{note};
-        }
+    %$f = ( %{$record->{FEATURES}[$indexTopLevel]{feature} || {}}, %$f ); # get other attrs
+    if( $f->{type} eq 'gene' ) {
+        print "here2\n";
+        $f->{name} = $record->{FEATURES}[$indexTopLevel]{feature}{gene};
+        $f->{description} = $record->{FEATURES}[$indexTopLevel]{feature}{product} || $f->{FEATURES}[$indexTopLevel]{feature}{note};
+    }
 
-        # convert FEATURES to subfeatures
-        $f->{subfeatures} = [];
-        if ( scalar( @{$record->{FEATURES} || [] }) > $indexTopLevel ) {
-            for my $i ( $indexTopLevel + 1 .. $#{$record->{FEATURES}} ) {
-                my $feature = $record->{FEATURES}[$i];
-                my @sublocations = _parseLocation( $feature->{location} );
-                for my $subloc ( @sublocations ) {
-                    $subloc->{start} += $offset + 1;
-                    $subloc->{end} += $offset;
+    # convert FEATURES to subfeatures
+    $f->{subfeatures} = [];
+    if ( scalar( @{$record->{FEATURES} || [] }) > $indexTopLevel ) {
+        for my $i ( $indexTopLevel + 1 .. $#{$record->{FEATURES}} ) {
+            my $feature = $record->{FEATURES}[$i];
+            my @sublocations = _parseLocation( $feature->{location} );
+            for my $subloc ( @sublocations ) {
+                $subloc->{start} += $offset + 1;
+                $subloc->{end} += $offset;
 
-                    my $newFeature = {
-                        %{ $feature->{feature}||{} },
-                        %$subloc,
-                        type  => $feature->{name}
-                        };
+                my $newFeature = {
+                    %{ $feature->{feature}||{} },
+                    %$subloc,
+                    type  => $feature->{name}
+                    };
 
-                    $newFeature->{seq_id} ||= $seq_id;
+                $newFeature->{seq_id} ||= $seq_id;
 
-                    push @{$f->{subfeatures}}, $newFeature;
-                }
+                push @{$f->{subfeatures}}, $newFeature;
             }
         }
-#    }
+    }
 
     return $f;
 }
 
 sub _isTopLevel {
     my $feat = shift;
-    my @topLevelFeatures = qw( mRNA ); # add more as needed?
+    my @topLevelFeatures = qw( gene ); # add more as needed?
     my $isTopLevel = 0;
     foreach my $thisTopFeat ( @topLevelFeatures ){
-	if ( $feat->{'name'} =~ m/$thisTopFeat/ ){
-	    $isTopLevel = 1;
-	    last;
-	}
+        if ( $feat->{'name'} =~ m/$thisTopFeat/ ){
+            print "here\n";
+            $isTopLevel = 1;
+            last;
+        }
     }
     return $isTopLevel;
 }
@@ -115,7 +114,7 @@ sub _getRegionOffset {
 
     my $f = shift;
     my $offset = 0;
-    if ( grep {$_ =~ /REGION\:/} @{$f->{'VERSION'}} ){ # this is a region file 
+    if ( grep {$_ =~ /REGION\:/} @{$f->{'VERSION'}} ){ # this is a region file
  	# get array item after REGION token
  	my $count = 0;
 	my $regionIndexInArray;

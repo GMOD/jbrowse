@@ -18,6 +18,8 @@ use Storable ();
 use File::Path ();
 use File::Temp ();
 use List::Util ();
+use Data::Dumper;
+use Encode qw(decode encode);
 
 use GenomeDB ();
 use Bio::GFF3::LowLevel qw/gff3_parse_feature/;
@@ -78,6 +80,7 @@ sub run {
     unless( @$refSeqs ) {
         die "No reference sequences defined in configuration, nothing to do.\n";
     }
+    print Dumper($gdb->trackList);
     my @tracks = grep $self->track_is_included( $_->{label} ),
                       @{ $gdb->trackList || [] };
     unless( @tracks ) {
@@ -195,8 +198,8 @@ sub _mergeIndexEntries {
 
 sub make_file_record {
     my ( $self, $track, $file ) = @_;
-    -f $file or die "$file not found\n";
-    -r $file or die "$file not readable\n";
+    -f decode('UTF-8',$file) or die "$file not found\n";
+    -r decode('UTF-8',$file) or die "$file not readable\n";
     my $gzipped = $file =~ /\.(txt|json|g)z(\.\d+)?$/;
     my $type = $file =~ /\.txtz?$/                ? 'txt'  :
                $file =~ /\.jsonz?$/               ? 'json' :
@@ -364,7 +367,8 @@ sub find_names_files {
             # read either names.txt or names.json files
             my $name_records_iterator;
             my $names_txt  = File::Spec->catfile( $dir, 'names.txt'  );
-            if( -f $names_txt ) {
+            print "$names_txt\n";
+            if( -e decode('UTF-8',$names_txt) ) {
                 push @files, $self->make_file_record( $track, $names_txt );
             }
             else {
@@ -436,8 +440,8 @@ sub make_operation_stream {
     #print "sizes: $self->{stats}{total_namerec_bytes}, buffered: $namerecs_buffered, b/rec: ".$total_namerec_sizes/$namerecs_buffered."\n";
     $self->{stats}{avg_record_text_bytes} = $self->{stats}{total_namerec_bytes}/($self->{stats}{namerecs_buffered}||1);
     $self->{stats}{total_input_bytes} = List::Util::sum(
-        map { my $s = -s $_->{fullpath};
-              $s *= 8 if $_->{fullpath} =~ /\.(g|txt|json)z$/;
+        map { my $s = -s decode('UTF-8',$_->{fullpath});
+              $s *= 8 if decode('UTF-8',$_->{fullpath}) =~ /\.(g|txt|json)z$/;
               $s;
           } @$names_files ) || 0;
     $self->{stats}{record_stream_estimated_count} = int( $self->{stats}{total_input_bytes} / ($self->{stats}{avg_record_text_bytes}||1));;
@@ -710,7 +714,7 @@ sub open_names_file {
         }
     }
     else {
-        open my $fh, '<', $infile or die "$! reading $infile";
+        open my $fh, '<', decode('UTF-8',$infile) or die "$! reading $infile";
         return $fh;
     }
 }
