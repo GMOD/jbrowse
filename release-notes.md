@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+## Bug fixes
+
+ * Fixed a race condition in the http-range-fetcher module that caused
+   "Error: "failed to retrieve file size"" messages when many tracks
+   were opened at once. Thanks to @russellmyers for the bug report!
+   (issue #1473)
 
 # Release 1.16.8     2020-02-05 01:37:43 UTC
 
