@@ -100,13 +100,21 @@
     core-js "^2.6.5"
     regenerator-runtime "^0.13.2"
 
-"@babel/runtime-corejs2@^7.4.3", "@babel/runtime-corejs2@^7.5.5":
+"@babel/runtime-corejs2@^7.4.3":
   version "7.8.3"
   resolved "https://registry.yarnpkg.com/@babel/runtime-corejs2/-/runtime-corejs2-7.8.3.tgz#b62a61e0c41a90d2d91181fda6de21cecd3a9734"
   integrity sha512-yxJXBKdIogkfF+wgeJrvU7Afp5ugBi92NzSgNPWWKVoQAlixH3gwMP6yYYr7SV1Dbc0HmNw7WUJkV5ksvtQuHg==
   dependencies:
     core-js "^2.6.5"
     regenerator-runtime "^0.13.2"
+
+"@babel/runtime-corejs2@^7.5.5":
+  version "7.8.7"
+  resolved "https://registry.yarnpkg.com/@babel/runtime-corejs2/-/runtime-corejs2-7.8.7.tgz#5c6afcb33ef12fa1f8db6b915ff6b5ecaf6afb11"
+  integrity sha512-R8zbPiv25S0pGfMqAr55dRRxWB8vUeo3wicI4g9PFVBKmsy/9wmQUV1AaYW/kxRHUhx42TTh6F0+QO+4pwfYWg==
+  dependencies:
+    core-js "^2.6.5"
+    regenerator-runtime "^0.13.4"
 
 "@babel/runtime-corejs3@^7.4.5":
   version "7.8.3"
@@ -116,6 +124,13 @@
     core-js-pure "^3.0.0"
     regenerator-runtime "^0.13.2"
 
+"@babel/runtime@^7.0.0", "@babel/runtime@^7.3.4", "@babel/runtime@^7.4.5":
+  version "7.8.7"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.8.7.tgz#8fefce9802db54881ba59f90bb28719b4996324d"
+  integrity sha512-+AATMUFppJDw6aiR5NVPHqIQBlV/Pj8wY/EZH+lmvRdUo9xBaz/rF3alAwFJQavvKfeOlPE7oaaDHVbcySbCsg==
+  dependencies:
+    regenerator-runtime "^0.13.4"
+
 "@babel/runtime@^7.3.1", "@babel/runtime@^7.4.3":
   version "7.8.3"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.8.3.tgz#0811944f73a6c926bb2ad35e918dcc1bfab279f1"
@@ -123,7 +138,7 @@
   dependencies:
     regenerator-runtime "^0.13.2"
 
-"@babel/runtime@^7.3.4", "@babel/runtime@^7.4.4", "@babel/runtime@^7.4.5":
+"@babel/runtime@^7.4.4":
   version "7.8.4"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.8.4.tgz#d79f5a2040f7caa24d53e563aad49cbc05581308"
   integrity sha512-neAp3zt80trRVBI1x0azq6c57aNBqYZH8KhMm3TaB7wEI5Q4A2SHfBHE8w9gOhI/lrqxtEbXZgQIrHP+wvSGwQ==
@@ -173,9 +188,9 @@
     arrify "^1.0.1"
 
 "@gmod/bam@^1.0.35":
-  version "1.0.35"
-  resolved "https://registry.yarnpkg.com/@gmod/bam/-/bam-1.0.35.tgz#574586d4ecd4b74109204fac819af3c9ac46fbdd"
-  integrity sha512-SOMGUyxsFw/fTy37xhtyr6MVXG/38E9Ji/NUB8mV4lWFZUzNxLqNYzmvzpQ7UJAyeM5AXjjUl7nVDn0JrBaR+Q==
+  version "1.0.36"
+  resolved "https://registry.yarnpkg.com/@gmod/bam/-/bam-1.0.36.tgz#60aa9e0d1c53066c84b5fd8ed49e5cf5fd8ec0aa"
+  integrity sha512-geelEq4F7FCD8hU1CSsPeOrF6A78Pp6Ka3OVyLmTRkVnOO2DR9eejnQx7R1nnrdReNxIyFVBjV3Em0w4R/hJJw==
   dependencies:
     "@babel/runtime-corejs2" "^7.5.5"
     "@gmod/bgzf-filehandle" "^1.3.3"
@@ -201,9 +216,9 @@
     pako "^1.0.10"
 
 "@gmod/bgzf-filehandle@^1.3.3":
-  version "1.3.3"
-  resolved "https://registry.yarnpkg.com/@gmod/bgzf-filehandle/-/bgzf-filehandle-1.3.3.tgz#c6bdfca15ce3b8e5144395ab2a6e2f39624c12e6"
-  integrity sha512-hvCOtz5Q+WZ9pstYM7Kk9tQAMOMVIhqPIheVJtK1AbsA7oi1lFQsacr+fDGZMt2Bcl8AYoYRQqTJI4sMfrtncA==
+  version "1.3.4"
+  resolved "https://registry.yarnpkg.com/@gmod/bgzf-filehandle/-/bgzf-filehandle-1.3.4.tgz#89a1e79ee3cdf29e765b7e808412d7266f1d67d7"
+  integrity sha512-wv008EwB2cx0ZEel+HB9iohpNFZfMbssukg8W3u5xweogaG22qnLjf57fbluAg3z8+lt0q3Hv4BCQNAMfCTNLg==
   dependencies:
     "@babel/runtime" "^7.3.4"
     es6-promisify "^6.0.1"
@@ -311,9 +326,9 @@
   integrity sha512-pMCcqU2zT4TjqYFrWtYHKal7Sl30Ims6ulZ4UFXxI4xbtQqK/qqKwkDoBFCfooRqqmRu9vY3xaJRwxSh673aYg==
 
 "@types/node@^12.7.8":
-  version "12.12.25"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-12.12.25.tgz#792c0afb798f1dd681dce9c4b4c431f7245a0a42"
-  integrity sha512-nf1LMGZvgFX186geVZR1xMZKKblJiRfiASTHw85zED2kI1yDKHDwTKMdkaCbTlXoRKlGKaDfYywt+V0As30q3w==
+  version "12.12.29"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-12.12.29.tgz#46275f028b4e463b9ac5fefc1d08bc66cc193f25"
+  integrity sha512-yo8Qz0ygADGFptISDj3pOC9wXfln/5pQaN/ysDIzOaAWXt73cNHmtEC8zSO2Y+kse/txmwIAJzkYZ5fooaS5DQ==
 
 "@webassemblyjs/ast@1.8.5":
   version "1.8.5"
@@ -485,12 +500,12 @@ abbrev@1:
   integrity sha512-nne9/IiQ/hzIhY6pdDnbBtz7DjPTKrY00P/zvPSm5pOFkl6xuGrGnXn/VtTNNfNtAfZ9/1RtehkszU9qcTii0Q==
 
 abortable-promise-cache@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/abortable-promise-cache/-/abortable-promise-cache-1.0.1.tgz#68638de7806444e0fc3f3c2c5d53b81fad1c4466"
-  integrity sha512-Iu27BBSRe6jPrNhf5SjCyxJ0yb8fJ63H3CRoEVD+sJ2AvJsXppY5PVMvpFlB4si8K2cTFgjSgYNTELjm9ofwTQ==
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/abortable-promise-cache/-/abortable-promise-cache-1.1.2.tgz#79a6c752db48d652e8d78afd14e386bb0d42b2f4"
+  integrity sha512-hPWOIk+dhs/zCur11a/bf/QoHej1aQdWsChCGAh3DIFKlXFLe0rBqQaoH16Pu9DgZN7bN3/bi9NxyUI8L9raXQ==
   dependencies:
+    "@babel/runtime" "^7.0.0"
     abortcontroller-polyfill "^1.2.9"
-    babel-runtime "^6.26.0"
 
 abortcontroller-polyfill@^1.2.9:
   version "1.4.0"
@@ -6992,6 +7007,11 @@ regenerator-runtime@^0.13.2:
   version "0.13.3"
   resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.13.3.tgz#7cf6a77d8f5c6f60eb73c5fc1955b2ceb01e6bf5"
   integrity sha512-naKIZz2GQ8JWh///G7L3X6LaQUAMp2lvb1rvwwsURe/VXwD6VMfr+/1NuNw3ag8v2kY1aQ/go5SNn79O9JU7yw==
+
+regenerator-runtime@^0.13.4:
+  version "0.13.4"
+  resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.13.4.tgz#e96bf612a3362d12bb69f7e8f74ffeab25c7ac91"
+  integrity sha512-plpwicqEzfEyTQohIKktWigcLzmNStMGwbOUbykx51/29Z3JOGYldaaNGK7ngNXV+UcoqvIMmloZ48Sr74sd+g==
 
 regenerator-transform@^0.10.0:
   version "0.10.1"
