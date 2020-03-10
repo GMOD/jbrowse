@@ -2770,10 +2770,15 @@ dojo-webpack-plugin@^2.8.5:
     tmp "0.0.30"
     webpack-plugin-compat "1.0.3"
 
-dojo@1.16.0, dojo@^1.14.2, dojo@^1.9.0:
+dojo@1.16.0:
   version "1.16.0"
   resolved "https://registry.yarnpkg.com/dojo/-/dojo-1.16.0.tgz#e242cc7d73ae829e60562a2c00dfd827482fdb59"
   integrity sha512-DUiXyoLK6vMF5BPr/qiMLTxDMfiM9qlzN1jxfDsVfuvB/CwhYpNxA/M4mbqKN8PCVGLmccXBJbfmFJPP5+zmzw==
+
+dojo@^1.14.2, dojo@^1.9.0:
+  version "1.16.2"
+  resolved "https://registry.yarnpkg.com/dojo/-/dojo-1.16.2.tgz#5cc7bcb80afca1b057560ce5ca6fb26275a4785d"
+  integrity sha512-cgiT6WFAmcc1p95X7HPPVq3pM+qD4eB+DRWI+z04IWlGh5v4h9wqOdz1s+2mG7x7UYz+EzoGyLB87GDgGUOtIQ==
 
 dojox@^1.14.2:
   version "1.16.0"
