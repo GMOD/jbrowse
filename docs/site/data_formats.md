@@ -346,14 +346,7 @@ By contrast, classes modeling sources of sequences and sequence features general
 Typically, different Feature Stores will provide their own custom implementations of the Feature API.
 
 
-diff --git a/docs/site/configuration_guide.md b/docs/site/configuration_guide.md
-index 5ae2f3e..694be77 100644
---- a/docs/site/configuration_guide.md
-+++ b/docs/site/configuration_guide.md
-@@ -243,289 +243,6 @@ and then your trackList.json
-          "noExport" : "true",
-        },
- ```
+
 ## Using JBrowse with Existing Web Services
 
 Users can extend JBrowse's functionality to with their own JavaScript code using the JBrowse plugin system. For an overview of plugins and their structure, see [Writing JBrowse Plugins](#writing-jbrowse-plugins "wikilink").
@@ -371,61 +364,62 @@ In `plugins/MyPlugin/js/Store/SeqFeature/FooBaseWebServices.js`, usable in store
 Note that the most basic class could simply have a "getFeatures" function that grabs the feature data.
 
 ```
-/**
- * Example store class that uses Dojo's XHR libraries to fetch data
- * from backend web services.  In the case of feature data, converts
- * the data into JBrowse SimpleFeature objects (see
- * JBrowse/Model/SimpleFeature.js) but any objects that support the
- * same methods as SimpleFeature are fine.
- */
+    /**
+     * Example store class that uses Dojo's XHR libraries to fetch data
+     * from backend web services.  In the case of feature data, converts
+     * the data into JBrowse SimpleFeature objects (see
+     * JBrowse/Model/SimpleFeature.js) but any objects that support the
+     * same methods as SimpleFeature are fine.
+     */
 
-define([
-           'dojo/_base/declare',
-           'dojo/_base/array',
-           'dojo/request/xhr',
-           'JBrowse/Store/SeqFeature',
-           'JBrowse/Model/SimpleFeature'
-       ],
-       function( declare, array, xhr, SeqFeatureStore, SimpleFeature ) {
+    define([
+               'dojo/_base/declare',
+               'dojo/_base/array',
+               'dojo/request/xhr',
+               'JBrowse/Store/SeqFeature',
+               'JBrowse/Model/SimpleFeature'
+           ],
+           function( declare, array, xhr, SeqFeatureStore, SimpleFeature ) {
 
-return declare( SeqFeatureStore, {
+    return declare( SeqFeatureStore, {
 
-    constructor: function( args ) {
-        // perform any steps to initialize your new store.  
-    },
+        constructor: function( args ) {
+            // perform any steps to initialize your new store.  
+        },
 
-    getFeatures: function( query, featureCallback, finishCallback, errorCallback ) {
-        var thisB = this;
-        xhr.get( this.config.baseUrl+'my/features/webservice/url',
-                 { handleAs: 'json', query: query }
-               ).then(
+        getFeatures: function( query, featureCallback, finishCallback, errorCallback ) {
+            var thisB = this;
+            xhr.get( this.config.baseUrl+'my/features/webservice/url',
+                     { handleAs: 'json', query: query }
+                   ).then(
 
-                   function( featuredata ) {
+                       function( featuredata ) {
 
-                       // transform the feature data into feature
-                       // objects and call featureCallback for each
-                       // one. for example, the default REST
-                       // store does something like:
-                       array.forEach( featuredata || [],
-                           function( featureKeyValue ) {
-                               var feature = new SimpleFeature({
-                                       data: featureKeyValue
-                                   });
-                               featureCallback( feature );
-                           });
+                           // transform the feature data into feature
+                           // objects and call featureCallback for each
+                           // one. for example, the default REST
+                           // store does something like:
+                           array.forEach( featuredata || [],
+                               function( featureKeyValue ) {
+                                   var feature = new SimpleFeature({
+                                           data: featureKeyValue
+                                       });
+                                   featureCallback( feature );
+                               });
 
-                       // call the endCallback when all the features
-                       // have been processed
-                       finishCallback();
-                   },
+                           // call the endCallback when all the features
+                           // have been processed
+                           finishCallback();
+                       },
 
-                   errorCallback
-               );
+                       errorCallback
+                   );
 
-    }
-});
-});
+        }
+    });
+    });
 ```
+
 Note: other feature stores can be "derived from" or extended in different ways. The FeatureCoverage store class is a good example of a store class that uses the BAM store, but instead overrides the functionality to calculate coverage.
 
 

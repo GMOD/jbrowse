@@ -58,8 +58,7 @@ Another for thing you can do with jq is add config variables directly to your tr
 
 Configuration:
 
-~~~~ {.javascript}
-
+```
   "trackMetadata": {
       "indexFacets":  [ "category","organism","target","technique","principal_investigator",
                       "factor","developmental-stage","strain","cell-line","tissue","compound",
@@ -69,7 +68,7 @@ Configuration:
            { "type": "csv", "url":  "myTrackMetaData.csv" }
       ]
   }
-~~~~
+```
 
 Note: use lower case values for the facet names / column names in the CSV. Use renameFacets to give them other names. See \#Faceted_track_selector for details.
 
@@ -92,9 +91,9 @@ trackMetadata.sources - array of metadata source objects
 
 Each source can have
 
--url - a URL (relative to JBrowse root directory, or absolute URL)
--type - can be CSV, JSON or something else. inferred from the filename of the URL if none specified
--storeClass - can be any store class, defaults to 'dojox/data/CsvStore' for CSV type and 'dojox/data/JsonRestStore' for JSON type
+* url - a URL (relative to JBrowse root directory, or absolute URL)
+* type - can be CSV, JSON or something else. inferred from the filename of the URL if none specified
+* storeClass - can be any store class, defaults to 'dojox/data/CsvStore' for CSV type and 'dojox/data/JsonRestStore' for JSON type
 
 Example:
 ```

@@ -106,7 +106,7 @@ Generally this happens all seamlessly, and both the text-based .conf format and 
 
 ## Including external files and functions in trackList.json
 
-The trackList.json configuration format is limited when it comes to specifying callbacks, because functions can only be specified on a single line. However, you can create functions in an external .conf file that span multiple lines and include them in the trackList.json configuration easily. The functions should follow the guidelines specified in the .conf section [here](/#Text_Configuration_Format_.28.conf.29 "wikilink").
+The trackList.json configuration format is limited when it comes to specifying callbacks, because functions can only be specified on a single line. However, you can create functions in an external .conf file that span multiple lines and include them in the trackList.json configuration easily. The functions should follow the guidelines specified in the sections [above](configuration_file_formats.html#callback-function-specific-considerations-for-the-text-based-conf-format)
 
 Example: say there is a complex coloring function, so it is stored in a file called functions.conf in the data directory
 

@@ -199,3 +199,29 @@ with <code>subfeatureClasses</code>.
 
 
 
+### Using callbacks to customize HTMLFeatures tracks
+
+JBrowse HTMLFeature tracks, and individual JBrowse features, can be customized using JavaScript functions you write yourself. These functions are called every time a feature in a HTMLFeatures track is drawn, and allow you to customize virtually anything about the feature's display. What's more, all of the feature's data is accessible to your customization function, so you can even customize individual features' looks based on their data.
+
+As of JBrowse 1.3.0, feature callbacks are added by directly editing your trackList.json file with a text editor. Due to the limitations of the JSON format currently used for JBrowse configuration, the function must appear as a quoted (and JSON-escaped) string, on a single line. You may use the .conf format for the ability to specify functions that span multiple lines. See [here](configuration_file_formats.html#including-external-files-and-functions-in-tracklistjson) for details
+
+Here is an example feature callback, in context in the trackList.json file, that can change a feature's `background` CSS property (which controls the feature's color) as a function of the feature's name. If the feature's name contains a number that is odd, it give the feature's HTML `div` element a red background. Otherwise, it gives it a blue background.
+
+```
+     {
+         "style" : {
+            "className" : "feature2"
+         },
+         "key" : "Example Features",
+         "feature" : [
+            "remark"
+         ],
+         "urlTemplate" : "tracks/ExampleFeatures/{refseq}/trackData.json",
+         "hooks": {
+             "modify": "function( track, f, fdiv ) { var nums = f.get('name').match(/\\d+/); if( nums && nums[0] % 2 ) { fdiv.style.background = 'red'; } else { fdiv.style.background = 'blue';  } }"
+         },
+         "compress" : 0,
+         "label" : "ExampleFeatures",
+         "type" : "FeatureTrack"
+      },
+```
