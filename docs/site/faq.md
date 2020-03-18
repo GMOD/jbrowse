@@ -132,7 +132,7 @@ like this:
     and {dataRoot}/tracks.conf, which resolves to whatever data
     directory is currently being used
 4.  The trackList.json or tracks.conf files can themselves include other
-    files, such as a "functions.conf" file
+    files, such as a "functions.conf" file. See [here](configuration_file_formats.html#including-external-files-and-functions-in-tracklistjson) for details
 
 ### What type of coordinate system does JBrowse use
 
@@ -349,8 +349,8 @@ It can be dynamic too though
 The color can be a name or rgb(...) or hsl(...). rgba works too
 
 Note: if you get a very complex function, consider putting it in a
-separate functions.conf file and include it, see config guide "Including
-external functions in trackList.json"
+separate functions.conf file and include it, see config guide ["Including
+external functions in trackList.json"](configuration_file_formats.html#including-external-files-and-functions-in-tracklistjson)
 
 Note: with HTMLFeatures, it is similar, but you have to use
 hooks-\>modify instead of style-\>color.

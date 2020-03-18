@@ -212,6 +212,7 @@ Also also note: Your mouseover will crash if your features do not have an ID or 
 Feature tracks can be configured to display a context menu of options when a user right-clicks a feature item. Here is an example of a track configured with a multi-level right-click context menu:
 
 
+```
      {
         "feature" : [
            "match"
@@ -286,6 +287,7 @@ Feature tracks can be configured to display a context menu of options when a use
              },
         ]
      }
+```
 
 This configuration results in a context menu like the one pictured below. For details on what each of the options supported by menu items does, see [Click Configuration Options](#click-configuration-options "wikilink").
 
@@ -297,28 +299,31 @@ To add a separator, put the following item in your menuTemplate
 
 Note that you can keep the default right-click menu items in JBrowse by just setting "blank" placeholders in the menuTemplate.
 
-   "menuTemplate" : [ 
-        {   
-         "label" : "View details",
-       },  
-       {   
-         "label" : "Highlight this gene",
-       },  
-       {   
-         "label" : "Open example.com in an iframe popup",
-         "title" : "The magnificent example.com (feature{name})",
-         "iconClass" : "dijitIconDatabase",
-         "action": "iframeDialog",
-         "url" : "http://www.example.com?featurename={name}"
-       }   
-   ]
+```
+    "menuTemplate" : [ 
+         {   
+          "label" : "View details",
+        },  
+        {   
+          "label" : "Highlight this gene",
+        },  
+        {   
+          "label" : "Open example.com in an iframe popup",
+          "title" : "The magnificent example.com (feature{name})",
+          "iconClass" : "dijitIconDatabase",
+          "action": "iframeDialog",
+          "url" : "http://www.example.com?featurename={name}"
+        }   
+    ]
+```
 
 Alternatively, if you are using tracks.conf format, you can build a menuTemplate similar to the above configuration using the following:
 
+```
     menuTemplate+=json:{"label": "View details"}
     menuTemplate+=json:{"label": "Highlight this gene"}
     menuTemplate+=json:{"label": "Open example.com in an iframe popup", "iconClass" : "dijitIconDatabase","action": "iframeDialog","url" : "http://www.example.com?featurename={name}"}
-
+```
 
 This results in a context menu like the one pictured below.
 
@@ -330,18 +335,20 @@ Note: You'll note in the above that "placeholder" menu items are put in place to
 
 A click action (left-click on a feature or on an item in a context menu) can be configured to do nearly anything. It can be configured with a string JavaScript callback, like:
 
-`   "function( track, feature, featureDiv ) { alert('Run any JavaScript you want here!'); }"`
+    "function( track, feature, featureDiv ) { alert('Run any JavaScript you want here!'); }"
 
 Or a structure containing options like:
 
-        {
-           "iconClass" : "dijitIconDatabase",
-           "action" : "iframeDialog",
-           "url" : "http://www.ncbi.nlm.nih.gov/gquery/?term={name}",
-           "label" : "Search for {name} at NCBI",
-           "title" : "function(track,feature,div) { return 'Searching for '+feature.get('name')+' at NCBI'; }"
-           // optional: "hideIframeDialogUrl": true
-        }
+```
+    {
+       "iconClass" : "dijitIconDatabase",
+       "action" : "iframeDialog",
+       "url" : "http://www.ncbi.nlm.nih.gov/gquery/?term={name}",
+       "label" : "Search for {name} at NCBI",
+       "title" : "function(track,feature,div) { return 'Searching for '+feature.get('name')+' at NCBI'; }"
+       // optional: "hideIframeDialogUrl": true
+    }
+```
 
 The available options for a click action are:
 
@@ -359,31 +366,6 @@ The available options for a click action are:
 - url: URL used by newWindow, xhrDialog, or iframeDialog actions.
 - label: descriptive label for the link. In a right-click context menu, this will be the text in the menu item. In a onClick section, it will be the mouse-over description too. See [JBrowse_Configuration_Guide\#Customizing_Mouse-over_behavior](#customizing-mouse-over-behavior "wikilink") for details on the mouse-over behavior.
 - title: title used for the popup window
-
-### Using callbacks to customize feature tracks
-
-JBrowse feature tracks, and individual JBrowse features, can be customized using JavaScript functions you write yourself. These functions are called every time a feature in a track is drawn, and allow you to customize virtually anything about the feature's display. What's more, all of the feature's data is accessible to your customization function, so you can even customize individual features' looks based on their data.
-
-As of JBrowse 1.3.0, feature callbacks are added by directly editing your trackList.json file with a text editor. Unfortunately, due to the limitations of the JSON format currently used for JBrowse configuration, the function must appear as a quoted (and JSON-escaped) string, on a single line. You may use the .conf format for the ability to specify functions that span multiple lines.
-
-Here is an example feature callback, in context in the trackList.json file, that can change a feature's `background` CSS property (which controls the feature's color) as a function of the feature's name. If the feature's name contains a number that is odd, it give the feature's HTML `div` element a red background. Otherwise, it gives it a blue background.
-
-     {
-         "style" : {
-            "className" : "feature2"
-         },
-         "key" : "Example Features",
-         "feature" : [
-            "remark"
-         ],
-         "urlTemplate" : "tracks/ExampleFeatures/{refseq}/trackData.json",
-         "hooks": {
-             "modify": "function( track, f, fdiv ) { var nums = f.get('name').match(/\\d+/); if( nums && nums[0] % 2 ) { fdiv.style.background = 'red'; } else { fdiv.style.background = 'blue';  } }"
-         },
-         "compress" : 0,
-         "label" : "ExampleFeatures",
-         "type" : "FeatureTrack"
-      },
 
 
 

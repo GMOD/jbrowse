@@ -20,7 +20,7 @@ plugins and components to communicate among themselves, and
 
     /jbrowse/v1/notify/*
 
-##Internal
+## Internal
 
 Internal events are named for where they originate.
 
