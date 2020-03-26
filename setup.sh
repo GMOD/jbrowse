@@ -178,6 +178,7 @@ log_echo -n "Formatting Volvox example data ...";
         docs/tutorial/data_files/volvox-sorted.cram.conf \
         docs/tutorial/data_files/volvox-sv.bam.conf \
         docs/tutorial/data_files/volvox-sv.cram.conf \
+        docs/tutorial/data_files/volvox-bed12.bed.gz.conf \
     >> sample_data/json/volvox/tracks.conf
 
     bin/add-json.pl '{ "dataset_id": "volvox", "include": [ "../../raw/volvox/functions.conf" ] }' sample_data/json/volvox/trackList.json
