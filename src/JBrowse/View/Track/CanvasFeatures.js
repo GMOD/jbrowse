@@ -899,6 +899,7 @@ return declare(
                         if( !this.labelTooltip )
                             return;
 
+                        var context = lang.mixin( { track: this, feature: feature, callbackArgs: [ this, feature ] } );
                         var text
                         text = this.template( feature, this._evalConf( context, (this.config.onClick||{}).label, "label" ) )
                         var label = fRect.label || fRect.glyph.makeFeatureLabel( feature, undefined, text )
@@ -918,7 +919,6 @@ return declare(
                         var descriptionSpan = this.labelTooltip.childNodes[1];
 
                         if( this.config.onClick&&this.config.onClick.label ) {
-                            var context = lang.mixin( { track: this, feature: feature, callbackArgs: [ this, feature ] } );
                             labelSpan.style.display = 'block';
                             labelSpan.style.font = label.font;
                             labelSpan.style.color = label.fill;
