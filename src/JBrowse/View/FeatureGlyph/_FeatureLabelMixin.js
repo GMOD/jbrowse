@@ -17,8 +17,8 @@ return declare( FeatureDescriptionMixin,  {
      * feature's label text, and trim it if necessary to fit within
      * the track's maxFeatureGlyphExpansion limit.
      */
-    makeFeatureLabel: function( feature, fRect ) {
-        var text = this.getFeatureLabel( feature );
+    makeFeatureLabel: function( feature, fRect, text ) {
+        var text = text || this.getFeatureLabel( feature );
         if( ! text )
             return null;
         text = ''+text;
@@ -33,8 +33,8 @@ return declare( FeatureDescriptionMixin,  {
      * feature's description text, and trim it if necessary to fit
      * within the track's maxFeatureGlyphExpansion limit.
      */
-    makeFeatureDescriptionLabel: function( feature, fRect ) {
-        var text = this.getFeatureDescription( feature );
+    makeFeatureDescriptionLabel: function( feature, fRect, text ) {
+        var text = text || this.getFeatureDescription( feature );
         if( ! text )
             return null;
         text = ''+text;
