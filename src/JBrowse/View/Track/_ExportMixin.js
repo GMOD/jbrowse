@@ -70,7 +70,8 @@ return declare( null, {
 
         var highlightedRegion = this.browser.getHighlight();
         if( highlightedRegion ) {
-            regions.unshift( lang.mixin( lang.clone( highlightedRegion ), { description: "Highlighted region", name: "highlight" } ) );
+            const { start, end, ref } = highlightedRegion
+            regions.unshift({ start, end, ref, description: "Highlighted region", name: "highlight" });
         }
 
         return regions;
