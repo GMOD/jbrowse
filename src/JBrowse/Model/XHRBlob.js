@@ -181,6 +181,11 @@ var XHRBlob = declare( FileBlob,
                 throw new Error('Length less than 0 received')
             } else if(length == undefined && this.start == 0) {
                 const range = await getfetch(this.url)
+                if(!range.ok) {
+                    throw new Error(
+                        `HTTP ${range.status} when fetching ${this.url}`
+                    )
+                }
                 return new Buffer(await range.arrayBuffer())
             } else {
                 var range = await globalCache.getRange(this.url, this.start, length)
