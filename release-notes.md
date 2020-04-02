@@ -7,6 +7,16 @@
    were opened at once. Thanks to @russellmyers for the bug report!
    (issue #1473)
 
+ * Fixed error with exporting highlighted regions with Save track data,
+   thanks to @lipan6461188 for reporting (issue #1488)
+
+ * Fixed ability to have custom mouseovers on features that have no
+   default mouseover e.g. features with no name or ID. Thanks to
+   @scottcain for reporting (pull #1487)
+
+ * Fixed the response for requests to HTTP 403 errors. Thanks to
+   @ilaydabozan for reporting (issue #1490)
+
 # Release 1.16.8     2020-02-05 01:37:43 UTC
 
 ## Bug fixes
