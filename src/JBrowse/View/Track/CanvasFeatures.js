@@ -898,8 +898,13 @@ return declare(
                     var renderTooltip = dojo.hitch( this, function() {
                         if( !this.labelTooltip )
                             return;
-                        var label = fRect.label || fRect.glyph.makeFeatureLabel( feature );
-                        var description = fRect.description || fRect.glyph.makeFeatureDescriptionLabel( feature );
+
+                        var context = lang.mixin( { track: this, feature: feature, callbackArgs: [ this, feature ] } );
+                        var text
+                        text = this.template( feature, this._evalConf( context, (this.config.onClick||{}).label, "label" ) )
+                        var label = fRect.label || fRect.glyph.makeFeatureLabel( feature, undefined, text )
+                        text = this.template( feature, this._evalConf( context, (this.config.onClick||{}).label, "description" ) )
+                        var description = fRect.description || fRect.glyph.makeFeatureDescriptionLabel( feature, undefined, text )
 
                         if( ( !label && !description ) )
                             return;
@@ -910,11 +915,10 @@ return declare(
                         }
                         this.ignoreTooltipTimeout = true;
                         this.labelTooltip.style.display = 'block';
-                        var labelSpan = this.labelTooltip.childNodes[0],
-                            descriptionSpan = this.labelTooltip.childNodes[1];
+                        var labelSpan = this.labelTooltip.childNodes[0]
+                        var descriptionSpan = this.labelTooltip.childNodes[1];
 
                         if( this.config.onClick&&this.config.onClick.label ) {
-                            var context = lang.mixin( { track: this, feature: feature, callbackArgs: [ this, feature ] } );
                             labelSpan.style.display = 'block';
                             labelSpan.style.font = label.font;
                             labelSpan.style.color = label.fill;
