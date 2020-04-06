@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+## Minor improvements
+
+
+
 ## Bug fixes
 
  * Fixed a race condition in the http-range-fetcher module that caused
@@ -16,6 +20,10 @@
 
  * Fixed the response for requests to HTTP 403 errors. Thanks to
    @ilaydabozan for reporting (issue #1490)
+
+ * When there is only a single coordinate column in a tabix file, there
+   is now improved performance since the overlap checking code was
+   incorrect before in @gmod/tabix (@cmdcolin)
 
 # Release 1.16.8     2020-02-05 01:37:43 UTC
 
