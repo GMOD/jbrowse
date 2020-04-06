@@ -92,7 +92,15 @@
     esutils "^2.0.2"
     js-tokens "^3.0.0"
 
-"@babel/runtime-corejs2@^7.3.1", "@babel/runtime-corejs2@^7.4.3", "@babel/runtime-corejs2@^7.5.5":
+"@babel/runtime-corejs2@^7.3.1":
+  version "7.9.2"
+  resolved "https://registry.yarnpkg.com/@babel/runtime-corejs2/-/runtime-corejs2-7.9.2.tgz#f11d074ff99b9b4319b5ecf0501f12202bf2bf4d"
+  integrity sha512-ayjSOxuK2GaSDJFCtLgHnYjuMyIpViNujWrZo8GUpN60/n7juzJKK5yOo6RFVb0zdU9ACJFK+MsZrUnj3OmXMw==
+  dependencies:
+    core-js "^2.6.5"
+    regenerator-runtime "^0.13.4"
+
+"@babel/runtime-corejs2@^7.4.3", "@babel/runtime-corejs2@^7.5.5":
   version "7.8.7"
   resolved "https://registry.yarnpkg.com/@babel/runtime-corejs2/-/runtime-corejs2-7.8.7.tgz#5c6afcb33ef12fa1f8db6b915ff6b5ecaf6afb11"
   integrity sha512-R8zbPiv25S0pGfMqAr55dRRxWB8vUeo3wicI4g9PFVBKmsy/9wmQUV1AaYW/kxRHUhx42TTh6F0+QO+4pwfYWg==
@@ -108,7 +116,14 @@
     core-js-pure "^3.0.0"
     regenerator-runtime "^0.13.4"
 
-"@babel/runtime@^7.0.0", "@babel/runtime@^7.3.1", "@babel/runtime@^7.3.4", "@babel/runtime@^7.4.3", "@babel/runtime@^7.4.4", "@babel/runtime@^7.4.5":
+"@babel/runtime@^7.0.0", "@babel/runtime@^7.3.4", "@babel/runtime@^7.4.5":
+  version "7.9.2"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.9.2.tgz#d90df0583a3a252f09aaa619665367bae518db06"
+  integrity sha512-NE2DtOdufG7R5vnfQUTehdTfNycfUANEtCa9PssN9O/xmTzP4E08UI797ixaei6hBEVL9BI/PsdJS5x7mWoB9Q==
+  dependencies:
+    regenerator-runtime "^0.13.4"
+
+"@babel/runtime@^7.3.1", "@babel/runtime@^7.4.3", "@babel/runtime@^7.4.4":
   version "7.8.7"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.8.7.tgz#8fefce9802db54881ba59f90bb28719b4996324d"
   integrity sha512-+AATMUFppJDw6aiR5NVPHqIQBlV/Pj8wY/EZH+lmvRdUo9xBaz/rF3alAwFJQavvKfeOlPE7oaaDHVbcySbCsg==
@@ -226,9 +241,9 @@
     es6-promisify "^6.0.1"
 
 "@gmod/tabix@^1.4.3":
-  version "1.4.3"
-  resolved "https://registry.yarnpkg.com/@gmod/tabix/-/tabix-1.4.3.tgz#643ab06f5ae39fe1ecb1588b46abe111174b3d76"
-  integrity sha512-43XYG/q0oljgckcYAjSrLF/3aIjEXwGlOPP+ynbt8zNAvQam7F5LstqdoFwbuBcjesN3H1GKrNcIQpMH7eeqNg==
+  version "1.4.4"
+  resolved "https://registry.yarnpkg.com/@gmod/tabix/-/tabix-1.4.4.tgz#ad1bfd0f717769757db588d7e013cd279d4ca650"
+  integrity sha512-fW8SamDeFvf26DjLz8K+0PModKL76RfGLThqzvgi+is6WTWC2m3TwcRvYl/qZ0QH6pxmE8TUkG/phDqHFs7V+g==
   dependencies:
     "@babel/runtime-corejs2" "^7.3.1"
     "@gmod/bgzf-filehandle" "^1.3.3"
