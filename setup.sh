@@ -160,6 +160,7 @@ log_echo -n "Formatting Volvox example data ...";
         docs/tutorial/data_files/volvox_microarray.bw.conf \
         docs/tutorial/data_files/volvox_sine.bw.conf \
         docs/tutorial/data_files/volvox-sorted.bam.conf \
+        docs/tutorial/data_files/volvox-samspec.bam.conf \
         docs/tutorial/data_files/volvox-sorted.bam.coverage.conf \
         docs/tutorial/data_files/volvox-paired.bam.conf \
         docs/tutorial/data_files/volvox.vcf.conf \
