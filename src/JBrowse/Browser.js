@@ -979,6 +979,22 @@ initView: function() {
                 }));
             }
 
+	    this.addGlobalMenuItem( 'view', new dijitMenuItem({
+		label: 'Reset to defaults',
+		id: 'menubar_reset_button',
+		title: 'Reset view and tracks to defaults',
+		
+		onClick: () => {
+		    //Resets the zoom and location to default, still need add behaviour to reset to default tracks.
+		    thisObj.navigateToLocation({
+			ref:   thisObj.refSeq.name,
+			start: 0.4 * ( thisObj.refSeq.start + thisObj.refSeq.end ),
+                        end:   0.6 * ( thisObj.refSeq.start + thisObj.refSeq.end )
+		    });
+
+		}
+	    }));
+
             this.renderGlobalMenu( 'view', {text: 'View'}, menuBar );
 
             // make the options menu
