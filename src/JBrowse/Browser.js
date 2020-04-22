@@ -979,6 +979,42 @@ initView: function() {
                 }));
             }
 
+	    this.addGlobalMenuItem( 'view', new dijitMenuItem({
+		label: 'Reset to defaults',
+		id: 'menubar_reset_button',
+		title: 'Reset view and tracks to defaults',
+
+		onClick: () => {
+		    // resets zoom and location to default
+		    thisObj.navigateToLocation({
+			ref:   thisObj.refSeq.name,
+			start: 0.4 * ( thisObj.refSeq.start + thisObj.refSeq.end ),
+                        end:   0.6 * ( thisObj.refSeq.start + thisObj.refSeq.end )
+		    });
+		    
+		    // hide all tracks
+		thisObj.publish('/jbrowse/v1/v/tracks/hide', thisObj.config.tracks);
+		let tracksToShow = [];
+		    // always add alwaysOnTracks, regardless of any other track params
+
+		    // the below code mainly follows the code that decides the default tracks in the constructor, but it's different enough that it doesn't easily make a reusable function. Good idea for future refactor?
+		    if (thisObj.config.alwaysOnTracks) { tracksToShow = tracksToShow.concat(thisObj.config.alwaysOnTracks.split(",")); }
+		    if (tracksToShow.length == 0) { tracksToShow.push("DNA"); }
+		    if (thisObj.config.defaultTracks) {
+			// In rare cases thisObj.config.defaultTracks already contained an array that appeared to
+			// have been split in a previous invocation of this function. Thus, we only try and split
+			// it if it isn't already split.
+			if (!(thisObj.config.defaultTracks instanceof Array)) {
+			    initialTracks = initialTracks.concat(thisObj.config.defaultTracks.split(","));
+			}
+		    }
+		    tracksToShow = Util.uniq(tracksToShow)
+		    
+		    thisObj.showTracks( tracksToShow );
+		    
+		}
+	    }));
+
             this.renderGlobalMenu( 'view', {text: 'View'}, menuBar );
 
             // make the options menu
