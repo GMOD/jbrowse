@@ -993,11 +993,13 @@ initView: function() {
 		    });
 		    
 		    // hide all tracks
-		thisObj.publish('/jbrowse/v1/v/tracks/hide', thisObj.config.tracks);
-		let tracksToShow = [];
-		    // always add alwaysOnTracks, regardless of any other track params
+		    thisObj.publish('/jbrowse/v1/v/tracks/hide', thisObj.config.tracks);
+		    
+		    let tracksToShow = [];
 
 		    // the below code mainly follows the code that decides the default tracks in the constructor, but it's different enough that it doesn't easily make a reusable function. Good idea for future refactor?
+
+		    // always add alwaysOnTracks, regardless of any other track params
 		    if (thisObj.config.alwaysOnTracks) { tracksToShow = tracksToShow.concat(thisObj.config.alwaysOnTracks.split(",")); }
 		    if (tracksToShow.length == 0) { tracksToShow.push("DNA"); }
 		    if (thisObj.config.defaultTracks) {
@@ -1005,7 +1007,7 @@ initView: function() {
 			// have been split in a previous invocation of this function. Thus, we only try and split
 			// it if it isn't already split.
 			if (!(thisObj.config.defaultTracks instanceof Array)) {
-			    initialTracks = initialTracks.concat(thisObj.config.defaultTracks.split(","));
+			    tracksToShow = tracksToShow.concat(thisObj.config.defaultTracks.split(","));
 			}
 		    }
 		    tracksToShow = Util.uniq(tracksToShow)
