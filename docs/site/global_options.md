@@ -46,6 +46,8 @@ JBrowse supports some other configuration variables that customize the overall b
 |`allowCrossOriginDataRoot`|Allows dataRoot or the ?data= url parameter to point to a remote directory. Default false. This can introduce XSS so it is not recommended on sites that have logins. Note this is set through index.html with the data-config attribute on the GenomeBrowser div|
 |`cacheBuster`|Sets a randomized value ?v= on requests to configuration files to avoid aggressive browser caching. Default true. Note this is set through index.html with the data-config attribute on the GenomeBrowser div|
 |`alwaysStopScrollBubble`|Since JBrowse 1.16.5 the scroll event can bubble the vertical scroll event instead of capturing and stopping it. This can allow for a more intuitive scrolling in a larger embedded page. If this is unwanted, add `alwaysStopScrollBubble: true`|
+|`disableSearch`|Disables the 'Search features' menu item|
+|`disableReset`|Disables the 'Reset to defaults' menu item|
 
 ## Generic Track Configuration Options
 
