@@ -6,6 +6,8 @@
    issue. Thanks to a user with a very long github name for their
    contribution (pull #1496, issue #764).
 
+ * Disable coordinate indicator on tab switch, thanks @lukaw3d (pull #1497)
+
 ## Bug fixes
 
  * Fixed a race condition in the http-range-fetcher module that caused
