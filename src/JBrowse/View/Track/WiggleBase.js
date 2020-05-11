@@ -398,13 +398,14 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
     _calculatePixelScores: function( canvasWidth, features, featureRects ) {
         var scoreType = this.config.scoreType || "maxScore";
         var pixelValues = new Array( canvasWidth );
-        if (scoreType=="maxScore") {
+        if (scoreType == "maxScore"||scoreType=="score") {
             // make an array of the max score at each pixel on the canvas
             dojo.forEach( features, function( f, i ) {
                 var store = f.source;
                 var fRect = featureRects[i];
                 var jEnd = fRect.r;
                 var score =  f.get(scoreType)
+
                 if (score === undefined) {
                     score = f.get('score') // we are not in a summary block and have no maxScore so use regular score
                 }
