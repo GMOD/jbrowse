@@ -8,6 +8,10 @@
 
  * Disable coordinate indicator on tab switch, thanks @lukaw3d (pull #1497)
 
+ * Small optimization bumping @gmod/bam from version 1.0.35->1.0.36 (@cmdcolin)
+
+ * Don't require CORS headers for Content-Range for VCFTabix files (@cmdcolin)
+
 ## Bug fixes
 
  * Fixed a race condition in the http-range-fetcher module that caused
