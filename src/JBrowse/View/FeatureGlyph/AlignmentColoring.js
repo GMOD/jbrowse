@@ -150,13 +150,31 @@ var c = {
         return glyph.getStyle(feature, map[feature.get('xs')||feature.get('tags').XS] || 'color_nostrand');
     },
 
-    // TS is flipped from XS
+    // `ts` is flipped from XS in minimap2, but same as XS if capitalized `TS`
+    // see https://github.com/samtools/hts-specs/pull/292
     colorByTS(feature, score, glyph, track) {
+        if(feature.getCaseSensitive) {
+            const TS = feature.getCaseSensitive('TS')
+            if(TS) {
+                const map = {
+                    '-': 'color_rev_strand',
+                    '+': 'color_fwd_strand'
+                };
+                return glyph.getStyle(feature, map[feature.get('xs')||feature.get('tags').XS] || 'color_nostrand');
+                return
+            }
+        } else if(feature.get('tags').TS) {
+            const map = {
+                '-': 'color_rev_strand',
+                '+': 'color_fwd_strand'
+            };
+            return glyph.getStyle(feature, map[feature.get('tags').TS] || 'color_nostrand');
+        }
         const map = {
             '-': feature.get('strand') === -1 ? 'color_fwd_strand' : 'color_rev_strand',
             '+': feature.get('strand') === -1 ? 'color_rev_strand' : 'color_fwd_strand'
         }
-        return glyph.getStyle(feature, map[feature.get('ts')||feature.get('tags').TS] || 'color_nostrand');
+        return glyph.getStyle(feature, map[feature.get('ts')||feature.get('tags').ts] || 'color_nostrand');
     },
 
     // assumes score cap at 60, which is used by bwa-mem and other tools. some cap at 37

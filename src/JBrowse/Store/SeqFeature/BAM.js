@@ -60,6 +60,12 @@ class BamSlightlyLazyFeature {
         else return this.record.get(field)
     }
 
+    getCaseSensitive(field) {
+        const methodName = `_get_${field}`
+        if (this[methodName]) return this[methodName]()
+        else return this.record._get(field)
+    }
+
     parent() {}
 
     children() {}
