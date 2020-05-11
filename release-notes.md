@@ -12,6 +12,9 @@
 
  * Don't require CORS headers for Content-Range for VCFTabix files (@cmdcolin)
 
+ * Add ability to include/hide variant filters instead of just hide
+   (@cmdcolin, issue #1478)
+
 ## Bug fixes
 
  * Fixed a race condition in the http-range-fetcher module that caused

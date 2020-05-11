@@ -277,9 +277,9 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
             });
         if( vcfMetadata.FILTER ) {
             for( var filterName in vcfMetadata.FILTER ) {
-                filters[filterName] = function( filterName, filterSpec ) {
+                filters[filterName+'_hide'] = function( filterName, filterSpec ) {
                     return {
-                        desc: 'Hide sites not passing filter "'+filterName+'"',
+                        desc: 'Hide sites passing filter "'+filterName+'"',
                         title: filterName+': '+filterSpec.description,
                         func: makeFilterFilter(
                             function( f ) {
@@ -287,6 +287,25 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
                                 if( ! fs[0] ) return true;
 
                                 return ! array.some(
+                                    fs,
+                                    function(fname) {
+                                        return fname == filterName;
+                                    });
+                            })
+                    };
+                }.call(this, filterName, vcfMetadata.FILTER[filterName]);
+            }
+            for( var filterName in vcfMetadata.FILTER ) {
+                filters[filterName+'_include'] = function( filterName, filterSpec ) {
+                    return {
+                        desc: 'Include sites passing filter "'+filterName+'"',
+                        title: filterName+': '+filterSpec.description,
+                        func: makeFilterFilter(
+                            function( f ) {
+                                var fs = f.values || f;
+                                if( ! fs[0] ) return true;
+
+                                return array.some(
                                     fs,
                                     function(fname) {
                                         return fname == filterName;
