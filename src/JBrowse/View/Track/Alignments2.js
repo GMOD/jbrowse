@@ -197,7 +197,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             }
         });
         c.children.push({
-            label: 'Color by XS tag (RNA-seq orientation)',
+            label: 'Color by XS or TS tag (RNA-seq orientation)',
             type: 'dijit/RadioMenuItem',
             checked: !!this.config.useXS,
             onClick: function(event) {
@@ -208,7 +208,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
         });
 
         c.children.push({
-            label: 'Color by TS tag (RNA-seq orientation)',
+            label: 'Color by ts tag (minimap2 RNA-seq orientation)',
             type: 'dijit/RadioMenuItem',
             checked: !!this.config.useTS,
             onClick: function(event) {

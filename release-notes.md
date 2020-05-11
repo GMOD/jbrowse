@@ -13,6 +13,10 @@
  * Add ability to include/hide variant filters instead of just hide
    (@cmdcolin, issue #1478)
 
+ * Add ability to color by TS tag. The useXS config now applies to `XS` and
+   `TS`, and the useTS tag only applies to the lower-case `ts` tag used by
+   minimap2 (pull #1493, @cmdcolin)
+
 ## Bug fixes
 
  * Fixed a race condition in the http-range-fetcher module that caused
