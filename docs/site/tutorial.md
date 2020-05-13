@@ -3,12 +3,11 @@ id: tutorial
 title: Indexed file formats tutorial
 ---
 
-
 In this tutorial, we will use "indexed file formats", which exemplifies using plain text configuration
 
 # Loading Indexed FASTA
 
-To begin, we'll pretend as though we are setting up the genome of *Volvox mythicus*, a mythical species in the genus [Volvox](https://en.wikipedia.org/wiki/Volvox). The Volvox genome was sequenced by your sequencing core in 2018 and they'd like to setup JBrowse now. They give us a link to their FASTA file that we'll download
+To begin, we'll pretend as though we are setting up the genome of _Volvox mythicus_, a mythical species in the genus [Volvox](https://en.wikipedia.org/wiki/Volvox). The Volvox genome was sequenced by your sequencing core in 2018 and they'd like to setup JBrowse now. They give us a link to their FASTA file that we'll download
 
 {@inject: fasta_download_snip}
 
@@ -17,7 +16,6 @@ We are going to use samtools to create a "FASTA index" using their faidx command
     samtools faidx data/volvox.fa
 
 The FASTA index will be a file called volvox.fa.fai. Then we'll move these files into a "data directory" that JBrowse can use
-
 
 Then create the file data/tracks.conf with this file content
 
@@ -28,8 +26,6 @@ Then create the file data/tracks.conf with this file content
     storeClass=JBrowse/Store/SeqFeature/IndexedFasta
     type=Sequence
 
-
-
 Now your directory structure is something like
 
     /var/www/jbrowse
@@ -39,7 +35,6 @@ Now your directory structure is something like
     /var/www/jbrowse/data/volvox.fa.fai
 
 At this point, you should be able to open up http://localhost/jbrowse/?data=data (or just simply http://localhost/jbrowse/) and you will see your genome with the reference sequence track. If you have any problems at this stage, send an email to gmod-ajax@lists.sourceforge.net with details about your setup for troubleshooting, or file a GitHub issue.
-
 
 ## Loading Tabix GFF3
 
@@ -56,7 +51,6 @@ This command extracts the header then sorts the GFF without the header. You can 
 
     bgzip data/volvox.sorted.gff3
     tabix -p gff data/volvox.sorted.gff3.gz
-
 
 Then we can create a gene track in data/tracks.conf
 
@@ -100,9 +94,7 @@ At this point, if the jbrowse files are in your webserver, you should have a dir
     /var/www/html/jbrowse/data/volvox-sorted.bam.bai
     /var/www/html/jbrowse/data/tracks.conf
 
-
 Then your tracks.conf file should say
-
 
     [GENERAL]
     refSeqs=volvox.fa.fai
@@ -131,7 +123,6 @@ You have now setup JBrowse!
 If you have troubles, send an email to gmod-ajax@lists.sourceforge.net or create a GitHub issue (note that GitHub issues tend to be for pure concerns about JBrowse having bugs, so email list is preferre).
 
 ## Footnotes
-
 
 a) If the folder was not called data, e.g. you had your files in /var/www/html/jbrowse/otherdata, then you can visit http://localhost/jbrowse/?data=otherdata (this automatically lends a way to have "multiple data directories" since you could navigate to different ?data= URL paths this way. the "dataset selector" configuration contains more details)
 

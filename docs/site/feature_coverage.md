@@ -3,7 +3,6 @@ id: feature_coverage
 title: Feature Coverage Tracks
 ---
 
-
 # Feature Coverage Tracks
 
 Introduced in JBrowse 1.7.0, feature coverage tracks show a dynamically-computed XY-plot of the depth of coverage of features across a genome. One good use of this track type is to provide a quick coverage plot directly from a BAM file. However, since this track calculates coverage on the fly, it can be very slow when used with large regions or very deep coverage. In this case, it is recommended to generate a BigWig file containing the coverage data, and display it with a `Wiggle/XYPlot` or `Wiggle/Density` track.
@@ -14,7 +13,7 @@ Note: The SNPCoverage track and FeatureCoverage tracks are very similar, except 
 
 ## Example Feature Coverage Track Configuration for a BAM file
 
-~~~~ {.javascript}
+```{.javascript}
       {
          "storeClass"  :  "JBrowse/Store/SeqFeature/BAM",
          "urlTemplate" : "../../raw/volvox/volvox-sorted.bam",
@@ -24,4 +23,4 @@ Note: The SNPCoverage track and FeatureCoverage tracks are very similar, except 
          "max_score"   : 35,
          "key"         : "volvox-sorted Coverage"
       }
-~~~~
+```

@@ -13,18 +13,20 @@ The JSON configuration format was the first format supported by JBrowse, and is 
 
 As an example, the trackList.json file might have something like this. Here is an example of a BAM track
 
-    {
-     "tracks": [
-       {
-         "urlTemplate" : "volvox-sorted.bam",
-         "storeClass"  : "JBrowse/Store/SeqFeature/BAM",
-         "type"        : "JBrowse/View/Track/Alignments2",
-         "label"       : "BAM_track",
-         "key"         : "My BAM track"
-         "style": { "color": "red" }
-       }
-     ]
-    }
+```
+{
+ "tracks": [
+   {
+     "urlTemplate" : "volvox-sorted.bam",
+     "storeClass"  : "JBrowse/Store/SeqFeature/BAM",
+     "type"        : "JBrowse/View/Track/Alignments2",
+     "label"       : "BAM_track",
+     "key"         : "My BAM track"
+     "style": { "color": "red" }
+   }
+ ]
+}
+```
 
 The specifics of this config are not essential, we are specifying an array of tracks in a trackList.json style, and each track is an object that includes some parameters like the urlTemplate to refer to the location of the BAM file on the server relative to the data directory, the color of the features, etc.
 
@@ -63,14 +65,14 @@ style.color = function(feature) {
 
 ### Considerations for the text-based .conf format
 
-* Comments should start with #
-* The section labels, e.g. [tracks.testtrack] defines an identifier for the track named testtrack, so you should not have dots in your identifier, e.g. don't use something like this [tracks.test.track]
-* Don't quote the values in the file, e.g key=My BAM track, not key="My BAM track"
-* Nested values can specified using 'dot' notation, e.g. "style.color"
-* A "section" can be specified with square brackets, e.g. [trackMetadata] will create the config variable trackMetadata and the values in the section are added to it.
-* Extra JSON values can be specified in the conf file using the syntax json:{...} (see [4] for example)
-* Very large .conf files (thousands of lines) files can take longer to parse than equivalent JSON
-* An array of values can be built up over multiple lines. NOTE: A quirk of the format is that there cannot be more than 4 spaces before the + sign in each item. Example:
+-   Comments should start with #
+-   The section labels, e.g. [tracks.testtrack] defines an identifier for the track named testtrack, so you should not have dots in your identifier, e.g. don't use something like this [tracks.test.track]
+-   Don't quote the values in the file, e.g key=My BAM track, not key="My BAM track"
+-   Nested values can specified using 'dot' notation, e.g. "style.color"
+-   A "section" can be specified with square brackets, e.g. [trackMetadata] will create the config variable trackMetadata and the values in the section are added to it.
+-   Extra JSON values can be specified in the conf file using the syntax json:{...} (see [4] for example)
+-   Very large .conf files (thousands of lines) files can take longer to parse than equivalent JSON
+-   An array of values can be built up over multiple lines. NOTE: A quirk of the format is that there cannot be more than 4 spaces before the + sign in each item. Example:
 
 ```
     [trackMetadata]
@@ -81,24 +83,24 @@ style.color = function(feature) {
 
 ### Callback-function specific considerations for the text-based .conf format
 
-* Comments inside callbacks can use the /* */ format but not the // format
-* All lines of a multi-line callback should be spaced away from the left-most column, including the closing bracket (see the style.color example above)
-* There should be no blank lines inside a multi-line callback
-* Refer to [5] for more info on multi-line functions
+-   Comments inside callbacks can use the /\* \*/ format but not the // format
+-   All lines of a multi-line callback should be spaced away from the left-most column, including the closing bracket (see the style.color example above)
+-   There should be no blank lines inside a multi-line callback
+-   Refer to [5] for more info on multi-line functions
 
 ## Configuration loading details
 
 Configuration loading details
 When your web browser loads a page containing JBrowse, and JBrowse starts, the following steps are done
 
-* In index.html, read the URL params (e.g. query params like &data= and &tracks, &loc=, etc.)
-* In index.html, create a JSON blob using URL params and pass them to the Browser.js constructor which you can see on index.html
-* In Browser.js, the constructor is a JSON blob that becomes the "root configuration object"
-* In Browser.js, mix the root config with the _defaultConfig object
-* In _defaultConfig, the default is to include both jbrowse_conf.json and jbrowse.conf config files
-* In jbrowse.conf, the default is to include {dataRoot}/trackList.json {dataRoot}/tracks.conf
-* This is how you eventually get the trackList.json and tracks.conf files from your data directory loaded. Note that the &data=blah URL parameter becomes the dataRoot config parameter, so dataRoot would be "blah" in that case.
-h
+-   In index.html, read the URL params (e.g. query params like &data= and &tracks, &loc=, etc.)
+-   In index.html, create a JSON blob using URL params and pass them to the Browser.js constructor which you can see on index.html
+-   In Browser.js, the constructor is a JSON blob that becomes the "root configuration object"
+-   In Browser.js, mix the root config with the \_defaultConfig object
+-   In \_defaultConfig, the default is to include both jbrowse_conf.json and jbrowse.conf config files
+-   In jbrowse.conf, the default is to include {dataRoot}/trackList.json {dataRoot}/tracks.conf
+-   This is how you eventually get the trackList.json and tracks.conf files from your data directory loaded. Note that the &data=blah URL parameter becomes the dataRoot config parameter, so dataRoot would be "blah" in that case.
+    h
 
 The configuration system then merges all this information, e.g. from the URL params, from the Browser constructors, the defaultConfigs, the jbrowse.conf, the jbrowse_conf.json, the trackList.json, the tracks.conf, and any files that the trackList.json or tracks.conf files themselves include, into a single config.
 
@@ -143,7 +145,3 @@ or shorthand
     }
 
 See the general configuration section for details on the include command.
-
-
-
-

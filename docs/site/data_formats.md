@@ -209,12 +209,12 @@ Example returned JSON:
 Add something like the following to `jbrowse.conf`:
 
 `[names]`
-`type = REST`
-`url = /path/to/names/rest/service`
+`type = REST`
+`url = /path/to/names/rest/service`
 
- ## Publishing and Subscribing to JBrowse Events
+## Publishing and Subscribing to JBrowse Events
 
- JBrowse client events are implemented using the dojo/topic message bus from the Dojo library. Extensions can subscribe to particular events in order to be notified when certain UI changes happen (for example, highlighting a region generates an event, which can be latched onto with a callback that triggers a request for the server to BLAST that region against a database). In select cases, extensions can also publish events, as a way of forcing the UI into certain states or transitions (for example, events can be used in this way to force the browser to load a new track, in response to some other circumstance or notification).
+JBrowse client events are implemented using the dojo/topic message bus from the Dojo library. Extensions can subscribe to particular events in order to be notified when certain UI changes happen (for example, highlighting a region generates an event, which can be latched onto with a callback that triggers a request for the server to BLAST that region against a database). In select cases, extensions can also publish events, as a way of forcing the UI into certain states or transitions (for example, events can be used in this way to force the browser to load a new track, in response to some other circumstance or notification).
 
 ## JSON LazyNCList Feature Store
 
@@ -228,9 +228,10 @@ The LazyNCList format can be broken down into two distinct subformats: the LazyN
 
 For speed and memory efficiency, NCList JSON represents features as arrays instead of objects. This is because the JSON representation is much more compact (saving a lot of disk space), and many browsers significantly optimize JavaScript Array objects over more general objects.
 
-Each feature is represented as an array of the form `[ class, data, data, ... ]`, where the `class` is an integer index into the store's `classes` array (more on that in the next section). Each of the elements in the `classes` array is an *array representation* that defines the meaning of each of the the elements in the feature array.
+Each feature is represented as an array of the form `[ class, data, data, ... ]`, where the `class` is an integer index into the store's `classes` array (more on that in the next section). Each of the elements in the `classes` array is an _array representation_ that defines the meaning of each of the the elements in the feature array.
 
 An **array representation** specification is encoded in JSON as (comments added):
+
 ```
 {
   "attributes": [                   // array of attribute names for this representation
@@ -244,11 +245,13 @@ An **array representation** specification is encoded in JSON as (comments added)
   }
 }
 ```
+
 ### Lazy Nested-Containment Lists (`LazyNCList`)
 
 A JBrowse LazyNCList is a nested containment list tree structure stored as one JSON file that contains the root node of the tree, plus zero or more "lazy" JSON files that contain subtrees of the main tree. These subtree files are lazily fetched: that is, they are only fetched by JBrowse when they are needed to display a certain genomic region.
 
 On disk, the files in an LazyNCList feature store look like this:
+
 ```
  # stats, metadata, and nclist root node
  data/tracks/<track_label>/<refseq_name>/trackData.json
@@ -258,7 +261,9 @@ On disk, the files in an LazyNCList feature store look like this:
  data/tracks/<track_label>/<refseq_name>/hist-<bin_size>.json
  ...`
 ```
+
 Where the `trackData.json` file is formatted as (comments added):
+
 ```
 {
    "featureCount" : 4293,          // total number of features in this store
@@ -345,8 +350,6 @@ By contrast, classes modeling sources of sequences and sequence features general
 
 Typically, different Feature Stores will provide their own custom implementations of the Feature API.
 
-
-
 ## Using JBrowse with Existing Web Services
 
 Users can extend JBrowse's functionality to with their own JavaScript code using the JBrowse plugin system. For an overview of plugins and their structure, see [Writing JBrowse Plugins](#writing-jbrowse-plugins "wikilink").
@@ -421,5 +424,3 @@ Note that the most basic class could simply have a "getFeatures" function that g
 ```
 
 Note: other feature stores can be "derived from" or extended in different ways. The FeatureCoverage store class is a good example of a store class that uses the BAM store, but instead overrides the functionality to calculate coverage.
-
-

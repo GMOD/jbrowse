@@ -17,10 +17,10 @@ that can easily be run locally on Windows, Mac OS, or Linux.
 
 At the most basic level, to set up JBrowse Desktop:
 
-  - Download a zip file script from jbrowse.org e.g. from the latest release at
+-   Download a zip file script from jbrowse.org e.g. from the latest release at
     <http://jbrowse.org/blog/>. Linux, Windows, and Darwin variants are
     available as `JBrowse-1.15.4-desktop-<system>-x64.zip`.
-  - After downloading, unzip the file to somewhere. There is no official
+-   After downloading, unzip the file to somewhere. There is no official
     installer but you can move it to the Program files or Applications
     directory as needed.
 
@@ -39,10 +39,10 @@ See this thread for details https://github.com/electron/electron/issues/1518
 When you run JBrowse Desktop you will see a sort of "welcome screen"
 that gives you several options
 
-  - View Volvox sample data
-  - Open sequence file, this allows you to open FASTA, Indexed FASTA, or
+-   View Volvox sample data
+-   Open sequence file, this allows you to open FASTA, Indexed FASTA, or
     .2bit
-  - Open data directory, this allows you to open a data directory that
+-   Open data directory, this allows you to open a data directory that
     has been prepared with normal jbrowse tools
 
 Note: it is highly recommended to use Indexed FASTA (selecting both a
@@ -62,41 +62,41 @@ that you aren't currently in jbrowse main screen
 
 ## Limitations
 
-  - The "Save session" function will not save some configuration
+-   The "Save session" function will not save some configuration
     customizations, so if you have advanced customizations it would be
     recommended to make a data directory by hand the trackList.json and
     tracks.conf format files
-  - If you open a data directory on the web, then "Save session" won't
+-   If you open a data directory on the web, then "Save session" won't
     work
 
 ## Features
 
-  - Can open files from shared network folders and external hard drives
+-   Can open files from shared network folders and external hard drives
     on both windows and mac
-  - Can open files from remote URLs
-  - Can open data directories from remote URL
-  - Saves "sessions" to the OS "application data" folders
-  - Has a "home screen" that lists previous sessions
+-   Can open files from remote URLs
+-   Can open data directories from remote URL
+-   Saves "sessions" to the OS "application data" folders
+-   Has a "home screen" that lists previous sessions
 
 ## Technical details
 
 The folder where sessions are saved is generally
 
-  - OSX - "~/Library/Application Support/jbrowse"
-  - Windows - "C:\\Users\\username\\AppData\\Roaming\\jbrowse"
+-   OSX - "~/Library/Application Support/jbrowse"
+-   Windows - "C:\\Users\\username\\AppData\\Roaming\\jbrowse"
 
 ## Tested platforms
 
-  - OSX Mavericks
-  - macOS sierra
-  - Windows 7
-  - Windows 10
+-   OSX Mavericks
+-   macOS sierra
+-   Windows 7
+-   Windows 10
 
 Note: JBrowse Desktop doesn't work on windows XP and Vista (in fact all
 electron apps require Windows 7+)
 
 # External Links
 
-  - [JBrowse: a dynamic web platform for genome visualization and
+-   [JBrowse: a dynamic web platform for genome visualization and
     analysis](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-016-0924-1)
     paper

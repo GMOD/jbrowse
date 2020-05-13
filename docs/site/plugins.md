@@ -2,6 +2,7 @@
 id: plugins
 title: Installing and writing plugins
 ---
+
 # Plugins
 
 More than 40 third-party plugins are available that extend or change JBrowse's functionality. For a list of them, see <https://gmod.github.io/jbrowse-registry/>.
@@ -20,7 +21,6 @@ To activate a plugin, add a `plugins` configuration variable in your `jbrowse_co
 
 Example:
 
-
       // array of strings (will look in JBrowse-1.x.x/plugins/MyAwesomePlugin)
       "plugins": [ 'MyAwesomePlugin' ]
 
@@ -29,7 +29,6 @@ or in the text .conf format:
     plugins =
         + MyAwesomePlugin
         + PubAnnotation
-
 
 ## Writing JBrowse Plugins
 
@@ -56,7 +55,7 @@ JBrowse also defines an AMD namespace that maps to your plugin's `js` directory,
 
 Here is an example plugin `main.js`, implemented using the [Dojo declare](http://dojotoolkit.org/documentation/tutorials/1.8/declare/) class system.
 
-~~~~ {.javascript}
+```{.javascript}
 define([
            'dojo/_base/declare',
            'JBrowse/Plugin'
@@ -76,10 +75,9 @@ return declare( JBrowsePlugin,
 });
 
 });
-~~~~
+```
 
 #### Example plugin directory contents
-
 
 -   plugins/MyPlugin/js
     -   plugins/MyPlugin/js/main.js
@@ -93,7 +91,6 @@ The bin/new-plugin.pl will initialize a directory structure for you, e.g. run
 
     bin/new-plugin.pl MyPlugin
 
-
 ### Distributing plugins via npm
 
 Distributing a plugin via npm
@@ -101,33 +98,33 @@ JBrowse 1.13.0 and higher can also use plugins that are distributed via npm. To 
 
 Here is an example package.json file for MyPlugin:
 
-	{
-	  "name": "my-jbrowse-plugin",
-	  "version": "1.0.0",
-	  "description": "JBrowse client plugin for adding amazing things",
-	  "main": "js/main.js",
-	  "author": "Josephina Example",
-	  "license": "SEE LICENSE FILE IN LICENSE.md",
-	  "dependencies": {
-	  },
-	  "devDependencies": {
-	  },
-	  "repository": {
-		"type": "git",
-		"url": "git+https://github.com/josephina/myplugin.git"
-	  },
-	  "keywords": [
-		"genome",
-		"jbrowse"
-	  ],
-	  "bugs": {
-		"url": "https://github.com/josephina/myplugin/issues"
-	  },
-	  "homepage": "https://github.com/josephina/myplugin#readme",
-	  "jbrowsePlugin": {
-		"name": "MyPlugin"
-	  }
-	}
+    {
+      "name": "my-jbrowse-plugin",
+      "version": "1.0.0",
+      "description": "JBrowse client plugin for adding amazing things",
+      "main": "js/main.js",
+      "author": "Josephina Example",
+      "license": "SEE LICENSE FILE IN LICENSE.md",
+      "dependencies": {
+      },
+      "devDependencies": {
+      },
+      "repository": {
+    	"type": "git",
+    	"url": "git+https://github.com/josephina/myplugin.git"
+      },
+      "keywords": [
+    	"genome",
+    	"jbrowse"
+      ],
+      "bugs": {
+    	"url": "https://github.com/josephina/myplugin/issues"
+      },
+      "homepage": "https://github.com/josephina/myplugin#readme",
+      "jbrowsePlugin": {
+    	"name": "MyPlugin"
+      }
+    }
 
 ### Other useful classes
 
@@ -140,5 +137,3 @@ The `JBrowse/GenomeView` class manages the main genome view, where the tracks ar
 Track objects query data from a feature store, and draw it in the GenomeView pane. The implementations are in `JBrowse/View/Track/` for which the base class is `JBrowse/View/Track/BlockBased`.
 
 CanvasFeatures tracks use various glyph subclasses, locatable in the `JBrowse/View/FeatureGlyph/` directory and inheriting from the base class `JBrowse/View/FeatureGlyph`.
-
-

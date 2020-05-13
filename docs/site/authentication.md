@@ -16,6 +16,7 @@ Provided you have a LDAP authentication server already available it is relativel
 This approach is designed to block access to all of JBrowse until authenticated and is not suitable for excluding sub-sets of tracks.
 
 The following block lists the installation method for the module and dependancies with versions available at time of writing:
+
 ```
 sudo apt-get install libldap2-dev
 sudo apt-get install build-essential
@@ -35,9 +36,11 @@ cd nginx-1.10.1/
 ./configure --prefix=/jbrowse/nginx_ldap --with-zlib=../zlib-1.2.8 --with-pcre=../pcre-8.37 --with-http_ssl_module --add-module=../nginx-auth-ldap-master
 make install
 ```
-***pcre2 is not compatible, you must use pcre-X.XX***
+
+**_pcre2 is not compatible, you must use pcre-X.XX_**
 
 The next block shows an example configuration that would be added to the 'http' section of 'nginx.conf'
+
 ```
 http {
  ...
@@ -65,9 +68,11 @@ http {
    require group "CN=mygroup,OU=group,DC=example,DC=ac,DC=uk";
  }
 ```
+
 You may need to use 'ldapsearch' or speak to your admins for help getting the settings correct.
 
 Once this is in place you can then limit the accessible locations by adding to the 'server' section:
+
 ```
  server {
    ...
@@ -88,10 +93,10 @@ Once this is in place you can then limit the accessible locations by adding to t
    ...
  }
 ```
+
 If you place the 'auth_ldap\*' directives before the location sections then you restrict all areas.
 
 This was pieced together from the following pages:
 
-- <https://github.com/kvspb/nginx-auth-ldap>
-- <http://www.allgoodbits.org/articles/view/29>
-
+-   <https://github.com/kvspb/nginx-auth-ldap>
+-   <http://www.allgoodbits.org/articles/view/29>

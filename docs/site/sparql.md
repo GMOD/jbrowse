@@ -3,7 +3,6 @@ id: sparql
 title: SPARQL configuration
 ---
 
-
 # Data from a SPARQL Endpoint
 
 Starting with version 1.10.0, JBrowse can display feature or quantitative data directly from a SPARQL endpoint. The SPARQL data adaptor can be used with any of the JBrowse track types.
@@ -85,7 +84,7 @@ The example configuration below displays complete gene models (with locations re
 
 By default, only "{ref}", "{start}", and "{end}" are available for interpolating into your query. However, starting with JBrowse 1.10.3, you can add additional variables in the configuration by including a `variables` key containing additional values. For example, you could add an "{organism_uri}" in your queryTemplate that was set from the `variables` stanza, which would look like:
 
-~~~~ {.javascript}
+```{.javascript}
 
     {
         "label": 'genes',
@@ -99,6 +98,6 @@ By default, only "{ref}", "{start}", and "{end}" are available for interpolating
             "organism_uri": "<http://my.organism.authority/tyrannosaurus_rex>"
          }
     }
-~~~~
+```
 
 The variable interpolation can also be used to refer to functions that are defined in external files (see [Including external files and functions](#including-external-files-and-functions-in-tracklistjson "wikilink")).

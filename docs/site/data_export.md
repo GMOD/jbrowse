@@ -19,11 +19,9 @@ Current supported export data formats are:
 
 Each track in JBrowse that can export data supports the following configuration variables.
 
-|Option|Value|
-|------|-----|
-|`noExport`|If true, disable all data export functionality for this track. Default false.|
-|`maxExportSpan`|Maximum size of the a region, in bp, that can be exported from this track. Default 500 Kb.|
-|`maxExportFeatures`|Maximum number of features that can be exported from this track. If "Save track" is unexpectedly greyed out, inspect this setting. Default: 50000|
-|`maxFeatureSizeForUnderlyingRefSeq`|Maximum length of sequence to be displayed in the popup boxes. Default: 250kb|
-
-
+| Option                              | Value                                                                                                                                             |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `noExport`                          | If true, disable all data export functionality for this track. Default false.                                                                     |
+| `maxExportSpan`                     | Maximum size of the a region, in bp, that can be exported from this track. Default 500 Kb.                                                        |
+| `maxExportFeatures`                 | Maximum number of features that can be exported from this track. If "Save track" is unexpectedly greyed out, inspect this setting. Default: 50000 |
+| `maxFeatureSizeForUnderlyingRefSeq` | Maximum length of sequence to be displayed in the popup boxes. Default: 250kb                                                                     |
