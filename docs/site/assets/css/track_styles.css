@@ -37,13 +37,13 @@ div.hist {
 .feature,
 .plus-feature,
 .minus-feature {
-    position:absolute;
+    position: absolute;
     height: 7px;
     background-repeat: repeat-x;
     cursor: pointer;
     min-width: 1px;
     z-index: 10;
-    background-color: #2F4F4F;
+    background-color: #2f4f4f;
 
     box-sizing: border-box;
     -moz-box-sizing: border-box;
@@ -51,14 +51,18 @@ div.hist {
     -ms-box-sizing: border-box;
 }
 
-.plus-feature { background-image: url('../img/plus-chevron3.png'); }
-.minus-feature { background-image: url('../img/minus-chevron3.png'); }
+.plus-feature {
+    background-image: url("../img/plus-chevron3.png");
+}
+.minus-feature {
+    background-image: url("../img/minus-chevron3.png");
+}
 
 .subfeature,
 .plus-subfeature,
 .minus-subfeature {
-    position:absolute;
-    background-color: #2F4F4F;
+    position: absolute;
+    background-color: #2f4f4f;
     height: 7px;
     min-width: 1px;
     z-index: 12;
@@ -75,48 +79,62 @@ div.hist {
     background-color: #ccc;
 
     /* these should all 3 match */
-    height:      11px;
+    height: 11px;
     line-height: 11px;
-    font-size:   11px;
+    font-size: 11px;
 }
 .plus-alignment {
-    background-color: #EC8B8B;
+    background-color: #ec8b8b;
 }
 .minus-alignment {
-    background-color: #898FD8;
+    background-color: #898fd8;
 }
-.alignment.missing_mate, .plus-alignment.missing_mate, .minus-alignment.missing_mate {
-    background-image: url('../img/red_crosshatch_bg.png');
+.alignment.missing_mate,
+.plus-alignment.missing_mate,
+.minus-alignment.missing_mate {
+    background-image: url("../img/red_crosshatch_bg.png");
 }
 
-.alignment > .mismatch, .minus-alignment > .mismatch, .plus-alignment > .mismatch  {
+.alignment > .mismatch,
+.minus-alignment > .mismatch,
+.plus-alignment > .mismatch {
     height: 100%;
 }
-.alignment > .deletion, .minus-alignment > .deletion, .plus-alignment > .deletion {
+.alignment > .deletion,
+.minus-alignment > .deletion,
+.plus-alignment > .deletion {
     background-color: black;
     height: 100%;
 }
-.alignment > .deletion *, .plus-alignment > .deletion *, .minus-alignment > .deletion * {
+.alignment > .deletion *,
+.plus-alignment > .deletion *,
+.minus-alignment > .deletion * {
     color: white;
 }
-.alignment > .insertion, .plus-alignment > .insertion, .minus-alignment > .insertion {
+.alignment > .insertion,
+.plus-alignment > .insertion,
+.minus-alignment > .insertion {
     background-color: white;
     color: black;
     height: 100%;
 }
-.alignment > .skip, .plus-alignment > .skip, .minus-alignment > .skip {
-    background: url('../img/dark_20x2.png') repeat-x 0 50% white;
+.alignment > .skip,
+.plus-alignment > .skip,
+.minus-alignment > .skip {
+    background: url("../img/dark_20x2.png") repeat-x 0 50% white;
     height: 100%;
     opacity: 0.7;
 }
 
 div.feature-hist {
     background-color: blue;
-    border-color: #5858C4;
+    border-color: #5858c4;
 }
 
-.feature2, .plus-feature2, .minus-feature2 {
-    position:absolute;
+.feature2,
+.plus-feature2,
+.minus-feature2 {
+    position: absolute;
     height: 7px;
     background-repeat: repeat-x;
     cursor: pointer;
@@ -134,8 +152,10 @@ div.feature2-hist {
     border-color: #ada;
 }
 
-.feature3, .plus-feature3, .minus-feature3 {
-    position:absolute;
+.feature3,
+.plus-feature3,
+.minus-feature3 {
+    position: absolute;
     height: 7px;
     background-repeat: repeat-x;
     cursor: pointer;
@@ -149,8 +169,10 @@ div.feature3-hist {
     border-color: black;
 }
 
-.feature4, .plus-feature4, .minus-feature4 {
-    position:absolute;
+.feature4,
+.plus-feature4,
+.minus-feature4 {
+    position: absolute;
     height: 11px;
     background-repeat: repeat-x;
     cursor: pointer;
@@ -164,8 +186,10 @@ div.feature4-hist {
     border-color: black;
 }
 
-.feature5, .plus-feature5, .minus-feature5 {
-    position:absolute;
+.feature5,
+.plus-feature5,
+.minus-feature5 {
+    position: absolute;
     height: 7px;
     background-repeat: repeat-x;
     cursor: pointer;
@@ -180,7 +204,7 @@ div.feature5-hist {
 }
 
 div.exon-hist {
-    background-color: #4B76E8;
+    background-color: #4b76e8;
     border-color: #00f;
 }
 
@@ -189,7 +213,7 @@ div.exon-hist {
 .minus-exon {
     position: absolute;
     height: 7px;
-    background-color: #4B76E8;
+    background-color: #4b76e8;
     border-style: solid;
     border-color: #00f;
     border-width: 1px;
@@ -198,7 +222,7 @@ div.exon-hist {
 }
 
 div.est-hist {
-    background-color: #ED9185;
+    background-color: #ed9185;
     border-color: #c33;
 }
 
@@ -207,15 +231,15 @@ div.est-hist {
 .minus-est {
     position: absolute;
     height: 7px;
-    background-color: #ED9185;
+    background-color: #ed9185;
 }
 
 .dblhelix,
 .plus-dblhelix,
 .minus-dblhelix {
-    position:absolute;
+    position: absolute;
     height: 11px;
-    background-image: url('../img/dblhelix-red.png');
+    background-image: url("../img/dblhelix-red.png");
     background-repeat: repeat-x;
     min-width: 1px;
     cursor: pointer;
@@ -229,9 +253,9 @@ div.dblhelix-hist {
 
 .plus-helix,
 .minus-helix {
-    position:absolute;
+    position: absolute;
     height: 11px;
-    background-image: url('../img/helix3-green.png');
+    background-image: url("../img/helix3-green.png");
     background-repeat: repeat-x;
     min-width: 1px;
     cursor: pointer;
@@ -243,38 +267,53 @@ div.helix-hist {
     border-color: #ada;
 }
 
-.loops, .minus-loops, .plus-loops {
-    position:absolute;
+.loops,
+.minus-loops,
+.plus-loops {
+    position: absolute;
     height: 13px;
-    background-image: url('../img/loops.png');
+    background-image: url("../img/loops.png");
     background-repeat: repeat-x;
     cursor: pointer;
 }
 
-.diamonds, .minus-diamonds, .plus-diamonds {
-
-
-    position:absolute;
+.diamonds,
+.minus-diamonds,
+.plus-diamonds {
+    position: absolute;
     height: 13px;
-    background-image: url('../img/glyph-diamond.png');
+    background-image: url("../img/glyph-diamond.png");
     background-repeat: repeat-x;
     cursor: pointer;
 }
 
-.plus-cds, .minus-cds {
-    position:absolute;
+.plus-cds,
+.minus-cds {
+    position: absolute;
     height: 13px;
     background-repeat: repeat-x;
     cursor: pointer;
     min-width: 1px;
 }
 
-.plus-cds_phase0 { background-image: url('../img/plus-cds0.png'); }
-.plus-cds_phase1 { background-image: url('../img/plus-cds1.png'); }
-.plus-cds_phase2 { background-image: url('../img/plus-cds2.png'); }
-.minus-cds_phase0 { background-image: url('../img/minus-cds0.png'); }
-.minus-cds_phase1 { background-image: url('../img/minus-cds1.png'); }
-.minus-cds_phase2 { background-image: url('../img/minus-cds2.png'); }
+.plus-cds_phase0 {
+    background-image: url("../img/plus-cds0.png");
+}
+.plus-cds_phase1 {
+    background-image: url("../img/plus-cds1.png");
+}
+.plus-cds_phase2 {
+    background-image: url("../img/plus-cds2.png");
+}
+.minus-cds_phase0 {
+    background-image: url("../img/minus-cds0.png");
+}
+.minus-cds_phase1 {
+    background-image: url("../img/minus-cds1.png");
+}
+.minus-cds_phase2 {
+    background-image: url("../img/minus-cds2.png");
+}
 
 div.cds-hist {
     background-color: #fcc;
@@ -282,7 +321,7 @@ div.cds-hist {
 }
 
 .topbracket {
-    position:absolute;
+    position: absolute;
     height: 8px;
     border-style: solid solid none solid;
     border-width: 2px;
@@ -291,7 +330,7 @@ div.cds-hist {
 }
 
 .bottombracket {
-    position:absolute;
+    position: absolute;
     height: 8px;
     border-style: none solid solid solid;
     border-width: 2px;
@@ -299,16 +338,20 @@ div.cds-hist {
     cursor: pointer;
 }
 
-.hourglass, .plus-hourglass, .minus-hourglass {
-    position:absolute;
+.hourglass,
+.plus-hourglass,
+.minus-hourglass {
+    position: absolute;
     height: 0px;
     border-style: solid;
     border-width: 6px 3px 6px 3px;
     cursor: pointer;
 }
 
-.triangle, .plus-triangle, .minus-triangle {
-    position:absolute;
+.triangle,
+.plus-triangle,
+.minus-triangle {
+    position: absolute;
     height: 0px;
     border-style: solid;
     border-width: 6px 3px 0px 3px;
@@ -331,8 +374,10 @@ div.hgblue-hist {
     border-color: #99f;
 }
 
-.ibeam, .plus-ibeam, .minus-ibeam {
-    position:absolute;
+.ibeam,
+.plus-ibeam,
+.minus-ibeam {
+    position: absolute;
     height: 2px;
     background-color: blue;
     border-style: solid;
@@ -344,12 +389,11 @@ div.hgblue-hist {
     -moz-box-sizing: content-box;
     -webkit-box-sizing: content-box;
     -ms-box-sizing: content-box;
-
 }
 
 div.transcript-hist {
     background-color: #ddd;
-    border-color: #FF9185;
+    border-color: #ff9185;
 }
 
 .transcript,
@@ -357,7 +401,7 @@ div.transcript-hist {
 .minus-transcript {
     position: absolute;
     height: 11px;
-    background: url('../img/dark_20x2.png') repeat-x 0 4px white;
+    background: url("../img/dark_20x2.png") repeat-x 0 4px white;
     z-index: 6;
     min-width: 1px;
     cursor: pointer;
@@ -368,7 +412,7 @@ div.transcript-hist {
     position: absolute;
     width: 9px;
     height: 5px;
-    background-image: url('../img/plus-arrowhead.png');
+    background-image: url("../img/plus-arrowhead.png");
     background-repeat: no-repeat;
     z-index: 100;
 }
@@ -378,17 +422,20 @@ div.transcript-hist {
     position: absolute;
     width: 9px;
     height: 5px;
-    background-image: url('../img/minus-arrowhead.png');
+    background-image: url("../img/minus-arrowhead.png");
     background-repeat: no-repeat;
     z-index: 100;
 }
 
 /* introns are hidden by default */
-.plus-intron, .minus-intron {
+.plus-intron,
+.minus-intron {
     display: none;
 }
 /* can also set a class of 'hidden' to hide something */
-.hidden, .plus-hidden, .minus-hidden {
+.hidden,
+.plus-hidden,
+.minus-hidden {
     display: none;
 }
 
@@ -398,7 +445,7 @@ div.transcript-hist {
 .minus-transcript-CDS {
     position: absolute;
     height: 11px;
-    background: #F09A9A;
+    background: #f09a9a;
     cursor: pointer;
     z-index: 10;
     min-width: 1px;
@@ -414,9 +461,9 @@ div.transcript-hist {
 .minus-three_prime_UTR {
     position: absolute;
     height: 7px;
-    background-color: #B66;
+    background-color: #b66;
     border-style: solid;
-    border-color: #D88;
+    border-color: #d88;
     border-width: 2px 0px 2px 0px;
     z-index: 8;
     min-width: 1px;
@@ -428,7 +475,7 @@ div.transcript-hist {
 .minus-generic_parent {
     position: absolute;
     height: 4px;
-    background-color: #AAA;
+    background-color: #aaa;
     z-index: 6;
     min-width: 1px;
     cursor: pointer;
@@ -444,9 +491,9 @@ div.generic_parent-hist {
 .minus-match_part {
     position: absolute;
     height: 4px;
-    background-color: #66B;
+    background-color: #66b;
     border-style: solid;
-    border-color: #88D;
+    border-color: #88d;
     border-width: 2px 0px 2px 0px;
     z-index: 8;
     min-width: 1px;
@@ -458,27 +505,27 @@ div.generic_parent-hist {
 .minus-generic_part_a {
     position: absolute;
     height: 4px;
-    background-color: #6B6;
+    background-color: #6b6;
     border-style: solid;
-    border-color: #8D8;
+    border-color: #8d8;
     border-width: 2px 0px 2px 0px;
     z-index: 8;
     min-width: 1px;
     cursor: pointer;
 }
 
-
 /* floating score display for wiggle tracks */
 .wiggleValueDisplay {
     border: 1px solid #aaa;
     padding: 2px;
 
-    -moz-box-shadow: 4px 4px 10px 2px rgba( 80, 80, 80, 0.3 );
-    -webkit-box-shadow: 4px 4px 10px 2px rgba( 80, 80, 80, 0.3 );
-    box-shadow: 4px 4px 10px 2px rgba( 80, 80, 80, 0.3 );
+    -moz-box-shadow: 4px 4px 10px 2px rgba(80, 80, 80, 0.3);
+    -webkit-box-shadow: 4px 4px 10px 2px rgba(80, 80, 80, 0.3);
+    box-shadow: 4px 4px 10px 2px rgba(80, 80, 80, 0.3);
 
-    &,* {
-        background: #FFFEF0;
+    &,
+    * {
+        background: #fffef0;
         font-family: Courier New, monospace;
         font-weight: bold;
         cursor: default;
@@ -487,14 +534,16 @@ div.generic_parent-hist {
     table {
         border-spacing: 0;
         * {
-            border: none
+            border: none;
         }
     }
-    th,td {
+    th,
+    td {
         border: none;
         padding: 0.2em 0.4em;
     }
-    td.count, td.pct  {
+    td.count,
+    td.pct {
         text-align: right;
     }
     tr.total > td {
@@ -512,17 +561,17 @@ div.generic_parent-hist {
 
 .base {
     color: black;
-    font-family: Courier New,monospace;
+    font-family: Courier New, monospace;
     font-weight: bold;
     text-shadow: white 0px 0px 1px;
 }
 
 /* colors for bases must be specified as hex or rgb/hsl strings, no named colors such as 'red' */
 .base_n {
-    background-color: #C6C6C6;
+    background-color: #c6c6c6;
 }
 .base_a {
-    background-color: #00BF00;
+    background-color: #00bf00;
 }
 .base_c {
     background-color: #4747ff;
@@ -546,14 +595,14 @@ div.generic_parent-hist {
 
 /* added to document.body */
 .featureTooltip {
-    background: #FFFEF0;
+    background: #fffef0;
     border: 1px solid #aaa;
     padding: 2px;
     font-family: Courier New, monospace;
     font-weight: bold;
     cursor: default;
 
-    -moz-box-shadow: 4px 4px 10px 2px rgba( 80, 80, 80, 0.3 );
-    -webkit-box-shadow: 4px 4px 10px 2px rgba( 80, 80, 80, 0.3 );
-    box-shadow: 4px 4px 10px 2px rgba( 80, 80, 80, 0.3 );
+    -moz-box-shadow: 4px 4px 10px 2px rgba(80, 80, 80, 0.3);
+    -webkit-box-shadow: 4px 4px 10px 2px rgba(80, 80, 80, 0.3);
+    box-shadow: 4px 4px 10px 2px rgba(80, 80, 80, 0.3);
 }
