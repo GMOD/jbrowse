@@ -81,14 +81,13 @@ return declare( JBrowsePlugin,
 #### Example plugin directory contents
 
 
-   plugins/MyPlugin/js
-   plugins/MyPlugin/js/main.js
-   plugins/MyPlugin/js/MyPlugin.profile.js
-   plugins/MyPlugin/css
-   plugins/MyPlugin/css/main.css
-   plugins/MyPlugin/img
-   plugins/MyPlugin/img/myimage.png
-   plugins/MyPlugin/js
+-   plugins/MyPlugin/js
+    -   plugins/MyPlugin/js/main.js
+    -   plugins/MyPlugin/js/MyPlugin.profile.js
+-   plugins/MyPlugin/css
+    -   plugins/MyPlugin/css/main.css
+-   plugins/MyPlugin/img
+    -   plugins/MyPlugin/img/myimage.png
 
 The bin/new-plugin.pl will initialize a directory structure for you, e.g. run
 
