@@ -91,9 +91,9 @@ Note: `hideImproperPairs` was introduced in 1.16.0 to disambiguate from hideMiss
 | Option                      | Value                                                                                                                                                     |
 | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `useReverseTemplate`        | Use an algorithm for reversing the template of paired-end reads so that they appear on the same strand, RNA-seq specific. Default: false. Added in 1.11.6 |
-| `useXS`                     | Color reads when the XS tag indicates strandedness, RNA-seq specific. Default: false. Added in 1.11.6                                                     |
-| `useTS`                     | Color reads when the TS tag indicates strandedness, RNA-seq specific. Default: false. Added in 1.16.0                                                     |
-| `colorByMAPQ`               | Color reads when the TS tag indicates strandedness, RNA-seq specific. Default: false. Added in 1.16.0                                                     |
+| `useXS`                     | Color reads when the XS or TS tag which infers strandedness of RNA-seq spliced alignments that cross a splice junction. Default: false. Added in 1.11.6, added upper case TS support in 1.16.9                                                     |
+| `useTS`                     | Color reads using the lower case `ts` tag used by minimap2, indicates strandedness, RNA-seq specific. Default: false. Added in 1.16.0                                                     |
+| `colorByMAPQ`               | Color reads according to mapping quality, RNA-seq specific. Default: false. Added in 1.16.0                                                     |
 | `colorByOrientation`        | Colors reads according to paired end orientations. Default: false. Added in 1.16.0                                                                        |
 | `colorBySize`               | Colors reads according to insert size. Default: false. Added in 1.16.0                                                                                    |
 | `colorByOrientationAndSize` | Colors reads according to paired end orientations. Default: false. Added in 1.16.0                                                                        |
