@@ -44,10 +44,23 @@ We will use the newly generated "gene annotation" file that was generated for Vo
 
 When we are processing GFF3 for usage in JBrowse, we can aim to use GFF3Tabix format. Tabix allows random access to genomic regions similar to Indexed FASTA. We must first sort the GFF to prepare it for tabx
 
-    sort -k1,1 -k4,4n data/volvox.gff3 > data/volvox.sorted.gff3
+You can do two different ways for this, simple GNU sort, or genome tools sort
+
+
+With genometools, it has added validation checking mechanisms that are helpful
+
+    gt gff3 -sortlines -tidy data/volvox.gff3 > data/volvox.sorted.gff3
+
+With normal GNU sort you can try something like this
+
+
     (grep ^"#" data/volvox.gff3; grep -v ^"#" data/volvox.gff3 | grep -v "^$" | grep "\t" | sort -k1,1 -k4,4n) > data/volvox.sorted.gff3
 
-This command extracts the header then sorts the GFF without the header. You can also use GenomeTools with `gt gff3 -sortlines data/volvox.gff3 > data/volvox.sorted.gff3` if that is easier. Then run
+If you are running on a custom dataset instead of this volvox one, then you should be confident that your GFF is properly formatted to use the GNU sort, otherwise try `brew install genometools` and use the genometools sort
+
+
+
+After you have a sorted GFF3, we run bgzip and tabix
 
     bgzip data/volvox.sorted.gff3
     tabix -p gff data/volvox.sorted.gff3.gz
@@ -58,6 +71,10 @@ Then we can create a gene track in data/tracks.conf
     urlTemplate=volvox.sorted.gff3.gz
     storeClass=JBrowse/Store/SeqFeature/GFF3Tabix
     type=CanvasFeatures
+
+
+Note that urlTemplate is resolved relative to the folder that the tracks.conf file is in, so we don't write data/volvox.sorted.gff3.gz, just volvox.sorted.gff3.gz
+
 
 ## Loading BAM
 
