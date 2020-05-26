@@ -747,8 +747,12 @@ regularizeLocation: function( location ) {
 
 regularizeReferenceName: function( refname ) {
 
-    if( this.config.exactReferenceSequenceNames )
+    if( this.config.customRefnameRenameReplace ) {
+        return this.config.customRefnameRenameReplace(refname)
+    }
+    if( this.config.exactReferenceSequenceNames ) {
         return refname;
+    }
 
     refname = refname.toLowerCase()
 
@@ -765,6 +769,9 @@ regularizeReferenceName: function( refname ) {
                      .replace(/^(\d+l?r?|x|y)$/, 'chr$1' )
                      .replace(/^(x?)(ix|iv|v?i{0,3})$/, 'chr$1$2' )
                      .replace(/^mt?(dna)?$/, 'chrm');
+    if (this.config.customRefnameRename) {
+        refname = this.config.customRefnameRename(refname)
+    }
 
     return refname;
 },
