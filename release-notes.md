@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+## Minor improvements
+
+ * Added `customRefRename` and `replaceRefRename` global configs for
+   extending and replacing ref renaming functionality respectively.
+   Ref renaming helps things like chrM and chrMT to be loaded onto the
+   same chromosome in jbrowse (@cmdcolin, pull #1506)
 
 # Release 1.16.9     2020-05-21 16:50:24 UTC
 
