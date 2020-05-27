@@ -186,7 +186,7 @@ return declare( SeqFeatureStore,
                 }
 
                 // number of bins in the server-supplied histogram for each current bin
-                var binRatio = basesPerBin / histogramMeta.basesPerBin;
+                var binRatio = basesPerBin / ((histogramMeta||{}).basesPerBin||1);
 
                 // if the server-supplied histogram fits neatly into our requested
                 if ( binRatio > 0.9

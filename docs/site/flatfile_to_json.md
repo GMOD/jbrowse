@@ -5,15 +5,15 @@ title: flatfile-to-json.pl
 
 ### flatfile-to-json.pl
 
-Each run of this script formats a single track for JBrowse. A *flat file* is a data set that exists entirely in a single file. For this script, the file must be a [GFF3](http://gmod.org/wiki/GFF3), [BED](http://www.ensembl.org/info/website/upload/bed.html), or GenBank text file.
+Each run of this script formats a single track for JBrowse. A _flat file_ is a data set that exists entirely in a single file. For this script, the file must be a [GFF3](http://gmod.org/wiki/GFF3), [BED](http://www.ensembl.org/info/website/upload/bed.html), or GenBank text file.
 
 Basic usage:
 
-`   bin/flatfile-to-json.pl --[gff|gbk|bed] <flat file> --tracklabel <track name> [options]`
+`bin/flatfile-to-json.pl --[gff|gbk|bed] <flat file> --tracklabel <track name> [options]`
 
 For a full list of the options supported by flatfile-to-json.pl, run it with the --help option
 
-`   bin/flatfile-to-json.pl --help`
+`bin/flatfile-to-json.pl --help`
 
 Example
 
@@ -46,5 +46,3 @@ The --trackLabel parameter is the only required parameter, and is the "id" to re
 By default the output is in a folder called data in your current working directory, or whatever is specified by --out
 
 Using --trackType CanvasFeatures is generally useful since CanvasFeatures are newer than the default HTMLFeatures (aka FeatureTrack)
-
-

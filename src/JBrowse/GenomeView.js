@@ -457,6 +457,10 @@ _behaviors: function() { return {
                     if( evt.keyCode == dojo.keys.SHIFT ) // shift
                         this.behaviorManager.swapBehaviors( 'shiftMouse', 'normalMouse' );
                 }),
+                dojo.connect( window, 'blur', this, function(evt) {
+                    // Simulate releasing shift if user switches tabs with ctrl+shift+tab
+                    this.behaviorManager.swapBehaviors( 'shiftMouse', 'normalMouse' );
+                }),
                 dojo.connect( document.body, 'onkeydown', this, function(evt) {
                     if( evt.keyCode == dojo.keys.SHIFT ) // shift
                         this.behaviorManager.swapBehaviors( 'normalMouse', 'shiftMouse' );

@@ -13,6 +13,20 @@ To install from GitHub, you can simply clone the repo and run the setup.sh scrip
     git clone https://github.com/GMOD/jbrowse
     cd jbrowse
     ./setup.sh
+    
+    
+## Develop JBrowse or JBrowse plugins
+
+To start modifying jbrowse code, you can run something like this
+
+
+    git clone https://github.com/GMOD/jbrowse
+    cd jbrowse
+    ./setup.sh # not strictly necessary if you don't need to sample data
+    yarn
+    yarn watch
+    
+Then keep `yarn watch` running in the background as you create changes to your code. You can also run `yarn start` in another window and that will launch a webserver running jbrowse, or you can just have the jbrowse folder in your webserver directory. The key is to run yarn watch while you are editing code so that webpack incorporates your changes in either the main codebase (src/JBrowse folder) or any plugins (plugins/YourPlugin).
 
 ## Note for users in China
 

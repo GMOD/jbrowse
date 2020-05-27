@@ -1,8 +1,24 @@
 {{$NEXT}}
 
+
+# Release 1.16.9     2020-05-21 16:50:24 UTC
+
 ## Minor improvements
 
+ * Added a 'Reset to defaults' menu item, which addresses a long standing
+   issue. Thanks to a user with a very long github name for their
+   contribution (pull #1496, issue #764).
 
+ * Disable coordinate indicator on tab switch, thanks @lukaw3d (pull #1497)
+
+ * Small optimization bumping @gmod/bam from version 1.0.35->1.0.36 (@cmdcolin)
+
+ * Add ability to include/hide variant filters instead of just hide
+   (@cmdcolin, issue #1478)
+
+ * Add ability to color by TS tag. The useXS config now applies to `XS` and
+   `TS`, and the useTS tag only applies to the lower-case `ts` tag used by
+   minimap2 (pull #1493, @cmdcolin)
 
 ## Bug fixes
 
@@ -24,6 +40,15 @@
  * When there is only a single coordinate column in a tabix file, there
    is now improved performance since the overlap checking code was
    incorrect before in @gmod/tabix (@cmdcolin)
+
+ * Fix usage of bigwig "scoreType":"maxScore" config for bigwig tracks
+   (@cmdcolin, issue #1380)
+
+ * Fix a crash related to NCList histogram when a featureScale is applied
+   (issue #1327)
+
+ * Make it so that VCF tracks don't require CORS headers for Content-Range
+   (@cmdcolin)
 
 # Release 1.16.8     2020-02-05 01:37:43 UTC
 

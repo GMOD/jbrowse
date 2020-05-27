@@ -3,11 +3,9 @@ id: reference_sequence
 title: Reference sequence configuration
 ---
 
-
 The reference sequence track displays the genome sequence
 
 **For information on creating the reference sequence track, view [prepare-refseqs.pl](prepare_refseqs.md) in the config or the [indexed file tutorial](tutorial.md)**
-
 
 # Reference Sequences
 
@@ -57,17 +55,18 @@ Example (in data/tracks.conf)
 
 The Sequence track added support for using a specified codon table or partial codon table, with start or stop codons highlighted
 
-|Option|Value|
-|------|-----|
-|`codonTable`|Specify a codon table or partial codon table. See <http://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi>. Example "codonTable": { "AAA": "N" }. Available since 1.11.6|
-|`codonStarts`|Specify a set of start codons. See <http://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi>. Example "codonStarts": [ "AAA" ]. Available since 1.12.0|
-|`codonStops`|Specify a set of stop codons. See <http://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi>. Example "codonStops": [ "AAA" ]. Available since 1.12.0|
+| Option        | Value                                                                                                                                                                     |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `codonTable`  | Specify a codon table or partial codon table. See <http://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi>. Example "codonTable": { "AAA": "N" }. Available since 1.11.6 |
+| `codonStarts` | Specify a set of start codons. See <http://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi>. Example "codonStarts": [ "AAA" ]. Available since 1.12.0                    |
+| `codonStops`  | Specify a set of stop codons. See <http://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi>. Example "codonStops": [ "AAA" ]. Available since 1.12.0                      |
 
 Note that the colors of nucleotide bases rendered is controlled via CSS, so you can add custom CSS to a plugin or edit the jbrowse CSS to override it. The classes are
 
 `base_n,base_a,base_g,base_t,base_c`
 
 The amino acid track highlights can also be controlled via CSS. They can be either the letter "aminoAcid_m" for example or the "aminoAcid_start", "aminoAcid_stop" classes
+
 ```
 .translatedSequence td.aminoAcid_start
 .translatedSequence td.aminoAcid_m
@@ -76,6 +75,6 @@ The amino acid track highlights can also be controlled via CSS. They can be eith
 
 ## Other options
 
-|Option|Value|
-|------|-----|
-|`useAsRefSeqStore`|Make a given track specifically identified as a refseq store, and JBrowse will then use the store class specified on your track to retrieve the data for the FASTA in "View details" popups, etc.|
+| Option             | Value                                                                                                                                                                                             |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `useAsRefSeqStore` | Make a given track specifically identified as a refseq store, and JBrowse will then use the store class specified on your track to retrieve the data for the FASTA in "View details" popups, etc. |

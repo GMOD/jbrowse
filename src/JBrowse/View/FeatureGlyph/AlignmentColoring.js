@@ -147,7 +147,7 @@ var c = {
             '-': 'color_rev_strand',
             '+': 'color_fwd_strand'
         };
-        return glyph.getStyle(feature, map[feature.get('xs')||feature.get('tags').XS] || 'color_nostrand');
+        return glyph.getStyle(feature, map[feature.get('xs')||feature.get('ts')||feature.get('tags').XS||feature.get('tags').TS] || 'color_nostrand');
     },
 
     // TS is flipped from XS

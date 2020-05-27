@@ -3,7 +3,6 @@ id: events
 title: JBrowse Subscribe/Publish events
 ---
 
-
 There are two layers of events, ''internal'' ones used by JBrowse
 plugins and components to communicate among themselves, and
 ''external'' ones used by other software to communicate with JBrowse.
@@ -30,7 +29,6 @@ the view.
 
 `/jbrowse/v1/c`: messages from controllers, such as requests to turn
 on certain tracks, highlight certain features, and so forth.
-
 
 ## Milestone functions
 
@@ -59,5 +57,3 @@ When events are global, the event names take the form `/jbrowse/v1/{type}/{globa
 The DebugEvents plugin logs events to the console, and can be used to monitor events as they are triggered by user interactions with the browser.
 
 Note that you can also publish and subscribe to a JBrowse instance that is in an iframe. See <http://gmod.org/wiki/JBrowse_FAQ#How_can_I_get_jbrowse_to_update_the_URL_of_a_parent_page_when_jbrowse_is_inside_of_an_iframe> for an example
-
-

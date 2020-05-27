@@ -13,12 +13,10 @@ In addition to all of the feature-containing tables that you want to use as JBro
 
 Basic usage:
 
-`  bin/ucsc-to-json.pl --in <directory with files from UCSC> --track <database table name> [options]`
+`bin/ucsc-to-json.pl --in <directory with files from UCSC> --track <database table name> [options]`
 
 Hint: If you're using this approach, it might be convenient to also download the sequence(s) from UCSC. These are usually available from the "Data set by chromosome" link for the particular genome or from the FTP server.
 
 For a full list of the options supported by ucsc-to-json.pl, run it with the --help option, like:
 
-`   bin/ucsc-to-json.pl --help`
-
-
+`bin/ucsc-to-json.pl --help`

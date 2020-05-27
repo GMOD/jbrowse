@@ -3,11 +3,9 @@ id: minimal
 title: Minimal JBrowse configurations
 ---
 
-
 # Minimal configs
 
 In 1.15.3, many track types were given the ability to "auto-infer" track type and storeClass from the file extension of the urlTemplate so minimal configs can be specified
-
 
 For example you can simply create a "data directory" folder, and hand edit a "tracks.conf" file to contain something like
 
@@ -26,7 +24,6 @@ For example you can simply create a "data directory" folder, and hand edit a "tr
     [tracks.mybedtabix]
     urlTemplate=peaks.bed.gz
 
-
 The refSeqs config tells JBrowse the list of chromosomes, which can be an FAI file, a 2bit file, a chrom.sizes file, or if prepare-refseqs.pl was used, it is unnecessary to specify this.
 
 ### Sequence track minimal config
@@ -35,7 +32,6 @@ For the sequence track, specifying the urlTemplate as genome.fa will assume that
 
     [tracks.refseqs]
     urlTemplate=genome.fa
-
 
 ### Feature track minimal config
 
@@ -68,14 +64,12 @@ A minimal VCF tabix track can use
 
 The tbi index will automatically be located by adding .tbi to the urlTemplate. If CSI indexes are used, csiUrlTemplate must be specified
 
-
 ### BigWig
 
 A minimal bigwig config is simply a url template to the bigwig file
 
     [tracks.mybw]
     urlTemplate=bigwig.bw
-
 
 ## Specifying minimal JSON configs
 
@@ -93,4 +87,3 @@ The trackList.json also can do minimal configs. An example
             {"label": "bigwig", "urlTemplate": "bigwig.bw"}
         ]
     }
-

@@ -3,12 +3,9 @@ id: faq
 title: JBrowse FAQ
 ---
 
-
 ## General
 
-
 ### How do I get started with JBrowse quickly
-
 
     git clone https://github.com/gmod/jbrowse
     ./setup.sh
@@ -24,15 +21,13 @@ You can also just copy and paste your entire jbrowse directory that you cloned i
 
 In JBrowse 1.13.0 and later, you must rebuild JBrowse
 
-* download the "-dev" version of JBrowse (or use a git clone, this is equivalent)
-* put the plugin(s) in the plugins folder
-* run ./setup.sh
+-   download the "-dev" version of JBrowse (or use a git clone, this is equivalent)
+-   put the plugin(s) in the plugins folder
+-   run ./setup.sh
 
 This will build the plugins properly. The ./setup.sh automatically downloads the npm modules needed for building the codebase.
 
-
 Reason: JBrowse switched to a webpack based build system in 1.13.0 which bundles all dependencies at build time so there is no notion of run-time module resolution
-
 
 ### How do I modify JBrowse source code
 
@@ -46,7 +41,6 @@ Note: this applies to JBrowse core and for plugins, as plugins will also be watc
 
 Also note: if you add or remove files, you should kill the watch process and restart
 
-
 ### What webserver is needed for JBrowse
 
 Most established HTTP servers such as Apache or nginx can work. You can
@@ -56,7 +50,6 @@ htdocs, or similar) and follow the setup instructions
 
 JBrowse also comes bundled with an express.js server that works for most
 purposes. You can use `npm run start` to start the server on port 8082.
-
 
 Other configuration about your server will depend on your needs, but
 generally no special setup is needed for the http server, and there is
@@ -93,7 +86,7 @@ go.
 
 Note: If you want to make your own custom build you can use
 
-`make -f build/Makefile release`
+`make -f build/Makefile release`
 
 Also also note: post 1.13.0 releases of JBrowse will automatically
 create a minified custom build when you run ./setup.sh if you have a
@@ -107,13 +100,13 @@ can contain the same types of information
 
 Examples of JSON format
 
-  - trackList.json
-  - jbrowse\_conf.json
+-   trackList.json
+-   jbrowse_conf.json
 
 Examples of conf format
 
-  - tracks.conf
-  - jbrowse.conf
+-   tracks.conf
+-   jbrowse.conf
 
 If you wonder why you would use the .conf format, some benefits include:
 easy to edit, easy to append to with text file tools, can define
@@ -126,7 +119,7 @@ like this:
 
 1.  The index.html initializes a global Browser object, and the
     paramaters to the constructor are used as the start of the config
-2.  The Browser class "includes"  both jbrowse\_config.json and
+2.  The Browser class "includes"  both jbrowse_config.json and
     jbrowse.conf using defaultConfig
 3.  The jbrowse.conf by default includes both {dataRoot}/trackList.json
     and {dataRoot}/tracks.conf, which resolves to whatever data
@@ -147,23 +140,23 @@ The functions like feature.get('start') would return 0-based.
 
 There are a lot of differences\!
 
-  - CanvasFeatures are newer.
-  - CanvasFeatures can support Gene glyphs, i.e., a gene with multiple
+-   CanvasFeatures are newer.
+-   CanvasFeatures can support Gene glyphs, i.e., a gene with multiple
     transcripts are grouped together on the screen. In HTMLFeatures, you
     have to load at the "transcript" level, so this loses the gene level
     info (if you do try to load the --type gene, it will just load "gene
     spans", but then it doesn't display the transcript subfeatures. not
     terrible, but not as cool as CanvasFeatures).
-  - CanvasFeatures are faster if your have a lot of data.
-  - They can support more dynamic shapes (See the SashimiPlot plugin
+-   CanvasFeatures are faster if your have a lot of data.
+-   They can support more dynamic shapes (See the SashimiPlot plugin
     <https://github.com/cmdcolin/sashimiplot> for example of Arc track,
     or NeatCanvasFeatures for example of "intron hats")
-  - They have different configuration functions. All the "style" methods
+-   They have different configuration functions. All the "style" methods
     on CanvasFeatures can be callback functions, so you can have a
     dynamic callback for the feature color, label, etc. The "glyph" can
     also be a callback, so you can make a function to change to a box or
     diamond glyph depending on feature attributes.
-  - CanvasFeatures have better mouseovers. The HTMLFeatures mouseovers
+-   CanvasFeatures have better mouseovers. The HTMLFeatures mouseovers
     use the HTML title attribute which can only display plain text. On
     CanvasFeatures tracks, the mouseover it is a real tooltip that you
     can embed arbitrary HTML inside of.
@@ -188,7 +181,7 @@ your search index by using --incremental
 Also note: you can index additional fields of a GFF file with
 generate-names.pl by specifying the --nameAttributes flag to
 flatfile-to-json.pl. E.g. flatfile-to-json.pl --nameAttributes
-"my\_custom\_field,name,id". The default value for this flag is
+"my_custom_field,name,id". The default value for this flag is
 "name,alias,id". Note that the flag is passed to flatfile-to-json.pl and
 then these values are automatically indexed by generate-names.pl later.
 
@@ -216,7 +209,7 @@ it automatically.
 ### How do I get full text descriptions to be searched?
 
 Try out
-[jbrowse\_elasticsearch](https://github.com/cmdcolin/jbrowse_elasticsearch),
+[jbrowse_elasticsearch](https://github.com/cmdcolin/jbrowse_elasticsearch),
 it is still experimental but it allows this. Or, implement your own
 JBrowse REST names API. The default generate-names.pl is not built for
 searching full text descriptions.
@@ -230,7 +223,7 @@ You can control that output with most scripts using the --out parameter.
 This enables you to have "multiple data directories".
 
 Once the data directories are ready then use the URL bar to select which
-data directory to use with ?data=my\_data\_dir e.g.
+data directory to use with ?data=my_data_dir e.g.
 
 <http://mysite.org/jbrowse/?data=data1>
 <http://mysite.org/jbrowse/?data=data2>
@@ -246,9 +239,9 @@ You can also setup the "dataset selector" see [dataset selector](dataset_selecto
 The dataset selector is a dropdown that can list all the genomes that
 are in your jbrowse instance
 
-To configure the dataset selector, set a dataset\_id inside your
+To configure the dataset selector, set a dataset_id inside your
 trackList.json or tracks.conf on your data directory, and then in
-jbrowse.conf, add a list of all your datasets with the dataset\_ids that
+jbrowse.conf, add a list of all your datasets with the dataset_ids that
 you listed in the genome's data directory.
 
 See [dataset selector](dataset_selector.html)
@@ -261,8 +254,8 @@ displayed, then you can add this to your trackList.json
 
 `"style": {"label": "my_custom_field"}`
 
-Note: you can also index "my\_custom\_field" with generate-names.pl too
-by supplying my\_custom\_field to the --nameAttributes argument from
+Note: you can also index "my_custom_field" with generate-names.pl too
+by supplying my_custom_field to the --nameAttributes argument from
 flatfile-to-json.pl. After loading it from flatfile-to-json.pl in that
 manner, it will be indexed by generate-names.pl.
 
@@ -283,7 +276,7 @@ E.g.
 
 `"urlTemplate": "myfile_{refseq}.bam"`
 
-That would search for myfile\_chr1.bam and myfile\_chr1.bam.bai when you
+That would search for myfile_chr1.bam and myfile_chr1.bam.bai when you
 open that track while browsing chr1
 
 ### Can I speed up generate-names.pl?
@@ -294,7 +287,6 @@ autocompletion but still allow you to search exact matches.
 Note that you can use generate-names with --completionLimit 20 on some
 tracks and then generate-names with both --incremental and
 --completionLimit 0 flags on very information dense tracks.
-
 
 ## Customization
 
@@ -364,7 +356,7 @@ themselves.
 You can add custom info to the "About this track" dialog boxes by
 specifying metadata for the track in trackList.json, e.g.
 
-`"metadata": {"legend": "Red means this, green means that"}`
+`"metadata": {"legend": "Red means this, green means that"}`
 
 This will create a box called "legend" inside the "About this track"
 box.
@@ -373,7 +365,7 @@ All the "metadata" fields are added to the "About this track" dialog
 box, and it can also support HTML,
 e.g
 
-`"metadata": {"randominfo": "<p style='color:green'>Green text</p>", "otherrandominfo": "<p style='color:red'>Red text</p>"} `
+`"metadata": {"randominfo": "<p style='color:green'>Green text</p>", "otherrandominfo": "<p style='color:red'>Red text</p>"}`
 
 **NOTE: in JBrowse 1.16.0 and later you also have to add unsafePopup to your track that has this for the HTML rendering to work in the about dialog**
 
@@ -387,7 +379,7 @@ There are many ways to do so.
 
 1.  To customize the default 'View details' type popups, you can
     override fields by adding a function to your track config like
-    fmtDetailValue\_Name: "function(value, feature) { return value + '
+    fmtDetailValue_Name: "function(value, feature) { return value + '
     is the original name'; }"
 2.  To make a different custom action for a dialog, make
     onClick-\>action a javascript callback and make it popup your own
@@ -448,29 +440,29 @@ for more details.
 
 Each feature is based on what is called a feature Model. The
 JBrowse/Model/SimpleFeature is an example of this, and it allows you to
-call feature.get('variable\_of\_interest') on many different variables
+call feature.get('variable_of_interest') on many different variables
 
 Common types of requests
 
-  - feature.get('subfeatures') - to get all subfeatures of a feature.
-  - feature.get('parent') - for the parent of a feature
-  - feature.get('id') - for the ID
-  - feature.get('name') - for the name
-  - feature.get('my\_gff\_field') - to get any given field from your
+-   feature.get('subfeatures') - to get all subfeatures of a feature.
+-   feature.get('parent') - for the parent of a feature
+-   feature.get('id') - for the ID
+-   feature.get('name') - for the name
+-   feature.get('my_gff_field') - to get any given field from your
     GFF3 column 9
-  - feature.get('genotypes') - to get the genotypes of a VCF feature, it
+-   feature.get('genotypes') - to get the genotypes of a VCF feature, it
     returns a complex object that you can inspect. See
     "variantIsHeterozygous" in the jbrowse configuration guide for an
     example of parsing the genotype
-  - feature.get('start') - to get start position
-  - feature.get('end') - to get end position
-  - feature.get('seq\_id') - to get the chromosome name
-  - feature.get('seq') - to get the sequence, only works on BAM data
+-   feature.get('start') - to get start position
+-   feature.get('end') - to get end position
+-   feature.get('seq_id') - to get the chromosome name
+-   feature.get('seq') - to get the sequence, only works on BAM data
     since it includes sequence data in data file. In general, you must
     use getReferenceSequence over a region to get a feature's sequence
 
 Note that if you have multiple values for a value in column 9 (specified
-by comma separated values), then feature.get('your\_value') will return
+by comma separated values), then feature.get('your_value') will return
 an array (except for for Note which turns into Note, Note2, Note3, etc)
 
 For reference JBrowse/Model/SimpleFeature is a widely used feature
@@ -490,9 +482,9 @@ this, just put it outside of the track section of tracklist.json, or
 under a \[general\] section of tracks.conf) as a comma separated list of
 track labels
 
-  - alwaysOnTracks: Track always come up
-  - forceTracks: Overridden by URL bar
-  - defaultTracks: Overridden by URL bar and cookies
+-   alwaysOnTracks: Track always come up
+-   forceTracks: Overridden by URL bar
+-   defaultTracks: Overridden by URL bar and cookies
 
 ### How can I embed JBrowse on a page
 
@@ -549,8 +541,8 @@ css/sequence.css:
 If you change those, it will be reflected in your
 Sequence/Alignments2/SNPCoverage track.
 
-The .base\_reference is the background grey of the SNPCoverage plot, and
-if you actually add to the list and make .base\_skip you can make the
+The .base_reference is the background grey of the SNPCoverage plot, and
+if you actually add to the list and make .base_skip you can make the
 intron grey change color SNPCoverage.
 
 ### How can I link BLAST results to JBrowse
@@ -558,7 +550,7 @@ intron grey change color SNPCoverage.
 If you use sequenceserver, you create a custom JBrowse link by creating
 a links.rb file and running
 
-`sequenceserver -D database_dir -r links.rb`
+`sequenceserver -D database_dir -r links.rb`
 
 The links.rb is then a file that gets included by sequenceserver to
 generate new links to external resources automatically. In our case, we
@@ -735,7 +727,6 @@ refseq names and their lengths
 This let's you view the genome and the features on the genome without
 loading the sequence data.
 
-
 ### How do I convert GTF to GFF
 
 Since flatfile-to-json.pl does not accept GTF, you can convert your GTF
@@ -744,10 +735,7 @@ to GFF3. Tools like gffread or gtf2gff3.pl are available
 The gffread tool is packaged with cufflinks so simply install cufflinks,
 then you can run
 
-`gffread -E merged.gtf -o- > merged.gff3`
-
-
-
+`gffread -E merged.gtf -o- > merged.gff3`
 
 ## Other
 
@@ -766,7 +754,7 @@ more\!
 Yes\! The packages are not hosted on cpan, but you can install them from
 github using cpanm
 
-`cpanm git://github.com/GMOD/jbrowse.git`
+`cpanm git://github.com/GMOD/jbrowse.git`
 
 This will install jbrowse scripts such as prepare-refseqs.pl and
 flatfile-to-json.pl to, commonly, a folder like ~/perl5/bin if you are
@@ -819,7 +807,7 @@ not require being read into memory.
 
 To create an Indexed FASTA, install samtools and run
 
-`samtools faidx yourfile.fa`
+`samtools faidx yourfile.fa`
 
 This will create a file called yourfile.fa.fai. When you want to open up
 your own sequence file in JBrowse, you can then use the "Open sequence
@@ -854,10 +842,10 @@ plugins += GCContent
 plugins += SashimiPlot
 ```
 
-Equivalently, in jbrowse\_conf.json (or trackList.json), that would mean
+Equivalently, in jbrowse_conf.json (or trackList.json), that would mean
 just having
 
-`"plugins": ["GCContent", "SashimiPlot"]`
+`"plugins": ["GCContent", "SashimiPlot"]`
 
 Essentially, you are just giving the configuration an array of folder
 names to look for in the plugins directory
@@ -897,7 +885,7 @@ depends on the plugin but most jbrowse plugins just do that by
 convention)
 
 Another note: you can add plugins declarations to trackList.json or
-tracks.conf instead of jbrowse\_conf.json or jbrowse.conf too. In
+tracks.conf instead of jbrowse_conf.json or jbrowse.conf too. In
 tracks.conf just put it at the top of the file or underneath a line that
 says \[GENERAL\]
 
@@ -932,16 +920,16 @@ example of a simple custom adaptor
 A JBrowse plugin can do a wide variety of things. Some common use-cases
 would be
 
-  - making a custom track type or visualization
-  - making an adapter for a new file type or "store class"
-  - adding new pieces to the user interface
+-   making a custom track type or visualization
+-   making an adapter for a new file type or "store class"
+-   adding new pieces to the user interface
 
 Other things that are extensible include
 
-  - accessing custom search backends (the so called "Names API")
-  - accessing custom filter functions
+-   accessing custom search backends (the so called "Names API")
+-   accessing custom filter functions
     <https://github.com/cmdcolin/filterplugin>
-  - making custom "Save track data" export formats
+-   making custom "Save track data" export formats
 
 One cool thing is that when you create a plugin, you can simply
 reference it textually in your config file e.g. trackList.json, and then
@@ -981,7 +969,7 @@ array at the top of your file.
 
 First initialize a new plugin using
 
-`bin/new-plugin.pl MyPlugin`
+`bin/new-plugin.pl MyPlugin`
 
 Then edit a new file, say
 plugins/MyPlugin/js/MyTrack.js
@@ -1023,7 +1011,7 @@ jbrowse/plugins/MyPlugin/js/MyTrack.js
 
 The bin/new-plugin.pl helps create the skeleton main.js
 
-Then we can use our new plugin to a config file like jbrowse\_conf.json
+Then we can use our new plugin to a config file like jbrowse_conf.json
 as "plugins": \["MyPlugin"\]
 
 Then edit the trackList.json for an existing track and change \`"type":
@@ -1038,13 +1026,12 @@ instead of the normal CanvasFeatures class.
 
 Check out the quick start guide [indexed file formats](tutorial.md) or the [classic quick start guide](tutorial_classic.md)
 
-
 ### How do I load my genome as a FASTA file?
 
 If you have JBrowse installed to your web folder and have run setup.sh,
 then you can download a FASTA file for your genome and run
 
-`bin/prepare-refseqs.pl --fasta yourfile.fasta`
+`bin/prepare-refseqs.pl --fasta yourfile.fasta`
 
 If you want to use it as a Indexed FASTA instead, please see the [indexed file formats](tutorial.md) tutorial.
 
@@ -1057,7 +1044,7 @@ GFF file for jbrowse
 
 You can run
 
-`bin/flatfile-to-json.pl --gff myfile.gff --trackLabel trackLabel --trackType CanvasFeatures`
+`bin/flatfile-to-json.pl --gff myfile.gff --trackLabel trackLabel --trackType CanvasFeatures`
 
 Alternatively, you can use GNU sort and Tabix to create a GFF3Tabix track
 
@@ -1067,15 +1054,14 @@ tabix -p gff myfile.sorted.gff.gz
 
 See [indexed file formats](tutorial.md) tutorial for more details.
 
-
 Note: the CanvasFeatures track type is recommended even though it is not currently the default as it is more flexible and easy to configure
 
 ### How do I set up a BAM file?
 
 You will want to
 
-- Put the BAM and BAI (or CSI) index in the JBrowse data directory
-- Add a section to your tracks.conf
+-   Put the BAM and BAI (or CSI) index in the JBrowse data directory
+-   Add a section to your tracks.conf
 
     [tracks.mytrack]
     storeClass=JBrowse/Store/SeqFeature/BAM
@@ -1083,28 +1069,26 @@ You will want to
     type=Alignments2
     key=My BAM experiment
 
-
 If this does not work feel free to ask gmod-ajax@lists.sourceforge.net
 
 Other notes
 
-  - Don't use bam-to-json.pl, it is old and you do not need to convert BAM to JSON
-  - Your BAI should be the same as the BAM with .bai on the end, otherwise use the baiUrlTemplate paramter to point to it's location
+-   Don't use bam-to-json.pl, it is old and you do not need to convert BAM to JSON
+-   Your BAI should be the same as the BAM with .bai on the end, otherwise use the baiUrlTemplate paramter to point to it's location
 
 ### How do I set up a BigWig file?
 
 When you set up a BigWig file in jbrowse, the best way to do it is as
 follows
 
--  Put the BigWig file in your data directory
-- Add a section to your tracks.conf
+-   Put the BigWig file in your data directory
+-   Add a section to your tracks.conf
 
     [tracks.mybigwig]
     urlTemplate=file.bw
     type=JBrowse/View/Track/Wiggle/XYPlot
     storeClass=JBrowse/Store/SeqFeature/BigWig
     key=My BigWig experiment
-
 
 ### How do I set up a VCF file?
 
@@ -1122,9 +1106,9 @@ GNU sort command from https://www.biostars.org/p/133487/
 
 Now that your VCF is indexed, follow these steps
 
--  Put the myfile.vcf.gz and myfile.vcf.gz.tbi in your data directory
--  Edit data/trackList.json
--  Put the following in there:
+-   Put the myfile.vcf.gz and myfile.vcf.gz.tbi in your data directory
+-   Edit data/trackList.json
+-   Put the following in there:
 
 
     [tracks.myvcf]
@@ -1163,20 +1147,18 @@ The equivalent thing can also be in trackList.json as
 
 Note that prepare-refseqs.pl also can use --indexed_fasta as an argument, but is not required for indexed FASTA
 
-
 You can see from this that a couple things are needed
 
-  - useAsRefSeqStore set to true
-  - making label: refseqs is important when the storeClass is not the
+-   useAsRefSeqStore set to true
+-   making label: refseqs is important when the storeClass is not the
     normal SequenceChunks class
-  - the refSeqs attribute refers to the FASTA index file (normally it
+-   the refSeqs attribute refers to the FASTA index file (normally it
     points to the refSeqs.json file)
 
 With this setup, you do not need to have run prepare-refseqs.pl on a
 FASTA file. Instead you can simply use the "samtools faidx" program to
 index your fasta file in a data directory, and set trackList.json up in
 this format.
-
 
 ## Tips and tricks
 
@@ -1242,15 +1224,14 @@ load <https://github.com/blog/572-bypassing-jekyll-on-github-pages>
 
 ### What is the benefit of using biodb-to-json.pl?
 
-  - You can store more advanced creation in the biodb-to-json.pl conf
+-   You can store more advanced creation in the biodb-to-json.pl conf
     file, allowing for more advanced and reproducible builds of your
     data directory
-  - You can load data from different sources like Chado, GFF, etc.
+-   You can load data from different sources like Chado, GFF, etc.
 
 In general, using normal commands like flatfile-to-json,
 prepare-refseqs, etc work fine though. See setup.sh for how the volvox
 sample data combines using biodb-to-json and other techniques.
-
 
 ### Can I make an ultra-compact setting on my features?
 
@@ -1291,13 +1272,13 @@ Yes, the GWASViewer plugin does this.
 
 ### What do the colors mean on the BAM files for JBrowse
 
-  - Light red is a forward read that is paired
-  - Super light red is a forward read that is badly paired
-  - Dark red is a forward read that is missing a pair
-  - Light blue is a reverse read that is paired
-  - Super light blue is a reverse read that is badly paired
-  - Dark blue is a reverse read that is missing a pair
-  - Grey/black is a read whose pair is on another chromosome
+-   Light red is a forward read that is paired
+-   Super light red is a forward read that is badly paired
+-   Dark red is a forward read that is missing a pair
+-   Light blue is a reverse read that is paired
+-   Super light blue is a reverse read that is badly paired
+-   Dark blue is a reverse read that is missing a pair
+-   Grey/black is a read whose pair is on another chromosome
 
 ### Can I use RNA-seq with JBrowse
 
@@ -1308,10 +1289,12 @@ alignments.
 Also, there are two special options for RNA-seq that can help decipher
 the reads.
 
-  - The "Use XS" option is a RNA-seq specific flag that aligners output
+-   The "Use XS" option is a RNA-seq specific flag that aligners output
     which detects the strand that a read came from according to
-    canonical splice site. Enable in config using useXS: true
-  - The "Use reversed template" option is flag normally used for
+    canonical splice site. Enable in config using useXS: true.
+    Note also since 1.16.9 this works with standard TS tag. The useTS
+    tag applies to the lower case `ts` tag from minimap2
+-   The "Use reversed template" option is flag normally used for
     "stranded paired-end RNA-seq" data  and it will make both reads in a
     pair look like they are in the same direction, so for example, reads
     from a plus-strand gene will all appear red, even when one of the
@@ -1359,7 +1342,7 @@ to zoom in twice as much.
 
 ### How do I change the color of bigwig dynamically
 
-The pos\_color and neg\_color config variables for BigWig tracks accept
+The pos_color and neg_color config variables for BigWig tracks accept
 callback functions. The phytozome browser has good examples of this with
 the VISTA plot tool
 
@@ -1410,7 +1393,6 @@ etc. to your jbrowse.conf. This is a comma separated list (don't include
 spaces around the slashes though). Remember, don't quote the values in
 the jbrowse.conf file :)
 
-
 ## Troubleshooting
 
 ### Setup.sh "Installing perl prerequisites" fails for me, why?
@@ -1419,17 +1401,17 @@ Inspect your setup.log
 
 If for example it says
 
-`version.c:30:16: fatal error: db.h: No such file or directory`
+`version.c:30:16: fatal error: db.h: No such file or directory`
 
 Then run
 
-`sudo apt-get install libdb-dev`
+`sudo apt-get install libdb-dev`
 
 Then re-run setup.sh
 
 If you see errors for XML::Parser
 
-`sudo apt-get install libexpat1-dev`
+`sudo apt-get install libexpat1-dev`
 
 Then re-run setup.sh
 
@@ -1454,7 +1436,7 @@ been loaded or located correctly
 
 You can continue by running
 
-` bin/prepare-refseqs.pl --fasta yourfile.fa`
+`bin/prepare-refseqs.pl --fasta yourfile.fa`
 
 Then reload the page and your genome should be available.
 
@@ -1503,7 +1485,7 @@ isn't working. You can try a couple things to fix the error
     match prefixes)
 
 Note if there are continued troubles, you can try an alternative search
-engine, such as jbrowse\_elasticsearch (an experimental plugin)
+engine, such as jbrowse_elasticsearch (an experimental plugin)
 <https://github.com/cmdcolin/jbrowse_elasticsearch/>
 
 ### What is this error message "Argument isn't numeric in addition (+)" loading GFF3?
@@ -1543,15 +1525,15 @@ Several things can happen to cause this (generally on VCF of BAM tracks)
 
 Some things to check:
 
-  - Don't add quotes around numerical values in your JSON config files
+-   Don't add quotes around numerical values in your JSON config files
     e.g. trackList.json. Numbers can remain unquoted. Booleans can too.
     Functions are included in quotes though, because those are evaluated
     at runtime.
-  - Also don't add quotes around even the strings in the .conf config
+-   Also don't add quotes around even the strings in the .conf config
     files e.g. jbrowse.conf or tracks.conf files. So use
     `defaultTracks=mytrack1,mytrack2` not
     `defaultTracks="mytrack1,mytrack2"`
-  - Clear your cache. JSON is often cached pretty strongly. The .conf
+-   Clear your cache. JSON is often cached pretty strongly. The .conf
     are cached even more. And, additionally, if there is a syntax issue
     with your JSON, it will try and use an older version oftentimes
     until you clear cache.
@@ -1568,19 +1550,19 @@ cookies/URL.
 If you get the error such as
 this
 
-`Too many open files opening bucket log /path/to/your/data/names/00f/6.json.log at perl5/lib/perl5/Bio/JBrowse/HashStore.pm line 197, <$fh> line 85.`
+`Too many open files opening bucket log /path/to/your/data/names/00f/6.json.log at perl5/lib/perl5/Bio/JBrowse/HashStore.pm line 197, <$fh> line 85.`
 
 Then try increasing number of files available
 
-`ulimit -n 1000`
+`ulimit -n 1000`
 
 The default can sometimes be as low as 256 (view with ulimit -a)
 
 ### How do I fix the "Not a BAM file" issue?
 
-This is normally due to a module called mime\_magic being enabled on
+This is normally due to a module called mime_magic being enabled on
 your Apache server. Two options for fixing this are 1. disable
-mime\_magic or 2. configuring custom file types with AddType in your
+mime_magic or 2. configuring custom file types with AddType in your
 apache configuration. See
 [this Apache configuration note](alignments.html#apache-configuration-note)
 for recommended fixes.
@@ -1643,31 +1625,31 @@ Then you need to add extra configuration
 Specifically, if it is "transcript" instead of "mRNA" (which is common
 for Ensembl GFF for example), then you must set
 
-`"transcriptType": "transcript"`
+`"transcriptType": "transcript"`
 
 Also, if you only have "exon" and no "CDS", then you need to set the
 subParts config (the default settings assumes that both exons and CDS
 exist, so if there are only exons, like in a cufflinks output file, then
 you need this)
 
-`"subParts": "exon"`
+`"subParts": "exon"`
 
 If your GFF does not include UTR, but the UTR can be "implied" from the
 difference between the exon and CDS boundaries, then you can use this on
 your track type to enable them
 
-`"impliedUTRs": true`
+`"impliedUTRs": true`
 
 If your GFF file has features with this structure
 
-`match -> match_part`
+`match -> match_part`
 
 This only has two levels, you might consider just setting the "Segments"
 glyph
 
-`"glyph": "JBrowse/View/FeatureGlyph/Segments"`
+`"glyph": "JBrowse/View/FeatureGlyph/Segments"`
 
-The segments glyph accepts all subfeatures, so match and match\_part
+The segments glyph accepts all subfeatures, so match and match_part
 structure is fine.
 
 Note: the tips above only apply for CanvasFeatures tracks
@@ -1679,7 +1661,7 @@ that they should be loaded with something similar to --type mRNA when
 using flatfile-to-json.pl in order to see the transcript
 subfeatures
 
-`flatfile-to-json.pl --type mRNA --gff your_genes.gff --trackLabel MyTrack`
+`flatfile-to-json.pl --type mRNA --gff your_genes.gff --trackLabel MyTrack`
 
 This means that it loads the features where mRNA would be in column 3 of
 your GFF. If it was an Ensembl GFF, you might use instead --type
@@ -1689,7 +1671,7 @@ Note that this also loses the information about the "parent" gene
 feature however, so it might be worth loading an additional track at the
 gene level like
 
-`flatfile-to-json.pl --type gene --gff your_genes.gff`
+`flatfile-to-json.pl --type gene --gff your_genes.gff`
 
 This track will not display the transcript and exon subfeatures, but
 instead just show a box where the gene is, so this is commonly called a
@@ -1719,15 +1701,15 @@ getting Bio::DB::Sam installed."
 
 Then note:
 
-  - This error message can be ignored. It refers only to not being able
+-   This error message can be ignored. It refers only to not being able
     to run a small outdated feature of jbrowse.
-  - If you want to fix it, the issue might refer to a conflict with the
+-   If you want to fix it, the issue might refer to a conflict with the
     system version of samtools. Uninstall your system samtools and then
     re-run setup.sh (notably homebrew samtools causes this step to fail)
-  - Again, this only refers to bam-to-json.pl, which converts entire BAM
+-   Again, this only refers to bam-to-json.pl, which converts entire BAM
     files to json. It is better to use the add-bam-track.pl which simply
     can read BAM files directly from the server with no
-conversion.
+    conversion.
 
 ### After I load my track it appears in the tracklist, but the track appears empty
 
@@ -1741,21 +1723,21 @@ the chromosome names from the reference genome fasta.
 
 Examples of error messages
 
-  - RangeError: Offset is outside the bounds of the DataView (Chrome)
-  - Error: jDataView length or (byteOffset+length) value is out of
+-   RangeError: Offset is outside the bounds of the DataView (Chrome)
+-   Error: jDataView length or (byteOffset+length) value is out of
     bounds (Firefox)
-  - RangeError: Out of bounds access (Safari)
-  - RangeError: Argument 1 accesses an index that is out of range
+-   RangeError: Out of bounds access (Safari)
+-   RangeError: Argument 1 accesses an index that is out of range
     (Firefox)
 
 Check that
 
-  - The file that you are using is actually the right filetype (i.e.
+-   The file that you are using is actually the right filetype (i.e.
     maybe it is a textfile, but you are giving it a bigwig file
     extension)
-  - The webserver you are using allows Range HTTP headers (apache,
+-   The webserver you are using allows Range HTTP headers (apache,
     nginx, etc should allow this by default)
-  - That you aren't simply opening up your index.html without a
+-   That you aren't simply opening up your index.html without a
     webserver i.e. using <file:///> protocol (which will not allow
     accessing byte-range Range HTTP requests and cause this
-error)
+    error)
