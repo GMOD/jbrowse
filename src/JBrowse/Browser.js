@@ -764,6 +764,7 @@ regularizeReferenceName: function( refname ) {
                      .replace(/^([a-z]*)0+/,'$1')
                      .replace(/^(\d+l?r?|x|y)$/, 'chr$1' )
                      .replace(/^(x?)(ix|iv|v?i{0,3})$/, 'chr$1$2' )
+                     .replace(/nc_045512v2/, 'nc_045512.2')
                      .replace(/^mt?(dna)?$/, 'chrm');
 
     return refname;
