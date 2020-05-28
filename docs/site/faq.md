@@ -23,7 +23,7 @@ In JBrowse 1.13.0 and later, you must rebuild JBrowse
 
 -   download the "-dev" version of JBrowse (or use a git clone, this is equivalent)
 -   put the plugin(s) in the plugins folder
--   run ./setup.sh
+-   run ./setup.sh (you can add a "-f" to this command to make it go faster if you've run setup before)
 
 This will build the plugins properly. The ./setup.sh automatically downloads the npm modules needed for building the codebase.
 

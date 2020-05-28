@@ -65,6 +65,20 @@ check_node () {
 # we are starting a new setup. clear the log file
 rm -f setup.log
 
+#flag to skip everything after webpack
+FAST=0;
+while getopts f option
+do
+case "${option}"
+in
+f) FAST=1;;
+esac
+done
+
+if [ $FAST == 1 ]; then
+   log_echo "Fast build requested." 
+fi
+
 # log information about this system
 log_echo -n "Gathering system information ..."
 (
@@ -123,6 +137,12 @@ if [ -f "src/JBrowse/Browser.js" ]; then
 else
     log_echo "Minimal release, skipping node and Webpack build (note: this version will not allow using plugins. Use a github clone or a dev version of JBrowse to use plugins"
 fi
+
+if [ $FAST == 1 ]; then
+    log_echo "Fast build requested; skipping installing Perl prerequisites and sample data. Exiting..."
+    exit 0
+fi
+
 
 log_echo  -n "Installing Perl prerequisites ..."
 if ! ( perl -MExtUtils::MakeMaker -e 1 >/dev/null 2>&1); then

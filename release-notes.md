@@ -6,6 +6,10 @@
    extending and replacing ref renaming functionality respectively.
    Ref renaming helps things like chrM and chrMT to be loaded onto the
    same chromosome in jbrowse (@cmdcolin, pull #1506)
+ * Added support for a -f option for setup.sh. This option causes
+   setup to skip installing perl prerequisites and setting up
+   sample data. It is primarily intended to support faster builds
+   in a Docker context. (@scottcain)
 
 # Release 1.16.9     2020-05-21 16:50:24 UTC
 
