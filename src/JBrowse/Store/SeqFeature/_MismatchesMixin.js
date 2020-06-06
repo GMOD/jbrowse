@@ -261,7 +261,7 @@ return declare( null, {
                 else if( op == 'D' || op == 'P' ) {
                     refOffset += len;
                 }
-                else {
+                else if( op !== 'H' ) {
                     templateOffset += len;
                     refOffset += len;
                 }
