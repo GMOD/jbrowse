@@ -11,6 +11,10 @@
    sample data. It is primarily intended to support faster builds
    in a Docker context. (@scottcain)
 
+## Bug fixes
+
+ * Fix the display of mismatches from hard clipped BAM sequences (pull #1513)
+
 # Release 1.16.9     2020-05-21 16:50:24 UTC
 
 ## Minor improvements
