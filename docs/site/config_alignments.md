@@ -143,14 +143,16 @@ Like the other alignment tracks, base mismatches are displayed based on the cont
 
 In your data/tracks.conf file:
 
+```
 [tracks.my-bam-coverage-track]
- storeClass = JBrowse/Store/SeqFeature/BAM
- urlTemplate = volvox-sorted.bam
- type = JBrowse/View/Track/SNPCoverage
- metadata.Description = SNP/Coverage view of volvox-sorted.bam, simulated resequencing alignments.
- key = BAM - volvox-sorted SNPs/Coverage
+storeClass = JBrowse/Store/SeqFeature/BAM
+urlTemplate = volvox-sorted.bam
+type = JBrowse/View/Track/SNPCoverage
+metadata.Description = SNP/Coverage view of volvox-sorted.bam, simulated resequencing alignments.
+key = BAM - volvox-sorted SNPs/Coverage
+```
 
-Note that urlTemplate will refer to a file relative to the "data" directory that you are using.
+Note that `urlTemplate` will refer to a file relative to the "data" directory that you are using.
 
 ## Alignments
 
