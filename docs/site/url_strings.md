@@ -16,7 +16,7 @@ List of default available JBrowse URL params, more details below
 | highres                                      | A configuration for highResolutionMode. Available since JBrowse 1.12.3. Can be auto,disabled, or a specific scaling ratio such as 2,3                                                                                                                                                                                                                                                                                |
 | fullviewlink,menu,nav,overview,tracklist     | Boolean to add or remove different components of the UI. Can be set to false to remove                                                                                                                                                                                                                                                                                                                               |
 | tracks                                       | Set a list of active tracks, comma separated list of \*track labels\* e.g. http://mysite/jbrowse/?tracks=DNA,GeneTrack                                                                                                                                                                                                                                                                                               |
-| highlight                                    | Set a highlighted region, same format as loc param                                                                                                                                                                                                                                                                                                                                                                   |
+| highlight                                    | Set a highlighted genomic region, specified as "chr:start..end"                                                                                                                                                                                                                                                                                                                                                                   |
 | addFeatures,addStores,addTracks,addBookmarks | A JSON configuration for extra track info. See below for detailed descriptions                                                                                                                                                                                                                                                                                                                                       |
 
 JBrowse's default index.html file provides a number of options for changing the current view in the browser by adding query parameters to the URL. Developers' note: these URL parameters are handled only in the default index.html that ships with JBrowse; the JBrowse code itself does not pay attention to URL parameters.
@@ -68,9 +68,15 @@ Example:
 
 ## highlight
 
-location string to highlight. Example:
+Location string that specifies the genomic position to highlight. The location string must follow the format of chromosome name/ID followed by “:”, starting position, “..” and end position.
+
+`[chromosome]:[start]..[end]`
+
+Example:
 
 `highlight=ctgA:100..200`
+
+This is the only format that is currently supported.
 
 ## addFeatures
 
