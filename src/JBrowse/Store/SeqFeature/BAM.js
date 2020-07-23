@@ -168,6 +168,52 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
         this.spanCache = new SpanCache(args);
     },
 
+
+    // used by the CRAM backend to fetch a region of the underlying reference
+    // sequence.  needed for some of its calculations
+    async _seqFetch(seqId, start, end) {
+        start -= 1 // convert from 1-based closed to interbase
+
+        const refSeqStore = await this._getRefSeqStore()
+        if (!refSeqStore) return undefined
+        const refName = this._refIdToName(seqId)
+        if (!refName) return undefined
+
+        const seqChunks = await new Promise((resolve,reject) => {
+            let features = []
+            refSeqStore.getFeatures(
+                {ref: refName, start: start-1, end},
+                f => features.push(f),
+                () => resolve(features),
+                reject
+            )
+        })
+
+        const trimmed = []
+        seqChunks
+        .sort((a,b) => a.get('start') - b.get('start'))
+        .forEach( (chunk,i) => {
+            let chunkStart = chunk.get('start')
+            let chunkEnd = chunk.get('end')
+            let trimStart = Math.max(start - chunkStart, 0)
+            let trimEnd = Math.min(end - chunkStart, chunkEnd-chunkStart)
+            let trimLength = trimEnd - trimStart
+            let chunkSeq = chunk.get('seq') || chunk.get('residues')
+            trimmed.push(chunkSeq.substr(trimStart,trimLength))
+        })
+
+        const sequence = trimmed.join('')
+        if (sequence.length !== (end-start))
+            throw new Error(`sequence fetch failed: fetching ${
+                (start-1).toLocaleString()}-${end.toLocaleString()
+                } only returned ${
+                    sequence.length.toLocaleString()
+                } bases, but should have returned ${
+                    (end-start).toLocaleString()
+                }`)
+        return sequence
+    },
+
     // process the parsed SAM header from the bam file
     _setSamHeader(samHeader) {
         this._samHeader = {}
@@ -233,19 +279,29 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
         query.maxInsertSize = query.maxInsertSize||50000
 
         this.bam.getRecordsForRange(seqName, query.start, query.end, { viewAsPairs: query.viewAsPairs, viewAsSpans: query.viewAsSpans, maxInsertSize: query.maxInsertSize })
-            .then(records => {
+            .then(async records => {
                 if(query.viewAsPairs) {
-                    const recs = records.map(f => this._bamRecordToFeature(f))
+		    let recs = []
+		    for(const record of records) {
+			recs.push(await this._bamRecordToFeature(f))
+		    }
                     recs.forEach(r => this.insertSizeCache.insertFeat(r))
                     this.pairCache.pairFeatures(query, recs, featCallback, endCallback, errorCallback)
                 } else if(query.viewAsSpans) {
-                    const recs = records.map(f => this._bamRecordToFeature(f))
+                    let recs = []
+		    for(const record of records) {
+			recs.push(await this._bamRecordToFeature(f))
+		    }
                     recs.forEach(r => this.insertSizeCache.insertFeat(r))
                     this.spanCache.pairFeatures(query, recs, featCallback, endCallback, errorCallback)
                 } else {
-                    for(let i = 0; i < records.length; i++) {
-                        this.insertSizeCache.insertFeat(records[i]);
-                        featCallback(this._bamRecordToFeature(records[i]))
+                    let recs = []
+		    for(const record of records) {
+			recs.push(await this._bamRecordToFeature(f))
+		    }
+                    for(let i = 0; i < recs.length; i++) {
+                        this.insertSizeCache.insertFeat(recs[i]);
+                        featCallback(recs[i])
                     }
                 }
                 endCallback()
@@ -267,8 +323,12 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
     },
 
 
-    _bamRecordToFeature(record) {
-        return new BamSlightlyLazyFeature(record, this)
+    async _bamRecordToFeature(record) {
+	let ref
+	if(!record.get('md')) {
+	    ref = await this.seqFetch(originalRefName, record.get('start'), record.get('end'))
+	}
+        return new BamSlightlyLazyFeature(record, this, ref)
     },
 
     saveStore() {
