@@ -291,7 +291,7 @@ define(["dojo/_base/declare", "dojo/_base/array"], function (declare, array) {
                 cigarOps = parseCigar(cigarString);
                 mismatches.push.apply(
                     mismatches,
-                    cigarToMismatches(feature, cigarOps)
+                    cigarToMismatches(cigarOps, feature.get('seq'))
                 );
             }
 
@@ -429,70 +429,11 @@ define(["dojo/_base/declare", "dojo/_base/array"], function (declare, array) {
             return mismatches;
         },
 
-        _cigarToMismatches: function (feature, ops) {
-            var currOffset = 0;
-            var mismatches = [];
-            array.forEach(ops, function (oprec) {
-                var op = oprec[0];
-                var len = oprec[1];
-                // if( op == 'M' || op == '=' || op == 'E' ) {
-                //     // nothing
-                // }
-                if (op == "I")
-                    // GAH: shouldn't length of insertion really by 0, since JBrowse internally uses zero-interbase coordinates?
-                    mismatches.push({
-                        start: currOffset,
-                        type: "insertion",
-                        base: "" + len,
-                        length: 1,
-                    });
-                else if (op == "D")
-                    mismatches.push({
-                        start: currOffset,
-                        type: "deletion",
-                        base: "*",
-                        length: len,
-                    });
-                else if (op == "N")
-                    mismatches.push({
-                        start: currOffset,
-                        type: "skip",
-                        base: "N",
-                        length: len,
-                    });
-                else if (op == "X")
-                    mismatches.push({
-                        start: currOffset,
-                        type: "mismatch",
-                        base: "X",
-                        length: len,
-                    });
-                else if (op == "H")
-                    mismatches.push({
-                        start: currOffset,
-                        type: "hardclip",
-                        base: "H" + len,
-                        length: 1,
-                    });
-                else if (op == "S")
-                    mismatches.push({
-                        start: currOffset,
-                        type: "softclip",
-                        base: "S" + len,
-                        cliplen: len,
-                        length: 1,
-                    });
-
-                if (op != "I" && op != "S" && op != "H") currOffset += len;
-            });
-            return mismatches;
-        },
-
         // parse just the skips and deletions out of a CIGAR string
         _cigarToSkipsAndDeletions: function (feature, ops) {
             var currOffset = 0;
             var mismatches = [];
-            for (let i = 0; i < ops.length; i++) {
+            for (let i = 0; i < ops.length; i+=1) {
                 var len = ops[i];
                 var op = ops[i + 1];
                 if (op == "D")
