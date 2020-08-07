@@ -99,6 +99,7 @@ _makeTrackConfs: function() {
 
         this.trackConfs[ n ] =  {
             store: this.storeConfs[n],
+            storeClass: this.storeConfs[n].type,
             label: n,
             key: n.replace(/_\d+$/,'').replace(/_/g,' '),
             type: trackType,
