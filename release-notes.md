@@ -15,6 +15,9 @@
 
  * Fix the display of mismatches from hard clipped BAM sequences (pull #1513)
 
+ * Fix ability to use tracks from Open track dialog in combination tracks.
+   Thanks to Sonny Arora for the repo (pull #1536)
+
 # Release 1.16.9     2020-05-21 16:50:24 UTC
 
 ## Minor improvements
