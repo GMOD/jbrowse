@@ -2,10 +2,17 @@
 
 ## Minor improvements
 
+ * Added an optimization for BAM that helps for long reads especially
+   (@cmdcolin)
+
+ * Added generation of the MD tag if none is specified in BAM (issue
+   #1022, @cmdcolin)
+
  * Added `customRefRename` and `replaceRefRename` global configs for
    extending and replacing ref renaming functionality respectively.
    Ref renaming helps things like chrM and chrMT to be loaded onto the
    same chromosome in jbrowse (@cmdcolin, pull #1506)
+
  * Added support for a -f option for setup.sh. This option causes
    setup to skip installing perl prerequisites and setting up
    sample data. It is primarily intended to support faster builds
