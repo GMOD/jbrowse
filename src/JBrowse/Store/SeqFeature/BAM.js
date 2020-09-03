@@ -6,12 +6,78 @@ const bamIndexedFilesCache = new LRU({ maxSize: 5 })
 
 const BlobFilehandleWrapper = cjsRequire('../../Model/BlobFilehandleWrapper')
 
+export function parseCigar(cigar) {
+    return (cigar || '').split(/([MIDNSHPX=])/);
+}
+// adapted from minimap2 code static void write_MD_core function
+export function generateMD(target, query, cigar) {
+    let queryOffset = 0;
+    let targetOffset = 0;
+    let lengthMD = 0;
+    if (!target) {
+        console.warn('no ref supplied to generateMD');
+        return '';
+    }
+    const cigarOps = parseCigar(cigar);
+    let str = '';
+    for (let i = 0; i < cigarOps.length; i += 2) {
+        const len = +cigarOps[i];
+        const op = cigarOps[i + 1];
+        if (op === 'M' || op === 'X' || op === '=') {
+            for (let j = 0; j < len; j++) {
+                if (
+                    query[queryOffset + j].toLowerCase() !==
+                    target[targetOffset + j].toLowerCase()
+                ) {
+                    str += `${lengthMD}${target[
+                        targetOffset + j
+                    ].toUpperCase()}`;
+                    lengthMD = 0;
+                } else {
+                    lengthMD++;
+                }
+            }
+            queryOffset += len;
+            targetOffset += len;
+        } else if (op === 'I') {
+            queryOffset += len;
+        } else if (op === 'D') {
+            let tmp = '';
+            for (let j = 0; j < len; j++) {
+                tmp += target[targetOffset + j].toUpperCase();
+            }
+            str += `${lengthMD}^${tmp}`;
+            lengthMD = 0;
+            targetOffset += len;
+        } else if (op === 'N') {
+            targetOffset += len;
+        } else if (op === 'S') {
+            queryOffset += len;
+        }
+    }
+    if (lengthMD > 0) {
+        str += lengthMD;
+    }
+    return str;
+}
 class BamSlightlyLazyFeature {
     _get_id() { this.record.id() }
     _get_type() { return 'match'}
     _get_score() { return this.record.get('mq')}
     _get_mapping_quality() { return this.record.mappingQuality}
     _get_flags() { return `0x${this.record.flags.toString(16)}`}
+    _get_md() {
+        const md = this.record.get('md');
+        const seq = this.get('seq');
+        if (!md && seq && this.ref) {
+            return generateMD(
+                this.ref,
+                this.record.getReadBases(),
+                this.get('cigar'),
+            );
+        }
+        return md;
+    }
     _get_strand() { return this.record.isReverseComplemented() ? -1 : 1 }
     _get_read_group_id() { return this.record.readGroupId }
     _get_seq_id() { return this._store._refIdToName(this.record._refID)}
@@ -36,9 +102,10 @@ class BamSlightlyLazyFeature {
     _get_tags() { return this.record._tags() }
     _get_seq() { return this.record.getReadBases() }
 
-    constructor(record, store) {
+    constructor(record, store, ref) {
         this.record = record
         this._store = store
+        this.ref = ref
     }
 
     tags() {
@@ -168,6 +235,59 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
         this.spanCache = new SpanCache(args);
     },
 
+
+
+    _getRefSeqStore() {
+        return new Promise((resolve, reject) => {
+            this.browser.getStore('refseqs', resolve, reject);
+        });
+    },
+
+    // used by the CRAM backend to fetch a region of the underlying reference
+    // sequence.  needed for some of its calculations
+    async seqFetch(refName, start, end) {
+        const refSeqStore = await this._getRefSeqStore();
+        if (!refSeqStore) return undefined;
+
+        const seqChunks = await new Promise((resolve, reject) => {
+            let features = [];
+            refSeqStore.getFeatures(
+                { ref: refName, start: start - 1, end },
+                f => features.push(f),
+                () => resolve(features),
+                reject,
+            );
+        });
+
+        const trimmed = [];
+        seqChunks
+            .sort((a, b) => a.get('start') - b.get('start'))
+            .forEach((chunk, i) => {
+                let chunkStart = chunk.get('start');
+                let chunkEnd = chunk.get('end');
+                let trimStart = Math.max(start - chunkStart, 0);
+                let trimEnd = Math.min(
+                    end - chunkStart,
+                    chunkEnd - chunkStart,
+                );
+                let trimLength = trimEnd - trimStart;
+                let chunkSeq =
+                    chunk.get('seq') || chunk.get('residues');
+                trimmed.push(chunkSeq.substr(trimStart, trimLength));
+            });
+
+        const sequence = trimmed.join('');
+        if (sequence.length !== end - start)
+            throw new Error(
+                `sequence fetch failed: fetching ${(
+                    start - 1
+                ).toLocaleString()}-${end.toLocaleString()} only returned ${sequence.length.toLocaleString()} bases, but should have returned ${(
+                    end - start
+                ).toLocaleString()}`,
+            );
+        return sequence;
+    },
+
     // process the parsed SAM header from the bam file
     _setSamHeader(samHeader) {
         this._samHeader = {}
@@ -226,31 +346,79 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
     },
 
     // called by getFeatures from the DeferredFeaturesMixin
-    _getFeatures( query, featCallback, endCallback, errorCallback ) {
-        let seqName = query.ref || this.refSeq.name
-        seqName = this.browser.regularizeReferenceName( seqName );
+    _getFeatures(query, featCallback, endCallback, errorCallback) {
+        let seqName = query.ref || this.refSeq.name;
+        seqName = this.browser.regularizeReferenceName(seqName);
         const pairCache = {};
-        query.maxInsertSize = query.maxInsertSize||50000
+        query.maxInsertSize = query.maxInsertSize || 50000;
 
-        this.bam.getRecordsForRange(seqName, query.start, query.end, { viewAsPairs: query.viewAsPairs, viewAsSpans: query.viewAsSpans, maxInsertSize: query.maxInsertSize })
-            .then(records => {
-                if(query.viewAsPairs) {
-                    const recs = records.map(f => this._bamRecordToFeature(f))
-                    recs.forEach(r => this.insertSizeCache.insertFeat(r))
-                    this.pairCache.pairFeatures(query, recs, featCallback, endCallback, errorCallback)
-                } else if(query.viewAsSpans) {
-                    const recs = records.map(f => this._bamRecordToFeature(f))
-                    recs.forEach(r => this.insertSizeCache.insertFeat(r))
-                    this.spanCache.pairFeatures(query, recs, featCallback, endCallback, errorCallback)
+        this.bam
+            .getRecordsForRange(seqName, query.start, query.end, {
+                viewAsPairs: query.viewAsPairs,
+                viewAsSpans: query.viewAsSpans,
+                maxInsertSize: query.maxInsertSize,
+            })
+            .then(async records => {
+                if (query.viewAsPairs) {
+                    let recs = [];
+                    for (const record of records) {
+                        recs.push(
+                            await this._bamRecordToFeature(
+                                record,
+                                seqName,
+                            ),
+                        );
+                    }
+                    recs.forEach(r =>
+                        this.insertSizeCache.insertFeat(r),
+                    );
+                    this.pairCache.pairFeatures(
+                        query,
+                        recs,
+                        featCallback,
+                        endCallback,
+                        errorCallback,
+                    );
+                } else if (query.viewAsSpans) {
+                    let recs = [];
+                    for (const record of records) {
+                        recs.push(
+                            await this._bamRecordToFeature(
+                                record,
+                                seqName,
+                            ),
+                        );
+                    }
+                    recs.forEach(r =>
+                        this.insertSizeCache.insertFeat(r),
+                    );
+                    this.spanCache.pairFeatures(
+                        query,
+                        recs,
+                        featCallback,
+                        endCallback,
+                        errorCallback,
+                    );
                 } else {
-                    for(let i = 0; i < records.length; i++) {
-                        this.insertSizeCache.insertFeat(records[i]);
-                        featCallback(this._bamRecordToFeature(records[i]))
+                    let recs = [];
+                    for (const record of records) {
+                        recs.push(
+                            await this._bamRecordToFeature(
+                                record,
+                                seqName,
+                            ),
+                        );
+                    }
+                    for (let i = 0; i < recs.length; i++) {
+                        this.insertSizeCache.insertFeat(recs[i]);
+                        featCallback(recs[i]);
                     }
                 }
-                endCallback()
-            }).catch(errorCallback)
+                endCallback();
+            })
+            .catch(errorCallback);
     },
+    
 
 
     getInsertSizeStats() {
@@ -265,10 +433,16 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
     cleanStatsCache() {
         this.insertSizeCache.cleanStatsCache()
     },
-
-
-    _bamRecordToFeature(record) {
-        return new BamSlightlyLazyFeature(record, this)
+    async _bamRecordToFeature(record, refName) {
+        let ref;
+        if (!record.get('md')) {
+            ref = await this.seqFetch(
+                refName,
+                record.get('start'),
+                record.get('end'),
+            );
+        }
+        return new BamSlightlyLazyFeature(record, this, ref);
     },
 
     saveStore() {
