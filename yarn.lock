@@ -100,7 +100,7 @@
     core-js "^2.6.5"
     regenerator-runtime "^0.13.4"
 
-"@babel/runtime-corejs2@^7.4.3", "@babel/runtime-corejs2@^7.5.5":
+"@babel/runtime-corejs2@^7.4.3":
   version "7.8.7"
   resolved "https://registry.yarnpkg.com/@babel/runtime-corejs2/-/runtime-corejs2-7.8.7.tgz#5c6afcb33ef12fa1f8db6b915ff6b5ecaf6afb11"
   integrity sha512-R8zbPiv25S0pGfMqAr55dRRxWB8vUeo3wicI4g9PFVBKmsy/9wmQUV1AaYW/kxRHUhx42TTh6F0+QO+4pwfYWg==
@@ -112,6 +112,14 @@
   version "7.8.7"
   resolved "https://registry.yarnpkg.com/@babel/runtime-corejs3/-/runtime-corejs3-7.8.7.tgz#8209d9dff2f33aa2616cb319c83fe159ffb07b8c"
   integrity sha512-sc7A+H4I8kTd7S61dgB9RomXu/C+F4IrRr4Ytze4dnfx7AXEpCrejSNpjx7vq6y/Bak9S6Kbk65a/WgMLtg43Q==
+  dependencies:
+    core-js-pure "^3.0.0"
+    regenerator-runtime "^0.13.4"
+
+"@babel/runtime-corejs3@^7.5.5":
+  version "7.11.2"
+  resolved "https://registry.yarnpkg.com/@babel/runtime-corejs3/-/runtime-corejs3-7.11.2.tgz#02c3029743150188edeb66541195f54600278419"
+  integrity sha512-qh5IR+8VgFz83VBa6OkaET6uN/mJOhHONuy3m1sgF0CV6mXdPSEBdA7e1eUbVvyNtANjMbg22JUv71BaDXLY6A==
   dependencies:
     core-js-pure "^3.0.0"
     regenerator-runtime "^0.13.4"
@@ -172,22 +180,22 @@
   dependencies:
     arrify "^1.0.1"
 
-"@gmod/bam@^1.0.36":
-  version "1.0.36"
-  resolved "https://registry.yarnpkg.com/@gmod/bam/-/bam-1.0.36.tgz#60aa9e0d1c53066c84b5fd8ed49e5cf5fd8ec0aa"
-  integrity sha512-geelEq4F7FCD8hU1CSsPeOrF6A78Pp6Ka3OVyLmTRkVnOO2DR9eejnQx7R1nnrdReNxIyFVBjV3Em0w4R/hJJw==
+"@gmod/bam@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@gmod/bam/-/bam-1.1.0.tgz#f7f07f32a886fd6a9f78ba846f30bc66bd2d535d"
+  integrity sha512-CWXFdoyui3AcQsxIrnOlStL5TBG6rMEH8babXmnZbjfJLIAXKM9NMLVMBiuqHDo0JzHrjBoXUaDAc9pfh88t0g==
   dependencies:
-    "@babel/runtime-corejs2" "^7.5.5"
+    "@babel/runtime-corejs3" "^7.5.5"
     "@gmod/bgzf-filehandle" "^1.3.3"
-    "@types/long" "^4.0.0"
-    "@types/node" "^12.7.8"
-    abortable-promise-cache "^1.0.1"
+    abortable-promise-cache "^1.2.0"
+    buffer-crc32 "^0.2.13"
     cross-fetch "^3.0.2"
     es6-promisify "^6.0.1"
     generic-filehandle "^2.0.0"
     long "^4.0.0"
     object.entries-ponyfill "^1.0.1"
     quick-lru "^2.0.0"
+    range-parser "^1.2.1"
 
 "@gmod/bgzf-filehandle@^1.2.4", "@gmod/bgzf-filehandle@^1.3.3":
   version "1.3.4"
@@ -289,20 +297,10 @@
     pretty-ms "^0.2.1"
     text-table "^0.2.0"
 
-"@types/long@^4.0.0":
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/@types/long/-/long-4.0.1.tgz#459c65fa1867dafe6a8f322c4c51695663cc55e9"
-  integrity sha512-5tXH6Bx/kNGd3MgffdmP4dy2Z+G4eaXw0SE81Tq3BNadtnMR5/ySMzX4SLEzHJzSmPNn4HIdpQsBvXMUykr58w==
-
 "@types/node@^10.1.4":
   version "10.17.17"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-10.17.17.tgz#7a183163a9e6ff720d86502db23ba4aade5999b8"
   integrity sha512-gpNnRnZP3VWzzj5k3qrpRC6Rk3H/uclhAVo1aIvwzK5p5cOrs9yEyQ8H/HBsBY0u5rrWxXEiVPQ0dEB6pkjE8Q==
-
-"@types/node@^12.7.8":
-  version "12.12.30"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-12.12.30.tgz#3501e6f09b954de9c404671cefdbcc5d9d7c45f6"
-  integrity sha512-sz9MF/zk6qVr3pAnM0BSQvYIBK44tS75QC5N+VbWSE4DjCV/pJ+UzCW/F+vVnl7TkOPcuwQureKNtSSwjBTaMg==
 
 "@webassemblyjs/ast@1.8.5":
   version "1.8.5"
@@ -477,6 +475,14 @@ abortable-promise-cache@^1.0.1:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/abortable-promise-cache/-/abortable-promise-cache-1.1.2.tgz#79a6c752db48d652e8d78afd14e386bb0d42b2f4"
   integrity sha512-hPWOIk+dhs/zCur11a/bf/QoHej1aQdWsChCGAh3DIFKlXFLe0rBqQaoH16Pu9DgZN7bN3/bi9NxyUI8L9raXQ==
+  dependencies:
+    "@babel/runtime" "^7.0.0"
+    abortcontroller-polyfill "^1.2.9"
+
+abortable-promise-cache@^1.2.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/abortable-promise-cache/-/abortable-promise-cache-1.3.0.tgz#c51a9fe670d50c04dcc2c695345b039d2212c040"
+  integrity sha512-GneJsLjdKirdN2xYkNoHg8oBMzRLYFyNMRRvfm5hEhz58kP3yUc4EGQ7+TZ/5AAgsb3N84pqhmRpWO46RamGpA==
   dependencies:
     "@babel/runtime" "^7.0.0"
     abortcontroller-polyfill "^1.2.9"
@@ -6835,7 +6841,7 @@ randomfill@^1.0.3:
     randombytes "^2.0.5"
     safe-buffer "^5.1.0"
 
-range-parser@~1.2.1:
+range-parser@^1.2.1, range-parser@~1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/range-parser/-/range-parser-1.2.1.tgz#3cf37023d199e1c24d1a55b84800c2f3e6468031"
   integrity sha512-Hrgsx+orqoygnmhFbKaHE6c296J+HTAQXoxEF6gNupROmmGJRoyzfG3ccAveqCBrwr/2yxQ5BVd/GTl5agOwSg==

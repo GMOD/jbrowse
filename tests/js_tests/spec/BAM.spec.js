@@ -266,7 +266,7 @@ require([
                 return done;
             }, 2000);
             runs(function () {
-                //ZC:B:i,364,359,1,0	ZD:B:f,0.01,0.02,0.03	ZE:B:c,0,1,2,3	ZK:B:s,45,46,47
+                //ZC:B:i,364,359,1,0    ZD:B:f,0.01,0.02,0.03   ZE:B:c,0,1,2,3  ZK:B:s,45,46,47
                 var ret = features[1].get('ZD').split(',');
                 expect(features[1].get('ZC')).toEqual('364,359,1,0');
                 expect(features[1].get('ZE')).toEqual('0,1,2,3');
@@ -283,7 +283,7 @@ require([
         var b;
         beforeEach(function () {
             b = new BAMStore({
-                browser: new Browser({ unitTestMode: true }),
+                browser: new Browser({ unitTestMode: true, stores: [] }),
                 bam: new XHRBlob('../data/paired-end-clip.bam'),
                 bai: new XHRBlob('../data/paired-end-clip.bam.bai'),
                 refSeq: {
