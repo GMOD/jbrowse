@@ -1719,6 +1719,11 @@ names from your reference genome.
 Try and make sure the chromosome names from your evidence tracks match
 the chromosome names from the reference genome fasta.
 
+### Uncaught (in promise) Error: problem decompressing block: incorrect gzip header check
+
+This message is commonly caused by a tabix file being out of sync with the
+index. Regenerating the index file may help.
+
 ### My BigWig file is producing an error related to DataView or jDataView
 
 Examples of error messages
