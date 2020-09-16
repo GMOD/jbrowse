@@ -17,7 +17,7 @@ To install from GitHub, you can simply clone the repo and run the setup.sh scrip
     
 ## Develop JBrowse or JBrowse plugins
 
-To start modifying jbrowse code, you can run something like this
+To obtain a jbrowse development environment, e.g. for jbrowse source code editing or plugin development (or just running jbrowse from the github repo)
 
 
     git clone https://github.com/GMOD/jbrowse
