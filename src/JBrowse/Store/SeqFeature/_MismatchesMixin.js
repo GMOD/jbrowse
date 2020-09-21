@@ -433,8 +433,8 @@ define(["dojo/_base/declare", "dojo/_base/array"], function (declare, array) {
         _cigarToSkipsAndDeletions: function (feature, ops) {
             var currOffset = 0;
             var mismatches = [];
-            for (let i = 0; i < ops.length; i+=1) {
-                var len = ops[i];
+            for (let i = 0; i < ops.length; i += 2) {
+                var len = +ops[i];
                 var op = ops[i + 1];
                 if (op == "D")
                     mismatches.push({
