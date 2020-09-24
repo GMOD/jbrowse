@@ -69,7 +69,7 @@
     "dojo-util": "^1.14.2",
     "dojo-webpack-plugin": "^2.8.5",
     "dojox": "^1.14.2",
-    "electron": "^3.0.12",
+    "electron": "^7.2.4",
     "electron-packager": "^12.0.1",
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "^12.1.0",
