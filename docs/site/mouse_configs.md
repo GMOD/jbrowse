@@ -72,11 +72,7 @@ Beginning with JBrowse 1.5.0, the left-clicking behavior of feature tracks (both
 
 In the example configuration below, left-clicks on features will open an embedded popup window showing the results of searching for that feature's name in NCBI's global search, and "search at NCBI" will show in a tooltip when the user hovers over a feature with the mouse:
 
-diff -git a/docs/site/configuration_guide.md b/docs/site/configuration_guide.md
-index 9f70239..c57b07a 100644
--- a/docs/site/configuration_guide.md
-+++ b/docs/site/configuration_guide.md
-@@ 13,331 +13,7 @@ Check out the new [JBrowse FAQ](faq.html) page for more tips on setup and config
+Check out the new [JBrowse FAQ](faq.html) page for more tips on setup and config
 
 Also see the [JBrowse Desktop](jbrowse_desktop.html) guide here.
 
