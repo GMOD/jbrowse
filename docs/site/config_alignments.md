@@ -193,3 +193,11 @@ They display everything that `Alignments2` tracks do, plus they support the same
 If you are using the Apache web server, please be aware that the module `mime_magic` can cause BAM files to be served incorrectly. Usually, the error in the web developer console will be something like "Not a BAM file". Some packaged versions of Apache, particularly on Red Hat or CentOS-based systems, are configured with this module turned on by default. We recommend you deactivate this Apache module for the server or directory used to serve JBrowse files. If you do not want to deactivate this module for the entire server, try adding this line to your HTTPD config or .htaccess file:
 
 `AddType application/octet-stream .bam .bami .bai`
+
+In some cases the problem can also manifest in VCF tabix for example, you may also need to use
+
+    AddType application/octet-stream .gz
+    AddType application/octet-stream .tbi
+    AddEncoding dummy .gz .tbi
+
+Note that there may be some sideeffect related to downloading gz files from this, but it has been reported to fix jbrowse usage of tabix VCF. Let us know if you have other solutions
