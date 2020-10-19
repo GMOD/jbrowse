@@ -55,13 +55,21 @@ Other configuration about your server will depend on your needs, but
 generally no special setup is needed for the http server, and there is
 no "server side" code used by JBrowse (cgi, php, etc).
 
-Note: servers like "SimpleHTTPServer" from Python or "http-server" from
-NPM are generally not full featured enough to run all JBrowse features
-correctly (SimpleHTTPServer does not support Range queries, and
-http-server interprets tabix files incorrectly). RangeHTTPServer does
-pass the test suite for jbrowse though, so it should work for tests
-<https://github.com/danvk/RangeHTTPServer> (but not for compressed json
-files).
+Note: servers like "SimpleHTTPServer" from Python are not full featured enough
+to run all JBrowse features correctly (SimpleHTTPServer does not support Range
+queries). RangeHTTPServer does pass the test suite for jbrowse though, so it
+should work for tests <https://github.com/danvk/RangeHTTPServer> (but not for
+compressed json files).
+
+http-server from npm is another option
+
+```
+npm install -g http-server
+http-server
+# visit http://localhost:8080/ in the browser
+```
+
+That will quickly get you setup with a webserver for looking at jbrowse
 
 Also note: sometimes, people will download JBrowse and double click the
 html file and open up <file:///c/myfolder/jbrowse/index.html> in the
@@ -1109,7 +1117,6 @@ Now that your VCF is indexed, follow these steps
 -   Put the myfile.vcf.gz and myfile.vcf.gz.tbi in your data directory
 -   Edit data/trackList.json
 -   Put the following in there:
-
 
     [tracks.myvcf]
     urlTemplate=myfile.vcf.gz
