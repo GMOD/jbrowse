@@ -38,7 +38,7 @@ return declare( ActionBarDialog, {
 
         var introdiv = dom.create('div', {
             className: 'search-dialog intro',
-            innerHTML: 'This tool creates tracks showing regions of the reference sequence (or its translations) that match a given DNA or amino acid sequence.'
+            innerHTML: 'This tool creates tracks showing regions of the reference sequence (or its translations) that match a given DNA or amino acid sequence.<br/>Note that you can include regular expressions like "CA[CGT][ACG]TG" by checking the "Treat as regular expression" box.'
         }, container );
 
         // Render text box
