@@ -9,4 +9,5 @@ set -x
 cd ${0%/*}
 yarn
 yarn build
+mv build/jbrowse/index.html build/jbrowse/jbrowse1.html
 cp -R ../img build/jbrowse/docs/assets/img
