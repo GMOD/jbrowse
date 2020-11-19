@@ -282,7 +282,6 @@ define([
                     f[b] = data.attributes[a];
                     if (f[b].length == 1) f[b] = f[b][0];
                 }
-                f.uniqueID = `offset-${f._linehash}`;
 
                 delete f._linehash;
                 delete f.attributes;
