@@ -248,10 +248,10 @@
     "@gmod/bgzf-filehandle" "^1.2.4"
     es6-promisify "^6.0.1"
 
-"@gmod/tabix@^1.4.6":
-  version "1.4.6"
-  resolved "https://registry.yarnpkg.com/@gmod/tabix/-/tabix-1.4.6.tgz#eb6ca6a02eb83fbcf8769b1a438c122c9e2fdc2d"
-  integrity sha512-vczsvIn0fYkjACQWL31p28dg4/42+jOLZOzc9L1giWqTqe5Dr47f9YqBipFBw4tV9A2snQbq/sWSmzYP3lyq8Q==
+"@gmod/tabix@^1.5.0":
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/@gmod/tabix/-/tabix-1.5.0.tgz#69fb4084eecdf7eb35f24e6b64bd4979d98f1162"
+  integrity sha512-wbiYj+3a3xtL9W5hIAaZ4pDIca2isFVHbA5jIecFAFaui2qOkgWbiRctToZWDHSPLrpVuzf2A0TYjx4nswk9ag==
   dependencies:
     "@babel/runtime-corejs2" "^7.3.1"
     "@gmod/bgzf-filehandle" "^1.3.3"
