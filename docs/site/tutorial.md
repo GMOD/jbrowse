@@ -127,6 +127,15 @@ Then your tracks.conf file should say
 
 Then you can visit http://localhost/jbrowse/ and the "data" directory will automatically be loaded.
 
+## Final step
+
+Note that this tutorial largely does not require the use of the perl programs
+like prepare-refseqs.pl and flatfile-to-json.pl used in
+https://jbrowse.org/docs/tutorial_classic.html, however, if you want to search
+names from the GFF using the search box you will need to run one perl program
+
+    bin/generate-names.pl
+
 ## Congratulations
 
 You have now setup JBrowse!
