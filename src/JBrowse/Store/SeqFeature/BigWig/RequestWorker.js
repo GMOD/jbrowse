@@ -9,8 +9,8 @@ define( [
             'dojo/promise/all',
             'JBrowse/Model/Range',
             'JBrowse/Model/SimpleFeature',
-            'jszlib/inflate',
-            'jszlib/arrayCopy'
+            'JBrowse/Util/jszlib',
+            'JBrowse/Util/arrayCopy'
         ],
         function(
             declare,
