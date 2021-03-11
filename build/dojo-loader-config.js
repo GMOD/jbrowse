@@ -1,56 +1,44 @@
+const { findPlugins } = require("./plugin-util");
 
-const {findPlugins} = require('./plugin-util')
-
-module.exports = function(env) {
-
+module.exports = function (env) {
     dojoConfig = {
-        baseUrl: '.',
+        baseUrl: ".",
         packages: [
             {
-                name: 'dojo',
-                location: env.dojoRoot + 'dojo',
+                name: "dojo",
+                location: env.dojoRoot + "dojo",
             },
             {
-                name: 'dijit',
-                location: env.dojoRoot + 'dijit',
+                name: "dijit",
+                location: env.dojoRoot + "dijit",
             },
             {
-                name: 'dojox',
-                location: env.dojoRoot + 'dojox',
+                name: "dojox",
+                location: env.dojoRoot + "dojox",
             },
             {
-                name: 'JBrowse',
-                location: 'src/JBrowse',
-                lib: '.'
+                name: "JBrowse",
+                location: "src/JBrowse",
+                lib: ".",
             },
             {
-                name: 'dgrid',
-                location: env.dojoRoot + 'dgrid',
-                lib: '.'
+                name: "dgrid",
+                location: env.dojoRoot + "dgrid",
+                lib: ".",
             },
             {
-                name: 'dstore',
-                location: env.dojoRoot + 'dojo-dstore',
-                lib: '.'
+                name: "dstore",
+                location: env.dojoRoot + "dojo-dstore",
+                lib: ".",
             },
             {
-                name: 'jszlib',
-                location: env.dojoRoot + 'jszlib',
-                lib: '.'
+                name: "FileSaver",
+                location: env.dojoRoot + "filesaver.js",
+                lib: ".",
             },
-            {
-                name: 'FileSaver',
-                location: env.dojoRoot + 'filesaver.js',
-                lib: '.'
-            }
-        ]
-        .concat(
-            findPlugins('.')
-        )
-        ,
+        ].concat(findPlugins(".")),
+        async: true,
+    };
 
-        async: true
-    }
-
-    return dojoConfig
+    return dojoConfig;
 };

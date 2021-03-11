@@ -3,8 +3,8 @@
  */
 define( [
             'dojo/_base/declare',
-            'jszlib/inflate',
-            'jszlib/arrayCopy'
+            'JBrowse/Util/jszlib',
+            'JBrowse/Util/arrayCopy',
         ],
         function(
             declare,
