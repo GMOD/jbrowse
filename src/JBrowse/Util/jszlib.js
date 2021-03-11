@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /* -*- mode: javascript; c-basic-offset: 4; indent-tabs-mode: nil -*- */
 define(["./arrayCopy"], function (arrayCopy) {
     //
