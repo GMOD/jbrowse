@@ -2,17 +2,20 @@
 
 ## Minor improvements
 
--   Add optional track label field for RegexSequenceSearch
+-   Add optional track label field for RegexSequenceSearch (issue #1553, @cmdcolin, @Rhinogradentia)
 
 -   Bump @gmod/tabix for textdecoder speedup for very large tabix files
+    (@arpanda, @cmdcolin, pull #1569)
 
--   Increase GFF3Tabix chunkSizeLimit to avoid it being hit on relatively small files
+-   Increase GFF3Tabix chunkSizeLimit to avoid it being hit on relatively small
+    files
 
 ## Bug fixes
 
--   Bump @gmod/cram for fix for ultra long reads
+-   Bump @gmod/cram for fix for ultra long reads (https://github.com/GMOD/cram-js/pull/84)
 
--   Fix issue that some users were seeing with "Commit hash required" when running setup.sh
+-   Fix issue that some users were seeing with "Commit hash required" when
+    running setup.sh. Thanks to @GFJHogue and @hans-vg for reporting (issue #1555)
 
 # Release 1.16.10 2020-09-24 16:06:00 UTC
 
