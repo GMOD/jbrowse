@@ -2,7 +2,8 @@
 
 ## Minor improvements
 
--   Add optional track label field for RegexSequenceSearch (issue #1553, @cmdcolin, @Rhinogradentia)
+-   Add optional track label field for RegexSequenceSearch (issue #1553,
+    @cmdcolin, @Rhinogradentia)
 
 -   Bump @gmod/tabix for textdecoder speedup for very large tabix files
     (@arpanda, @cmdcolin, pull #1569)
@@ -16,6 +17,13 @@
 
 -   Fix issue that some users were seeing with "Commit hash required" when
     running setup.sh. Thanks to @GFJHogue and @hans-vg for reporting (issue #1555)
+
+-   Bump @gmod/bam which fixes some unsigned BAM tags being reported with a
+    negative number
+
+-   Bump @gmod/bam and @gmod/tabix for and some fixes with reg2bins and chunk
+    merging for large chromosomes e.g. wheat. Thanks to @jrobinso for reporting
+    (https://github.com/GMOD/tabix-js/issues/118)
 
 # Release 1.16.10 2020-09-24 16:06:00 UTC
 
