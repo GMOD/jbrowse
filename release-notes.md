@@ -1,7 +1,20 @@
 {{$NEXT}}
 
+## Minor improvements
 
-# Release 1.16.10     2020-09-24 16:06:00 UTC
+-   Add optional track label field for RegexSequenceSearch
+
+-   Bump @gmod/tabix for textdecoder speedup for very large tabix files
+
+-   Increase GFF3Tabix chunkSizeLimit to avoid it being hit on relatively small files
+
+## Bug fixes
+
+-   Bump @gmod/cram for fix for ultra long reads
+
+-   Fix issue that some users were seeing with "Commit hash required" when running setup.sh
+
+# Release 1.16.10 2020-09-24 16:06:00 UTC
 
 ## Minor improvements
 
