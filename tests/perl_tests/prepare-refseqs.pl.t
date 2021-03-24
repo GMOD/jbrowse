@@ -303,5 +303,19 @@ is_deeply( $output,
           );# or diag explain $output;
 }
 EOCONF
+
+
+# test formatting fasta refseq names that contain / chars
+$tempdir = File::Temp->newdir;
+
+system $^X, 'bin/prepare-refseqs.pl', (
+    '--fasta' => 'tests/data/forward_slashes_in_refseq_name.fa',
+    '--out'   => $tempdir,
+   );
+
+$output = slurp_tree( $tempdir );
+
+is(length $output->{"seq/855/162/22/hi_I_have_slashes-0.txt"}, 12950, 'refname with slashes has a chunk');
+
 done_testing;
 
