@@ -1,7 +1,11 @@
 {{$NEXT}}
 
+## Bug fixes
 
-# Release 1.16.11     2021-03-11 23:10:58 UTC
+-   Fix ability to use refseq names with a slash in them. Thanks to user @btski
+    for reporting and @rbuels for the fix (pull #1585)
+
+# Release 1.16.11 2021-03-11 23:10:58 UTC
 
 ## Minor improvements
 
