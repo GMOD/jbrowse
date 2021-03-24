@@ -590,6 +590,9 @@ sub openChunkFile {
             "$refInfo->{name}-$chunkNum.txt"
           );
 
+
+    $file =~ s![/\\\n]!_!g; # convert filesystem reserved characters to underscore
+    
     $file .= 'z' if $compress;
 
     mkpath( $dir );
