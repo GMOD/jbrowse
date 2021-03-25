@@ -98,7 +98,7 @@ return declare( SeqFeatureStore,
         var sequrl = this.resolveUrl(
             this.urlTemplate,
             {
-                'refseq': chunk.refname.replaceAll(/[\/\\]/g,'_'),
+                'refseq': (chunk.refname||'').replace(/[\/\\]/g,'_'),
                 'refseq_dirpath': function() {
                     var hex = Crc32.crc32( chunk.refname )
                         .toString(16)
