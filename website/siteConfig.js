@@ -97,7 +97,7 @@ const siteVariables = {
 
 
 const siteConfig = {
-  title: 'JBrowse',
+  title: 'JBrowse 1',
   tagline: 'A fast, embeddable genome browser built with HTML5 and JavaScript',
   url: 'https://jbrowse.org',
   baseUrl: '/',
@@ -112,7 +112,12 @@ const siteConfig = {
     {page: 'developers', label: 'Developers'},
     {page: 'contact', label: 'Contact'},
     {page: 'references', label: 'References'},
-    {page: 'help', label: 'Help'}
+    {page: 'help', label: 'Help'},
+    {
+            href: "https://jbrowse.org/jb2/",
+            label: "Looking for JBrowse 2?",
+            external: true,
+    },
   ],
 
   footerIcon: 'img/jbrowse.png',
