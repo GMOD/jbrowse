@@ -5,6 +5,9 @@ Note: most of our current development is on JBrowse 2, see our github repo here 
 
 We will still continue to make bug fix and maintenance releases of JBrowse 1 but most development is on JBrowse 2
 
+Note: if you are using plugins with a dev version of JBrowse or installing from GitHub, you may need to use node <=14 (e.g. node >=15 may fail) due to node-sass not compiling on newer node versions easily. See https://github.com/GMOD/jbrowse/pull/1607 for details
+
+
 # Installing JBrowse
 
 To install jbrowse, visit http://jbrowse.org/blog and download the latest JBrowse zip file. See instructions at http://jbrowse.org/docs/installation.html for a tutorial on setting up a sample instance.
@@ -16,6 +19,8 @@ To install from GitHub, you can simply clone the repo and run the setup.sh scrip
     git clone https://github.com/GMOD/jbrowse
     cd jbrowse
     ./setup.sh
+    
+
 
 ## Develop JBrowse or JBrowse plugins
 
