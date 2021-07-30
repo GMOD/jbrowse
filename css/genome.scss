@@ -20,8 +20,8 @@
         font-weight: inherit;
     }
 
-    @import "../node_modules/dijit/themes/tundra/tundra.css";
-    @import "../node_modules/dgrid/css/dgrid.css";
+    @import "dijit/themes/tundra/tundra";
+    @import "dgrid/css/dgrid";
     @import "dojobase";
     @import "icons";
 }
