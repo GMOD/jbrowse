@@ -5,12 +5,12 @@ date: 2012-09-28
 tags: ["Software releases"]
 ---
 
-JBrowse 1.6.3 has been released, containing fixes for some small issues in the [1.6.2 release](http://jbrowse.org/jbrowse-1-6-2-bugfix-release/ "JBrowse 1.6.2 bugfix release").
+JBrowse 1.6.3 has been released, containing fixes for some small issues in the [1.6.2 release](https://jbrowse.org/jbrowse-1-6-2-bugfix-release/ "JBrowse 1.6.2 bugfix release").
 
 Files for download:
 
 *   [JBrowse-1.6.3-min.zip](/wordpress/wp-content/plugins/download-monitor/download.php?id=19 "download JBrowse-1.6.3-min.zip") - 2.8M
-*   [JBrowse-1.6.3-full.zip](http://jbrowse.org/wordpress/wp-content/plugins/download-monitor/download.php?id=20 "download JBrowse-1.6.3-full.zip") - 27.3M
+*   [JBrowse-1.6.3-full.zip](https://jbrowse.org/wordpress/wp-content/plugins/download-monitor/download.php?id=20 "download JBrowse-1.6.3-full.zip") - 27.3M
 Changes in this release:
 
 *   Fixed bug with shift-rubberband-zooming not working on Windows

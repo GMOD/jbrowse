@@ -11,7 +11,7 @@ Files for download:
 
 *   [JBrowse-1.9.5.zip](/wordpress/wp-content/plugins/download-monitor/download.php?id=53 "download JBrowse-1.9.5.zip") - 5.1M
 file SHA1 4972e99e345e0a31261dc0d14a15eb6a114aae7f
-*   [JBrowse-1.9.5-dev.zip](http://jbrowse.org/wordpress/wp-content/plugins/download-monitor/download.php?id=54 "download JBrowse-1.9.5-dev.zip") - 26M
+*   [JBrowse-1.9.5-dev.zip](https://jbrowse.org/wordpress/wp-content/plugins/download-monitor/download.php?id=54 "download JBrowse-1.9.5-dev.zip") - 26M
 file SHA1 a388bb29210fea0deade3d8ea80985323f37c398
 Changes in this release:
 

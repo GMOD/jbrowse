@@ -5,12 +5,12 @@ date: 2012-12-06
 tags: ["Software releases"]
 ---
 
-JBrowse 1.7.4 has been released, containing fixes for some more issues found in the [1.7.3 release](http://jbrowse.org/jbrowse-1-7-3-bugfix-release/ "JBrowse 1.7.3 bugfix release") and earlier.  In particular, several bad bugs have been fixed in support for Safari, Opera, and Internet Explorer.
+JBrowse 1.7.4 has been released, containing fixes for some more issues found in the [1.7.3 release](https://jbrowse.org/jbrowse-1-7-3-bugfix-release/ "JBrowse 1.7.3 bugfix release") and earlier.  In particular, several bad bugs have been fixed in support for Safari, Opera, and Internet Explorer.
 
 Files for download:
 
 *   [JBrowse-1.7.4.zip](/wordpress/wp-content/plugins/download-monitor/download.php?id=33 "download JBrowse-1.7.4.zip") - 2.9M
-*   [JBrowse-1.7.4-dev.zip](http://jbrowse.org/wordpress/wp-content/plugins/download-monitor/download.php?id=34 "download JBrowse-1.7.4-dev.zip") - 28.6M
+*   [JBrowse-1.7.4-dev.zip](https://jbrowse.org/wordpress/wp-content/plugins/download-monitor/download.php?id=34 "download JBrowse-1.7.4-dev.zip") - 28.6M
 Changes in this release:
 
 *   Fixed a bug preventing loading of JBrowse in some browsers.  Thanks

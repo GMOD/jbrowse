@@ -17,6 +17,6 @@ Incrementing A means that major new features have been added, **and** that the n
 
 So, JBrowse 1.9.5 has the same major features as all the other 1.9.x releases, it just has bugs fixed.  JBrowse 1.10.0 (if there is one) will have some major new features not in 1.9.x.  And JBrowse 2.0.0 will have major new features, and will not be (completely) backward compatible with 1.x.x.
 
-(This, by the way, is more or less the semantic versioning scheme proposed at [semver.org](http://semver.org), which is pretty sensible.)
+(This, by the way, is more or less the semantic versioning scheme proposed at [semver.org](https://semver.org), which is pretty sensible.)
 
 (Also, this is a cross-post from a message I sent to the gmod-ajax mailing list.)

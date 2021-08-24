@@ -7,7 +7,7 @@ tags: ["Software releases"]
 
 JBrowse 1.2.1 is a maintenance release that fixes some bugs that were reported in 1.2.  Get it here:
 
-[http://jbrowse.org/releases/jbrowse-1.2.1.zip](http://jbrowse.org/releases/jbrowse-1.2.1.zip)
+[https://jbrowse.org/releases/jbrowse-1.2.1.zip](https://jbrowse.org/releases/jbrowse-1.2.1.zip)
 
 Release Notes:
 

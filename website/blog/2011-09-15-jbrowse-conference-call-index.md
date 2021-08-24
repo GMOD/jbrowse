@@ -15,7 +15,7 @@ The main agenda topics for this first call will be:
 4.  JBrowse and Web-Apollo
 5.  Any other business
 
-Please email [Ian](http://biowiki.org/IanHolmes) if there is anything you'd like to have on the agenda.
+Please email [Ian](https://biowiki.org/IanHolmes) if there is anything you'd like to have on the agenda.
 
 Call details:
 

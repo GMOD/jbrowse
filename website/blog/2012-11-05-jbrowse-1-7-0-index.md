@@ -10,7 +10,7 @@ I am pleased to announce the release of JBrowse 1.7.0, which includes a great ma
 First, the download links:
 
 *   [JBrowse-1.7.0.zip](/wordpress/wp-content/plugins/download-monitor/download.php?id=25 "download JBrowse-1.7.0.zip") - 2.9M - Includes everything you need to display your data on the web with JBrowse, optimized for loading speed.
-*   [JBrowse-1.7.0-dev.zip](http://jbrowse.org/wordpress/wp-content/plugins/download-monitor/download.php?id=26 "download JBrowse-1.7.0-dev.zip") - 27.4M - Primarily for developers. Includes additional developer documentation, developer tests suites, and full copies of Dojo and Dijit.
+*   [JBrowse-1.7.0-dev.zip](https://jbrowse.org/wordpress/wp-content/plugins/download-monitor/download.php?id=26 "download JBrowse-1.7.0-dev.zip") - 27.4M - Primarily for developers. Includes additional developer documentation, developer tests suites, and full copies of Dojo and Dijit.
 Now for the big new features.
 
 Firstly, JBrowse can now **quickly and efficiently display alignment data directly from BAM files** over the web, with no need for any intermediate formatting steps.  Just put your `.bam` and `.bai` files on your web server, add a few lines of configuration to point JBrowse at them, and go!  Moreover, JBrowse has **two new track types optimized for displaying alignment data**: new** "Alignments" track type**, showing basepair differences and insertions between aligned reads and the reference (using a BAM alignment's MD field), and a new **FeatureCoverage** track type that generates a **depth-of-coverage plot from a BAM file** (or from any other source of feature data).  Many thanks to Thomas Down and his Dalliance Genome Browser project, from which the JBrowse BAM data backend was derived.

@@ -10,7 +10,7 @@ JBrowse 1.7.6 has been released, containing a fix for yet another bug that preve
 Files for download:
 
 *   [JBrowse-1.7.6.zip](/wordpress/wp-content/plugins/download-monitor/download.php?id=37 "download JBrowse-1.7.6.zip") - 2.9M
-*   [JBrowse-1.7.6-dev.zip](http://jbrowse.org/wordpress/wp-content/plugins/download-monitor/download.php?id=38 "download JBrowse-1.7.6-dev.zip") - 28.6M
+*   [JBrowse-1.7.6-dev.zip](https://jbrowse.org/wordpress/wp-content/plugins/download-monitor/download.php?id=38 "download JBrowse-1.7.6-dev.zip") - 28.6M
 Changes in this release:
 
 *   Fixed a bug in the BAM direct-access backend that prevented some

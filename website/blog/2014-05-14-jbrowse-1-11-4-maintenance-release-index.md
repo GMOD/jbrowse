@@ -7,9 +7,9 @@ tags: ["News","Software releases"]
 
 I am happy to announce the release of JBrowse 1.11.4. This is the first release after Rob's leave, and it represents the great community effort to keep things going. There are some exciting new developments in this version, including high-resolution rendering of canvas-based tracks and a basic GTF file parser. There are also several important bug fixes, including an update to the setup.sh script in order to maintain compatibility with the latest BioPerl.
 
-*   [JBrowse-1.11.4.zip](http://jbrowse.org/releases/JBrowse-1.11.4.zip) - 4.9M
+*   [JBrowse-1.11.4.zip](https://jbrowse.org/releases/JBrowse-1.11.4.zip) - 4.9M
 file SHA1 08834c1fd3a947971459ddc4482128cdaf80a668
-*   [JBrowse-1.11.4-dev.zip](http://jbrowse.org/releases/JBrowse-1.11.4-dev.zip) - 26M
+*   [JBrowse-1.11.4-dev.zip](https://jbrowse.org/releases/JBrowse-1.11.4-dev.zip) - 26M
 file SHA1 4f6ac7aa339e20e9be3e717fd88bd27a62f40f27
 
 ## Minor improvements

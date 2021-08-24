@@ -10,7 +10,7 @@ JBrowse 1.8.1 has been released, with several small fixes and additional feature
 Files for download:
 
 *   [JBrowse-1.8.1.zip](/wordpress/wp-content/plugins/download-monitor/download.php?id=41 "download JBrowse-1.8.1.zip") - 3.3M
-*   [JBrowse-1.8.1-dev.zip](http://jbrowse.org/wordpress/wp-content/plugins/download-monitor/download.php?id=42 "download JBrowse-1.8.1-dev.zip") - 28.6M
+*   [JBrowse-1.8.1-dev.zip](https://jbrowse.org/wordpress/wp-content/plugins/download-monitor/download.php?id=42 "download JBrowse-1.8.1-dev.zip") - 28.6M
 Changes in this release:
 
 *   Added support for `cigarAttribute` and `mdAttributes` configuration

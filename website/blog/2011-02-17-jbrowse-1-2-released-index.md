@@ -7,14 +7,14 @@ tags: ["Software releases"]
 
 New JBrowse release!  This is version 1.2, which makes the server-side scripts much more scalable, includes a script for importing UCSC database dumps into JBrowse, and integrates Juan Aguilar's touch code for the iPad/iPhone.  Code is here:
 
-[http://jbrowse.org/releases/jbrowse-1.2.zip](http://jbrowse.org/releases/jbrowse-1.2.zip)
+[https://jbrowse.org/releases/jbrowse-1.2.zip](https://jbrowse.org/releases/jbrowse-1.2.zip)
 
 ### Release Notes:
 
 **version 1.2**, Febrary 2011
 
 These notes document changes since release 1.1 in September 2010.
-(Release Notes for 1.1 are [here](http://jbrowse.org/?p=56).)
+(Release Notes for 1.1 are [here](https://jbrowse.org/?p=56).)
 
 Most of the work in this release went into making JBrowse handle **large
 amounts of feature data** better.  Before, the amount of memory used
