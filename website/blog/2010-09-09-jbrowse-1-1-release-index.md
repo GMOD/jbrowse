@@ -7,7 +7,7 @@ tags: ["Release 1.1","Software releases"]
 
 JBrowse version 1.1 is released! You can find the code here:  
 
-[http://jbrowse.org/releases/jbrowse-1.1.zip](http://jbrowse.org/releases/jbrowse-1.1.zip)
+[https://jbrowse.org/releases/jbrowse-1.1.zip](https://jbrowse.org/releases/jbrowse-1.1.zip)
 
 Release notes and screenshots below the fold.
 
@@ -17,8 +17,8 @@ These notes document JBrowse developments in the period from July 2009 (online p
 
 New features in this release:
 
-*   [![](http://jbrowse.org/wordpress/wp-content/uploads/2010/09/bam-screenshot.png) ](bam-screenshot.png)Scalability. JBrowse can now handle very large data tracks, including human EST/SNP tracks, or tracks of next-gen sequence reads. Large datasets are broken into smaller chunks, so there is no loading delay for big tracks.
-*   [![](http://jbrowse.org/wordpress/wp-content/uploads/2010/09/arc-screenshot.png)](arc-screenshot.png)Extensibility. A Perl module (ImageTrackRenderer.pm) for creating user-drawn image tracks is now available, based on the CPAN GD.pm module. An example program is provided, draw-basepair-track.pl, that uses this module to draw arcs over a sequence representing the base-pairing interactions of RNA secondary structure.
+*   [![](https://jbrowse.org/wordpress/wp-content/uploads/2010/09/bam-screenshot.png) ](bam-screenshot.png)Scalability. JBrowse can now handle very large data tracks, including human EST/SNP tracks, or tracks of next-gen sequence reads. Large datasets are broken into smaller chunks, so there is no loading delay for big tracks.
+*   [![](https://jbrowse.org/wordpress/wp-content/uploads/2010/09/arc-screenshot.png)](arc-screenshot.png)Extensibility. A Perl module (ImageTrackRenderer.pm) for creating user-drawn image tracks is now available, based on the CPAN GD.pm module. An example program is provided, draw-basepair-track.pl, that uses this module to draw arcs over a sequence representing the base-pairing interactions of RNA secondary structure.
 *   Bug fixes. Numerous display glitches have been fixed, including issues with wide-screen monitors and long mostly-offscreen features.
 
 Known issues/limitations with this release:

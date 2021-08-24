@@ -7,7 +7,7 @@ tags: ["Software releases"]
 
 I'm very pleased to announce the release of JBrowse 1.6.0! This release is not quite as major as the previous two releases, but there are still some nice things added.
 
-As usual, this release comes in two flavors: the "minimal" release ([JBrowse-1.6.0-min.zip](http://jbrowse.org/wordpress/wp-content/plugins/download-monitor/download.php?id=14) - 2.8M) that includes only the software and documentation necessary to format your own data and run the browser, and the "full" release ([JBrowse-1.6.0-min.zip](http://jbrowse.org/wordpress/wp-content/plugins/download-monitor/download.php?id=13)- 27.2M) that includes the developers' test suite, more sample data files, and developer documentation. Here is the full list of new improvements in 1.6.0:
+As usual, this release comes in two flavors: the "minimal" release ([JBrowse-1.6.0-min.zip](https://jbrowse.org/wordpress/wp-content/plugins/download-monitor/download.php?id=14) - 2.8M) that includes only the software and documentation necessary to format your own data and run the browser, and the "full" release ([JBrowse-1.6.0-min.zip](https://jbrowse.org/wordpress/wp-content/plugins/download-monitor/download.php?id=13)- 27.2M) that includes the developers' test suite, more sample data files, and developer documentation. Here is the full list of new improvements in 1.6.0:
 
 *   Added `description` capabilities to HTML-based features, similar to
 GBrowse's descriptions.  If zoomed in far enough (as defined by
@@ -32,7 +32,7 @@ the track on (issue #123).
 *   Fixed bug in BigWig tracks that use the "scale": "log" option: did
 not render properly when the wiggle data included 0's. This was due
 to the fact that the origin was being mapped to Infinity. Thanks to
-the [Mockler Lab](http://www.mocklerlab.org/) for the fix! (issue #127).
+the [Mockler Lab](https://www.mocklerlab.org/) for the fix! (issue #127).
 
 *   Fixed bug in NCList binary search code in which zero-length
 features at node boundaries would not be found (fix by Ed Lee).

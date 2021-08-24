@@ -49,7 +49,7 @@ these are off, and if run in an iframe, JBrowse is running in an
 **"embedded mode"** that looks similar to the output of GBrowse's
 gbrowse_img script, with the exception that the view in this case
 is a fully functioning, scrollable and zoomable JBrowse. See the
-GMOD wiki (http://gmod.org/wiki/JBrowse) for more on how to set up
+GMOD wiki (https://gmod.org/wiki/JBrowse) for more on how to set up
 embedded mode. Thanks to Julie Moon, a co-op student working at
 OICR, for this work!
 *   **Improved graphical look and feel**.

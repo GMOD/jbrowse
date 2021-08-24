@@ -9,6 +9,6 @@ The lead developer on the JBrowse team is moving on to pastures new: Mitch Skinn
 
 Mitch hopes to continue contributing to JBrowse, but this also leaves an open position in the core team. Accordingly, we are now hiring.
 
-Full details of the position can be found at [http://biowiki.org/JBrowseJob](http://biowiki.org/JBrowseJob).
+Full details of the position can be found at [https://biowiki.org/JBrowseJob](https://biowiki.org/JBrowseJob).
 
 **Update: the position has been filled.  Many thanks to all the applicants!**

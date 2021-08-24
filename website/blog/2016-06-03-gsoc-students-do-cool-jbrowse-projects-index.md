@@ -30,4 +30,4 @@ Saksham is an audiophile, science, technology and philosophy indulgent who drive
 
 GitHub: [https://github.com/<wbr />sakshamsaxena](https://github.com/sakshamsaxena),
 LinkedIn: [https://www.<wbr />linkedin.com/in/saxenasaksham](https://www.linkedin.com/in/saxenasaksham)
-Blog/Tumblr: [sakshamsaxena.in](http://sakshamsaxena.in/)</div>
+Blog/Tumblr: [sakshamsaxena.in](https://sakshamsaxena.in/)</div>

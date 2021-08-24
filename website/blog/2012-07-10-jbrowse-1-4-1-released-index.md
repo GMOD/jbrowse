@@ -5,7 +5,7 @@ date: 2012-07-10
 tags: ["Software releases"]
 ---
 
-JBrowse 1.4.1 has been released, containing some small fixes for issues in the [1.4.0 release](http://jbrowse.org/jbrowse-1-4-0-released-includes-faceted-track-selection/ "JBrowse 1.4.0 released, includes faceted track selection!").
+JBrowse 1.4.1 has been released, containing some small fixes for issues in the [1.4.0 release](https://jbrowse.org/jbrowse-1-4-0-released-includes-faceted-track-selection/ "JBrowse 1.4.0 released, includes faceted track selection!").
 
 *   [JBrowse-1.4.1-min.zip](/wordpress/wp-content/plugins/download-monitor/download.php?id=4 "download JBrowse-1.4.1-min.zip") - 2.6M
 *   [JBrowse-1.4.1-full.zip](/wordpress/wp-content/plugins/download-monitor/download.php?id=3 "download JBrowse-1.4.1-full.zip") - 5.5M

@@ -5,12 +5,12 @@ date: 2012-11-28
 tags: ["Software releases"]
 ---
 
-JBrowse 1.7.3 has been released, containing fixes for some more issues found in the [1.7.2 release](http://jbrowse.org/jbrowse-1-7-2-bugfix-release/ "JBrowse 1.7.2 bugfix release") and earlier.  Remote BAM access is rather difficult to get right, thanks very much to the people who continue to step forward to report and help correct problems with JBrowse displaying their BAM data.
+JBrowse 1.7.3 has been released, containing fixes for some more issues found in the [1.7.2 release](https://jbrowse.org/jbrowse-1-7-2-bugfix-release/ "JBrowse 1.7.2 bugfix release") and earlier.  Remote BAM access is rather difficult to get right, thanks very much to the people who continue to step forward to report and help correct problems with JBrowse displaying their BAM data.
 
 Files for download:
 
 *   [JBrowse-1.7.3.zip](/wordpress/wp-content/plugins/download-monitor/download.php?id=31 "download JBrowse-1.7.3.zip") - 2.9M
-*   [JBrowse-1.7.3-dev.zip](http://jbrowse.org/wordpress/wp-content/plugins/download-monitor/download.php?id=32 "download JBrowse-1.7.3-dev.zip") - 28.6M
+*   [JBrowse-1.7.3-dev.zip](https://jbrowse.org/wordpress/wp-content/plugins/download-monitor/download.php?id=32 "download JBrowse-1.7.3-dev.zip") - 28.6M
 Changes in this release:
 
 *   Fixed several more bugs in the BAM data backend that prevented

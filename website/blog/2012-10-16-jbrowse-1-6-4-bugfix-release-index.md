@@ -5,12 +5,12 @@ date: 2012-10-16
 tags: ["Software releases"]
 ---
 
-JBrowse 1.6.4 has been released, containing fixes for some small issues in the [1.6.3 release](http://jbrowse.org/jbrowse-1-6-3-bugfix-release/ "JBrowse 1.6.3 bugfix release").
+JBrowse 1.6.4 has been released, containing fixes for some small issues in the [1.6.3 release](https://jbrowse.org/jbrowse-1-6-3-bugfix-release/ "JBrowse 1.6.3 bugfix release").
 
 Files for download:
 
 *   [JBrowse-1.6.4-min.zip](/wordpress/wp-content/plugins/download-monitor/download.php?id=21 "download JBrowse-1.6.4-min.zip") - 2.8M
-*   [JBrowse-1.6.4-full.zip](http://jbrowse.org/wordpress/wp-content/plugins/download-monitor/download.php?id=22 "download JBrowse-1.6.4-full.zip") - 27.3M
+*   [JBrowse-1.6.4-full.zip](https://jbrowse.org/wordpress/wp-content/plugins/download-monitor/download.php?id=22 "download JBrowse-1.6.4-full.zip") - 27.3M
 Changes in this release:
 
 *   Improvements to the scalability of `generate-names.pl`. Many

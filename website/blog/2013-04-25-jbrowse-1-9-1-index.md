@@ -11,7 +11,7 @@ Files for download:
 
 *   [JBrowse-1.9.1.zip](/wordpress/wp-content/plugins/download-monitor/download.php?id=45 "download JBrowse-1.9.1.zip") - 5.0M
 file SHA1 1dc089e42e626da5312a8091dbcd1972a1cfb0fd
-*   [JBrowse-1.9.1-dev.zip](http://jbrowse.org/wordpress/wp-content/plugins/download-monitor/download.php?id=46 "download JBrowse-1.9.1-dev.zip") - 28.6M
+*   [JBrowse-1.9.1-dev.zip](https://jbrowse.org/wordpress/wp-content/plugins/download-monitor/download.php?id=46 "download JBrowse-1.9.1-dev.zip") - 28.6M
 file SHA1 bc5bb43ad8b71a9190e8c2a400d7db2364882e09
 Changes in this release:
 

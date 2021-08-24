@@ -5,12 +5,12 @@ date: 2012-10-26
 tags: ["Software releases"]
 ---
 
-I'm pleased to announce the release of JBrowse 1.6.5, containing some small new features, plus fixes for some issues in the [1.6.4 release](http://jbrowse.org/jbrowse-1-6-4-bugfix-release/ "JBrowse 1.6.4 bugfix is also coming along very soon, with a (we hope!) very impressive set of new features.  Stay tuned.release").
+I'm pleased to announce the release of JBrowse 1.6.5, containing some small new features, plus fixes for some issues in the [1.6.4 release](https://jbrowse.org/jbrowse-1-6-4-bugfix-release/ "JBrowse 1.6.4 bugfix is also coming along very soon, with a (we hope!) very impressive set of new features.  Stay tuned.release").
 
 Files for download:
 
 *   [JBrowse-1.6.5-min.zip](/wordpress/wp-content/plugins/download-monitor/download.php?id=23 "download JBrowse-1.6.5-min.zip") - 2.8M
-*   [JBrowse-1.6.5-full.zip](http://jbrowse.org/wordpress/wp-content/plugins/download-monitor/download.php?id=24 "download JBrowse-1.6.5-full.zip") - 27.3M
+*   [JBrowse-1.6.5-full.zip](https://jbrowse.org/wordpress/wp-content/plugins/download-monitor/download.php?id=24 "download JBrowse-1.6.5-full.zip") - 27.3M
 Changes in this release:
 
 *   The location box now shows the **length of the currently visible**
