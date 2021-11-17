@@ -86,7 +86,8 @@ style.color = function(feature) {
 -   Comments inside callbacks can use the /\* \*/ format but not the // format
 -   All lines of a multi-line callback should be spaced away from the left-most column, including the closing bracket (see the style.color example above)
 -   There should be no blank lines inside a multi-line callback
--   Refer to [5] for more info on multi-line functions
+-   Refer to [functions.conf](configuration_file_formats.html#including-external-files-and-functions-in-tracklistjson) for more info on multi-line functions
+-   Make sure to use proper semi-colons, they are not optional in this format
 
 ## Configuration loading details
 
