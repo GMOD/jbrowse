@@ -24,7 +24,7 @@ If you are using JBrowse plugins, you will also want to install Node.js version 
 
 Some system pre-requisites for a Ubuntu/WSL/Debian type system
 
-    sudo apt install build-essential zlib1g-dev
+    sudo apt install build-essential zlib1g-dev libexpat1-dev
 
 On CentOS/RedHat
 
