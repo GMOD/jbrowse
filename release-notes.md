@@ -60,7 +60,7 @@
 ## Minor improvements
 
 -   Added a 'Reset to defaults' menu item, which addresses a long standing
-    issue. Thanks to a user with a very long github name for their
+    issue. Thanks to Tomass Baltmanis for their
     contribution (pull #1496, issue #764).
 
 -   Disable coordinate indicator on tab switch, thanks @lukaw3d (pull #1497)
