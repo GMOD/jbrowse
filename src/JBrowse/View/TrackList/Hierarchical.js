@@ -180,7 +180,7 @@ return declare(
                                  lang.setObject( 'collapsed.'+categoryPath, !newval, thisB.state );
                                  thisB._saveState();
                              });
-                    obj.pane.addChild(c, inStartup ? undefined : 1 );
+                    obj.pane.addChild(c);
                     return { parent: obj, pane: c, categories: {}, tracks: {} };
                 }.call(thisB));
 
