@@ -2740,6 +2740,11 @@ searchNames: function( /**String*/ loc ) {
                 this.showRegionAfterSearch( goingTo.location );
             }
             // otherwise, pop up a dialog with a list of the locations to choose from
+            else if( goingTo.multipleLocations ) {
+                //just pick the first one for SGD
+                goingTo = nameMatches[0];
+                this.showRegionAfterSearch( goingTo.location );
+            }
             // removed for sgd
             return true;
         },
