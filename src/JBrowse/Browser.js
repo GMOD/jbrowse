@@ -2740,19 +2740,7 @@ searchNames: function( /**String*/ loc ) {
                 this.showRegionAfterSearch( goingTo.location );
             }
             // otherwise, pop up a dialog with a list of the locations to choose from
-            else if( goingTo.multipleLocations ) {
-                if(!this.view.pxPerBp) {
-                    this.navigateToLocation(this.refSeq)
-                }
-                new LocationChoiceDialog(
-                    {
-                        browser: this,
-                        locationChoices: goingTo.multipleLocations,
-                        title: 'Choose '+goingTo.name+' location',
-                        prompt: '"'+goingTo.name+'" is found in multiple locations.  Please choose a location to view.'
-                    })
-                    .show();
-            }
+            // removed for sgd
             return true;
         },
         function(e) {
