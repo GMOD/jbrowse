@@ -2742,9 +2742,8 @@ searchNames: function( /**String*/ loc ) {
             // otherwise, pop up a dialog with a list of the locations to choose from
             else if( goingTo.multipleLocations ) {
                 //just pick the first one for SGD
-                console.log(goingTo.multipleLocations);
-                goingTo = nameMatches[0];
-                this.showRegionAfterSearch( goingTo.location );
+                //console.log(goingTo.multipleLocations);
+                this.showRegionAfterSearch( goingTo.multipleLocations[0] );
             }
             // removed for sgd
             return true;
