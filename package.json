@@ -32,6 +32,7 @@
   },
   "license": "(LGPL-2.1 OR Artistic-2.0)",
   "dependencies": {
+    "dompurify": "^3.2.4",
     "express": "^4.15.4",
     "fs-extra": "^4.0.1",
     "node-fetch": "^2.2.0",

@@ -1,5 +1,7 @@
 const url = cjsRequire('url')
 
+import dompurify from "dompurify";
+
 import packagejson from './package.json'
 define( [
             'dojo/_base/declare',
@@ -482,7 +484,7 @@ fatalError: function( error ) {
 
             error = dojoxHtmlEntities.encode(error);
         }
-        return error;
+        return dompurify.sanitize(error)
     }
 
     if( ! this.renderedFatalErrors ) {
@@ -2605,7 +2607,7 @@ navigateTo: function(loc, initial) {
                       new InfoDialog(
                           {
                               title: 'Not found',
-                              content: 'Not found: <span class="locString">'+loc+'</span>',
+                              content: 'Not found: <span class="locString">'+dompurify.sanitize(loc)+'</span>',
                               className: 'notfound-dialog'
                           }).show();
                       if(!thisB.view.pxPerBp) {
