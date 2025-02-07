@@ -1,6 +1,8 @@
 {
   "parser": "babel-eslint",
-  "extends": [],
+  "extends": [
+    "plugin:xss/recommended"
+  ],
   "plugins": [],
   "env": {
     "browser": true,
