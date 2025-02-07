@@ -28,19 +28,14 @@ define([
       },
 
       _formatFASTA: function (region, seq) {
-        return (
-          '>' +
-          this.refSeq.name +
-          ' ' +
-          Util.assembleLocString(region) +
-          '\n' +
-          this._wrap(seq, 78)
-        )
+        return `>${this.refSeq.name} ${Util.assembleLocString(
+          region,
+        )}\n${this._wrap(seq, 78)}`
       },
 
       _wrap: function (string, length) {
         length = length || 78
-        return string.replace(new RegExp('(.{' + length + '})', 'g'), '$1\n')
+        return string.replace(new RegExp(`(.{${length}})`, 'g'), '$1\n')
       },
     },
   )

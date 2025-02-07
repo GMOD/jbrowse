@@ -354,7 +354,7 @@ define([
       if (!this.resultsDiv) {
         this.resultsDiv = dom.create('div')
         this.resultsDiv.className = 'track'
-        this.resultsDiv.id = this.name + '_resultsDiv'
+        this.resultsDiv.id = `${this.name}_resultsDiv`
         domClass.remove(this.div, 'empty')
       }
 
@@ -375,7 +375,7 @@ define([
           if (store) {
             d.resolve(store, true)
           } else {
-            d.reject('store ' + storeName + ' not found', true)
+            d.reject(`store ${storeName} not found`, true)
           }
         })
         return d.promise
@@ -691,14 +691,14 @@ define([
           // This will be what happens when the results track updates its height - makes necessary changes to
           // outer track's height and then passes up to the heightUpdate callback specified as a parameter to this object
           var resultsHeightUpdate = function (height) {
-            thisB.resultsDiv.style.height = height + 'px'
+            thisB.resultsDiv.style.height = `${height}px`
             thisB.heightResults = height
             thisB.height = height
             thisB.onlyRefreshOuter = true
             thisB.refresh()
             thisB.onlyRefreshOuter = false
             thisB.heightUpdate(thisB.height)
-            thisB.div.style.height = thisB.height + 'px'
+            thisB.div.style.height = `${thisB.height}px`
           }
 
           // setViewInfo on results track
@@ -758,7 +758,7 @@ define([
         storeClass: this.store.config.type,
         feature: ['match'],
         key: 'Results',
-        label: this.name + '_results',
+        label: `${this.name}_results`,
         metadata: {
           description: 'This track was created from a combination track.',
         },
@@ -923,7 +923,7 @@ define([
       this.inherited(arguments)
       // Make sure the height of this track is right
       this.heightUpdate(this.height)
-      this.div.style.height = this.height + 'px'
+      this.div.style.height = `${this.height}px`
     },
 
     // If moveBlocks is called on this track, should be called on the results track as well
@@ -1041,7 +1041,7 @@ define([
             type: 'dijit/CheckedMenuItem',
             checked: combTrack.storeToShow == i,
             label: maskOrDisplay[i],
-            title: 'View ' + maskOrDisplay[i],
+            title: `View ${maskOrDisplay[i]}`,
             action: function () {
               combTrack.storeToShow = i
               combTrack.renderResultsTrack()
@@ -1069,7 +1069,7 @@ define([
           type: 'dijit/CheckedMenuItem',
           label: classes[i].name,
           checked: combTrack.classIndex[combTrack._visible().which] == i,
-          title: 'Display as ' + classes[i].name + ' track',
+          title: `Display as ${classes[i].name} track`,
           action: function () {
             combTrack.setClassIndex(i)
             delete combTrack.config.resultsTrack
@@ -1121,7 +1121,7 @@ define([
             type: 'dijit/CheckedMenuItem',
             checked: combTrack._visible().tree.get() == op,
             label: combTrack.inWords[op],
-            title: 'change operation of last track to ' + combTrack.inWords[op],
+            title: `change operation of last track to ${combTrack.inWords[op]}`,
             action: function () {
               if (combTrack.opTree) {
                 combTrack._visible().tree.set(op)
@@ -1148,29 +1148,21 @@ define([
         return '<span class="null">NULL</span>'
       }
       if (tree.isLeaf()) {
-        return (
-          '<span class="leaf' +
-          (tree.highlighted ? ' highlighted' : '') +
-          '">' +
-          (tree.get().name
+        return `<span class="leaf${tree.highlighted ? ' highlighted' : ''}">${
+          tree.get().name
             ? this.config.storeToKey[tree.get().name]
               ? this.config.storeToKey[tree.get().name]
               : tree.get().name
-            : tree.get()) +
-          '</span>'
-        )
+            : tree.get()
+        }</span>`
       }
-      return (
-        '<span class="tree">(' +
-        this._generateTreeFormula(tree.left()) +
-        ' <span class="op" title="' +
-        this.inWords[tree.get()] +
-        '">' +
-        tree.get() +
-        '</span> ' +
-        this._generateTreeFormula(tree.right()) +
-        ')</span>'
-      )
+      return `<span class="tree">(${this._generateTreeFormula(
+        tree.left(),
+      )} <span class="op" title="${
+        this.inWords[tree.get()]
+      }">${tree.get()}</span> ${this._generateTreeFormula(
+        tree.right(),
+      )})</span>`
     },
 
     _exportFormats: function () {

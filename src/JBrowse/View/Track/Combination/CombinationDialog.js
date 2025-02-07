@@ -28,7 +28,7 @@ define([
       this.trackClasses = this.track.trackClasses
 
       this.dialog = new Dialog({
-        title: 'Combine with ' + this.newTrackKey,
+        title: `Combine with ${this.newTrackKey}`,
         style: 'width: 475px;',
         className: 'combinationDialog',
       })
@@ -54,17 +54,14 @@ define([
       nodesToAdd.push(
         dom.create('div', {
           className: 'intro',
-          innerHTML:
-            'Adding ' +
-            this.currType +
-            ' track ' +
-            this.newTrackKey +
-            ' to the combination.',
+          innerHTML: `Adding ${this.currType} track ${
+            this.newTrackKey
+          } to the combination.`,
         }),
       )
 
       var maskOpListDiv = dom.create('div', {
-        id: this.track.name + '_maskOpList',
+        id: `${this.track.name}_maskOpList`,
       })
 
       var thisB = this
@@ -77,7 +74,7 @@ define([
       nodesToAdd.push(maskOpListDiv)
 
       this.changingOpPanel = dom.create('div', {
-        id: this.track.name + '_suffixLists',
+        id: `${this.track.name}_suffixLists`,
       })
       nodesToAdd.push(this.changingOpPanel)
 
@@ -119,7 +116,7 @@ define([
               var opDiv = dom.create(
                 'div',
                 {
-                  id: thisB.track.name + '_suffix' + i,
+                  id: `${thisB.track.name}_suffix${i}`,
                   style: {
                     display: 'inline-block',
                     'padding-left': '15px',
@@ -144,7 +141,7 @@ define([
 
               thisB.opListDivs[i] = dom.create(
                 'div',
-                { id: thisB.track.name + '_OpList' + i },
+                { id: `${thisB.track.name}_OpList${i}` },
                 opDiv,
               )
 
@@ -158,7 +155,7 @@ define([
               )
               thisB.whichArgDivs[i] = dom.create(
                 'div',
-                { id: thisB.track.name + '_whichArg' + i },
+                { id: `${thisB.track.name}_whichArg${i}` },
                 opDiv,
               )
 
@@ -447,7 +444,7 @@ define([
       candidate = candidate + (this.currType == 'mask' ? '1' : '0')
       if (candidate == '00') {
         if (this.oldType == this.currType) {
-          var candidate2 = candidate + '00'
+          var candidate2 = `${candidate}00`
           allowedOps = this.trackClasses[this.currType].allowedOps
           for (var i in allowedOps) {
             allowedList.push(candidate2 + allowedOps[i])
@@ -455,13 +452,13 @@ define([
         }
         allowedOps = this.trackClasses['mask'].allowedOps
         if (this.currType == 'set') {
-          var candidate2 = candidate + '20'
+          var candidate2 = `${candidate}20`
           for (var i in allowedOps) {
             allowedList.push(candidate2 + allowedOps[i])
           }
         }
         if (this.oldType == 'set') {
-          var candidate2 = candidate + '02'
+          var candidate2 = `${candidate}02`
           for (var i in allowedOps) {
             allowedList.push(candidate2 + allowedOps[i])
           }
@@ -469,13 +466,13 @@ define([
       } else if (candidate == '10') {
         if (this.currType == 'set') {
           allowedOps = this.trackClasses[this.currType].allowedOps
-          var candidate2 = candidate + '10'
+          var candidate2 = `${candidate}10`
           for (var i in allowedOps) {
             allowedList.push(candidate2 + allowedOps[i])
           }
         }
         if (this.currType == this.displayType) {
-          var candidate2 = candidate + '01'
+          var candidate2 = `${candidate}01`
           allowedOps = this.trackClasses[this.currType].allowedOps
           for (var i in allowedOps) {
             allowedList.push(candidate2 + allowedOps[i])
@@ -484,14 +481,14 @@ define([
       } else if (candidate == '01') {
         if (this.oldType == 'set') {
           allowedOps = this.trackClasses[this.oldType].allowedOps
-          var candidate2 = candidate + '10'
+          var candidate2 = `${candidate}10`
           for (var i in allowedOps) {
             allowedList.push(candidate2 + allowedOps[i])
           }
         }
         var displayType = this.supportedBy[store.stores.display.config.type]
         if (this.oldType == displayType) {
-          candidate = candidate + '01'
+          candidate = `${candidate}01`
           var allowedOps = this.trackClasses[displayType].allowedOps
           for (var i in allowedOps) {
             allowedList.push(candidate + allowedOps[i])
@@ -499,7 +496,7 @@ define([
         }
       } else if (candidate == '11') {
         // Fix the logic of the tree manipulation to work with out the last L's and R's
-        candidate = candidate + '11'
+        candidate = `${candidate}11`
         allowedOps = this.trackClasses['set'].allowedOps
         for (var i in allowedOps) {
           var displayType = this.supportedBy[store.stores.display.config.type]
@@ -525,7 +522,7 @@ define([
     },
 
     _renderRadioButton: function (parent, value, label) {
-      var id = parent.id + '_rb_' + value
+      var id = `${parent.id}_rb_${value}`
       if (dijit.byId(id)) {
         dom.destroy(dijit.byId(id).domNode)
         dijit.byId(id).destroy()
@@ -533,7 +530,7 @@ define([
 
       label = label || value
       var radioButton = new RadioButton({
-        name: parent.id + '_rb',
+        name: `${parent.id}_rb`,
         id: id,
         value: value,
       })
@@ -571,29 +568,21 @@ define([
         return '<span class="null">NULL</span>'
       }
       if (tree.isLeaf()) {
-        return (
-          '<span class="leaf' +
-          (tree.highlighted ? ' highlighted' : '') +
-          '">' +
-          (tree.get().name
+        return `<span class="leaf${tree.highlighted ? ' highlighted' : ''}">${
+          tree.get().name
             ? this.storeToKey[tree.get().name]
               ? this.storeToKey[tree.get().name]
               : tree.get().name
-            : tree.get()) +
-          '</span>'
-        )
+            : tree.get()
+        }</span>`
       }
-      return (
-        '<span class="tree">(' +
-        this._generateTreeFormula(tree.left()) +
-        ' <span class="op" title="' +
-        this.inWords[tree.get()] +
-        '">' +
-        tree.get() +
-        '</span> ' +
-        this._generateTreeFormula(tree.right()) +
-        ')</span>'
-      )
+      return `<span class="tree">(${this._generateTreeFormula(
+        tree.left(),
+      )} <span class="op" title="${
+        this.inWords[tree.get()]
+      }">${tree.get()}</span> ${this._generateTreeFormula(
+        tree.right(),
+      )})</span>`
     },
 
     destroyRecursive: function () {

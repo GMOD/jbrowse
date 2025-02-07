@@ -17,7 +17,7 @@ define([
           return false
         }
 
-        var newName = 'GTF_' + basename + '_' + uniqCounter++
+        var newName = `GTF_${basename}_${uniqCounter++}`
         configs[newName] = {
           type: this.storeType,
           blob: this._makeBlob(resource),

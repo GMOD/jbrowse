@@ -155,7 +155,7 @@ define([
               end: codePartEnd,
               strand: strand,
               type: 'CDS',
-              name: parent.get('uniqueID') + ':CDS:' + i,
+              name: `${parent.get('uniqueID')}:CDS:${i}`,
             },
           }),
         )

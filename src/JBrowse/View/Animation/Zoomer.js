@@ -32,8 +32,8 @@ define(['JBrowse/View/Animation'], function (Animation) {
     var zoomFraction = this.zoomingIn ? pos : 1 - pos
     var newWidth = zoomFraction * zoomFraction * this.distance + this.width0
     var newLeft = this.center * this.initialWidth - this.center * newWidth
-    this.toZoom.style.width = newWidth + 'px'
-    this.toZoom.style.left = this.initialLeft + newLeft + 'px'
+    this.toZoom.style.width = `${newWidth}px`
+    this.toZoom.style.left = `${this.initialLeft + newLeft}px`
     var forceRedraw = this.toZoom.offsetTop
 
     if (this.subject.updateStaticElements) {

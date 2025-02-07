@@ -212,16 +212,7 @@ define([
       _formatFeature: function (data, i) {
         var f = new SimpleFeature({
           data: data,
-          id:
-            data.seq_id +
-            '_' +
-            data.start +
-            '_' +
-            data.end +
-            '_' +
-            data.name +
-            '_' +
-            i,
+          id: `${data.seq_id}_${data.start}_${data.end}_${data.name}_${i}`,
         })
         f._reg_seq_id = this.browser.regularizeReferenceName(data.seq_id)
         return f

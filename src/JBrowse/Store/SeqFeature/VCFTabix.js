@@ -47,7 +47,7 @@ define([
               new XHRBlob(
                 this.resolveUrl(
                   this.getConf('tbiUrlTemplate', []) ||
-                    this.getConf('urlTemplate', []) + '.tbi',
+                    `${this.getConf('urlTemplate', [])}.tbi`,
                 ),
               ),
           )
@@ -111,7 +111,7 @@ define([
                   const feature = new VCFFeature({
                     variant: variant,
                     parser: parser,
-                    id: 'vcf-' + fileOffset,
+                    id: `vcf-${fileOffset}`,
                   })
                   featureCallback(feature)
                 },

@@ -209,7 +209,7 @@ define([
           finishCallback()
         }),
         dojo.hitch(this, function (e) {
-          console.error(e.stack || '' + e, e)
+          console.error(e.stack || `${e}`, e)
           this._handleError(e, args)
         }),
       )
@@ -250,7 +250,7 @@ define([
           width: this._canvasWidth(block),
           style: {
             cursor: 'default',
-            height: canvasHeight + 'px',
+            height: `${canvasHeight}px`,
             width: has('inaccurate-html-width') ? '' : '100%',
             'min-width': has('inaccurate-html-width') ? '100%' : '',
             'max-width': has('inaccurate-html-width') ? '102%' : '',
@@ -276,7 +276,7 @@ define([
         c.height = Math.round(oldHeight * ratio)
 
         //c.style.width = oldWidth + 'px';
-        c.style.height = oldHeight + 'px'
+        c.style.height = `${oldHeight}px`
 
         // now scale the context to counter
         // the fact that we've manually scaled
@@ -308,8 +308,7 @@ define([
         var blockWidth = block.endBase - block.startBase
 
         c.style.position = 'absolute'
-        c.style.left =
-          100 * ((c.startBase - block.startBase) / blockWidth) + '%'
+        c.style.left = `${100 * ((c.startBase - block.startBase) / blockWidth)}%`
         switch (this.config.align) {
           case 'top':
             c.style.top = '0px'
@@ -317,7 +316,7 @@ define([
           case 'bottom':
           /* fall through */
           default:
-            c.style.bottom = this.trackPadding + 'px'
+            c.style.bottom = `${this.trackPadding}px`
             break
         }
       }
@@ -663,11 +662,11 @@ define([
           this.scoreDisplay.flag.style.display = 'block'
           this.scoreDisplay.pole.style.display = 'block'
 
-          this.scoreDisplay.flag.style.left = evt.clientX + 'px'
-          this.scoreDisplay.flag.style.top = cPos.y + 'px'
-          this.scoreDisplay.pole.style.left = evt.clientX + 'px'
-          this.scoreDisplay.pole.style.height = cPos.h + 'px'
-          this.scoreDisplay.pole.style.top = cPos.y + 'px'
+          this.scoreDisplay.flag.style.left = `${evt.clientX}px`
+          this.scoreDisplay.flag.style.top = `${cPos.y}px`
+          this.scoreDisplay.pole.style.left = `${evt.clientX}px`
+          this.scoreDisplay.pole.style.height = `${cPos.h}px`
+          this.scoreDisplay.pole.style.top = `${cPos.y}px`
         }
       }
     },

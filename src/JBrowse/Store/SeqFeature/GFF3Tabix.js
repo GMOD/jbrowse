@@ -53,7 +53,7 @@ define([
             new XHRBlob(
               this.resolveUrl(
                 this.getConf('tbiUrlTemplate', []) ||
-                  this.getConf('urlTemplate', []) + '.tbi',
+                  `${this.getConf('urlTemplate', [])}.tbi`,
               ),
             )
         }

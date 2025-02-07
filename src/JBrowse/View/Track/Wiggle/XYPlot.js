@@ -271,8 +271,8 @@ define([
                   )
                   context.font = '12px sans-serif'
                   if (plusminus > 0) {
-                    context.fillText('+' + label, 2, varTop)
-                    context.fillText('-' + label, 2, varTop + varHeight)
+                    context.fillText(`+${label}`, 2, varTop)
+                    context.fillText(`-${label}`, 2, varTop + varHeight)
                   } else {
                     context.fillText(label, 2, varTop)
                   }
@@ -293,7 +293,7 @@ define([
                       maxColor,
                       (i + 1) / bandPositions.length,
                     ).toCss(true),
-                    pos + 'σ',
+                    `${pos}σ`,
                   )
                 })
                 drawVarianceBand(0, 'rgba(255,255,0,0.7)', 'mean')

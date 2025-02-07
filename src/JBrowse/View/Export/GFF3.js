@@ -144,7 +144,7 @@ define([
         // ID for the parent
         fields[8] = this._gff3_format_attributes(attr)
 
-        var fl = fields.join('\t') + '\n'
+        var fl = `${fields.join('\t')}\n`
         subfeatures.unshift(fl)
         return subfeatures.join('')
       },
@@ -205,7 +205,7 @@ define([
       // have initial capital letters.
       _ensure_non_reserved: function (str) {
         return str.replace(/^[A-Z]/, function () {
-          return '_' + str[0]
+          return `_${str[0]}`
         })
       },
 
@@ -232,7 +232,7 @@ define([
                     ? array.map(val, s => gff.util.escape(s)).join(',')
                     : gff.util.escape(val)
                   : gff.util.escape(val)
-          attrOrder.push(gff.util.escape(tag) + '=' + valstring)
+          attrOrder.push(`${gff.util.escape(tag)}=${valstring}`)
         }
         return attrOrder.join(';') || '.'
       },

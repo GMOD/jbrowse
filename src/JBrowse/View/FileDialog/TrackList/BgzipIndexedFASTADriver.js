@@ -67,7 +67,7 @@ define([
           }
         }
         // otherwise make a new store config for it
-        var newName = this.name + '_' + basename + '_' + uniqCounter++
+        var newName = `${this.name}_${basename}_${uniqCounter++}`
         configs[newName] = {
           type: this.storeType,
           name: newName,
@@ -109,12 +109,10 @@ define([
         }
 
         // otherwise make a new store
-        var newName =
-          this.name +
-          '_' +
-          Util.basename(basename, '.' + this.fileExtension) +
-          '_' +
-          uniqCounter++
+        var newName = `${this.name}_${Util.basename(
+          basename,
+          `.${this.fileExtension}`,
+        )}_${uniqCounter++}`
         configs[newName] = {
           name: newName,
           type: this.storeType,
@@ -154,12 +152,10 @@ define([
         }
 
         // otherwise make a new store
-        var newName =
-          this.name +
-          '_' +
-          Util.basename(basename, '.' + this.fileExtension) +
-          '_' +
-          uniqCounter++
+        var newName = `${this.name}_${Util.basename(
+          basename,
+          `.${this.fileExtension}`,
+        )}_${uniqCounter++}`
         configs[newName] = {
           name: newName,
           type: this.storeType,

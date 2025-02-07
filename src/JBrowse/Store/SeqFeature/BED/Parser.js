@@ -85,7 +85,7 @@ define([
       } else {
         // it's a parse error
         line = line.replace(/\r?\n?$/g, '')
-        throw "GFF3 parse error.  Cannot parse '" + line + "'."
+        throw `GFF3 parse error.  Cannot parse '${line}'.`
       }
     },
 

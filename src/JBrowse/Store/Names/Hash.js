@@ -98,9 +98,9 @@ define([
           }
           return false
         } else if (last && last.name == i.name) {
-          last.label =
-            last.name +
-            ' <span class="multipleLocations">multiple locations</span>'
+          last.label = `${
+            last.name
+          } <span class="multipleLocations">multiple locations</span>`
           if (last.multipleLocations) {
             last.multipleLocations.push(i.location)
           } else {
@@ -113,7 +113,7 @@ define([
         last.label =
           last.name +
           (last.location
-            ? ' <span class="locString">' + last.location + '</span>'
+            ? ` <span class="locString">${last.location}</span>`
             : '')
         return true
       })

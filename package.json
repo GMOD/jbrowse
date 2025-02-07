@@ -5,6 +5,7 @@
   "description": "JBrowse - client-side genome browser",
   "repository": "https://github.com/GMOD/jbrowse.git",
   "scripts": {
+    "format": "prettier --write .",
     "test": "npm run test-puppeteer",
     "test-all": "npm run build && npm run test-puppeteer && npm run test-perl && npm run test-electron && npm run test-selenium",
     "test-puppeteer": "node tests/js_tests/run-puppeteer.js http://localhost:8082/tests/js_tests/index.html",

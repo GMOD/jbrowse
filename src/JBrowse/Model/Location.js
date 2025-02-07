@@ -40,7 +40,7 @@ define(['dojo/_base/array', 'JBrowse/Util'], function (array, Util) {
     toString: function () {
       var locstring = Util.assembleLocString(this)
       if (this.objectName) {
-        return locstring + ' (' + this.objectName + ')'
+        return `${locstring} (${this.objectName})`
       } else {
         return locstring
       }

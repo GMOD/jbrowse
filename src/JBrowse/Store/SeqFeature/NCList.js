@@ -99,7 +99,7 @@ define([
                 thisB._handleTrackInfo(refData, {}, url)
               } else if (error.response.status != 200) {
                 thisB._failAllDeferred(
-                  'Server returned an HTTP ' + error.response.status + ' error',
+                  `Server returned an HTTP ${error.response.status} error`,
                 )
               } else {
                 thisB._failAllDeferred(error)
@@ -327,7 +327,7 @@ define([
       dojo.forEach(
         feature.get('subfeatures'),
         function (f, i) {
-          this._decorate_feature(accessors, f, id + '-' + i, feature)
+          this._decorate_feature(accessors, f, `${id}-${i}`, feature)
         },
         this,
       )

@@ -153,7 +153,7 @@ define([
                 d.resolve(featureArrays[store.name])
               },
               function () {
-                d.reject('Error fetching features for store ' + store.name)
+                d.reject(`Error fetching features for store ${store.name}`)
               },
             )
           } else {

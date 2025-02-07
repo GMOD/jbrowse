@@ -27,7 +27,7 @@ require([
           features.done = true
         },
         function (e) {
-          console.error(e.stack || '' + e)
+          console.error(e.stack || `${e}`)
         },
       )
       runs(function () {
@@ -58,7 +58,7 @@ require([
           features.done = true
         },
         function (e) {
-          console.error(e.stack || '' + e)
+          console.error(e.stack || `${e}`)
         },
       )
       runs(function () {
@@ -93,7 +93,7 @@ require([
           features.done = true
         },
         function (e) {
-          console.error(e.stack || '' + e)
+          console.error(e.stack || `${e}`)
         },
       )
       runs(function () {
@@ -127,7 +127,7 @@ require([
           features.done = true
         },
         function (e) {
-          console.error(e.stack || '' + e)
+          console.error(e.stack || `${e}`)
         },
       )
       runs(function () {
@@ -161,7 +161,7 @@ require([
           features.done = true
         },
         function (e) {
-          console.error(e.stack || '' + e)
+          console.error(e.stack || `${e}`)
         },
       )
       runs(function () {
@@ -195,7 +195,7 @@ require([
           features.done = true
         },
         function (e) {
-          console.error(e.stack || '' + e)
+          console.error(e.stack || `${e}`)
         },
       )
       runs(function () {
@@ -409,7 +409,7 @@ require([
           features.done = true
         },
         function (e) {
-          console.error(e.stack || '' + e)
+          console.error(e.stack || `${e}`)
         },
       )
       runs(function () {
@@ -443,7 +443,7 @@ require([
           items.done = true
         },
         e => {
-          console.error(e.stack || '' + e)
+          console.error(e.stack || `${e}`)
         },
       )
 

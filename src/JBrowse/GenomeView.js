@@ -191,7 +191,7 @@ define([
 
       var scaleTrackDiv = document.createElement('div')
       scaleTrackDiv.className = 'track static_track rubberBandAvailable'
-      scaleTrackDiv.style.height = this.posHeight + 'px'
+      scaleTrackDiv.style.height = `${this.posHeight}px`
       scaleTrackDiv.id = 'static_track'
 
       this.scaleTrackDiv = scaleTrackDiv
@@ -412,15 +412,13 @@ define([
           ? -this.staticTrack.div.offsetHeight
           : 0
         var trackPaneHeight = newDims.height + heightAdjust
-        this.verticalScrollBar.container.style.height =
+        this.verticalScrollBar.container.style.height = `${
           trackPaneHeight -
-          (this.pinUnderlay
-            ? this.pinUnderlay.offsetHeight + heightAdjust
-            : 0) +
-          'px'
+          (this.pinUnderlay ? this.pinUnderlay.offsetHeight + heightAdjust : 0)
+        }px`
         var markerHeight = (newDims.height / (this.containerHeight || 1)) * 100
         this.verticalScrollBar.positionMarker.style.height =
-          markerHeight > 0.5 ? markerHeight + '%' : '1px'
+          markerHeight > 0.5 ? `${markerHeight}%` : '1px'
         if (newDims.height / (this.containerHeight || 1) > 0.98) {
           this.verticalScrollBar.container.style.display = 'none'
           this.verticalScrollBar.visible = false
@@ -431,9 +429,10 @@ define([
       }
 
       if (typeof newDims.y == 'number' || typeof newDims.height == 'number') {
-        this.verticalScrollBar.positionMarker.style.top =
-          (((newDims.y || this.getY() || 0) / (this.containerHeight || 1)) *
-            100 || 0) + '%'
+        this.verticalScrollBar.positionMarker.style.top = `${
+          ((newDims.y || this.getY() || 0) / (this.containerHeight || 1)) *
+            100 || 0
+        }%`
       }
     },
 
@@ -1234,15 +1233,15 @@ define([
           text.appendChild(document.createTextNode(this.rubberbanding.message))
           main.appendChild(text)
           text.style.position = 'relative'
-          text.style.top = 50 - container_coords.y + 'px'
+          text.style.top = `${50 - container_coords.y}px`
 
           container.appendChild(main)
           return main
         }.call(this)
 
       h.style.visibility = 'visible'
-      h.style.left = Math.min(start.x, end.x) - container_coords.x + 'px'
-      h.style.width = Math.abs(end.x - start.x) + 'px'
+      h.style.left = `${Math.min(start.x, end.x) - container_coords.x}px`
+      h.style.width = `${Math.abs(end.x - start.x)}px`
 
       // draw basepair-position labels for the start and end of the highlight
       this.drawBasePairLabel({
@@ -1458,10 +1457,8 @@ define([
     },
 
     instantZoomUpdate: function () {
-      this.scrollContainer.style.width =
-        this.stripeCount * this.stripeWidth + 'px'
-      this.zoomContainer.style.width =
-        this.stripeCount * this.stripeWidth + 'px'
+      this.scrollContainer.style.width = `${this.stripeCount * this.stripeWidth}px`
+      this.zoomContainer.style.width = `${this.stripeCount * this.stripeWidth}px`
       this.maxOffset =
         this.bpToPx(this.ref.end) - this.stripeCount * this.stripeWidth
       this.maxLeft = this.bpToPx(this.ref.end + 1) - this.getWidth()
@@ -1640,9 +1637,9 @@ define([
 
       var line = this.verticalPositionLine
       line.style.display = 'block' //make line visible
-      line.style.left = numX + 'px' //set location on screen
+      line.style.left = `${numX}px` //set location on screen
       var scaleTrackPos = dojo.position(this.scaleTrackDiv)
-      line.style.top = scaleTrackPos.y + 'px'
+      line.style.top = `${scaleTrackPos.y}px`
 
       this.drawBasePairLabel({
         name: 'single',
@@ -1672,10 +1669,9 @@ define([
         this.basePairLabels[name] = dojo.create(
           'div',
           {
-            className:
-              'basePairLabel' + (args.className ? ' ' + args.className : ''),
+            className: `basePairLabel${args.className ? ` ${args.className}` : ''}`,
             style: {
-              top: scaleTrackPos.y + scaleTrackPos.h - 3 + 'px',
+              top: `${scaleTrackPos.y + scaleTrackPos.h - 3}px`,
             },
           },
           this.browser.container,
@@ -1697,9 +1693,9 @@ define([
 
       // 15 pixels on either side of the label
       if (window.innerWidth - numX > 8 + label.offsetWidth) {
-        label.style.left = numX + offset + 'px' //set location on screen to the right
+        label.style.left = `${numX + offset}px` //set location on screen to the right
       } else {
-        label.style.left = numX + 1 - offset - label.offsetWidth + 'px' //set location on screen to the left
+        label.style.left = `${numX + 1 - offset - label.offsetWidth}px` //set location on screen to the left
       }
     },
 
@@ -1790,16 +1786,10 @@ define([
       )
 
       this.locationThumb.style.cssText =
-        'height: ' +
-        (this.overviewBox.h - 4) +
-        'px; ' +
-        'left: ' +
-        trapLeft +
-        'px; ' +
-        'width: ' +
-        (trapRight - trapLeft) +
-        'px;' +
-        'z-index: 20'
+        `height: ${this.overviewBox.h - 4}px; ` +
+        `left: ${trapLeft}px; ` +
+        `width: ${trapRight - trapLeft}px;` +
+        `z-index: 20`
     },
 
     checkY: function (y) {
@@ -1973,7 +1963,7 @@ define([
 
       if (!this.stripePercent) {
         console.warn(
-          'stripeWidth too small: ' + this.stripeWidth + ', ' + this.getWidth(),
+          `stripeWidth too small: ${this.stripeWidth}, ${this.getWidth()}`,
         )
         this.stripePercent = 1
       }
@@ -1985,10 +1975,8 @@ define([
       }
       this.stripeCount = Math.round(100 / this.stripePercent)
 
-      this.scrollContainer.style.width =
-        this.stripeCount * this.stripeWidth + 'px'
-      this.zoomContainer.style.width =
-        this.stripeCount * this.stripeWidth + 'px'
+      this.scrollContainer.style.width = `${this.stripeCount * this.stripeWidth}px`
+      this.zoomContainer.style.width = `${this.stripeCount * this.stripeWidth}px`
 
       var blockDelta
       if (oldStripeCount && oldStripeCount != this.stripeCount) {
@@ -2013,15 +2001,15 @@ define([
               this.getHeight(),
             )
           : this.getHeight()
-      this.scrollContainer.style.height = newHeight + 'px'
+      this.scrollContainer.style.height = `${newHeight}px`
       this.containerHeight = newHeight
 
       var refLength = this.ref.end - this.ref.start
       if (refLength < 0) {
         throw new Error(
-          'reference sequence ' +
-            this.ref.name +
-            ' has an invalid start coordinate, it is greater than its end coordinate.',
+          `reference sequence ${
+            this.ref.name
+          } has an invalid start coordinate, it is greater than its end coordinate.`,
         )
       }
 
@@ -2106,9 +2094,9 @@ define([
       var overviewHeight = 0
       this.overviewTrackIterate(function (track, view) {
         overviewHeight += track.height
-        track.div.style.height = track.height + 'px'
+        track.div.style.height = `${track.height}px`
       })
-      this.overview.style.height = overviewHeight + 'px'
+      this.overview.style.height = `${overviewHeight}px`
       this.overviewBox = dojo.marginBox(this.overview)
     },
 
@@ -2118,8 +2106,8 @@ define([
       var overviewStripePct = 100 / (refLength / this.overviewStripeBases)
       var trackDiv = document.createElement('div')
       trackDiv.className = 'track'
-      trackDiv.style.height = this.overviewBox.h + 'px'
-      trackDiv.id = 'overviewtrack_' + track.name
+      trackDiv.style.height = `${this.overviewBox.h}px`
+      trackDiv.id = `overviewtrack_${track.name}`
       trackDiv.track = track
       var view = this
       var heightUpdate = function (height) {
@@ -2403,10 +2391,8 @@ define([
       var centerPx = this.bpToPx(fixedBp) - zoomLoc * eWidth + eWidth / 2
       // stripeWidth: pixels per block
       this.stripeWidth = this.stripeWidthForZoom(this.curZoom)
-      this.scrollContainer.style.width =
-        this.stripeCount * this.stripeWidth + 'px'
-      this.zoomContainer.style.width =
-        this.stripeCount * this.stripeWidth + 'px'
+      this.scrollContainer.style.width = `${this.stripeCount * this.stripeWidth}px`
+      this.zoomContainer.style.width = `${this.stripeCount * this.stripeWidth}px`
       var centerStripe = Math.round(centerPx / this.stripeWidth)
       var firstStripe = (centerStripe - this.stripeCount / 2) | 0
       this.offset = firstStripe * this.stripeWidth
@@ -2491,7 +2477,7 @@ define([
       }
       this.trackHeights[track] = height
       this.tracks[track].div.style.height =
-        height + this.config.trackPadding + 'px'
+        `${height + this.config.trackPadding}px`
 
       this.layoutTracks()
 
@@ -2816,10 +2802,10 @@ define([
       var trackDiv = dojo.create('div', {
         className: [
           'track',
-          cssName('track_' + trackConfig.type),
-          cssName('track_' + trackName),
+          cssName(`track_${trackConfig.type}`),
+          cssName(`track_${trackName}`),
         ].join(' '),
-        id: 'track_' + trackName,
+        id: `track_${trackName}`,
       })
       trackDiv.trackName = trackName
 
@@ -2884,7 +2870,7 @@ define([
 
       if (!trackConfig.store) {
         console.warn(
-          'configuration for track ' + trackConfig.label + ' has no store set',
+          `configuration for track ${trackConfig.label} has no store set`,
           trackConfig,
         )
       }
@@ -2898,7 +2884,7 @@ define([
           thisB.browser.getTrackTypes().trackTypeDefaults[store.config.type]
         dojo.global.require([trackType], function (class_) {
           if (typeof class_ === 'string') {
-            console.error('Failed to load module: ' + trackConfig.type)
+            console.error(`Failed to load module: ${trackConfig.type}`)
             return
           }
           trackClass = class_
@@ -2990,7 +2976,7 @@ define([
             'div',
             {
               className: 'pin_underlay',
-              style: 'top: ' + this.topSpace,
+              style: `top: ${this.topSpace}`,
             },
             this.trackContainer,
           )
@@ -3093,11 +3079,10 @@ define([
           lastTop = nextTop
 
           if (track.isPinned()) {
-            track.div.style.top = nextTop + 'px'
+            track.div.style.top = `${nextTop}px`
             lastWasPinned = true
           } else {
-            track.div.style.top =
-              nextTop - this.y + (lastWasPinned ? 15 : 0) + 'px'
+            track.div.style.top = `${nextTop - this.y + (lastWasPinned ? 15 : 0)}px`
             lastWasPinned = false
           }
 
@@ -3111,14 +3096,14 @@ define([
         this,
       )
       if (pinnedHeight && this.pinUnderlay) {
-        this.pinUnderlay.style.height = pinnedHeight + 'px'
+        this.pinUnderlay.style.height = `${pinnedHeight}px`
       }
 
       this.containerHeight = Math.max(
         nextTop || 0,
         Math.min(this.getY(), lastTop) + this.getHeight(),
       )
-      this.scrollContainer.style.height = this.containerHeight + 'px'
+      this.scrollContainer.style.height = `${this.containerHeight}px`
     },
   })
 })

@@ -43,11 +43,9 @@ define(['dojo/_base/declare', 'dojo/_base/lang'], function (declare, lang) {
                 f = f.join(',')
               } else if (typeof f != 'string') {
                 console.warn(
-                  'invalid `description` setting (' +
-                    f +
-                    ') for "' +
-                    (this.name || this.track.name) +
-                    '" track, falling back to "note,description"',
+                  `invalid \`description\` setting (${f}) for "${
+                    this.name || this.track.name
+                  }" track, falling back to "note,description"`,
                 )
                 f = defaultFields
               }

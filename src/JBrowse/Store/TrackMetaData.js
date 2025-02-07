@@ -196,7 +196,7 @@ define([
             var item = this.fetchItemByIdentity(name)
             if (!item) {
               console.error(
-                'failed to add ' + name + ' track to track metadata store',
+                `failed to add ${name} track to track metadata store`,
                 conf,
               )
             } else if (!suppressEvents) {
@@ -675,12 +675,10 @@ define([
               var values = query[facetName]
               var items = []
               if (!this.facetIndexes.byName[facetName]) {
-                console.error("No facet defined with name '" + facetName + "'.")
-                throw (
-                  "No facet defined with name '" +
-                  facetName +
-                  "', faceted search failed."
-                )
+                console.error(`No facet defined with name '${facetName}'.`)
+                throw `No facet defined with name '${
+                  facetName
+                }', faceted search failed.`
               }
               dojo.forEach(
                 values,

@@ -138,12 +138,11 @@ define([
             },
             {
               label: function () {
-                return (
-                  'Highlight this ' +
-                  (this.feature && this.feature.get('type')
+                return `Highlight this ${
+                  this.feature && this.feature.get('type')
                     ? this.feature.get('type')
-                    : 'feature')
-                )
+                    : 'feature'
+                }`
               },
               action: function () {
                 var loc = new Location({
@@ -234,23 +233,17 @@ define([
                 continue
               }
               binDiv = document.createElement('div')
-              binDiv.className =
-                'hist feature-hist ' + track.config.style.className + '-hist'
+              binDiv.className = `hist feature-hist ${track.config.style.className}-hist`
               binDiv.style.cssText =
-                'left: ' +
-                (bin / track.numBins) * 100 +
-                '%; ' +
-                'height: ' +
-                dims.pxPerCount *
-                  (dims.logScale ? Math.log(hist[bin]) : hist[bin]) +
-                'px;' +
-                'bottom: ' +
-                track.trackPadding +
-                'px;' +
-                'width: ' +
-                (100 / track.numBins - 100 / stripeWidth) +
-                '%;' +
-                (track.config.style.histCss ? track.config.style.histCss : '')
+                `left: ${(bin / track.numBins) * 100}%; ` +
+                `height: ${
+                  dims.pxPerCount *
+                  (dims.logScale ? Math.log(hist[bin]) : hist[bin])
+                }px;` +
+                `bottom: ${track.trackPadding}px;` +
+                `width: ${100 / track.numBins - 100 / stripeWidth}%;${
+                  track.config.style.histCss ? track.config.style.histCss : ''
+                }`
               binDiv.setAttribute('value', hist[bin])
               if (Util.is_ie6) {
                 binDiv.appendChild(document.createComment())
@@ -323,7 +316,7 @@ define([
 
             // minus strand
             if (strand < 0 && fmax > viewmin) {
-              var minusArrowClass = 'minus-' + this.config.style.arrowheadClass
+              var minusArrowClass = `minus-${this.config.style.arrowheadClass}`
               featDivChildren = featDiv.childNodes
               for (var j = 0; j < featDivChildren.length; j++) {
                 arrowhead = featDivChildren[j]
@@ -333,17 +326,18 @@ define([
                     arrowhead.className &&
                     arrowhead.className.indexOf(minusArrowClass) >= 0
                   ) {
-                    arrowhead.style.left =
-                      (fmin < viewmin
+                    arrowhead.style.left = `${
+                      fmin < viewmin
                         ? block.bpToX(viewmin) - block.bpToX(displayStart)
-                        : -this.minusArrowWidth) + 'px'
+                        : -this.minusArrowWidth
+                    }px`
                   }
                 }
               }
             }
             // plus strand
             else if (strand > 0 && fmin < viewmax) {
-              var plusArrowClass = 'plus-' + this.config.style.arrowheadClass
+              var plusArrowClass = `plus-${this.config.style.arrowheadClass}`
               featDivChildren = featDiv.childNodes
               for (var j = 0; j < featDivChildren.length; j++) {
                 arrowhead = featDivChildren[j]
@@ -353,10 +347,11 @@ define([
                     arrowhead.className &&
                     arrowhead.className.indexOf(plusArrowClass) >= 0
                   ) {
-                    arrowhead.style.right =
-                      (fmax > viewmax
+                    arrowhead.style.right = `${
+                      fmax > viewmax
                         ? block.bpToX(displayEnd) - block.bpToX(viewmax - 2)
-                        : -this.plusArrowWidth) + 'px'
+                        : -this.plusArrowWidth
+                    }px`
                   }
                 }
               }
@@ -416,8 +411,7 @@ define([
                     labelDiv.offsetWidth / block.domNode.offsetWidth)
 
                 // move our label div to the view start if the start is between the feature start and end
-                labelDiv.style.left =
-                  Math.max(minLeft, Math.min(viewLeft, maxLeft)) + '%'
+                labelDiv.style.left = `${Math.max(minLeft, Math.min(viewLeft, maxLeft))}%`
               },
               this,
             )
@@ -456,10 +450,11 @@ define([
             if (this._updatedLabelForBlockSize != blockBases) {
               if (this.store.getRegionFeatureDensities && scale < histScale) {
                 this.setLabel(
-                  this.key +
-                    ' <span class="feature-density">per ' +
-                    Util.addCommas(Math.round(blockBases / this.numBins)) +
-                    ' bp</span>',
+                  `${
+                    this.key
+                  } <span class="feature-density">per ${Util.addCommas(
+                    Math.round(blockBases / this.numBins),
+                  )} bp</span>`,
                 )
               } else {
                 this.setLabel(this.key)
@@ -661,9 +656,9 @@ define([
             }
             // note: we should also remove it from booleanCovs at some point.
             sourceSlot.booleanCovs[key].style.left =
-              (100 * (start - s)) / (e - s) + '%'
+              `${(100 * (start - s)) / (e - s)}%`
             sourceSlot.booleanCovs[key].style.width =
-              (100 * (end - start)) / (e - s) + '%'
+              `${(100 * (end - start)) / (e - s)}%`
             featDiv.appendChild(sourceSlot.booleanCovs[key])
           }
         }
@@ -675,15 +670,15 @@ define([
             if (end < containerStart || start > containerEnd) {
               return
             }
-            node.style.left = (100 * (start - s)) / (e - s) + '%'
-            node.style.width = (100 * (end - start)) / (e - s) + '%'
+            node.style.left = `${(100 * (start - s)) / (e - s)}%`
+            node.style.width = `${(100 * (end - start)) / (e - s)}%`
             featDiv.appendChild(node)
           },
         )
         if (this.config.style.arrowheadClass) {
           // add arrowheads
           var a = this.config.style.arrowheadClass
-          query('.minus-' + a + ', .plus-' + a, sourceSlot).forEach(
+          query(`.minus-${a}, .plus-${a}`, sourceSlot).forEach(
             function (node, idx, arr) {
               featDiv.appendChild(node)
             },
@@ -866,10 +861,10 @@ define([
             return null
           }
           feats.forEach(function (feat) {
-            if (!thisB._featureIsRendered(uniqueId + '_' + thisB.getId(feat))) {
+            if (!thisB._featureIsRendered(`${uniqueId}_${thisB.getId(feat)}`)) {
               featDiv = thisB.renderFeature(
                 feat,
-                uniqueId + '_' + thisB.getId(feat),
+                `${uniqueId}_${thisB.getId(feat)}`,
                 block,
                 scale,
                 labelScale,
@@ -985,15 +980,15 @@ define([
               coverageNode.span = { s: start, e: end }
               coverageNode.className = masked
                 ? feat.className == voidClass
-                  ? feat.oldClassName + ' Boolean-transparent'
-                  : feat.className + ' Boolean-transparent'
+                  ? `${feat.oldClassName} Boolean-transparent`
+                  : `${feat.className} Boolean-transparent`
                 : feat.className == voidClass
                   ? feat.oldClassName
                   : feat.className
               coverageNode.booleanDiv = true
-              coverageNode.style.left = (100 * (start - s)) / (e - s) + '%'
+              coverageNode.style.left = `${(100 * (start - s)) / (e - s)}%`
               coverageNode.style.top = '0px'
-              coverageNode.style.width = (100 * (end - start)) / (e - s) + '%'
+              coverageNode.style.width = `${(100 * (end - start)) / (e - s)}%`
               return coverageNode
             }
 
@@ -1130,14 +1125,9 @@ define([
         var glyphBox
         heightTest = document.createElement('div')
         //cover all the bases: stranded or not, phase or not
-        heightTest.className =
-          'feature ' +
-          this.config.style.className +
-          ' plus-' +
-          this.config.style.className +
-          ' plus-' +
-          this.config.style.className +
-          '1'
+        heightTest.className = `feature ${this.config.style.className} plus-${
+          this.config.style.className
+        } plus-${this.config.style.className}1`
         if (this.config.style.featureCss) {
           heightTest.style.cssText = this.config.style.featureCss
         }
@@ -1154,7 +1144,7 @@ define([
         //determine the width of the arrowhead, if any
         if (this.config.style.arrowheadClass) {
           var ah = document.createElement('div')
-          ah.className = 'plus-' + this.config.style.arrowheadClass
+          ah.className = `plus-${this.config.style.arrowheadClass}`
           if (Util.is_ie6) {
             ah.appendChild(document.createComment('foo'))
           }
@@ -1162,7 +1152,7 @@ define([
           glyphBox = domGeom.position(ah)
           this.plusArrowWidth = glyphBox.w
           this.plusArrowHeight = glyphBox.h
-          ah.className = 'minus-' + this.config.style.arrowheadClass
+          ah.className = `minus-${this.config.style.arrowheadClass}`
           glyphBox = domGeom.position(ah)
           this.minusArrowWidth = glyphBox.w
           this.minusArrowHeight = glyphBox.h
@@ -1185,7 +1175,7 @@ define([
           feature.parent() &&
           feature.parent().get('type') == 'gene'
         ) {
-          gene_id = this.getId(feature.parent()) + '_' + this.getId(feature)
+          gene_id = `${this.getId(feature.parent())}_${this.getId(feature)}`
         }
 
         if (!id && !gene_id) {
@@ -1281,14 +1271,14 @@ define([
         if (this.showLabels && scale >= labelScale && name) {
           layoutEnd = Math.max(
             layoutEnd,
-            layoutStart + (('' + name).length * this.labelWidth) / scale,
+            layoutStart + (`${name}`.length * this.labelWidth) / scale,
           )
           levelHeight += this.labelHeight + this.labelPad
         }
         if (this.showLabels && description) {
           layoutEnd = Math.max(
             layoutEnd,
-            layoutStart + (('' + description).length * this.labelWidth) / scale,
+            layoutStart + (`${description}`.length * this.labelWidth) / scale,
           )
           levelHeight += this.labelHeight + this.labelPad
         }
@@ -1362,11 +1352,11 @@ define([
         switch (strand) {
           case 1:
           case '+':
-            dojo.addClass(featDiv, 'plus-' + className)
+            dojo.addClass(featDiv, `plus-${className}`)
             break
           case -1:
           case '-':
-            dojo.addClass(featDiv, 'minus-' + className)
+            dojo.addClass(featDiv, `minus-${className}`)
             break
           default:
             dojo.addClass(featDiv, className)
@@ -1374,7 +1364,7 @@ define([
         var phase = feature.get('phase')
         if (phase !== null && phase !== undefined) {
           //            featDiv.className = featDiv.className + " " + featDiv.className + "_phase" + phase;
-          dojo.addClass(featDiv, className + '_phase' + phase)
+          dojo.addClass(featDiv, `${className}_phase${phase}`)
         }
 
         // check if this feature is highlighted
@@ -1401,16 +1391,11 @@ define([
           100 * ((displayEnd - displayStart) / blockWidth),
         )
         featDiv.style.cssText =
-          'left:' +
-          (100 * (displayStart - block.startBase)) / blockWidth +
-          '%;' +
-          'top:' +
-          top +
-          'px;' +
-          ' width:' +
-          featwidth +
-          '%;' +
-          (this.config.style.featureCss ? this.config.style.featureCss : '')
+          `left:${(100 * (displayStart - block.startBase)) / blockWidth}%;` +
+          `top:${top}px;` +
+          ` width:${featwidth}%;${
+            this.config.style.featureCss ? this.config.style.featureCss : ''
+          }`
 
         // Store the containerStart/End so we can resolve the truncation
         // when we are updating static elements
@@ -1424,14 +1409,14 @@ define([
           switch (strand) {
             case 1:
             case '+':
-              ah.className = 'plus-' + this.config.style.arrowheadClass
-              ah.style.cssText = 'right: ' + -this.plusArrowWidth + 'px'
+              ah.className = `plus-${this.config.style.arrowheadClass}`
+              ah.style.cssText = `right: ${-this.plusArrowWidth}px`
               featDiv.appendChild(ah)
               break
             case -1:
             case '-':
-              ah.className = 'minus-' + this.config.style.arrowheadClass
-              ah.style.cssText = 'left: ' + -this.minusArrowWidth + 'px'
+              ah.className = `minus-${this.config.style.arrowheadClass}`
+              ah.style.cssText = `left: ${-this.minusArrowWidth}px`
               featDiv.appendChild(ah)
               break
           }
@@ -1454,26 +1439,25 @@ define([
           var labelDiv = dojo.create(
             'div',
             {
-              className: 'feature-label' + (highlighted ? ' highlighted' : ''),
+              className: `feature-label${highlighted ? ' highlighted' : ''}`,
               innerHTML:
                 (name
-                  ? '<div class="feature-name">' +
-                    (this.config.unsafeHTMLFeatures
-                      ? name
-                      : Util.escapeHTML(name)) +
-                    '</div>'
+                  ? `<div class="feature-name">${
+                      this.config.unsafeHTMLFeatures
+                        ? name
+                        : Util.escapeHTML(name)
+                    }</div>`
                   : '') +
                 (description
-                  ? ' <div class="feature-description">' +
-                    (this.config.unsafeHTMLFeatures
-                      ? description
-                      : Util.escapeHTML(description)) +
-                    '</div>'
+                  ? ` <div class="feature-description">${
+                      this.config.unsafeHTMLFeatures
+                        ? description
+                        : Util.escapeHTML(description)
+                    }</div>`
                   : ''),
               style: {
-                top: top + this.glyphHeight + 2 + 'px',
-                left:
-                  (100 * (layoutStart - block.startBase)) / blockWidth + '%',
+                top: `${top + this.glyphHeight + 2}px`,
+                left: `${(100 * (layoutStart - block.startBase)) / blockWidth}%`,
               },
             },
             block.domNode,
@@ -1587,7 +1571,7 @@ define([
               var h = this._getHeight(child)
               dojo.style(child, {
                 marginTop: '0',
-                top: (parentHeight - h) / 2 + 'px',
+                top: `${(parentHeight - h) / 2}px`,
               })
               // recursively center any descendants
               if (child.childNodes.length > 0) {
@@ -1710,11 +1694,11 @@ define([
           switch (subfeature.get('strand')) {
             case 1:
             case '+':
-              dojo.addClass(subDiv, 'plus-' + className)
+              dojo.addClass(subDiv, `plus-${className}`)
               break
             case -1:
             case '-':
-              dojo.addClass(subDiv, 'minus-' + className)
+              dojo.addClass(subDiv, `minus-${className}`)
               break
             default:
               dojo.addClass(subDiv, className)
@@ -1741,12 +1725,8 @@ define([
         }
 
         subDiv.style.cssText =
-          'left: ' +
-          100 * ((subStart - displayStart) / featLength) +
-          '%;' +
-          'width: ' +
-          100 * ((subEnd - subStart) / featLength) +
-          '%;'
+          `left: ${100 * ((subStart - displayStart) / featLength)}%;` +
+          `width: ${100 * ((subEnd - subStart) / featLength)}%;`
         featDiv.appendChild(subDiv)
 
         block.featureNodes[subfeature.id()] = subDiv

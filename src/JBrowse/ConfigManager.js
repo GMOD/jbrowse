@@ -89,9 +89,9 @@ define([
        */
 
       _getConfigAdaptor: function (config_def, callback) {
-        var adaptor_name = 'JBrowse/ConfigAdaptor/' + config_def.format
+        var adaptor_name = `JBrowse/ConfigAdaptor/${config_def.format}`
         if ('version' in config_def) {
-          adaptor_name += '_v' + config_def.version
+          adaptor_name += `_v${config_def.version}`
         }
         adaptor_name.replace(/\W/g, '')
         return Util.loadJS([adaptor_name]).then(function (modules) {
@@ -169,13 +169,10 @@ define([
           .then(function (adaptor) {
             if (!adaptor) {
               throw new Error(
-                'Could not load config ' +
-                  include.url +
-                  ', ' +
-                  'no configuration adaptor found for config format ' +
-                  include.format +
-                  ' version ' +
-                  include.version,
+                `Could not load config ${include.url}, ` +
+                  `no configuration adaptor found for config format ${
+                    include.format
+                  } version ${include.version}`,
               )
             }
 

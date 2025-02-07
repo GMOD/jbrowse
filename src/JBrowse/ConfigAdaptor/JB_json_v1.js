@@ -49,7 +49,7 @@ define([
             args.config.url,
           )
           return request(
-            url + (args.config.cacheBuster ? '?v=' + Math.random() : ''),
+            url + (args.config.cacheBuster ? `?v=${Math.random()}` : ''),
             {
               handleAs: 'text',
               headers: { 'X-Requested-With': null },
@@ -76,12 +76,7 @@ define([
         try {
           return json.fromJson(conf_text)
         } catch (e) {
-          throw (
-            e +
-            ' when parsing ' +
-            (load_args.config.url || 'configuration') +
-            '.'
-          )
+          throw `${e} when parsing ${load_args.config.url || 'configuration'}.`
         }
       },
 
@@ -244,11 +239,13 @@ define([
           trackConfig.storeClass
             ? trackConfig.storeClass
             : /\/FixedImage/.test(trackConfig.type)
-              ? 'JBrowse/Store/TiledImage/Fixed' +
-                (trackConfig.backendVersion == 0 ? '_v0' : '')
+              ? `JBrowse/Store/TiledImage/Fixed${
+                  trackConfig.backendVersion == 0 ? '_v0' : ''
+                }`
               : /\.jsonz?$/i.test(urlTemplate)
-                ? 'JBrowse/Store/SeqFeature/NCList' +
-                  (trackConfig.backendVersion == 0 ? '_v0' : '')
+                ? `JBrowse/Store/SeqFeature/NCList${
+                    trackConfig.backendVersion == 0 ? '_v0' : ''
+                  }`
                 : /\.bam$/i.test(urlTemplate)
                   ? 'JBrowse/Store/SeqFeature/BAM'
                   : /\.cram$/i.test(urlTemplate)
@@ -280,10 +277,10 @@ define([
 
         if (!storeClass) {
           console.warn(
-            "Unable to determine an appropriate data store to use with track '" +
-              trackConfig.label +
-              "', please explicitly specify a " +
-              'storeClass in the configuration.',
+            `Unable to determine an appropriate data store to use with track '${
+              trackConfig.label
+            }', please explicitly specify a ` +
+              `storeClass in the configuration.`,
           )
           return
         }
@@ -308,7 +305,7 @@ define([
         ) {
           storeConf.name = 'refseqs'
         } else {
-          storeConf.name = 'store' + hash(storeConf)
+          storeConf.name = `store${hash(storeConf)}`
         }
         // record it
         mainconf.stores[storeConf.name] = storeConf
@@ -324,7 +321,7 @@ define([
 
         // prefix the class names with JBrowse/* if they contain no slashes
         if (!/\//.test(class_)) {
-          class_ = root + '/' + class_
+          class_ = `${root}/${class_}`
         }
         class_ = class_.replace(/^\//)
         return class_

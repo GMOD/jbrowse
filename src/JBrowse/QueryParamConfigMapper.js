@@ -21,11 +21,11 @@ define([
       var returnObject = dotObject.dot(input)
       var returnString
       Object.keys(returnObject).forEach(function (key) {
-        var stringEntry = key + '=' + returnObject[key]
+        var stringEntry = `${key}=${returnObject[key]}`
         if (!returnString) {
           returnString = stringEntry
         } else {
-          returnString += '&' + stringEntry
+          returnString += `&${stringEntry}`
         }
       })
 
@@ -84,7 +84,7 @@ define([
           queryNameArray = queryParam.split('\.')
           propertyName = queryNameArray.slice(1).join('.')
           dotObject.str(
-            'stores.' + propertyName,
+            `stores.${propertyName}`,
             queryParams[queryParam],
             config,
           )

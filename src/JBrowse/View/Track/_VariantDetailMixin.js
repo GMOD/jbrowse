@@ -34,7 +34,7 @@ define([
       container =
         container ||
         domConstruct.create('div', {
-          className: 'detail feature-detail feature-detail-' + track.name,
+          className: `detail feature-detail feature-detail-${track.name}`,
           innerHTML: '',
         })
 
@@ -76,7 +76,7 @@ define([
         'div',
         {
           className: 'genotypes',
-          innerHTML: '<h2 class="sectiontitle">Genotypes (' + gCount + ')</h2>',
+          innerHTML: `<h2 class="sectiontitle">Genotypes (${gCount})</h2>`,
         },
         parentElement,
       )
@@ -166,7 +166,7 @@ define([
       }
 
       var splitter = (value_parse.match(/[\|\/]/g) || [])[0] // only accept | and / splitters since . can mean no call
-      var refseq = underlyingRefSeq ? 'ref (' + underlyingRefSeq + ')' : 'ref'
+      var refseq = underlyingRefSeq ? `ref (${underlyingRefSeq})` : 'ref'
       values = array
         .map(
           splitter ? value_parse.split(splitter) : value_parse,
@@ -181,7 +181,7 @@ define([
             }
           },
         )
-        .join(' ' + splitter + ' ')
+        .join(` ${splitter} `)
       return values
     },
 
@@ -223,7 +223,7 @@ define([
               if (alt) {
                 counts
                   .getNested('variant/homozygous')
-                  .increment(alt[parseInt(gt[0]) - 1] + ' variant')
+                  .increment(`${alt[parseInt(gt[0]) - 1]} variant`)
               } else {
                 counts.getNested('variant').increment('homozygous')
               }
@@ -254,7 +254,7 @@ define([
           domConstruct.create(
             'td',
             {
-              className: 'category level_' + level,
+              className: `category level_${level}`,
               innerHTML: categoryName,
             },
             tr,
@@ -264,7 +264,7 @@ define([
             domConstruct.create(
               'td',
               {
-                className: 'count level_' + level,
+                className: `count level_${level}`,
                 innerHTML: thisTotal,
               },
               tr,
@@ -272,8 +272,8 @@ define([
             domConstruct.create(
               'td',
               {
-                className: 'pct level_' + level,
-                innerHTML: Math.round((thisTotal / total) * 10000) / 100 + '%',
+                className: `pct level_${level}`,
+                innerHTML: `${Math.round((thisTotal / total) * 10000) / 100}%`,
               },
               tr,
             )
@@ -282,7 +282,7 @@ define([
             domConstruct.create(
               'td',
               {
-                className: 'count level_' + level,
+                className: `count level_${level}`,
                 innerHTML: count,
               },
               tr,
@@ -290,8 +290,8 @@ define([
             domConstruct.create(
               'td',
               {
-                className: 'pct level_' + level,
-                innerHTML: Math.round((count / total) * 10000) / 100 + '%',
+                className: `pct level_${level}`,
+                innerHTML: `${Math.round((count / total) * 10000) / 100}%`,
               },
               tr,
             )
@@ -369,10 +369,10 @@ define([
       })
       if (vcfMetadata.FILTER) {
         for (var filterName in vcfMetadata.FILTER) {
-          filters[filterName + '_hide'] = function (filterName, filterSpec) {
+          filters[`${filterName}_hide`] = function (filterName, filterSpec) {
             return {
-              desc: 'Hide sites passing filter "' + filterName + '"',
-              title: filterName + ': ' + filterSpec.description,
+              desc: `Hide sites passing filter "${filterName}"`,
+              title: `${filterName}: ${filterSpec.description}`,
               func: makeFilterFilter(function (f) {
                 var fs = f.values || f
                 if (!fs[0]) {
@@ -387,10 +387,10 @@ define([
           }.call(this, filterName, vcfMetadata.FILTER[filterName])
         }
         for (var filterName in vcfMetadata.FILTER) {
-          filters[filterName + '_include'] = function (filterName, filterSpec) {
+          filters[`${filterName}_include`] = function (filterName, filterSpec) {
             return {
-              desc: 'Include sites passing filter "' + filterName + '"',
-              title: filterName + ': ' + filterSpec.description,
+              desc: `Include sites passing filter "${filterName}"`,
+              title: `${filterName}: ${filterSpec.description}`,
               func: makeFilterFilter(function (f) {
                 var fs = f.values || f
                 if (!fs[0]) {

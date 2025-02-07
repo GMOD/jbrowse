@@ -136,7 +136,7 @@ define([
     },
 
     _reportError: function (error) {
-      this.errorReportArea.innerHTML = '<div class="error">' + error + '</div>'
+      this.errorReportArea.innerHTML = `<div class="error">${error}</div>`
       this.applyButton.set('disabled', true)
     },
     _clearErrors: function () {

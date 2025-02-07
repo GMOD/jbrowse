@@ -44,8 +44,7 @@ define([
       // if this object has a 'fmtDetailFooField' function, delegate to that
       var fieldSpecificFormatter
       if (
-        (fieldSpecificFormatter =
-          this['fmtDetail' + Util.ucFirst(title) + 'Field'])
+        (fieldSpecificFormatter = this[`fmtDetail${Util.ucFirst(title)}Field`])
       ) {
         return fieldSpecificFormatter.apply(this, arguments)
       }
@@ -57,7 +56,7 @@ define([
       var formatted_title = title
       // if this object has a config value 'fmtDetailField_Foo' function, apply it to field title
       if (
-        (fieldSpecificFormatter = this.config['fmtDetailField_' + title]) &&
+        (fieldSpecificFormatter = this.config[`fmtDetailField_${title}`]) &&
         f
       ) {
         formatted_title = fieldSpecificFormatter(title, f)
@@ -65,7 +64,7 @@ define([
           return ''
         } // if the callback returns null, remove field from dialog
       } else if (
-        (fieldSpecificFormatter = this.config['fmtMetaField_' + title]) &&
+        (fieldSpecificFormatter = this.config[`fmtMetaField_${title}`]) &&
         !f
       ) {
         formatted_title = fieldSpecificFormatter(title)
@@ -94,35 +93,30 @@ define([
 
       if (
         (fieldSpecificFormatter =
-          this.config['fmtDetailDescription_' + title]) &&
+          this.config[`fmtDetailDescription_${title}`]) &&
         f
       ) {
         fieldMeta = fieldSpecificFormatter(fieldMeta)
       } else if (
-        (fieldSpecificFormatter = this.config['fmtMetaDescription_' + title]) &&
+        (fieldSpecificFormatter = this.config[`fmtMetaDescription_${title}`]) &&
         !f
       ) {
         fieldMeta = fieldSpecificFormatter(fieldMeta)
       }
-      var titleAttr = fieldMeta ? ' title="' + fieldMeta + '"' : ''
+      var titleAttr = fieldMeta ? ` title="${fieldMeta}"` : ''
       var fieldContainer = domConstruct.create(
         'div',
         {
           className: 'field_container',
-          innerHTML:
-            '<h2 class="field ' +
-            class_ +
-            '"' +
-            titleAttr +
-            '>' +
-            formatted_title +
-            '</h2>',
+          innerHTML: `<h2 class="field ${class_}"${titleAttr}>${
+            formatted_title
+          }</h2>`,
         },
         parentElement,
       )
       var valueContainer = domConstruct.create(
         'div',
-        { className: 'value_container ' + class_ },
+        { className: `value_container ${class_}` },
         fieldContainer,
       )
 
@@ -136,7 +130,7 @@ define([
       )
       if (typeof count == 'number' && count > 4) {
         query('h2', fieldContainer)[0].innerHTML =
-          formatted_title + ' (' + count + ')'
+          `${formatted_title} (${count})`
       }
 
       return fieldContainer
@@ -159,8 +153,7 @@ define([
       // if this object has a 'fmtDetailFooValue' function, delegate to that
       var fieldSpecificFormatter
       if (
-        (fieldSpecificFormatter =
-          this['fmtDetail' + Util.ucFirst(title) + 'Value'])
+        (fieldSpecificFormatter = this[`fmtDetail${Util.ucFirst(title)}Value`])
       ) {
         return fieldSpecificFormatter.apply(this, arguments)
       }
@@ -169,7 +162,7 @@ define([
 
       // if this object has a config value 'fmtDetailValue_Foo' function, apply it to val
       if (
-        (fieldSpecificFormatter = this.config['fmtDetailValue_' + title]) &&
+        (fieldSpecificFormatter = this.config[`fmtDetailValue_${title}`]) &&
         f
       ) {
         unsafe = true
@@ -181,7 +174,7 @@ define([
           val = val[0]
         } // avoid recursion when an array of length 1 is returned
       } else if (
-        (fieldSpecificFormatter = this.config['fmtMetaValue_' + title]) &&
+        (fieldSpecificFormatter = this.config[`fmtMetaValue_${title}`]) &&
         !f
       ) {
         unsafe = true
@@ -210,7 +203,7 @@ define([
             const itemContainer = domConstruct.create(
               'div',
               {
-                className: 'value_container ' + class_,
+                className: `value_container ${class_}`,
                 style: { width: '100%' },
               },
               parent,
@@ -302,10 +295,9 @@ define([
       domConstruct.create(
         'div',
         {
-          className:
-            'value ' +
-            (val.length > 70 && val.indexOf(' ') == -1 ? 'long ' : '') +
-            class_,
+          className: `value ${
+            val.length > 70 && val.indexOf(' ') == -1 ? 'long ' : ''
+          }${class_}`,
           innerHTML:
             unsafe || this.config.unsafePopup ? val : Util.escapeHTML(val),
         },
@@ -379,7 +371,7 @@ define([
           return JSON.stringify(val)
         }
       }
-      return '' + val
+      return `${val}`
     },
   })
 })

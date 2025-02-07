@@ -128,14 +128,13 @@ define([
               var overall = dojo.create(
                 'span',
                 {
-                  className: mismatch.type + ' base_' + base.toLowerCase(),
+                  className: `${mismatch.type} base_${base.toLowerCase()}`,
                   style: {
                     position: 'absolute',
-                    left:
-                      (100 * (mDisplayStart - displayStart)) / featLength + '%',
+                    left: `${(100 * (mDisplayStart - displayStart)) / featLength}%`,
                     width:
                       scale * mDisplayWidth > 1
-                        ? (100 * mDisplayWidth) / featLength + '%'
+                        ? `${(100 * mDisplayWidth) / featLength}%`
                         : '1px',
                   },
                 },
@@ -157,14 +156,14 @@ define([
                     dojo.create(
                       'span',
                       {
-                        className: 'base base_' + base.toLowerCase(),
+                        className: `base base_${base.toLowerCase()}`,
                         style: {
                           position: 'absolute',
-                          width: scale + 'px',
-                          left:
+                          width: `${scale}px`,
+                          left: `${
                             ((basePosition - mDisplayStart) / mDisplayWidth) *
-                              100 +
-                            '%',
+                            100
+                          }%`,
                         },
                         innerHTML: base,
                       },

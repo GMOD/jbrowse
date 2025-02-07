@@ -111,7 +111,7 @@ define([
               return Util.replacePath(replace)
             })
             thisB.plugins.push(paths[0])
-            dojo.byId('plugins_list').innerHTML += paths + '<br/>'
+            dojo.byId('plugins_list').innerHTML += `${paths}<br/>`
           }
         })
 

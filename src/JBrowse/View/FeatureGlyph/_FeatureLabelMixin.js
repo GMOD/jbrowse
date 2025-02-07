@@ -16,7 +16,7 @@ define([
       if (!text) {
         return null
       }
-      text = '' + text
+      text = `${text}`
       var font = this.getStyle(feature, 'textFont')
       var l = fRect
         ? this.makeBottomOrTopLabel(text, font, fRect)
@@ -35,7 +35,7 @@ define([
       if (!text) {
         return null
       }
-      text = '' + text
+      text = `${text}`
       var font = this.getStyle(feature, 'text2Font')
       var l = fRect
         ? this.makeBottomOrTopLabel(text, font, fRect)
@@ -60,7 +60,7 @@ define([
           dims.w,
       )
       if (excessCharacters > 0) {
-        text = text.slice(0, text.length - excessCharacters - 1) + '…'
+        text = `${text.slice(0, text.length - excessCharacters - 1)}…`
       }
 
       return {
@@ -89,7 +89,7 @@ define([
           dims.w,
       )
       if (excessCharacters > 0) {
-        text = text.slice(0, text.length - excessCharacters - 1) + '…'
+        text = `${text.slice(0, text.length - excessCharacters - 1)}…`
       }
 
       return {

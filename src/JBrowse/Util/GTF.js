@@ -85,9 +85,9 @@ define(['dojo/_base/array'], function (array) {
         var hex = ch.charCodeAt(0).toString(16).toUpperCase()
         if (hex.length < 2) {
           // lol, apparently there's no native function for fixed-width hex output
-          hex = '0' + hex
+          hex = `0${hex}`
         }
-        return '%' + hex
+        return `%${hex}`
       })
     },
 
@@ -138,12 +138,12 @@ define(['dojo/_base/array'], function (array) {
             val === null || val === undefined ? '.' : translate_strand[val + 1]
         } else {
           fields[i] =
-            val === null || val === undefined ? '.' : this.escape('' + val)
+            val === null || val === undefined ? '.' : this.escape(`${val}`)
         }
       }
       fields[8] = attrString
 
-      return fields.join('\t') + '\n'
+      return `${fields.join('\t')}\n`
     },
 
     format_attributes: function (attrs) {
@@ -161,7 +161,7 @@ define(['dojo/_base/array'], function (array) {
             : val instanceof Array
               ? array.map(val, this.escape).join(',')
               : this.escape(val)
-        attrOrder.push(this.escape(tag) + '=' + valstring)
+        attrOrder.push(`${this.escape(tag)}=${valstring}`)
       }
       return attrOrder.length ? attrOrder.join(';') : '.'
     },

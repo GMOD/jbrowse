@@ -27,9 +27,9 @@ define([
         return arguments[0]
       }
       try {
-        eval('arguments[0]=' + arguments[0] + ';')
+        eval(`arguments[0]=${arguments[0]};`)
       } catch (e) {
-        console.error(e + " parsing config callback '" + arguments[0] + "'")
+        console.error(`${e} parsing config callback '${arguments[0]}'`)
       }
       return arguments[0]
     },

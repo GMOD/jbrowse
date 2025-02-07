@@ -126,7 +126,7 @@ define([
           {
             className: 'locationList',
             style: {
-              maxHeight: 0.5 * this.browser.container.offsetHeight + 'px',
+              maxHeight: `${0.5 * this.browser.container.offsetHeight}px`,
             },
           },
           container,
@@ -228,7 +228,7 @@ define([
                   }
                 }
               }
-              this.numResults.innerHTML = 'Num. results: ' + grid.length
+              this.numResults.innerHTML = `Num. results: ${grid.length}`
               var g = this.locationListView.grid
               ;(g.store || g.collection).setData(grid)
               g.refresh()

@@ -1,5 +1,7 @@
 const url = cjsRequire('url')
 
+import dompurify from 'dompurify'
+
 /**
  * Miscellaneous utility functions.
  */
@@ -20,7 +22,7 @@ define([
       nStr += ''
       var x = nStr.split('.')
       var x1 = x[0]
-      var x2 = x.length > 1 ? '.' + x[1] : ''
+      var x2 = x.length > 1 ? `.${x[1]}` : ''
       var rgx = /(\d+)(\d{3})/
       while (rgx.test(x1)) {
         x1 = x1.replace(rgx, '$1' + ',' + '$2')
@@ -33,14 +35,7 @@ define([
     },
 
     escapeHTML: function (str) {
-      if (str === null || str === undefined) {
-        return str
-      }
-      return str
-        .toString()
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
+      dompurify.sanitize(str)
     },
 
     unescapeHTML: function (str) {
@@ -184,7 +179,7 @@ define([
           }
         }
         args.error = function (error) {
-          console.error('' + error)
+          console.error(`${error}`)
           stateObj.state = 'error'
           var cbs = stateObj.errorCallbacks
           for (var c = 0; c < cbs.length; c++) {
@@ -234,7 +229,7 @@ define([
         suffix = 'K'
       }
 
-      return (num.toFixed(2) + ' ' + suffix)
+      return `${num.toFixed(2)} ${suffix}`
         .replace(/0+ /, ' ')
         .replace(/\. /, ' ')
     },
@@ -263,7 +258,7 @@ define([
         // check the loaded modules for success
         for (var i = 0; i < modules.length; i++) {
           if (!{ object: true, function: true }[typeof modules[i]]) {
-            d.reject('could not load ' + paths[i] + ': ' + modules[i])
+            d.reject(`could not load ${paths[i]}: ${modules[i]}`)
             return
           }
         }
@@ -391,7 +386,7 @@ define([
         suffixList = array.map(suffixList, function (s) {
           return s.replace(/([\.\?\+])/g, '\\$1')
         })
-        bn = bn.replace(new RegExp(suffixList.join('|') + '$', 'i'), '')
+        bn = bn.replace(new RegExp(`${suffixList.join('|')}$`, 'i'), '')
       }
       return bn
     },
@@ -517,7 +512,7 @@ define([
     assembleLocStringWithLength: function (def) {
       var locString = Util.assembleLocString(def)
       var length = def.length || def.end - def.start
-      return locString + ' (' + Util.humanReadableNumber(length) + 'b)'
+      return `${locString} (${Util.humanReadableNumber(length)}b)`
     },
 
     // given a possible reference sequence name and an object as { 'foo':
@@ -536,8 +531,8 @@ define([
 
         if (
           ucname == ucref ||
-          'CHR' + ucname == ucref ||
-          ucname == 'CHR' + ucref
+          `CHR${ucname}` == ucref ||
+          ucname == `CHR${ucref}`
         ) {
           return refseqs[ref]
         }
@@ -581,7 +576,7 @@ define([
       normalizer =
         normalizer ||
         function (t) {
-          return '' + t
+          return `${t}`
         }
       var result = [],
         seen = {}

@@ -254,7 +254,7 @@ define([
               } else if (scale >= 10) {
                 context.fillStyle = 'white'
                 context.fillText(
-                  mismatch.base1 + '/' + mismatch.base2,
+                  `${mismatch.base1}/${mismatch.base2}`,
                   mRect.l + (mRect.w - charSize.w * 2) / 2 + 1,
                   mRect.t + mRect.h / 2,
                 )

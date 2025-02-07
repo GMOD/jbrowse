@@ -64,7 +64,7 @@ define([
               if (result) {
                 haveStore.resolve(result, true)
               } else {
-                haveStore.reject('store ' + store + ' not found')
+                haveStore.reject(`store ${store} not found`)
               }
             })
           } else {
@@ -125,7 +125,7 @@ define([
               d.resolve(true)
             },
             function () {
-              d.reject('failed to load features for ' + key + ' store')
+              d.reject(`failed to load features for ${key} store`)
             },
           )
           return d.promise

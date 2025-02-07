@@ -13,6 +13,7 @@
   "rules": {
     "no-underscore-dangle": 0,
     "no-undef": "error",
-    "curly": "error"
+    "curly": "error",
+    "prefer-template": "error"
   }
 }

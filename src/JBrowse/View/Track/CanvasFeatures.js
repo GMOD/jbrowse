@@ -107,7 +107,7 @@ define([
         this.showTooltips = this.config.style.showTooltips
         this.displayMode = this.config.displayMode
         //setup displayMode style cookie
-        var cookie = this.browser.cookie('track-' + this.name)
+        var cookie = this.browser.cookie(`track-${this.name}`)
         if (cookie) {
           this.displayMode = cookie
         }
@@ -177,7 +177,7 @@ define([
             },
             {
               label: function () {
-                return 'Zoom to this ' + (this.feature.get('type') || 'feature')
+                return `Zoom to this ${this.feature.get('type') || 'feature'}`
               },
               action: function () {
                 var ref = this.track.refSeq
@@ -195,9 +195,7 @@ define([
             },
             {
               label: function () {
-                return (
-                  'Highlight this ' + (this.feature.get('type') || 'feature')
-                )
+                return `Highlight this ${this.feature.get('type') || 'feature'}`
               },
               action: function () {
                 var loc = new Location({
@@ -271,7 +269,7 @@ define([
           }
         }
 
-        return 'JBrowse/View/FeatureGlyph/' + guess
+        return `JBrowse/View/FeatureGlyph/${guess}`
       },
 
       fillBlock: function (args) {
@@ -407,7 +405,7 @@ define([
 
           dojo.global.require([glyphClassName], function (GlyphClass) {
             if (typeof GlyphClass == 'string') {
-              thisB.fatalError = 'could not load glyph ' + glyphClassName
+              thisB.fatalError = `could not load glyph ${glyphClassName}`
               thisB.redraw()
               return
             }
@@ -438,10 +436,9 @@ define([
         // set the track label if we have a description
         if (this.config.histograms.description) {
           this.setLabel(
-            this.key +
-              ' <span class="feature-density">(' +
-              this.config.histograms.description +
-              ')</span>',
+            `${this.key} <span class="feature-density">(${
+              this.config.histograms.description
+            })</span>`,
           )
         } else {
           this.setLabel(this.key)
@@ -506,8 +503,8 @@ define([
         c.width = pxWidth * ratio
         c.height = pxHeight * ratio
 
-        c.style.width = pxWidth + 'px'
-        c.style.height = pxHeight + 'px'
+        c.style.width = `${pxWidth}px`
+        c.style.height = `${pxHeight}px`
 
         // now scale the context to counter
         // the fact that we've manually scaled
@@ -529,8 +526,9 @@ define([
         // don't do anything if we don't know the score max
         if (maxScore === undefined) {
           console.warn(
-            'no stats.max in hist data, not drawing histogram for block ' +
-              viewArgs.blockIndex,
+            `no stats.max in hist data, not drawing histogram for block ${
+              viewArgs.blockIndex
+            }`,
           )
           return
         }
@@ -561,7 +559,7 @@ define([
             width: block.domNode.offsetWidth + 1,
             style: {
               cursor: 'default',
-              height: height + 'px',
+              height: `${height}px`,
               position: 'absolute',
             },
             innerHTML: 'Your web browser cannot display this type of track.',
@@ -733,7 +731,7 @@ define([
                   width: block.domNode.offsetWidth + 1,
                   style: {
                     cursor: 'default',
-                    height: totalHeight + 'px',
+                    height: `${totalHeight}px`,
                     position: 'absolute',
                   },
                   innerHTML:
@@ -1058,8 +1056,8 @@ define([
                   }
 
                   if (!this.ignoreTooltipTimeout) {
-                    this.labelTooltip.style.left = evt.clientX + 'px'
-                    this.labelTooltip.style.top = evt.clientY + 15 + 'px'
+                    this.labelTooltip.style.left = `${evt.clientX}px`
+                    this.labelTooltip.style.top = `${evt.clientY + 15}px`
                   }
                   this.ignoreTooltipTimeout = true
                   this.labelTooltip.style.display = 'block'
@@ -1153,7 +1151,7 @@ define([
           return {
             label: displayMode,
             type: 'dijit/CheckedMenuItem',
-            title: 'Render this track in ' + displayMode + ' mode',
+            title: `Render this track in ${displayMode} mode`,
             checked: thisB.displayMode == displayMode,
             onClick: function () {
               thisB.displayMode = displayMode
@@ -1162,7 +1160,7 @@ define([
               thisB.genomeView.showVisibleBlocks(true)
               thisB.makeTrackMenu()
               // set cookie for displayMode
-              thisB.browser.cookie('track-' + thisB.name, thisB.displayMode)
+              thisB.browser.cookie(`track-${thisB.name}`, thisB.displayMode)
             },
           }
         })
@@ -1222,9 +1220,8 @@ define([
             this.browser.config.highResolutionMode,
           )
           this.staticCanvas.width = this.browser.view.elem.clientWidth * ratio
-          this.staticCanvas.style.width =
-            this.browser.view.elem.clientWidth + 'px'
-          this.staticCanvas.style.left = coords.x + 'px'
+          this.staticCanvas.style.width = `${this.browser.view.elem.clientWidth}px`
+          this.staticCanvas.style.left = `${coords.x}px`
           context.setTransform(1, 0, 0, 1, 0, 0)
           context.scale(ratio, ratio)
           context.clearRect(

@@ -1,3 +1,7 @@
+const url = cjsRequire('url')
+
+import dompurify from 'dompurify'
+
 define([
   'dojo/_base/declare',
   'dojo/_base/array',
@@ -185,8 +189,11 @@ define([
             var key = trackConfig.key || trackConfig.name || trackConfig.label
             var node = dojo.create('div', {
               className: 'tracklist-label',
-              title: key + ' (drag or double-click to activate)',
-              innerHTML: key,
+              title: `${key} (drag or double-click to activate)`,
+
+              // dompurify added
+              // eslint-disable-next-line xss/no-mixed-html
+              innerHTML: dompurify.sanitize(key),
             })
 
             //in the list, wrap the list item in a container for

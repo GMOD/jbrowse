@@ -110,13 +110,10 @@ define([
       var setFilenameValue = dojo.hitch(this.track, function () {
         var region = this._readRadio(form.elements.region)
         var format = nameToExtension[this._readRadio(form.elements.format)]
-        form.elements.filename.value =
-          ((this.key || this.label) + '-' + region).replace(
-            /[^ .a-zA-Z0-9_-]/g,
-            '-',
-          ) +
-          '.' +
-          format
+        form.elements.filename.value = `${`${this.key || this.label}-${region}`.replace(
+          /[^ .a-zA-Z0-9_-]/g,
+          '-',
+        )}.${format}`
       })
 
       var form = dom.create('form', {
@@ -132,7 +129,7 @@ define([
         var locstring = Util.assembleLocString(r)
         var regionButton = new dijitRadioButton({
           name: 'region',
-          id: 'region_' + r.name,
+          id: `region_${r.name}`,
           value: locstring,
           checked: r.canExport && !checked++ ? 'checked' : '',
         })
@@ -141,14 +138,11 @@ define([
           'label',
           {
             for: regionButton.id,
-            innerHTML:
-              r.description +
-              ' - <span class="locString">' +
-              locstring +
-              '</span> (' +
-              Util.humanReadableNumber(r.length) +
-              (r.canExport ? 'b' : 'b, too large') +
-              ')',
+            innerHTML: `${r.description} - <span class="locString">${
+              locstring
+            }</span> (${Util.humanReadableNumber(r.length)}${
+              r.canExport ? 'b' : 'b, too large'
+            })`,
           },
           regionFieldset,
         )
@@ -179,7 +173,7 @@ define([
           nameToExtension[fmt.name] = fmt.fileExt
           var formatButton = new dijitRadioButton({
             name: 'format',
-            id: 'format' + fmt.name,
+            id: `format${fmt.name}`,
             value: fmt.name,
             checked: checked++ ? '' : 'checked',
           })
@@ -300,13 +294,9 @@ define([
         })
         var exportView = new dijitDialog({
           className: 'export-view-dialog',
-          title:
-            format +
-            ' export - <span class="locString">' +
-            region +
-            '</span> (' +
-            Util.humanReadableNumber(output.length) +
-            'bytes)',
+          title: `${format} export - <span class="locString">${
+            region
+          }</span> (${Util.humanReadableNumber(output.length)}bytes)`,
           content: [text, actionBar],
         })
         new dijitButton({
@@ -356,7 +346,7 @@ define([
       FileSaver.saveAs(
         new Blob([args.data], {
           type: args.format
-            ? 'application/x-' + args.format.toLowerCase()
+            ? `application/x-${args.format.toLowerCase()}`
             : 'text/plain',
         }),
         args.filename,
@@ -386,17 +376,15 @@ define([
       // sequence right now
       if (region.ref != this.refSeq.name) {
         console.error(
-          'cannot export data for ref seq ' +
-            region.ref +
-            ', ' +
-            'exporting is currently only supported for the ' +
-            'currently-visible reference sequence',
+          `cannot export data for ref seq ${region.ref}, ` +
+            `exporting is currently only supported for the ` +
+            `currently-visible reference sequence`,
         )
         return
       }
 
       dojo.global.require(
-        [format.match(/\//) ? format : 'JBrowse/View/Export/' + format],
+        [format.match(/\//) ? format : `JBrowse/View/Export/${format}`],
         dojo.hitch(this, function (exportDriver) {
           new exportDriver({
             refSeq: this.refSeq,

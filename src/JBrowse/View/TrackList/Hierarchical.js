@@ -1,3 +1,5 @@
+import dompurify from 'dompurify'
+
 define([
   'dojo/_base/declare',
   'dojo/_base/array',
@@ -78,17 +80,28 @@ define([
 
         var topPane = dom.create(
           'div',
-          { className: 'header' },
+          {
+            className: 'header',
+          },
           this.containerNode,
         )
         dom.create(
           'h2',
-          { className: 'title', innerHTML: 'Available Tracks' },
+          {
+            className: 'title',
+            innerHTML: 'Available Tracks',
+          },
           topPane,
         )
 
         this._makeTextFilterNodes(
-          dom.create('div', { className: 'textfilterContainer' }, topPane),
+          dom.create(
+            'div',
+            {
+              className: 'textfilterContainer',
+            },
+            topPane,
+          ),
         )
         this._updateTextFilterControl()
       },
@@ -145,7 +158,7 @@ define([
               .join('/'),
           )
         for (var i = 0; i < arr.length; i++) {
-          lang.setObject('collapsed.' + arr[i], true, this.state)
+          lang.setObject(`collapsed.${arr[i]}`, true, this.state)
         }
         this._saveState()
 
@@ -212,22 +225,21 @@ define([
                 obj.categories[categoryName] ||
                 (obj.categories[categoryName] = function () {
                   var isCollapsed = lang.getObject(
-                    'collapsed.' + categoryPath,
+                    `collapsed.${categoryPath}`,
                     false,
                     thisB.state,
                   )
                   var c = new TitlePane({
-                    title:
-                      '<span class="categoryName">' +
-                      categoryName +
-                      '</span>' +
-                      ' <span class="trackCount">0</span>',
+                    // eslint-disable-next-line xss/no-mixed-html
+                    title: dompurify.sanitize(
+                      `<span class="categoryName">${categoryName}</span><span class="trackCount">0</span>`,
+                    ),
                     open: !isCollapsed,
                   })
                   // save our open/collapsed state in local storage
                   c.watch('open', function (attr, oldval, newval) {
                     lang.setObject(
-                      'collapsed.' + categoryPath,
+                      `collapsed.${categoryPath}`,
                       !newval,
                       thisB.state,
                     )
@@ -313,7 +325,7 @@ define([
       // called when item checkbox is clicked.
       itemClick: function (checkbox, trackConf) {
         this.browser.publish(
-          '/jbrowse/v1/v/tracks/' + (checkbox.checked ? 'show' : 'hide'),
+          `/jbrowse/v1/v/tracks/${checkbox.checked ? 'show' : 'hide'}`,
           [trackConf],
         )
       },
@@ -352,9 +364,7 @@ define([
             .get('title')
             .replace(
               />\s*\d+\s*</,
-              '>' +
-                query('label.shown', category.pane.containerNode).length +
-                '<',
+              `>${query('label.shown', category.pane.containerNode).length}<`,
             ),
         )
       },

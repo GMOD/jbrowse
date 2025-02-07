@@ -163,10 +163,9 @@ define([
               'td',
               {
                 width: '1%',
-                innerHTML:
-                  '<div class="' +
-                  (res.file ? 'dijitIconFile' : 'jbrowseIconLink') +
-                  '"></div>',
+                innerHTML: `<div class="${
+                  res.file ? 'dijitIconFile' : 'jbrowseIconLink'
+                }"></div>`,
               },
               tr,
             )

@@ -1,6 +1,6 @@
 require(['dojo/_base/array', 'JBrowse/Util'], function (array, Util) {
   function expectDeepEqual(func, input, output) {
-    it(JSON.stringify(input) + ' -> ' + JSON.stringify(output), function () {
+    it(`${JSON.stringify(input)} -> ${JSON.stringify(output)}`, function () {
       expect(func.apply(Util, input)).toEqual(output)
     })
   }
