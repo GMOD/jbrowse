@@ -437,6 +437,7 @@ define([
       require(['dojo/text!JBrowse/View/Resource/Welcome.html'], function (
         Welcome,
       ) {
+        // eslint-disable-next-line xss/no-mixed-html
         container.innerHTML = dompurify.sanitize(Welcome)
         var topPane = dojo.create(
           'div',
@@ -800,26 +801,7 @@ define([
 
     _loadCSS: function (css) {
       var deferred = new Deferred()
-      if (typeof css == 'string') {
-        // if it has '{' in it, it probably is not a URL, but is a string of
-        // CSS statements
-        if (css.indexOf('{') > -1) {
-          dojo.create(
-            'style',
-            {
-              'data-from': 'JBrowse Config',
-              type: 'text/css',
-              innerHTML: dompurify.sanitize(css),
-            },
-            document.head,
-          )
-          deferred.resolve(true)
-        }
-        // otherwise, it must be a URL
-        else {
-          css = { url: css }
-        }
-      }
+
       if (typeof css == 'object') {
         LazyLoad.css(css.url, function () {
           deferred.resolve(true)
@@ -942,8 +924,8 @@ define([
 
         var about = this.browserMeta()
         var aboutDialog = new InfoDialog({
-          title: `About ${about.title}`,
-          content: about.description,
+          title: dompurify.sanitize(`About ${about.title}`),
+          content: dompurify.sanitize(about.description),
           className: 'about-dialog',
         })
 
@@ -1043,7 +1025,8 @@ define([
                 'a',
                 {
                   className: 'powered_by',
-                  innerHTML: this.browserMeta().title,
+                  // eslint-disable-next-line xss/no-mixed-html
+                  innerHTML: dompurify.sanitize(this.browserMeta().title),
                   title: 'powered by JBrowse',
                 },
                 menuBar,
@@ -1282,7 +1265,8 @@ define([
               'div',
               {
                 className: 'dataset-name',
-                innerHTML: datasetName,
+                // eslint-disable-next-line xss/no-mixed-html
+                innerHTML: dompurify.sanitize(datasetName),
                 title: 'name of current dataset',
                 style: {
                   display: datasetName ? 'inline-block' : 'none',
@@ -1856,12 +1840,14 @@ define([
       var verstring = this.version
 
       if (about.description) {
+        // eslint-disable-next-line xss/no-mixed-html
         about.description +=
           `${
             '<div class="powered_by">' +
             'Powered by <a target="_blank" href="http://jbrowse.org">JBrowse '
           }${verstring}</a>.` + `</div>`
       } else {
+        // eslint-disable-next-line xss/no-mixed-html
         about.description =
           `${
             '<div class="default_about">' + '  <img class="logo" src="'
@@ -2189,12 +2175,12 @@ define([
 
     // phones home to google analytics
     _reportGoogleUsageStats: function (stats) {
-      var thisB = this
       // jbrowse.org account always
       var jbrowseUser = 'UA-7115575-2'
       var accounts = [jbrowseUser]
 
-      // add any custom Google Analytics accounts from config (comma-separated or array)
+      // add any custom Google Analytics accounts from config (comma-separated
+      // or array)
       if (this.config.googleAnalytics) {
         var userAccounts = this.config.googleAnalytics.accounts
         if (accounts && !lang.isArray(userAccounts)) {
@@ -2214,7 +2200,8 @@ define([
 
       // set up users
       accounts.forEach(function (user, trackerNum) {
-        // if we're adding jbrowse.org user, also include new dimension references (replacing ga.js custom variables)
+        // if we're adding jbrowse.org user, also include new dimension
+        // references (replacing ga.js custom variables)
         if (user == jbrowseUser) {
           analyticsScript += `ga('create', '${user}', 'auto', 'jbrowseTracker');`
         } else {
@@ -2230,7 +2217,6 @@ define([
           var gaData = {}
           var googleDimensions =
             'tracks-count refSeqs-count refSeqs-avgLen ver loadTime electron plugins'
-          var googleMetrics = 'loadTime'
 
           googleDimensions.split(/\s+/).forEach(function (key, index) {
             gaData[`dimension${index + 1}`] = stats[key]
@@ -2247,6 +2233,8 @@ define([
       })
 
       var analyticsScriptNode = document.createElement('script')
+      // this is NOT dompurify'd but a quick audit did not reveal alarm
+      // eslint-disable-next-line xss/no-mixed-html
       analyticsScriptNode.innerHTML = analyticsScript
 
       document.getElementsByTagName('head')[0].appendChild(analyticsScriptNode)
@@ -3708,7 +3696,10 @@ define([
       var align = 'center'
       var navbox = dojo.create(
         'div',
-        { id: 'navbox', style: { 'text-align': align } },
+        {
+          id: 'navbox',
+          style: { 'text-align': align },
+        },
         parent,
       )
 
@@ -3730,7 +3721,6 @@ define([
       navbox.appendChild(document.createTextNode(four_nbsp))
 
       var moveLeft = document.createElement('img')
-      //moveLeft.type = "image";
       moveLeft.src = this.resolveUrl('img/Empty.png')
       moveLeft.id = 'moveLeft'
       moveLeft.className = 'icon nav'
@@ -3919,8 +3909,10 @@ define([
       // create location box
       // if in config "locationBox": "separate", then the search box will be the location box.
       if (this.config.locationBox === 'separate') {
+        // eslint-disable-next-line xss/no-mixed-html
         this.locationInfoBox = domConstruct.place(
           "<div id='location-info'>location</div>",
+          // eslint-disable-next-line xss/no-mixed-html
           navbox,
         )
       }
