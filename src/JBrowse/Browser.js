@@ -458,10 +458,11 @@ define([
           { style: { overflow: 'hidden' } },
           thisB.container,
         )
-        dojo.byId('welcome').innerHTML =
+        dojo.byId('welcome').innerHTML = dompurify.sanitize(
           `Welcome! To get started with <i>JBrowse-${
             thisB.version
-          }</i>, select a sequence file or an existing data directory`
+          }</i>, select a sequence file or an existing data directory`,
+        )
 
         on(
           dojo.byId('newOpen'),
@@ -665,7 +666,7 @@ define([
         dojo.create(
           'td',
           {
-            innerHTML: `<a href="${url}">${session.session}</a>`,
+            innerHTML: dompurify(`<a href="${url}">${session.session}</a>`),
           },
           tr,
         )
@@ -2054,9 +2055,11 @@ define([
             args = dojo.mixin(
               {
                 className: menuName,
-                innerHTML: `<span class="icon"></span> ${
-                  args.text || Util.ucFirst(menuName)
-                }`,
+                innerHTML: dompurify.sanitize(
+                  `<span class="icon"></span> ${
+                    args.text || Util.ucFirst(menuName)
+                  }`,
+                ),
                 dropDown: menu,
                 id: `dropdownbutton_${menuName}`,
               },

@@ -245,7 +245,9 @@ define([
             node:
               hint == 'avatar'
                 ? dojo.create('div', {
-                    innerHTML: trackConfig.key || trackConfig.label,
+                    innerHTML: dompurify.sanitize(
+                      trackConfig.key || trackConfig.label,
+                    ),
                     className: 'track-label dragging',
                   })
                 : this.renderTrack(trackConfig),

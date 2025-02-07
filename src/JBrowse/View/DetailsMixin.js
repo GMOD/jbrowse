@@ -138,6 +138,7 @@ define([
       if (!lang.isArray(val) && val && val.values) {
         val = val.values
       }
+      console.log(val)
 
       // if this object has a 'fmtDetailFooValue' function, delegate to that
       var fieldSpecificFormatter
@@ -278,7 +279,7 @@ define([
             val.length > 70 && val.indexOf(' ') == -1 ? 'long ' : ''
           }${class_}`,
           // eslint-disable-next-line xss/no-mixed-html
-          innerHTML: Util.escapeHTML(val),
+          innerHTML: Util.escapeHTML(`${val}`),
         },
         parent,
       )

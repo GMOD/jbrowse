@@ -1,3 +1,5 @@
+import dompurify from 'dompurify'
+
 /**
  * Pops up a dialog to edit the configuration of a single track.
  */
@@ -5,11 +7,10 @@ define([
   'dojo/_base/declare',
   'dojo/aspect',
   'dojo/json',
-  'dojo/on',
   'dojo/dom-construct',
   'dijit/Dialog',
   'dijit/form/Button',
-], function (declare, aspect, JSON, on, dom, Dialog, Button) {
+], function (declare, aspect, JSON, dom, Dialog, Button) {
   return declare(null, {
     constructor: function (trackConfig) {
       this.trackConfig = trackConfig
@@ -91,11 +92,10 @@ define([
         },
         container,
       )
-      // watch the input text for changes.  just do it every 700ms
-      // because there are many ways that text can get changed (like
-      // pasting), not all of which fire the same events.  not using
-      // the onchange event, because that doesn't fire until the
-      // textarea loses focus.
+      // watch the input text for changes.  just do it every 700ms because
+      // there are many ways that text can get changed (like pasting), not all
+      // of which fire the same events.  not using the onchange event, because
+      // that doesn't fire until the textarea loses focus.
       var previousText = ''
       var checkFrequency = 700
       var that = this
@@ -136,7 +136,9 @@ define([
     },
 
     _reportError: function (error) {
-      this.errorReportArea.innerHTML = `<div class="error">${error}</div>`
+      this.errorReportArea.innerHTML = dompurify.sanitize(
+        `<div class="error">${error}</div>`,
+      )
       this.applyButton.set('disabled', true)
     },
     _clearErrors: function () {

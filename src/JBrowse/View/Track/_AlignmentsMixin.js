@@ -1,3 +1,4 @@
+import dompurify from 'dompurify'
 /**
  * Mixin with methods used for displaying alignments and their mismatches.
  */
@@ -317,8 +318,6 @@ define([
     },
 
     _renderTable: function (parentElement, track, feat, featDiv) {
-      var thisB = this
-
       var mismatches = track._getMismatches(feat)
       var seq = feat.get('seq')
       if (!seq) {
@@ -450,9 +449,11 @@ define([
           'div',
           {
             className: 'renderTable',
-            innerHTML: `<h2 class="sectiontitle">Matches</h2><div style=\"font-family: Courier; white-space: pre;\">${
-              ret_str
-            }</div>`,
+            innerHTML: dompurify.sanitize(
+              `<h2 class="sectiontitle">Matches</h2><div style=\"font-family: Courier; white-space: pre;\">${
+                ret_str
+              }</div>`,
+            ),
           },
           parentElement,
         )
@@ -461,13 +462,14 @@ define([
           'div',
           {
             className: 'renderTable',
-            innerHTML:
+            innerHTML: dompurify.sanitize(
               `${
                 '<h2 class="sectiontitle">Matches</h2><div style=\"font-family: Courier; white-space: pre;\">' +
                 'Query: '
               }${query_str}   <br>` +
-              `       ${align_str}   <br>` +
-              `Ref:   ${refer_str}   </div>`,
+                `       ${align_str}   <br>` +
+                `Ref:   ${refer_str}   </div>`,
+            ),
           },
           parentElement,
         )

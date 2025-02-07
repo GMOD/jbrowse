@@ -290,7 +290,7 @@ define([
 
         this.labelHTML = newHTML
         query('.track-label-text', this.label).forEach(function (n) {
-          n.innerHTML = newHTML
+          n.innerHTML = dompurify.sanitize(newHTML)
         })
         this.labelHeight = this.label.offsetHeight
       },
@@ -518,7 +518,9 @@ define([
           className: 'loading',
           innerHTML: '<div class="text">Loading</span>',
           title: 'Loading data...',
-          style: { visibility: 'hidden' },
+          style: {
+            visibility: 'hidden',
+          },
         })
         window.setTimeout(function () {
           msgDiv.style.visibility = 'visible'
@@ -599,13 +601,15 @@ define([
           'div',
           {
             className: 'error',
-            innerHTML: `<h2>Error</h2><div class="text">An error was encountered when displaying this track.</div>${
-              message
-                ? `<div class="codecaption">Diagnostic message</div><code>${
-                    message
-                  }</code>`
-                : ''
-            }`,
+            innerHTML: dompurify.sanitize(
+              `<h2>Error</h2><div class="text">An error was encountered when displaying this track.</div>${
+                message
+                  ? `<div class="codecaption">Diagnostic message</div><code>${
+                      message
+                    }</code>`
+                  : ''
+              }`,
+            ),
             title: 'An error occurred',
           },
           parent,
@@ -1522,14 +1526,6 @@ define([
         this.postRenderHighlight(highlight)
 
         if (label) {
-          /*
-            //  vertical text, has bugs
-            if( trimLeft <= 0 ) {
-                domConstruct.create('div', { className:'verticaltext', style: { top: '50px', left: left+'%',transformOrigin: left+'%'+' top' }, innerHTML: label }, args.block.domNode);
-            }
-            if( trimRight <= 0 ) {
-                domConstruct.create('div', { className:'verticaltext', style: { top: '50px', left: left+width+'%',transformOrigin: left+width+'%'+' top' }, innerHTML: rlabel }, args.block.domNode);
-            }*/
           if (trimLeft <= 0) {
             var d1 = domConstruct.create(
               'div',
