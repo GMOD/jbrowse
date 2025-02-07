@@ -1,275 +1,269 @@
 /* Dojo and Dijit stuff */
 
-@import "../node_modules/dojox/grid/resources/tundraGrid.css";
+@import '../node_modules/dojox/grid/resources/tundraGrid.css';
 
 .dojoxGrid table {
   margin: 0;
 }
 .dojoxGridRowSelectorStatusText {
-    display: none;
+  display: none;
 }
 
 /* JBrowse stuff */
 
 &#faceted_tracksel {
-    position: fixed;
-    top: 0;
-    left: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+
+  .active {
+    -moz-box-shadow: 4px 4px 10px 3px rgba(30, 30, 50, 0.3);
+    -webkit-box-shadow: 4px 4px 10px 3px rgba(30, 30, 50, 0.3);
+    box-shadow: 4px 4px 10px 3px rgba(30, 30, 50, 0.3);
+  }
+
+  button,
+  input {
+    font-size: 12px;
+  }
+
+  div.mainContainer {
     height: 100%;
+    width: 100%;
+  }
+  div.mainContainer {
+    border-right: 2px solid #555;
+    background: #e9e9e9;
+  }
 
-    .active {
-        -moz-box-shadow: 4px 4px 10px 3px rgba( 30, 30, 50, 0.3 );
-        -webkit-box-shadow: 4px 4px 10px 3px rgba( 30, 30, 50, 0.3 );
-        box-shadow: 4px 4px 10px 3px rgba( 30, 30, 50, 0.3 );
-    }
+  /* Track grid */
 
-     button,  input {
-        font-size: 12px;
-    }
+  .dojoxGridCellFocus {
+    border-color: transparent;
+    border-color: transparent !important;
+  }
+  .gridPane .gridControls {
+    padding: 2px 3px;
+    font-size: 110%;
+  }
+  .gridPane .gridControls {
+    background: #e9e9e9;
+    border: 1px solid #aaa;
+    border-right: none;
+  }
 
-     div.mainContainer {
-        height: 100%;
-        width: 100%;
-    }
-     div.mainContainer {
-        border-right: 2px solid #555;
-        background: #e9e9e9;
-    }
+  .gridPane .gridControls > * {
+    margin: 2px 3px;
+    display: inline-block;
+    vertical-align: middle;
+  }
+  .gridPane .gridControls button {
+    height: 2.2em;
+    margin: 4px;
+    white-space: nowrap;
+  }
+  .gridPane .gridControls button > * {
+    display: inline-block;
+    vertical-align: middle;
+  }
+  .gridPane .gridControls button img {
+    padding: 0 0.4em 0 0;
+  }
+  .busy .gridControls .busy_indicator {
+    visibility: visible;
+  }
+  .gridControls .busy_indicator {
+    z-index: 20;
+    visibility: hidden;
+  }
 
-    /* Track grid */
+  label.textFilterControl img.text_filter_clear {
+    display: none;
+  }
+  label.textFilterControl.selected img.text_filter_clear {
+    display: block;
+  }
+  label.textFilterControl input {
+    border-top: 3px solid transparent;
+    font-weight: bold;
+    padding: 0.2em;
+  }
+  label.textFilterControl.selected input {
+    border-top: 3px solid #396494;
+    background: #d2e1f1;
+  }
 
-     .dojoxGridCellFocus {
-        border-color: transparent;
-        border-color: transparent !important;
-    }
-     .gridPane .gridControls {
-        padding: 2px 3px;
-        font-size: 110%;
-    }
-     .gridPane .gridControls {
-        background: #e9e9e9;
-        border: 1px solid #aaa;
-        border-right: none;
-    }
+  /* Track selector title bar */
+  #faceted_tracksel_top {
+    border-bottom: 1px solid #ccc;
+    padding: 5px;
+  }
+  #faceted_tracksel_top {
+    background: #396494;
+  }
+  #faceted_tracksel_top .topLink {
+    color: white;
+  }
 
-     .gridPane .gridControls > * {
-        margin: 2px 3px;
-        display: inline-block;
-        vertical-align: middle;
-    }
-     .gridPane .gridControls button {
-        height: 2.2em;
-        margin: 4px;
-        white-space: nowrap;
-    }
-     .gridPane .gridControls button > * {
-        display: inline-block;
-        vertical-align: middle;
-    }
-     .gridPane .gridControls button img {
-        padding: 0 0.4em 0 0;
-    }
-    .busy .gridControls .busy_indicator {
-        visibility: visible;
-    }
-     .gridControls .busy_indicator {
-        z-index: 20;
-        visibility: hidden;
-    }
+  #faceted_tracksel_top > * {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 5px;
+  }
+  #faceted_tracksel_top .title {
+    padding: 0;
+    width: 185px;
 
+    font-weight: bold;
+    color: white;
+    font-size: 180%;
+  }
 
-     label.textFilterControl img.text_filter_clear {
-        display: none;
-    }
-     label.textFilterControl.selected img.text_filter_clear {
-        display: block;
-    }
-     label.textFilterControl input {
-        border-top: 3px solid transparent;
-        font-weight: bold;
-        padding: 0.2em;
-    }
-     label.textFilterControl.selected input {
-        border-top: 3px solid #396494;
-        background: #D2E1F1;
-    }
+  .faceted_tracksel_on_off.tab {
+    position: absolute;
+    top: 5em;
+    left: 100%;
+    z-index: 5;
 
-    /* Track selector title bar */
-    #faceted_tracksel_top {
-        border-bottom: 1px solid #ccc;
-        padding: 5px;
-    }
-    #faceted_tracksel_top {
-        background: #396494;
-    }
-    #faceted_tracksel_top .topLink {
-        color: white;
-    }
+    padding: 5px 0px;
+    white-space: nowrap;
 
-    #faceted_tracksel_top > * {
-        display: inline-block;
-        vertical-align: middle;
-        margin-left: 5px;
-    }
-    #faceted_tracksel_top .title {
-        padding: 0;
-        width: 185px;
+    cursor: pointer;
 
-        font-weight: bold;
-        color: white;
-        font-size: 180%;
-    }
+    -moz-box-shadow: 4px 4px 10px 2px rgba(80, 80, 80, 0.3);
+    -webkit-box-shadow: 4px 4px 10px 2px rgba(80, 80, 80, 0.3);
+    box-shadow: 4px 4px 10px 2px rgba(80, 80, 80, 0.3);
+  }
+  div.faceted_tracksel_on_off.tab > * {
+    display: inline-block;
+    vertical-align: middle;
+    padding: 0 6px;
+  }
+  .faceted_tracksel_on_off.tab {
+    background: #e9e9e9
+      url('../node_modules/dijit/themes/tundra/images/titleBar.png') top
+      repeat-x;
+    border: 2px solid #666;
 
-     .faceted_tracksel_on_off.tab {
-        position: absolute;
-        top: 5em;
-        left: 100%;
-        z-index: 5;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+  }
 
-        padding: 5px 0px;
-        white-space: nowrap;
+  #faceted_tracksel_top div.topLink {
+    position: absolute;
+    top: 0;
+    right: 0;
 
-        cursor: pointer;
+    background: none;
+    border: none;
+    color: white;
+    padding: 3px 0.6em;
 
-        -moz-box-shadow: 4px 4px 10px 2px rgba( 80, 80, 80, 0.3 );
-        -webkit-box-shadow: 4px 4px 10px 2px rgba( 80, 80, 80, 0.3 );
-        box-shadow: 4px 4px 10px 2px rgba( 80, 80, 80, 0.3 );
-    }
-     div.faceted_tracksel_on_off.tab > * {
-        display: inline-block;
-        vertical-align: middle;
-        padding: 0 6px;
-    }
-     .faceted_tracksel_on_off.tab {
-        background: #e9e9e9 url("../node_modules/dijit/themes/tundra/images/titleBar.png") top repeat-x;
-        border: 2px solid #666;
+    font-weight: bold;
+  }
 
-        border-top-right-radius: 5px;
-        border-bottom-right-radius: 5px;
-    }
+  /* Facet selection controls */
 
+  .facetSelect {
+    width: 100%;
+    border-spacing: 0;
+  }
+  .facetSelect .facetValue {
+    padding: 0.1em 0.4em;
+    cursor: pointer;
+  }
+  .facetSelect .facetValue > * {
+    vertical-align: top;
+  }
+  .facetSelect .disabled {
+    color: gray;
+  }
 
-    #faceted_tracksel_top div.topLink {
-        position: absolute;
-        top: 0;
-        right: 0;
+  .facetSelect .facetValue.disabled {
+    display: none;
+  }
+  .facetSelect .facetValue.disabled.selected {
+    display: table-row;
+  }
 
-        background: none;
-        border: none;
-        color: white;
-        padding: 3px 0.6em;
+  .facetSelect .facetValue:hover {
+    background: #d2e1f1;
+  }
 
-        font-weight: bold;
-    }
+  .facetSelect .facetValue .count {
+    padding: 0 0.7em 0 0.4em;
+    color: #333;
+    text-align: right;
+  }
+  .facetSelect .facetValue .value {
+    width: 80%;
+  }
 
+  .facetSelect .selected {
+    background: #b1d3f6;
+  }
+  .facetSelect .facetValue.selected,
+  .facetSelect .facetValue.selected:hover {
+    background: #aec7e3;
+  }
 
-    /* Facet selection controls */
+  .dijitContentPane {
+    padding: 0;
+  }
+  .dijitTitlePane .dijitTitlePaneTitle {
+    padding: 0;
+  }
+  .dijitTitlePaneTitleFocus {
+    position: relative;
+  }
+  .dijitTitlePaneTitleFocus {
+    border-top: 3px solid transparent;
+    padding: 2px 2px 2px 0.6em;
+    color: #1b3047;
+  }
+  .dijitOpen .facetTitle {
+    font-weight: bold;
+    color: black;
+  }
 
-     .facetSelect {
-        width: 100%;
-        border-spacing: 0;
-    }
-     .facetSelect .facetValue {
-        padding: 0.1em 0.4em;
-        cursor: pointer;
-    }
-     .facetSelect .facetValue > * {
-        vertical-align: top;
-    }
-     .facetSelect .disabled {
-        color: gray;
-    }
+  .activeFacet .facetTitle {
+    font-weight: bold;
+    color: black;
+  }
+  .activeFacet {
+    border-top: 3px solid #396494;
+    background-color: #aec7e3;
+  }
 
-     .facetSelect .facetValue.disabled {
-        display: none;
-    }
-     .facetSelect .facetValue.disabled.selected {
-        display: table-row;
-    }
+  .facetTitle a {
+    position: absolute;
+    top: 2px;
+    right: -4px;
+    visibility: hidden;
+  }
+  .activeFacet a.clearFacet {
+    visibility: visible;
+    padding: 1px 6px;
+  }
 
-     .facetSelect .facetValue:hover {
-        background: #D2E1F1;
-    }
+  .dijitTitlePaneContentInner {
+    padding: 0px;
+  }
 
-     .facetSelect .facetValue .count {
-        padding: 0 0.7em 0 0.4em;
-        color: #333;
-        text-align: right;
-    }
-     .facetSelect .facetValue .value {
-        width: 80%;
-    }
+  /* styling specifically for the title of the first facet title, which is 'My Tracks' */
+  .myTracks .facetTitle:after {
+    content: url('../node_modules/dijit/themes/tundra/images/circleIcon.png');
+    margin-left: 7px;
+  }
+  .myTracks .facetTitle {
+    color: black;
+    font-weight: bold;
+    padding-bottom: 6px;
+  }
 
-     .facetSelect .selected {
-        background: #b1d3f6;
-    }
-     .facetSelect .facetValue.selected,
-     .facetSelect .facetValue.selected:hover {
-        background: #AEC7E3;
-    }
-
-
-     .dijitContentPane{
-        padding: 0;
-    }
-     .dijitTitlePane .dijitTitlePaneTitle {
-        padding: 0;
-    }
-     .dijitTitlePaneTitleFocus {
-        position: relative;
-    }
-     .dijitTitlePaneTitleFocus {
-        border-top: 3px solid transparent;
-        padding: 2px 2px 2px 0.6em;
-        color: #1B3047
-    }
-     .dijitOpen .facetTitle {
-        font-weight: bold;
-        color: black;
-    }
-
-     .activeFacet .facetTitle {
-        font-weight: bold;
-        color: black;
-    }
-     .activeFacet {
-        border-top: 3px solid #396494;
-        background-color: #AEC7E3;
-    }
-
-     .facetTitle a {
-        position: absolute;
-        top: 2px;
-        right: -4px;
-        visibility: hidden;
-    }
-     .activeFacet a.clearFacet {
-        visibility: visible;
-        padding: 1px 6px;
-    }
-
-     .dijitTitlePaneContentInner {
-        padding: 0px;
-    }
-
-
-    /* styling specifically for the title of the first facet title, which is 'My Tracks' */
-     .myTracks .facetTitle:after {
-        content: url("../node_modules/dijit/themes/tundra/images/circleIcon.png");
-        margin-left: 7px;
-    }
-     .myTracks .facetTitle {
-        color: black;
-        font-weight: bold;
-        padding-bottom: 6px;
-    }
-
-    /* style the 'empty' and similar messages that show up in the grid master pane */
-     .dojoxGridMasterMessages {
-        font-size: 16px;
-    }
-
-
-
+  /* style the 'empty' and similar messages that show up in the grid master pane */
+  .dojoxGridMasterMessages {
+    font-size: 16px;
+  }
 }
-

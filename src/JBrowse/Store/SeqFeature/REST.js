@@ -36,7 +36,7 @@ define([
       // make sure the baseUrl has a trailing slash
       this.baseUrl = args.baseUrl || this.config.baseUrl
       if (this.baseUrl.charAt(this.baseUrl.length - 1) != '/') {
-        this.baseUrl = this.baseUrl + '/'
+        this.baseUrl = `${this.baseUrl}/`
       }
 
       // enable feature density bin fetching if turned on
@@ -297,7 +297,7 @@ define([
       return (
         this._cache ||
         (this._cache = new LRUCache({
-          name: 'REST data cache ' + this.name,
+          name: `REST data cache ${this.name}`,
           maxSize: 25000, // cache up to about 5MB of data (assuming about 200B per feature)
           sizeFunction: function (data) {
             return data.length || 1
@@ -335,12 +335,9 @@ define([
         var httpStatus = ((error || {}).response || {}).status
         if (httpStatus >= 400) {
           handler(
-            'HTTP ' +
-              httpStatus +
-              ' fetching ' +
-              error.response.url +
-              ' : ' +
-              error.response.text,
+            `HTTP ${httpStatus} fetching ${error.response.url} : ${
+              error.response.text
+            }`,
           )
         } else {
           handler(error)
@@ -361,14 +358,14 @@ define([
 
       if (query) {
         if (query.ref) {
-          url += '/' + query.ref
+          url += `/${query.ref}`
           query = lang.mixin({}, query)
           delete query.ref
         }
 
         query = ioquery.objectToQuery(query)
         if (query) {
-          url += '?' + query
+          url += `?${query}`
         }
       }
 

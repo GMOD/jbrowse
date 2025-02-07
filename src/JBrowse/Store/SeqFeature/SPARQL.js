@@ -98,11 +98,9 @@ define([
 
           xhr
             .get(
-              this.url +
-                '?' +
-                ioQuery.objectToQuery({
-                  query: this._makeQuery(query),
-                }),
+              `${this.url}?${ioQuery.objectToQuery({
+                query: this._makeQuery(query),
+              })}`,
               {
                 headers: headers,
                 handleAs: 'json',
@@ -131,9 +129,7 @@ define([
         for (var i = 0; i < requiredFields.length; i++) {
           if (fields.indexOf(requiredFields[i]) == -1) {
             console.error(
-              'Required field ' +
-                requiredFields[i] +
-                ' missing from feature data',
+              `Required field ${requiredFields[i]} missing from feature data`,
             )
             return
           }

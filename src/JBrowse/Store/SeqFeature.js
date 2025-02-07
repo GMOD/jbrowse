@@ -246,9 +246,9 @@ define([
     addFeatureTransform: function (transformFunction) {
       if (!this.supportsFeatureTransforms) {
         throw new Error(
-          'store class ' +
-            this.getConf('type') +
-            ' does not support feature transforms',
+          `store class ${this.getConf(
+            'type',
+          )} does not support feature transforms`,
         )
       }
       this._featureTransforms.push(transformFunction)

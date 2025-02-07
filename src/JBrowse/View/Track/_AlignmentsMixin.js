@@ -31,18 +31,18 @@ define([
       let container
       if (f.pairedFeature() && track.config.viewAsPairs) {
         container = dojo.create('div', {
-          className:
-            'detail feature-detail feature-detail-' +
-            track.name.replace(/\s+/g, '_').toLowerCase(),
+          className: `detail feature-detail feature-detail-${track.name
+            .replace(/\s+/g, '_')
+            .toLowerCase()}`,
           style: { width: '1000px' },
         })
         dojo.place('<div><h1>Paired read details</h1></div><br />', container)
         var flexContainer = dojo.create(
           'div',
           {
-            className:
-              'detail feature-detail feature-detail-' +
-              track.name.replace(/\s+/g, '_').toLowerCase(),
+            className: `detail feature-detail feature-detail-${track.name
+              .replace(/\s+/g, '_')
+              .toLowerCase()}`,
             style: {
               display: 'flex',
               'flex-direction': 'row',
@@ -72,9 +72,9 @@ define([
     },
     defaultAlignmentDetail(track, f, div) {
       var container = dojo.create('div', {
-        className:
-          'detail feature-detail feature-detail-' +
-          track.name.replace(/\s+/g, '_').toLowerCase(),
+        className: `detail feature-detail feature-detail-${track.name
+          .replace(/\s+/g, '_')
+          .toLowerCase()}`,
         innerHTML: '',
       })
       var fmt = dojo.hitch(this, function (name, value, feature, unsafe) {
@@ -143,18 +143,15 @@ define([
 
       var html = ''
       for (var i = 0; i < seq.length; i++) {
-        html +=
-          '<div class="basePosition" title="position ' +
-          (i + 1) +
-          '"><span class="seq">' +
-          seq[i] +
-          '</span>'
+        html += `<div class="basePosition" title="position ${
+          i + 1
+        }"><span class="seq">${seq[i]}</span>`
         if (qual[i]) {
-          html += '<span class="qual">' + qual[i] + '</span>'
+          html += `<span class="qual">${qual[i]}</span>`
         }
         html += '</div>'
       }
-      return '<div class="baseQuality">' + html + '</div>'
+      return `<div class="baseQuality">${html}</div>`
     },
 
     // recursively find all the stylesheets that are loaded in the
@@ -440,23 +437,11 @@ define([
           var padding = rpos.toString().replace(/./g, ' ')
           var offset1 = s1.length - (s1.match(/[-N\.]/g) || []).length
           var offset2 = s3.length - (s3.match(/[-]/g) || []).length
-          ret_str +=
-            'Query    ' +
-            this.pad(padding, qpos, true) +
-            ': ' +
-            s1 +
-            ' ' +
-            (qpos + offset1) +
-            '<br>'
-          ret_str += '         ' + padding + '  ' + s2 + '   <br>'
-          ret_str +=
-            'Ref:     ' +
-            rpos +
-            ': ' +
-            s3 +
-            ' ' +
-            (rpos + offset2) +
-            '  <br><br>'
+          ret_str += `Query    ${this.pad(padding, qpos, true)}: ${s1} ${
+            qpos + offset1
+          }<br>`
+          ret_str += `         ${padding}  ${s2}   <br>`
+          ret_str += `Ref:     ${rpos}: ${s3} ${rpos + offset2}  <br><br>`
           qpos += offset1
           rpos += offset2
         }
@@ -464,10 +449,9 @@ define([
           'div',
           {
             className: 'renderTable',
-            innerHTML:
-              '<h2 class="sectiontitle">Matches</h2><div style=\"font-family: Courier; white-space: pre;\">' +
-              ret_str +
-              '</div>',
+            innerHTML: `<h2 class="sectiontitle">Matches</h2><div style=\"font-family: Courier; white-space: pre;\">${
+              ret_str
+            }</div>`,
           },
           parentElement,
         )
@@ -477,16 +461,12 @@ define([
           {
             className: 'renderTable',
             innerHTML:
-              '<h2 class="sectiontitle">Matches</h2><div style=\"font-family: Courier; white-space: pre;\">' +
-              'Query: ' +
-              query_str +
-              '   <br>' +
-              '       ' +
-              align_str +
-              '   <br>' +
-              'Ref:   ' +
-              refer_str +
-              '   </div>',
+              `${
+                '<h2 class="sectiontitle">Matches</h2><div style=\"font-family: Courier; white-space: pre;\">' +
+                'Query: '
+              }${query_str}   <br>` +
+              `       ${align_str}   <br>` +
+              `Ref:   ${refer_str}   </div>`,
           },
           parentElement,
         )

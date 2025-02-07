@@ -25,9 +25,7 @@ define([
        */
       _printHeader: function (feature) {
         // print the BED header
-        this.print(
-          '>Feature ' + (feature.get('seq_id') || this.refSeq.name) + '\n',
-        )
+        this.print(`>Feature ${feature.get('seq_id') || this.refSeq.name}\n`)
         return true
       },
 
@@ -75,16 +73,13 @@ define([
           )
           .filter(t => !!t[1])
 
-        return (
-          featLine.join('\t') +
-          '\n' +
-          array
-            .map(qualifiers, function (q) {
-              return '\t\t\t' + q.join('\t') + '\n'
-            })
-            .join('') +
-          array.map(feature.children(), f => this.formatFeature(f)).join('')
-        )
+        return `${featLine.join('\t')}\n${array
+          .map(qualifiers, function (q) {
+            return `\t\t\t${q.join('\t')}\n`
+          })
+          .join(
+            '',
+          )}${array.map(feature.children(), f => this.formatFeature(f)).join('')}`
       },
 
       stringifyAttributeValue: function (val) {

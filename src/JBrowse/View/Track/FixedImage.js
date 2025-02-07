@@ -36,8 +36,8 @@ define([
       ) {
         var handler = dojo.hitch(this, function () {
           this.imageHeight = img.height
-          img.style.height = img.height + 'px'
-          img.style.width = 100 * (img.baseWidth / blockWidth) + '%'
+          img.style.height = `${img.height}px`
+          img.style.width = `${100 * (img.baseWidth / blockWidth)}%`
           this.heightUpdate(img.height, blockIndex)
           if (composeCallback) {
             composeCallback()
@@ -76,8 +76,7 @@ define([
                 im.className = 'image-track'
                 if (!(im.parentNode && im.parentNode.parentNode)) {
                   im.style.position = 'absolute'
-                  im.style.left =
-                    100 * ((im.startBase - leftBase) / blockWidth) + '%'
+                  im.style.left = `${100 * ((im.startBase - leftBase) / blockWidth)}%`
                   switch (this.config.align) {
                     case 'top':
                       im.style.top = '0px'
@@ -85,7 +84,7 @@ define([
                     case 'bottom':
                     /* fall through */
                     default:
-                      im.style.bottom = this.trackPadding + 'px'
+                      im.style.bottom = `${this.trackPadding}px`
                       break
                   }
                   block.domNode.appendChild(im)
@@ -160,8 +159,7 @@ define([
               im.startBase + im.baseWidth > destLeft
             ) {
               //move image from sourceBlock to destBlock
-              im.style.left =
-                100 * ((im.startBase - destLeft) / (destRight - destLeft)) + '%'
+              im.style.left = `${100 * ((im.startBase - destLeft) / (destRight - destLeft))}%`
               destBlock.domNode.appendChild(im)
             }
           }

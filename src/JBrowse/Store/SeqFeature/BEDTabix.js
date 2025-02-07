@@ -50,7 +50,7 @@ define([
             new XHRBlob(
               this.resolveUrl(
                 this.getConf('tbiUrlTemplate', []) ||
-                  this.getConf('urlTemplate', []) + '.tbi',
+                  `${this.getConf('urlTemplate', [])}.tbi`,
               ),
             )
         }
@@ -157,7 +157,7 @@ define([
       _formatFeature: function (data) {
         var f = new SimpleFeature({
           data: this._featureData(data),
-          id: data.seq_id + '_' + data.start + '_' + data.end + '_' + data.name,
+          id: `${data.seq_id}_${data.start}_${data.end}_${data.name}`,
         })
         f._reg_seq_id = this.browser.regularizeReferenceName(data.seq_id)
         return f

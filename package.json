@@ -5,6 +5,7 @@
   "description": "JBrowse - client-side genome browser",
   "repository": "https://github.com/GMOD/jbrowse.git",
   "scripts": {
+    "format": "prettier --write .",
     "test": "npm run test-puppeteer",
     "test-all": "npm run build && npm run test-puppeteer && npm run test-perl && npm run test-electron && npm run test-selenium",
     "test-puppeteer": "node tests/js_tests/run-puppeteer.js http://localhost:8082/tests/js_tests/index.html",
@@ -81,6 +82,7 @@
     "imports-loader": "^0.8.0",
     "jasmine-node": "^3.0.0",
     "node-sass": "^4.12.0",
+    "prettier": "^3.4.2",
     "puppeteer": "^1.0.0",
     "quick-lru": "^2.0.0",
     "regexp-replace-loader": "^1.0.1",

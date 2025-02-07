@@ -21,8 +21,8 @@ define(['JBrowse/Util'], function (Util) {
       return field in this.data
         ? this.data[field] // have we already parsed it out?
         : function (field) {
-            var v = (this.data[field] = this['_parse_' + field]
-              ? this['_parse_' + field]() // maybe we have a special parser for it
+            var v = (this.data[field] = this[`_parse_${field}`]
+              ? this[`_parse_${field}`]() // maybe we have a special parser for it
               : undefined)
             return v
           }.call(this, field)
@@ -231,7 +231,7 @@ define(['JBrowse/Util'], function (Util) {
       }
       if (soTerm) {
         let description = this.parser.getMetadata('ALT', alt, 'Description')
-          ? alt + ' - ' + this.parser.getMetadata('ALT', alt, 'Description')
+          ? `${alt} - ${this.parser.getMetadata('ALT', alt, 'Description')}`
           : this._makeDescriptionString(soTerm, ref, alt)
         return [soTerm, description]
       }
@@ -241,7 +241,7 @@ define(['JBrowse/Util'], function (Util) {
       if (alt.length > 1) {
         return this._getSOAndDescFromAltDefs(
           ref,
-          '<' + alt.slice(0, alt.length - 1).join(':') + '>',
+          `<${alt.slice(0, alt.length - 1).join(':')}>`,
         )
       } else {
         // no parent
@@ -282,7 +282,7 @@ define(['JBrowse/Util'], function (Util) {
     },
 
     _makeDescriptionString: function (soTerm, ref, alt) {
-      return soTerm + ' ' + ref + ' -> ' + alt
+      return `${soTerm} ${ref} -> ${alt}`
     },
   })
 

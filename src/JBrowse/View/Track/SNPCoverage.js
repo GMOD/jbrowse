@@ -94,7 +94,7 @@ define([
           style: {
             cursor: 'default',
             width: '100%',
-            height: snpCanvasHeight + 'px',
+            height: `${snpCanvasHeight}px`,
           },
           innerHTML: 'Your web browser cannot display this type of track.',
           className: 'SNP-indicator-track',
@@ -117,7 +117,7 @@ define([
         snpCanvas.height = oldHeight * ratio
 
         //c.style.width = oldWidth + 'px';
-        snpCanvas.style.height = oldHeight + 'px'
+        snpCanvas.style.height = `${oldHeight}px`
 
         // now scale the context to counter
         // the fact that we've manually scaled
@@ -346,7 +346,7 @@ define([
       function pctString(count) {
         count = Math.round((count / total) * 100)
         if (typeof count == 'number' && !isNaN(count)) {
-          return count + '%'
+          return `${count}%`
         }
         return ''
       }
@@ -360,39 +360,32 @@ define([
           if (count.forEach) {
             subdistribution = []
             count.forEach(function (count, category) {
-              subdistribution.push(fmtNum(count) + ' ' + category)
+              subdistribution.push(`${fmtNum(count)} ${category}`)
             })
             subdistribution = subdistribution.join(', ')
             if (subdistribution) {
-              subdistribution = '(' + subdistribution + ')'
+              subdistribution = `(${subdistribution})`
             }
           }
 
           category =
             { '*': 'del', reference: 'Ref', skip: 'Skip/intron' }[category] ||
             category
-          scoreSummary +=
-            '<tr><td>' +
-            category +
-            '</td><td class="count">' +
-            fmtNum(count) +
-            '</td><td class="pct">' +
-            pctString(count) +
-            '</td><td class="subdist">' +
-            subdistribution +
-            '</td></tr>'
+          scoreSummary += `<tr><td>${category}</td><td class="count">${fmtNum(
+            count,
+          )}</td><td class="pct">${pctString(count)}</td><td class="subdist">${
+            subdistribution
+          }</td></tr>`
         })
-        scoreSummary +=
-          '<tr class="total"><td>Total</td><td class="count">' +
-          fmtNum(total) +
-          '</td><td class="pct">&nbsp;</td><td class="subdist">&nbsp;</td></tr>'
-        scoreDisplay.innerHTML = scoreSummary + '</table>'
+        scoreSummary += `<tr class="total"><td>Total</td><td class="count">${fmtNum(
+          total,
+        )}</td><td class="pct">&nbsp;</td><td class="subdist">&nbsp;</td></tr>`
+        scoreDisplay.innerHTML = `${scoreSummary}</table>`
         return true
       } else {
-        scoreDisplay.innerHTML =
-          '<table><tr><td>Total</td><td class="count">' +
-          fmtNum(score) +
-          '</td></tr></table>'
+        scoreDisplay.innerHTML = `<table><tr><td>Total</td><td class="count">${fmtNum(
+          score,
+        )}</td></tr></table>`
         return true
       }
     },

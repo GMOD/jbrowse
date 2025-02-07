@@ -21,8 +21,8 @@ define(['JBrowse/Util'], function (Util) {
         args.id ||
         this.data.uniqueID ||
         (this._parent
-          ? this._parent.id() + '_' + counter++
-          : 'SimpleFeature_' + counter++)
+          ? `${this._parent.id()}_${counter++}`
+          : `SimpleFeature_${counter++}`)
 
       // inflate any subfeatures that are not already feature objects
       var subfeatures

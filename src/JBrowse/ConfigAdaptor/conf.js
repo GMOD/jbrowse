@@ -65,11 +65,11 @@ define([
             lang.setObject(path, value, data)
           } catch (e) {
             throw new Error(
-              'syntax error' +
-                ((load_args.config || {}).url
-                  ? ' in ' + load_args.config.url
-                  : '') +
-                (lineNumber ? ' at line ' + (lineNumber - 1) : ''),
+              `syntax error${
+                (load_args.config || {}).url
+                  ? ` in ${load_args.config.url}`
+                  : ''
+              }${lineNumber ? ` at line ${lineNumber - 1}` : ''}`,
             )
           }
         }
@@ -119,7 +119,7 @@ define([
           }
           // add to existing value
           else if (value !== undefined && (match = line.match(/^\s+(\S.*)/))) {
-            value += value.length ? ' ' + match[1].trim() : match[1].trim()
+            value += value.length ? ` ${match[1].trim()}` : match[1].trim()
           }
           // done with last value
           else {

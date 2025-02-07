@@ -94,7 +94,7 @@
         } else {
           if (!(isArrayOrObject(v) && isEmptyObject(v))) {
             throw new Error(
-              'Trying to redefine `' + k + '` which is a ' + typeof obj[k],
+              `Trying to redefine \`${k}\` which is a ${typeof obj[k]}`,
             )
           }
 
@@ -106,7 +106,7 @@
     } else {
       if (!this.override && isArrayOrObject(obj[k]) && !isEmptyObject(obj[k])) {
         if (!(isArrayOrObject(v) && isEmptyObject(v))) {
-          throw new Error("Trying to redefine non-empty obj['" + k + "']")
+          throw new Error(`Trying to redefine non-empty obj['${k}']`)
         }
 
         return

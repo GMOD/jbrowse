@@ -5,36 +5,53 @@ title: biodb-to-json.pl
 
 ### biodb-to-json.pl
 
-This script uses a [config file](/JBrowseDev/Current/Usage/ConfigFiles "wikilink") to produce a set of feature tracks in JBrowse. It can be used to obtain information from any database with appropriate [schema](/Glossary#Database_Schema "wikilink"), or from flat files. Because it can produce several feature tracks in a single execution, it is useful for large-scale feature data entry into JBrowse.
+This script uses a
+[config file](/JBrowseDev/Current/Usage/ConfigFiles 'wikilink') to produce a set
+of feature tracks in JBrowse. It can be used to obtain information from any
+database with appropriate [schema](/Glossary#Database_Schema 'wikilink'), or
+from flat files. Because it can produce several feature tracks in a single
+execution, it is useful for large-scale feature data entry into JBrowse.
 
 Basic usage:
 
 `bin/biodb-to-json.pl --conf <config file> [options]`
 
-For a full list of the options supported by biodb-to-json.pl, run it with the --help option, like:
+For a full list of the options supported by biodb-to-json.pl, run it with the
+--help option, like:
 
 `bin/biodb-to-json.pl --help`
 
-The `biodb-to-json.pl` and `prepare-refseqs.pl` can use a configuration file to connect to an existing `Bio::DB::*` database and batch-format its data for use by JBrowse
+The `biodb-to-json.pl` and `prepare-refseqs.pl` can use a configuration file to
+connect to an existing `Bio::DB::*` database and batch-format its data for use
+by JBrowse
 
 ## Important note
 
-You should know that biodb-to-json.pl is not necessary for most common JBrowse use cases. The reasons that biodb-to-json.pl would be used is if:
+You should know that biodb-to-json.pl is not necessary for most common JBrowse
+use cases. The reasons that biodb-to-json.pl would be used is if:
 
--   you have an actual `BioDB::*` format like Chado
--   you have plain flatfile formats like GFF but also want advanced pre-configured JSON
+- you have an actual `BioDB::*` format like Chado
+- you have plain flatfile formats like GFF but also want advanced pre-configured
+  JSON
 
-Note that the volvox sample data uses the second case. It loads from a GFF using `biodb-to-json.pl` but since there are many sort of advanced configurations, having those configuration pre-made in the `biodb-to-json.pl` config format helps
+Note that the volvox sample data uses the second case. It loads from a GFF using
+`biodb-to-json.pl` but since there are many sort of advanced configurations,
+having those configuration pre-made in the `biodb-to-json.pl` config format
+helps
 
 ## Alternative to biodb-to-json.pl
 
-See [here](perl_config) for an example of a simple shell script that uses `prepare-refseqs.pl` and `flatfile-to-json.pl` to to create a complete genome browser for Tomato.
+See [here](perl_config) for an example of a simple shell script that uses
+`prepare-refseqs.pl` and `flatfile-to-json.pl` to to create a complete genome
+browser for Tomato.
 
-The basic syntax of the configuration file is JSON. Many of the configuration keys are quite similar to those used by [GBrowse](http://gmod.org/wiki/GBrowse).
+The basic syntax of the configuration file is JSON. Many of the configuration
+keys are quite similar to those used by [GBrowse](http://gmod.org/wiki/GBrowse).
 
 ## Database configuration
 
-The root level of the config file contains settings for the BioDB that is being used
+The root level of the config file contains settings for the BioDB that is being
+used
 
 | key            | value                                                                                                              | type                                 |
 | -------------- | ------------------------------------------------------------------------------------------------------------------ | ------------------------------------ |
@@ -323,15 +340,25 @@ The main part of the configuration file consists of the **per-track settings:**
 
 ```
 
-This is the config file that is loaded for the volvox sample data. Note that additional tracks are also loaded via text files containing snippets in tracks.conf that are not included here. The pre-prepared snippets of tracks.conf configs and the biodb config represent contrasting ways of representing a pre-formatted instance configuration
+This is the config file that is loaded for the volvox sample data. Note that
+additional tracks are also loaded via text files containing snippets in
+tracks.conf that are not included here. The pre-prepared snippets of tracks.conf
+configs and the biodb config represent contrasting ways of representing a
+pre-formatted instance configuration
 
 ## Using JBrowse with Existing Databases
 
 ### Extract data and reformat
 
-The JBrowse formatting tools `biodb-to-json.pl` and `prepare-refseq.pl` can extract data from existing databases that are supported by BioPerl `Bio::DB::*` adapters, such as GBrowse databases created by bp_seqfeature_load.pl, or Chado databases. Both tools accepts a configuration file in JSON format that contains the details about how to connect to a given database, and which data to extract from it, and which JBrowse feature tracks to create to display the data.
+The JBrowse formatting tools `biodb-to-json.pl` and `prepare-refseq.pl` can
+extract data from existing databases that are supported by BioPerl `Bio::DB::*`
+adapters, such as GBrowse databases created by bp_seqfeature_load.pl, or Chado
+databases. Both tools accepts a configuration file in JSON format that contains
+the details about how to connect to a given database, and which data to extract
+from it, and which JBrowse feature tracks to create to display the data.
 
-For example, to extract data from a [Chado](http://gmod.org/wiki/Chado) schema in PostgreSQL, one might start with a configuration like:
+For example, to extract data from a [Chado](http://gmod.org/wiki/Chado) schema
+in PostgreSQL, one might start with a configuration like:
 
      {
        "description": "D. melanogaster (release 5.37)",
@@ -343,11 +370,23 @@ For example, to extract data from a [Chado](http://gmod.org/wiki/Chado) schema i
        ...
      }
 
-In the database source name (dsn) argument, 'dbi:Pg' indicates that you are using PostgreSQL, and the dbname, host, and port were specified when the database was created with PostgreSQL's createdb command. The user and pass arguments were specified when the PostgreSQL user account was created with the createuser command. Collectively, these arguments identify the database and give the Bio::DB::Das::Chado object access to it. Other adaptors (Bio::DB::SeqFeature::Store, Bio:DB::GFF, etc.) will require similar information.
+In the database source name (dsn) argument, 'dbi:Pg' indicates that you are
+using PostgreSQL, and the dbname, host, and port were specified when the
+database was created with PostgreSQL's createdb command. The user and pass
+arguments were specified when the PostgreSQL user account was created with the
+createuser command. Collectively, these arguments identify the database and give
+the Bio::DB::Das::Chado object access to it. Other adaptors
+(Bio::DB::SeqFeature::Store, Bio:DB::GFF, etc.) will require similar
+information.
 
 #### Example Configuration
 
-Here is a sample configuration file, usable with `biodb-to-json.pl` and `prepare-refseqs.pl`, with each line explained. Note that, in order for this config file to work, it would be necessary to remove the grey comments (since JSON does not support them). Also, notice that the config file is divided into two parts, a header section that contains information about the database, and a body section that contains information about the feature tracks.
+Here is a sample configuration file, usable with `biodb-to-json.pl` and
+`prepare-refseqs.pl`, with each line explained. Note that, in order for this
+config file to work, it would be necessary to remove the grey comments (since
+JSON does not support them). Also, notice that the config file is divided into
+two parts, a header section that contains information about the database, and a
+body section that contains information about the feature tracks.
 
 ```javascript
 {

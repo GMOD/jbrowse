@@ -104,9 +104,9 @@ class CramSlightlyLazyFeature {
   }
   _get_next_segment_position() {
     return this.record.mate
-      ? this._store._refIdToName(this.record.mate.sequenceId) +
-          ':' +
+      ? `${this._store._refIdToName(this.record.mate.sequenceId)}:${
           this.record.mate.alignmentStart
+        }`
       : undefined
   }
   _get_tags() {
@@ -226,7 +226,7 @@ define([
           )
         } else if (args.urlTemplate) {
           indexBlob = new BlobFilehandleWrapper(
-            new XHRBlob(this.resolveUrl(args.urlTemplate + '.crai')),
+            new XHRBlob(this.resolveUrl(`${args.urlTemplate}.crai`)),
           )
         } else {
           throw new Error('no index provided, must provide a CRAM index')

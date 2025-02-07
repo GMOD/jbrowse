@@ -2485,14 +2485,13 @@ define(['./arrayCopy'], function (arrayCopy) {
             : typeof z.msg == 'string'
               ? new Error(z.msg)
               : new Error(
-                  'Unknown error in inflate: msg="' +
-                    z.msg +
-                    '", status="' +
-                    STATUS_STRINGS[status] || status + '"',
+                  `Unknown error in inflate: msg="${z.msg}", status="${
+                    STATUS_STRINGS[status]
+                  }` || `${status}"`,
                 )
           : new Error(
-              'Inflate error, status="' + STATUS_STRINGS[status] ||
-                status + '")',
+              `Inflate error, status="${STATUS_STRINGS[status]}` ||
+                `${status}")`,
             )
         error.statusCode = status
         error.statusString = STATUS_STRINGS[status]

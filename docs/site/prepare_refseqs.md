@@ -5,26 +5,45 @@ title: prepare-refseqs.pl
 
 The prepare-refseqs.pl script can load a reference sequence file from
 
--   Indexed FASTA (e.g. .fa and .fai)
--   TwoBit (e.g. UCSC .2bit file)
--   FASTA (converts to JSON format)
--   Chomosome sizes (e.g. just load hg19.chrom.sizes, without sequence data)
+- Indexed FASTA (e.g. .fa and .fai)
+- TwoBit (e.g. UCSC .2bit file)
+- FASTA (converts to JSON format)
+- Chomosome sizes (e.g. just load hg19.chrom.sizes, without sequence data)
 
-The simplest way to use it is with the --fasta option, which uses a single sequence or set of reference sequences from a FASTA file:
+The simplest way to use it is with the --fasta option, which uses a single
+sequence or set of reference sequences from a FASTA file:
 
     bin/prepare-refseqs.pl --fasta yourfile.fa
 
-Indexed file formats are becoming much better, so we also suggest you look at the [indexed file format tutorial](tutorial.html) and consider indexed fasta or 2bit
+Indexed file formats are becoming much better, so we also suggest you look at
+the [indexed file format tutorial](tutorial.html) and consider indexed fasta or
+2bit
 
-This script is used to format sequence data for use by JBrowse, and must be run before adding other tracks. In addition to formatting the sequence data, this script creates a track called "DNA" that displays the reference sequence. The simplest way to use it is with the --fasta option, which uses a single sequence or set of reference sequences from a [FASTA](/Glossary#FASTA "wikilink") file:
+This script is used to format sequence data for use by JBrowse, and must be run
+before adding other tracks. In addition to formatting the sequence data, this
+script creates a track called "DNA" that displays the reference sequence. The
+simplest way to use it is with the --fasta option, which uses a single sequence
+or set of reference sequences from a [FASTA](/Glossary#FASTA 'wikilink') file:
 
 `bin/prepare-refseqs.pl --fasta <fasta file> [options]`
 
-If the file has multiple sequences (e.g. multiple chromosomes), each sequence will become a reference sequence by default. You may switch between these sequences by selecting the sequence of interest via the pull-down menu to the right of the large "zoom in" button.
+If the file has multiple sequences (e.g. multiple chromosomes), each sequence
+will become a reference sequence by default. You may switch between these
+sequences by selecting the sequence of interest via the pull-down menu to the
+right of the large "zoom in" button.
 
-You may use any alphabet you wish for your sequences (i.e., you are not restricted to the nucleotides A, T, C, and G; any alphanumeric character, as well as several other characters, may be used). Hence, it is possible to browse RNA and protein in addition to DNA. However, some characters should be avoided, because they will cause the sequence to "split" - part of the sequence will be cut off and and continue on the next line. These characters are the _hyphen_ and _question mark_. Unfortunately, this prevents the use of hyphens to represent gaps in a reference sequence.
+You may use any alphabet you wish for your sequences (i.e., you are not
+restricted to the nucleotides A, T, C, and G; any alphanumeric character, as
+well as several other characters, may be used). Hence, it is possible to browse
+RNA and protein in addition to DNA. However, some characters should be avoided,
+because they will cause the sequence to "split" - part of the sequence will be
+cut off and and continue on the next line. These characters are the _hyphen_ and
+_question mark_. Unfortunately, this prevents the use of hyphens to represent
+gaps in a reference sequence.
 
-In addition to reading from a fasta file, prepare-refseqs.pl can read sequences from a gff file or a database. In order to read fasta sequences from a database, a config file must be used.
+In addition to reading from a fasta file, prepare-refseqs.pl can read sequences
+from a gff file or a database. In order to read fasta sequences from a database,
+a config file must be used.
 
 Syntax used to import sequences from gff files:
 
@@ -34,7 +53,8 @@ Syntax used to import sequences with a config file:
 
 `bin/prepare-refseqs.pl --conf <config file that references a database with sequence information> --[refs|refid] <reference sequences> [options]`
 
-Syntax used to import a indexed fasta(i.e. a fasta file where you run \`samtools faidx yourfile.fa\` which outputs yourfile.fa.fai)
+Syntax used to import a indexed fasta(i.e. a fasta file where you run \`samtools
+faidx yourfile.fa\` which outputs yourfile.fa.fai)
 
 `bin/prepare-refseqs.pl --indexed_fasta yourfile.fa`
 
@@ -49,7 +69,10 @@ This will copy yourfile.fa and yourfile.fa.fai to the data directory
 | refs                                              | A comma-delimited list of the names of sequences to be imported as reference sequences. This option (or refid) is required when using the conf option. It is not required when the fasta or gff options are used, but it can be useful with these options, since it can be used to select which sequences JBrowse will import.                                                                                                                                                                                                                                                                                                                               |
 | refids                                            | A comma-delimited list of the database identifiers of sequences to be imported as reference sequences. This option is useful when working with a [Chado](http://gmod.org/wiki/Chado) database that contains data from multiple different species, and those species have at least one chromosome with the same name (e.g. chrX). In this case, the desired chromosome cannot be uniquely identified by name, so it is instead identified by ID. This ID can be found in the 'feature_id' column of 'feature' table in a Chado database.                                                                                                                      |
 
-Note: the `prepare-refseqs.pl --sizes chrom.sizes` option is maybe underappreciated. You can technically run jbrowse without any sequence data loaded, simply a set of chromosomes and their sizes. The chrom.sizes file simply can contain two column tab seperated list of chromosome names and their lengths.
+Note: the `prepare-refseqs.pl --sizes chrom.sizes` option is maybe
+underappreciated. You can technically run jbrowse without any sequence data
+loaded, simply a set of chromosomes and their sizes. The chrom.sizes file simply
+can contain two column tab seperated list of chromosome names and their lengths.
 
 ## prepare-refseqs.pl --help
 

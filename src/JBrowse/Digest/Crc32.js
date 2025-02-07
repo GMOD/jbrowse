@@ -30,7 +30,7 @@ define([], function () {
       crc = crc ^ -1
       for (var i = start, iTop = end; i < iTop; i++) {
         n = (crc ^ bytes[i]) & 0xff
-        x = '0x' + table.substr(n * 9, 8)
+        x = `0x${table.substr(n * 9, 8)}`
         crc = (crc >>> 8) ^ x
       }
       crc = crc ^ -1
@@ -50,7 +50,7 @@ define([], function () {
       crc = crc ^ -1
       for (var i = 0, iTop = bytes.length; i < iTop; i++) {
         n = (crc ^ bytes[i]) & 0xff
-        x = '0x' + table.substr(n * 9, 8)
+        x = `0x${table.substr(n * 9, 8)}`
         crc = (crc >>> 8) ^ x
       }
       crc = crc ^ -1
@@ -69,11 +69,11 @@ define([], function () {
       var crc = 0
       if (typeof obj == 'object') {
         for (var prop in obj) {
-          crc = Crc32.crc32('' + Crc32.objectFingerprint(prop), crc)
-          crc = Crc32.crc32('' + Crc32.objectFingerprint(obj[prop]), crc)
+          crc = Crc32.crc32(`${Crc32.objectFingerprint(prop)}`, crc)
+          crc = Crc32.crc32(`${Crc32.objectFingerprint(obj[prop])}`, crc)
         }
       } else {
-        crc = Crc32.crc32('' + obj, crc)
+        crc = Crc32.crc32(`${obj}`, crc)
       }
       return crc
     },

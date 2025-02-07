@@ -18,7 +18,7 @@ define([
           return false
         }
 
-        var newName = 'REF_' + basename + '_' + uniqCounter++
+        var newName = `REF_${basename}_${uniqCounter++}`
         configs[newName] = {
           type: this.storeType,
           fileBasename: basename,

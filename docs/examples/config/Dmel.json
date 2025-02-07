@@ -16,7 +16,7 @@
       "class": "feature2",
       "category": "Gene Model features",
       "urlTemplate": "http://flybase.org/cgi-bin/fbidq.html?{load_id}",
-      "extraData": {"load_id": "sub {shift->attributes(\"load_id\");}"}
+      "extraData": { "load_id": "sub {shift->attributes(\"load_id\");}" }
     },
     {
       "track": "mRNA",
@@ -32,10 +32,10 @@
       },
       "arrowheadClass": "transcript-arrowhead",
       "clientConfig": {
-        "histScale":5 
+        "histScale": 5
       },
       "urlTemplate": "http://flybase.org/cgi-bin/fbidq.html?{load_id}",
-      "extraData": {"load_id": "sub {shift->attributes(\"load_id\");}"}
+      "extraData": { "load_id": "sub {shift->attributes(\"load_id\");}" }
     },
     {
       "track": "chromosome_band",
@@ -85,7 +85,12 @@
     },
     {
       "track": "cDNA",
-      "feature": ["match:sim4_na_gb.dmel", "match:sim4_na_gb.tpa.dmel", "match:sim4tandem_na_gb.dmel", "match:splign_na_cDNA_ncbi"],
+      "feature": [
+        "match:sim4_na_gb.dmel",
+        "match:sim4_na_gb.tpa.dmel",
+        "match:sim4tandem_na_gb.dmel",
+        "match:splign_na_cDNA_ncbi"
+      ],
       "key": "cDNA and Aligned genomic sequences",
       "class": "generic_parent",
       "subfeatures": true,
@@ -93,13 +98,18 @@
         "match_part": "generic_part_a"
       },
       "clientConfig": {
-          "labelScale": 1000000
+        "labelScale": 1000000
       },
       "category": "Genome reagents and data"
     },
     {
       "track": "EST",
-      "feature": ["match:sim4_na_dbEST.same.dmel", "match:sim4_na_dbEST.diff.dmel", "match:splign_na_dbEST_ncbi", "match:tblastx_masked_na_dbEST.insect"],
+      "feature": [
+        "match:sim4_na_dbEST.same.dmel",
+        "match:sim4_na_dbEST.diff.dmel",
+        "match:splign_na_dbEST_ncbi",
+        "match:tblastx_masked_na_dbEST.insect"
+      ],
       "key": "EST",
       "class": "generic_parent",
       "subfeatures": true,
@@ -107,7 +117,7 @@
         "match_part": "match_part"
       },
       "clientConfig": {
-          "labelScale": 1000000
+        "labelScale": 1000000
       },
       "category": "Genome reagents and data"
     },

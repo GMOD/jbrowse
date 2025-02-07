@@ -41,7 +41,7 @@ define([
             new XHRBlob(
               this.resolveUrl(
                 this.getConf('idxUrlTemplate', []) ||
-                  this.getConf('urlTemplate', []) + '.idx',
+                  `${this.getConf('urlTemplate', [])}.idx`,
               ),
             ),
           )

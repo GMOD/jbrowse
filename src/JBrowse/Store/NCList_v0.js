@@ -139,7 +139,7 @@ define(['JBrowse/Finisher', 'JBrowse/Util'], function (Finisher, Util) {
           } else if ('loaded' == arr[i][this.lazyIndex].state) {
             // just continue below
           } else {
-            console.log('unknown lazy type: ' + arr[i])
+            console.log(`unknown lazy type: ${arr[i]}`)
           }
         } else {
           // no "state" property means this node hasn't been loaded,

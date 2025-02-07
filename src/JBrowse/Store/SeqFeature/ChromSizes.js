@@ -80,7 +80,7 @@ define([
         }
       this.data.readFile().then(data => {
         if (!data.length) {
-          failCallback('Could not read file ' + this.source)
+          failCallback(`Could not read file ${this.source}`)
         }
         const chroms = data.toString('utf8')
         chroms.split('\n').forEach(line => {

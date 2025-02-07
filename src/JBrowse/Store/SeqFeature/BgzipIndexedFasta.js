@@ -43,7 +43,7 @@ define([
         )
       } else if (args.urlTemplate) {
         indexBlob = new BlobFilehandleWrapper(
-          new XHRBlob(this.resolveUrl(args.urlTemplate + '.fai')),
+          new XHRBlob(this.resolveUrl(`${args.urlTemplate}.fai`)),
         )
       } else {
         throw new Error('no index provided, must provide a FASTA index')
@@ -58,7 +58,7 @@ define([
         )
       } else if (args.urlTemplate) {
         gziBlob = new BlobFilehandleWrapper(
-          new XHRBlob(this.resolveUrl(args.urlTemplate + '.gzi')),
+          new XHRBlob(this.resolveUrl(`${args.urlTemplate}.gzi`)),
         )
       } else {
         throw new Error('no gzi index provided, must provide a GZI index')

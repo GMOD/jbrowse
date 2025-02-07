@@ -100,16 +100,16 @@ define([
         lang.mixin(this.config.style, settings)
         // set in the saved style
         var saved = JSON.parse(
-          this.browser.cookie('track-style-' + this.name) || '{}',
+          this.browser.cookie(`track-style-${this.name}`) || '{}',
         )
         lang.mixin(saved, settings)
-        this.browser.cookie('track-style-' + this.name, saved)
+        this.browser.cookie(`track-style-${this.name}`, saved)
         // redraw this track
         this.redraw()
       },
       getUserStyles: function () {
         return JSON.parse(
-          this.browser.cookie('track-style-' + this.name) || '{}',
+          this.browser.cookie(`track-style-${this.name}`) || '{}',
         )
       },
 
@@ -143,7 +143,7 @@ define([
           // reposition any height-overflow markers in our blocks
           query('.height_overflow_message', this.div).style(
             'top',
-            this.height - 16 + 'px',
+            `${this.height - 16}px`,
           )
         }
       },
@@ -187,7 +187,7 @@ define([
       makeTrackLabel: function () {
         var params = {
           className: 'track-label dojoDndHandle',
-          id: 'label_' + this.name,
+          id: `label_${this.name}`,
           style: {
             position: 'absolute',
           },
@@ -205,7 +205,7 @@ define([
         this.label = labelDiv
 
         if ((this.config.style || {}).trackLabelCss) {
-          labelDiv.style.cssText += ';' + this.config.style.trackLabelCss
+          labelDiv.style.cssText += `;${this.config.style.trackLabelCss}`
         }
 
         var closeButton = dojo.create(
@@ -459,11 +459,9 @@ define([
           this.rightBlank.style.left = '50%'
           this.rightBlank.style.width = '50%'
         } else {
-          this.leftBlank.style.width = this.firstAttached * this.widthPct + '%'
-          this.rightBlank.style.left =
-            (this.lastAttached + 1) * this.widthPct + '%'
-          this.rightBlank.style.width =
-            (this.numBlocks - this.lastAttached - 1) * this.widthPct + '%'
+          this.leftBlank.style.width = `${this.firstAttached * this.widthPct}%`
+          this.rightBlank.style.left = `${(this.lastAttached + 1) * this.widthPct}%`
+          this.rightBlank.style.width = `${(this.numBlocks - this.lastAttached - 1) * this.widthPct}%`
         }
       },
 
@@ -580,7 +578,7 @@ define([
             )
           }
         } else {
-          console.error(error.stack || '' + error, error)
+          console.error(error.stack || `${error}`, error)
           this.fatalError = error
           this.showFatalError(error)
         }
@@ -599,13 +597,13 @@ define([
           'div',
           {
             className: 'error',
-            innerHTML:
-              '<h2>Error</h2><div class="text">An error was encountered when displaying this track.</div>' +
-              (message
-                ? '<div class="codecaption">Diagnostic message</div><code>' +
-                  message +
-                  '</code>'
-                : ''),
+            innerHTML: `<h2>Error</h2><div class="text">An error was encountered when displaying this track.</div>${
+              message
+                ? `<div class="codecaption">Diagnostic message</div><code>${
+                    message
+                  }</code>`
+                : ''
+            }`,
             title: 'An error occurred',
           },
           parent,
@@ -621,11 +619,12 @@ define([
         this.fillMessage(
           blockIndex,
           block,
-          message +
+          `${
+            message +
             (scale >= this.browser.view.maxPxPerBp
               ? ''
-              : '; zoom in to see detail') +
-            '.',
+              : '; zoom in to see detail')
+          }.`,
         )
       },
 
@@ -647,7 +646,7 @@ define([
             className: 'height_overflow_message',
             innerHTML: 'Max height reached',
             style: {
-              top: this.height - 16 + 'px',
+              top: `${this.height - 16}px`,
               height: '16px',
             },
           },
@@ -687,8 +686,8 @@ define([
           node: {
             className: 'block',
             style: {
-              left: blockIndex * this.widthPct + '%',
-              width: this.widthPct + '%',
+              left: `${blockIndex * this.widthPct}%`,
+              width: `${this.widthPct}%`,
             },
           },
         })
@@ -796,7 +795,7 @@ define([
             newBlocks[newIndex] = this.blocks[i]
             if (newBlocks[newIndex]) {
               newBlocks[newIndex].domNode.style.left =
-                newIndex * this.widthPct + '%'
+                `${newIndex * this.widthPct}%`
             }
 
             newHeights[newIndex] = this.blockHeights[i]
@@ -840,18 +839,17 @@ define([
 
           if (this.blocks.length != numBlocks) {
             throw new Error(
-              'block number mismatch: should be ' +
-                numBlocks +
-                '; blocks.length: ' +
-                this.blocks.length,
+              `block number mismatch: should be ${numBlocks}; blocks.length: ${
+                this.blocks.length
+              }`,
             )
           }
 
           for (i = 0; i < numBlocks; i++) {
             if (this.blocks[i]) {
               //if (!this.blocks[i].style) console.log(this.blocks);
-              this.blocks[i].domNode.style.left = i * widthPct + '%'
-              this.blocks[i].domNode.style.width = widthPct + '%'
+              this.blocks[i].domNode.style.left = `${i * widthPct}%`
+              this.blocks[i].domNode.style.width = `${widthPct}%`
             }
           }
         } else {
@@ -885,16 +883,14 @@ define([
       updateStaticElements: function (/**Object*/ coords) {
         this.window_info = dojo.mixin(this.window_info || {}, coords)
         if (this.fatalErrorMessageElement) {
-          this.fatalErrorMessageElement.style.width =
-            this.window_info.width * 0.6 + 'px'
+          this.fatalErrorMessageElement.style.width = `${this.window_info.width * 0.6}px`
           if ('x' in coords) {
-            this.fatalErrorMessageElement.style.left =
-              coords.x + this.window_info.width * 0.2 + 'px'
+            this.fatalErrorMessageElement.style.left = `${coords.x + this.window_info.width * 0.2}px`
           }
         }
 
         if (this.label && 'x' in coords) {
-          this.label.style.left = coords.x + 'px'
+          this.label.style.left = `${coords.x}px`
         }
       },
 
@@ -955,7 +951,7 @@ define([
               parent.addChild(new class_(menuConf))
             }
           } catch (e) {
-            console.error('failed to render menu item ' + key, e)
+            console.error(`failed to render menu item ${key}`, e)
           }
         }
         return parent
@@ -1008,7 +1004,7 @@ define([
               _blank: 'newWindow',
               thiswindow: 'navigateTo',
               navigateto: 'navigateTo',
-            }[('' + spec.action).toLowerCase()]
+            }[`${spec.action}`.toLowerCase()]
 
             if (spec.action == 'newWindow') {
               window.open(url, '_blank')
@@ -1128,7 +1124,7 @@ define([
         return [
           {
             label: 'About this track',
-            title: 'About track: ' + (this.key || this.name),
+            title: `About track: ${this.key || this.name}`,
             iconClass: 'jbrowseIconHelp',
             action: 'contentDialog',
             content: dojo.hitch(this, '_trackDetailsContent'),
@@ -1141,7 +1137,7 @@ define([
             //iconClass: 'dijitIconDelete',
             onClick: function () {
               that.browser.publish(
-                '/jbrowse/v1/v/tracks/' + (this.checked ? 'pin' : 'unpin'),
+                `/jbrowse/v1/v/tracks/${this.checked ? 'pin' : 'unpin'}`,
                 [that.name],
               )
             },
@@ -1246,11 +1242,11 @@ define([
           context.feature &&
           (context.feature.get('name') || context.feature.get('id'))
         var dialogOpts = {
-          class: 'popup-dialog popup-dialog-' + type,
+          class: `popup-dialog popup-dialog-${type}`,
           title:
             spec.title ||
             spec.label ||
-            (featureName ? featureName + ' details' : 'Details'),
+            (featureName ? `${featureName} details` : 'Details'),
           style: dojo.clone(spec.style || {}),
         }
         if (spec.dialog) {
@@ -1443,11 +1439,7 @@ define([
                     return
                   }
                   var loc = new Location(
-                    bookmark.refseq +
-                      ':' +
-                      bookmark.start +
-                      '..' +
-                      bookmark.end,
+                    `${bookmark.refseq}:${bookmark.start}..${bookmark.end}`,
                   )
                   this.renderRegionHighlight(
                     args,
@@ -1472,7 +1464,7 @@ define([
                 return
               }
               var loc = new Location(
-                bookmark.refseq + ':' + bookmark.start + '..' + bookmark.end,
+                `${bookmark.refseq}:${bookmark.start}..${bookmark.end}`,
               )
               this.renderRegionHighlight(
                 args,
@@ -1518,8 +1510,8 @@ define([
               (trimLeft <= 0 ? ' left' : '') +
               (trimRight <= 0 ? ' right' : ''),
             style: {
-              left: left + '%',
-              width: width + '%',
+              left: `${left}%`,
+              width: `${width}%`,
               height: '100%',
               background: color,
             },
@@ -1546,7 +1538,7 @@ define([
                 style: {
                   background: 'white',
                   zIndex: 1000,
-                  left: left + '%',
+                  left: `${left}%`,
                 },
                 innerHTML: label,
               },
@@ -1561,7 +1553,7 @@ define([
                 style: {
                   background: 'white',
                   zIndex: 1000,
-                  left: left + width + '%',
+                  left: `${left + width}%`,
                 },
                 innerHTML: rlabel,
               },
@@ -1569,8 +1561,8 @@ define([
             )
           }
 
-          var textWidth = d1.clientWidth + 1 + 'px'
-          d1.style.left = 'calc(' + left + '% - ' + textWidth + ')'
+          var textWidth = `${d1.clientWidth + 1}px`
+          d1.style.left = `calc(${left}% - ${textWidth})`
         }
       },
       postRenderHighlight: function (node) {},

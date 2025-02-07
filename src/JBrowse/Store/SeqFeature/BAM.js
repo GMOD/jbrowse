@@ -142,9 +142,9 @@ class BamSlightlyLazyFeature {
   }
   _get_next_segment_position() {
     return this.record.isPaired()
-      ? this._store._refIdToName(this.record._next_refid()) +
-          ':' +
-          (this.record._next_pos() + 1)
+      ? `${this._store._refIdToName(this.record._next_refid())}:${
+          this.record._next_pos() + 1
+        }`
       : undefined
   }
   _get_tags() {
@@ -267,7 +267,7 @@ define([
           )
         } else if (args.urlTemplate) {
           baiBlob = new BlobFilehandleWrapper(
-            new XHRBlob(this.resolveUrl(args.urlTemplate + '.bai')),
+            new XHRBlob(this.resolveUrl(`${args.urlTemplate}.bai`)),
           )
         } else {
           throw new Error('no index provided, must provide a BAI or CSI index')

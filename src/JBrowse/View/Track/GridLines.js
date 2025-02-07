@@ -56,8 +56,8 @@ define([
 
         var new_gridline = function (glclass, position) {
           var gridline = document.createElement('div')
-          gridline.style.cssText = 'left: ' + position + '%; width: 0px'
-          gridline.className = 'gridline ' + glclass
+          gridline.style.cssText = `left: ${position}%; width: 0px`
+          gridline.className = `gridline ${glclass}`
           return gridline
         }
 

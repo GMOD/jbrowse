@@ -1,8 +1,7 @@
 {
   "description": "Tomato ITAG2.3 Annotation",
   "db_adaptor": "Bio::DB::SeqFeature::Store",
-  "db_args": { "-adaptor": "berkeleydb3",
-               "-dir": "sample_data/raw/tomato" },
+  "db_args": { "-adaptor": "berkeleydb3", "-dir": "sample_data/raw/tomato" },
 
   "TRACK DEFAULTS": {
     "class": "feature",

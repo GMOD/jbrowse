@@ -4,39 +4,41 @@
     Author     : Eric Y
 */
 #location-info {
-    display: inline-block;
-    border:0px solid #bbb;
-    padding: 3px 3px 3px 3px;
-    background-color: rgba(235,235,235,0.60) ;
-    margin-right: 6px;
-    cursor: default;
-    position:relative;
-    top: 2px;
-    min-width: 40ex;
+  display: inline-block;
+  border: 0px solid #bbb;
+  padding: 3px 3px 3px 3px;
+  background-color: rgba(235, 235, 235, 0.6);
+  margin-right: 6px;
+  cursor: default;
+  position: relative;
+  top: 2px;
+  min-width: 40ex;
 }
 
 #search-box {
-    margin-right: 10px;
+  margin-right: 10px;
 }
-.separate-location-box { float: right; }
+.separate-location-box {
+  float: right;
+}
 
 /* location box */
-div[id=widget_location] {
-  margin-left:3px !important;
+div[id='widget_location'] {
+  margin-left: 3px !important;
 }
 
 #widget_location {
-/*    width: 18ex !important;*/
-    padding-top: 2px;
+  /*    width: 18ex !important;*/
+  padding-top: 2px;
 }
 
-span1[widgetid=search-go-btn] {
-	position:relative;
-	left: -3px;
+span1[widgetid='search-go-btn'] {
+  position: relative;
+  left: -3px;
 }
 
 /* highlight button */
-div[widgetid=highlight-btn] {
-  position:relative;
+div[widgetid='highlight-btn'] {
+  position: relative;
   top: 1px;
 }

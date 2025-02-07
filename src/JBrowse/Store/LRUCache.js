@@ -182,7 +182,7 @@ define([
                       try {
                         cb.call(this, value, error)
                       } catch (x) {
-                        console.error('' + x, x.stack, x)
+                        console.error(`${x}`, x.stack, x)
                       }
                     },
                     this,
@@ -229,11 +229,9 @@ define([
           this._warn(
             'Cache cannot fit',
             keyString,
-            '(' +
-              Util.addCommas(record.size) +
-              ' > ' +
-              Util.addCommas(this.maxSize) +
-              ')',
+            `(${Util.addCommas(record.size)} > ${Util.addCommas(
+              this.maxSize,
+            )})`,
           )
           return
         }

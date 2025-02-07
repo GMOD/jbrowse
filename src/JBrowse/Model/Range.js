@@ -49,7 +49,7 @@ define(['dojo/_base/declare'], function (declare) {
       toString: function () {
         return this._ranges
           .map(function (r) {
-            return '[' + r.min + '-' + r.max + ']'
+            return `[${r.min}-${r.max}]`
           })
           .join(',')
       },

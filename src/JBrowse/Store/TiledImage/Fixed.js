@@ -131,7 +131,7 @@ define([
        * @private
        */
       _imageSource: function (zoom, tileIndex) {
-        return Util.resolveUrl(this.url, zoom.urlPrefix + tileIndex + '.png')
+        return Util.resolveUrl(this.url, `${zoom.urlPrefix + tileIndex}.png`)
       },
     },
   )

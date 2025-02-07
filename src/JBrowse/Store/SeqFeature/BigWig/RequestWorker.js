@@ -285,7 +285,7 @@ define([
 
         var f = new SimpleFeature({
           data: data,
-          id: id ? id : data.start + '_' + data.end + '_' + data.score,
+          id: id ? id : `${data.start}_${data.end}_${data.score}`,
         })
 
         this.features.push(f)
@@ -364,7 +364,7 @@ define([
             this.maybeCreateFeature(start, end, { score: score })
           }
         } else {
-          dlog('Currently not handling bwgType=' + blockType)
+          dlog(`Currently not handling bwgType=${blockType}`)
         }
       },
 
@@ -502,7 +502,7 @@ define([
               } else if (thisB.window.bwg.type == 'bigbed') {
                 thisB.parseBigBedBlock(data, offset)
               } else {
-                dlog("Don't know what to do with " + thisB.window.bwg.type)
+                dlog(`Don't know what to do with ${thisB.window.bwg.type}`)
               }
             })
           })

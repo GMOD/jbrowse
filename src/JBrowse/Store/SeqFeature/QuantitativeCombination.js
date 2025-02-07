@@ -37,7 +37,7 @@ define([
           retValue = scoreB == 0 ? undefined : scoreA / scoreB
           break
         default:
-          console.error('invalid operation ' + op)
+          console.error(`invalid operation ${op}`)
           return undefined
       }
       return retValue

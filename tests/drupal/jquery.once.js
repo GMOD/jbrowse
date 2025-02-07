@@ -1,4 +1,3 @@
-
 /**
  * jQuery Once Plugin v1.2
  * http://plugins.jquery.com/project/once
@@ -8,8 +7,9 @@
  *   http://www.gnu.org/licenses/gpl.html
  */
 
-(function ($) {
-  var cache = {}, uuid = 0;
+;(function ($) {
+  var cache = {},
+    uuid = 0
 
   /**
    * Filters elements by whether they have not yet been processed.
@@ -40,20 +40,20 @@
     if (typeof id != 'string') {
       // Generate a numeric ID if the id passed can't be used as a CSS class.
       if (!(id in cache)) {
-        cache[id] = ++uuid;
+        cache[id] = ++uuid
       }
       // When the fn parameter is not passed, we interpret it from the id.
       if (!fn) {
-        fn = id;
+        fn = id
       }
-      id = 'jquery-once-' + cache[id];
+      id = 'jquery-once-' + cache[id]
     }
     // Remove elements from the set that have already been processed.
-    var name = id + '-processed';
-    var elements = this.not('.' + name).addClass(name);
+    var name = id + '-processed'
+    var elements = this.not('.' + name).addClass(name)
 
-    return $.isFunction(fn) ? elements.each(fn) : elements;
-  };
+    return $.isFunction(fn) ? elements.each(fn) : elements
+  }
 
   /**
    * Filters elements that have been processed once already.
@@ -71,9 +71,9 @@
    *   iteration.
    */
   $.fn.removeOnce = function (id, fn) {
-    var name = id + '-processed';
-    var elements = this.filter('.' + name).removeClass(name);
+    var name = id + '-processed'
+    var elements = this.filter('.' + name).removeClass(name)
 
-    return $.isFunction(fn) ? elements.each(fn) : elements;
-  };
-})(jQuery);
+    return $.isFunction(fn) ? elements.each(fn) : elements
+  }
+})(jQuery)

@@ -113,7 +113,7 @@ define([
             if (mRect.w >= charSize.w && mRect.h >= charSize.h - 3) {
               context.font = this.config.style.mismatchFont
               context.fillText(
-                '(' + mismatch.base + ')',
+                `(${mismatch.base})`,
                 mRect.l + 2,
                 mRect.t + mRect.h / 2,
               )
@@ -129,7 +129,7 @@ define([
             if (mRect.w >= charSize.w && mRect.h >= charSize.h - 3) {
               context.font = this.config.style.mismatchFont
               context.fillText(
-                '(' + mismatch.base + ')',
+                `(${mismatch.base})`,
                 mRect.l + 2,
                 mRect.t + mRect.h / 2,
               )

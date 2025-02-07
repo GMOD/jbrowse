@@ -29,7 +29,7 @@ define(['dojo/_base/declare', 'dojo/dom-geometry', 'dijit/Dialog'], function (
       this._addActionBar()
       this.inherited(arguments)
       var titleDims = domGeom.position(this.titleBar)
-      this.domNode.style.width = titleDims.w + 'px'
+      this.domNode.style.width = `${titleDims.w}px`
     },
   })
 })

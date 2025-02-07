@@ -18,7 +18,7 @@ define([
           return false
         }
 
-        var newName = 'TwoBit_' + basename + '_' + uniqCounter++
+        var newName = `TwoBit_${basename}_${uniqCounter++}`
         configs[newName] = {
           fileBasename: basename,
           type: this.storeType,

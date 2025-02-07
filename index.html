@@ -1,41 +1,68 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>JBrowse</title>
 
-    <link rel="apple-touch-icon" sizes="180x180" href="img/favicons/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="img/favicons/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="img/favicons/favicon-16x16.png">
-    <link rel="manifest" href="site.webmanifest">
-    <link rel="mask-icon" href="img/favicons/safari-pinned-tab.svg" color="#5bbad5">
-    <meta name="msapplication-TileColor" content="#2d89ef">
-    <meta name="theme-color" content="#ffffff">
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="img/favicons/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="img/favicons/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="img/favicons/favicon-16x16.png"
+    />
+    <link rel="manifest" href="site.webmanifest" />
+    <link
+      rel="mask-icon"
+      href="img/favicons/safari-pinned-tab.svg"
+      color="#5bbad5"
+    />
+    <meta name="msapplication-TileColor" content="#2d89ef" />
+    <meta name="theme-color" content="#ffffff" />
 
     <script type="text/javascript">
-        window.onerror=function(msg){
-            if( document.body )
-                document.body.setAttribute("JSError",msg);
-        }
-        if(window.process&&process.versions&&process.versions.electron) {
-            window.electronRequire = require;
-            delete window.require;
-        }
+      window.onerror = function (msg) {
+        if (document.body) document.body.setAttribute('JSError', msg)
+      }
+      if (window.process && process.versions && process.versions.electron) {
+        window.electronRequire = require
+        delete window.require
+      }
     </script>
     <style>
-        html, body, div.jbrowse {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            width: 100%;
-        }
+      html,
+      body,
+      div.jbrowse {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+      }
     </style>
-    <script type="text/javascript" src="dist/main.bundle.js" charset="utf-8"></script>
+    <script
+      type="text/javascript"
+      src="dist/main.bundle.js"
+      charset="utf-8"
+    ></script>
   </head>
 
   <body>
-    <div class="jbrowse" id="GenomeBrowser" data-config='"allowCrossOriginDataRoot": false, "cacheBuster": true'>
-      <div id="LoadingScreen" style="padding: 50px;">
+    <div
+      class="jbrowse"
+      id="GenomeBrowser"
+      data-config='"allowCrossOriginDataRoot": false, "cacheBuster": true'
+    >
+      <div id="LoadingScreen" style="padding: 50px">
         <h1>Loading...</h1>
       </div>
     </div>

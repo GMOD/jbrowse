@@ -26,7 +26,7 @@ define(['dojo/_base/declare', 'dojo/_base/array'], function (declare, array) {
     // equality don't always work.
     _getFeatureFilterName: function (uniqName) {
       if (uniqName === undefined) {
-        return 'featureFilter_' + ++serialNumber
+        return `featureFilter_${++serialNumber}`
       }
       return uniqName
     },

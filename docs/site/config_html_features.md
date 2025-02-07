@@ -3,13 +3,21 @@ id: html_features
 title: HTMLFeatures
 ---
 
-HTMLFeatures tracks display features on the genome, including things with parents and child features, using div elements. The flatfile-to-json.pl by default outputs HTMLFeatures tracks (also called FeatureTrack in the config file)
+HTMLFeatures tracks display features on the genome, including things with
+parents and child features, using div elements. The flatfile-to-json.pl by
+default outputs HTMLFeatures tracks (also called FeatureTrack in the config
+file)
 
-For more info on loading with flatfile-to-json.pl see the [flatfile-to-json.pl](flatfile-to-json.pl.html) docs.
+For more info on loading with flatfile-to-json.pl see the
+[flatfile-to-json.pl](flatfile-to-json.pl.html) docs.
 
 ## HTMLFeatures Configuration Options
 
-JBrowse HTMLFeatures tracks, the default legacy track type for range-based features, have many available options for customization, not all of which are available from the command-line formatting scripts. Below is a comprehensive list of configuration options for HTMLFeatures tracks. HTMLFeatures tracks are also referred to as trackType: "FeatureTrack" or "type": "FeatureTrack".
+JBrowse HTMLFeatures tracks, the default legacy track type for range-based
+features, have many available options for customization, not all of which are
+available from the command-line formatting scripts. Below is a comprehensive
+list of configuration options for HTMLFeatures tracks. HTMLFeatures tracks are
+also referred to as trackType: "FeatureTrack" or "type": "FeatureTrack".
 
 | Option                    | Value                                                                                                                                                                                                                                                                                                                                                                                             |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -197,11 +205,26 @@ with <code>subfeatureClasses</code>.
 
 ### Using callbacks to customize HTMLFeatures tracks
 
-JBrowse HTMLFeature tracks, and individual JBrowse features, can be customized using JavaScript functions you write yourself. These functions are called every time a feature in a HTMLFeatures track is drawn, and allow you to customize virtually anything about the feature's display. What's more, all of the feature's data is accessible to your customization function, so you can even customize individual features' looks based on their data.
+JBrowse HTMLFeature tracks, and individual JBrowse features, can be customized
+using JavaScript functions you write yourself. These functions are called every
+time a feature in a HTMLFeatures track is drawn, and allow you to customize
+virtually anything about the feature's display. What's more, all of the
+feature's data is accessible to your customization function, so you can even
+customize individual features' looks based on their data.
 
-As of JBrowse 1.3.0, feature callbacks are added by directly editing your trackList.json file with a text editor. Due to the limitations of the JSON format currently used for JBrowse configuration, the function must appear as a quoted (and JSON-escaped) string, on a single line. You may use the .conf format for the ability to specify functions that span multiple lines. See [here](configuration_file_formats.html#including-external-files-and-functions-in-tracklistjson) for details
+As of JBrowse 1.3.0, feature callbacks are added by directly editing your
+trackList.json file with a text editor. Due to the limitations of the JSON
+format currently used for JBrowse configuration, the function must appear as a
+quoted (and JSON-escaped) string, on a single line. You may use the .conf format
+for the ability to specify functions that span multiple lines. See
+[here](configuration_file_formats.html#including-external-files-and-functions-in-tracklistjson)
+for details
 
-Here is an example feature callback, in context in the trackList.json file, that can change a feature's `background` CSS property (which controls the feature's color) as a function of the feature's name. If the feature's name contains a number that is odd, it give the feature's HTML `div` element a red background. Otherwise, it gives it a blue background.
+Here is an example feature callback, in context in the trackList.json file, that
+can change a feature's `background` CSS property (which controls the feature's
+color) as a function of the feature's name. If the feature's name contains a
+number that is odd, it give the feature's HTML `div` element a red background.
+Otherwise, it gives it a blue background.
 
 ```
      {

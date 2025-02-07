@@ -85,7 +85,7 @@ define([
       } else {
         // it's a parse error
         line = line.replace(/\r?\n?$/g, '')
-        throw "GTF parse error.  Cannot parse '" + line + "'."
+        throw `GTF parse error.  Cannot parse '${line}'.`
       }
     },
 
@@ -122,10 +122,9 @@ define([
       // problem. die with a parse error
       for (var o in this.under_construction_orphans) {
         for (var orphan in o) {
-          throw (
-            'parse error: orphans ' +
-            JSON.stringify(this.under_construction_orphans)
-          )
+          throw `parse error: orphans ${JSON.stringify(
+            this.under_construction_orphans,
+          )}`
         }
       }
     },
@@ -257,7 +256,7 @@ define([
                   ids,
                   function (i) {
                     return this.completed_references[
-                      i + ',' + attrname + ',' + to_id
+                      `${i},${attrname},${to_id}`
                     ]++
                   },
                   this,

@@ -5,17 +5,23 @@ title: HTTP authentication for JBrowse
 
 # Authentication and Access Control
 
-JBrowse works with HTTP Basic, HTTP Digest, and cookie (session) authentication methods, relying on the native support for them in browsers.
+JBrowse works with HTTP Basic, HTTP Digest, and cookie (session) authentication
+methods, relying on the native support for them in browsers.
 
-For cookie-based authentication methods, the session cookie should be set by another page before the user launches JBrowse.
+For cookie-based authentication methods, the session cookie should be set by
+another page before the user launches JBrowse.
 
 ## HTTP Basic LDAP under Nginx
 
-Provided you have a LDAP authentication server already available it is relatively easy to configure nginx to require users to login and optionally be members of particular groups.
+Provided you have a LDAP authentication server already available it is
+relatively easy to configure nginx to require users to login and optionally be
+members of particular groups.
 
-This approach is designed to block access to all of JBrowse until authenticated and is not suitable for excluding sub-sets of tracks.
+This approach is designed to block access to all of JBrowse until authenticated
+and is not suitable for excluding sub-sets of tracks.
 
-The following block lists the installation method for the module and dependancies with versions available at time of writing:
+The following block lists the installation method for the module and
+dependancies with versions available at time of writing:
 
 ```
 sudo apt-get install libldap2-dev
@@ -39,7 +45,8 @@ make install
 
 **_pcre2 is not compatible, you must use pcre-X.XX_**
 
-The next block shows an example configuration that would be added to the 'http' section of 'nginx.conf'
+The next block shows an example configuration that would be added to the 'http'
+section of 'nginx.conf'
 
 ```
 http {
@@ -69,9 +76,11 @@ http {
  }
 ```
 
-You may need to use 'ldapsearch' or speak to your admins for help getting the settings correct.
+You may need to use 'ldapsearch' or speak to your admins for help getting the
+settings correct.
 
-Once this is in place you can then limit the accessible locations by adding to the 'server' section:
+Once this is in place you can then limit the accessible locations by adding to
+the 'server' section:
 
 ```
  server {
@@ -94,9 +103,10 @@ Once this is in place you can then limit the accessible locations by adding to t
  }
 ```
 
-If you place the 'auth_ldap\*' directives before the location sections then you restrict all areas.
+If you place the 'auth_ldap\*' directives before the location sections then you
+restrict all areas.
 
 This was pieced together from the following pages:
 
--   <https://github.com/kvspb/nginx-auth-ldap>
--   <http://www.allgoodbits.org/articles/view/29>
+- <https://github.com/kvspb/nginx-auth-ldap>
+- <http://www.allgoodbits.org/articles/view/29>

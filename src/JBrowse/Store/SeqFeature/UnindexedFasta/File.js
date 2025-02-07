@@ -85,7 +85,7 @@ define([
           }
 
           if (!(fastaString && fastaString.length)) {
-            failCallback('Could not read file: ' + fastaFile.name)
+            failCallback(`Could not read file: ${fastaFile.name}`)
           } else {
             var data = this.parseString(fastaString)
             if (!data.length) {

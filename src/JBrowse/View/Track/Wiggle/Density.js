@@ -82,7 +82,7 @@ define([
             var f = p['feat']
 
             var n = dataScale.normalize(score)
-            context.fillStyle = '' + featureColor(p, n)
+            context.fillStyle = `${featureColor(p, n)}`
             thisB._fillRectMod(context, i, 0, 1, canvasHeight)
             if (n > 1) {
               // pos clipped

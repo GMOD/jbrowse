@@ -50,7 +50,7 @@ define([
         )
       } else if (args.urlTemplate) {
         indexBlob = new BlobFilehandleWrapper(
-          new XHRBlob(this.resolveUrl(args.urlTemplate + '.fai')),
+          new XHRBlob(this.resolveUrl(`${args.urlTemplate}.fai`)),
         )
       } else {
         throw new Error('no index provided, must provide a FASTA index')

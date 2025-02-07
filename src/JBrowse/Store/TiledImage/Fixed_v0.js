@@ -16,7 +16,7 @@ define([
       _imageSource: function (zoom, tileIndex) {
         return Util.resolveUrl(
           this.url,
-          '../../' + zoom.urlPrefix + tileIndex + '.png',
+          `../../${zoom.urlPrefix}${tileIndex}.png`,
         )
       },
     },

@@ -9,7 +9,7 @@ define(['dojo/_base/declare'], function (declare) {
       if (typeof args == 'object') {
         if (args instanceof Error) {
           this._originalError = args
-          this.message = '' + args
+          this.message = `${args}`
           this.stack = args.stack
         } else {
           dojo.mixin(this, args)

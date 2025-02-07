@@ -9,7 +9,7 @@ define([
   return declare(null, {
     constructor: function (args) {
       // make sure url has a trailing slash
-      var url = /\/$/.test(args.url) ? args.url : args.url + '/'
+      var url = /\/$/.test(args.url) ? args.url : `${args.url}/`
       this.bucketStore = new dojoJSONRest({
         target: url,
       })
@@ -64,14 +64,14 @@ define([
     _hexToDirPath: function (hex) {
       // zero-pad the hex string to be 8 chars if necessary
       while (hex.length < 8) {
-        hex = '0' + hex
+        hex = `0${hex}`
       }
       hex = hex.substr(8 - this.meta.hash_hex_characters)
       var dirpath = []
       for (var i = 0; i < hex.length; i += 3) {
         dirpath.push(hex.substring(i, i + 3))
       }
-      return dirpath.join('/') + '.json' + (this.meta.compress ? 'z' : '')
+      return `${dirpath.join('/')}.json${this.meta.compress ? 'z' : ''}`
     },
 
     _hash: function (data) {

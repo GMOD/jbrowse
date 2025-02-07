@@ -121,7 +121,7 @@ define([
           }
 
           var strand =
-            { '-1': '-', 1: '+' }['' + feature.get('strand')] || 'unstranded'
+            { '-1': '-', 1: '+' }[`${feature.get('strand')}`] || 'unstranded'
 
           // increment start and end partial-overlap bins by proportion of overlap
           forEachBin(
@@ -149,7 +149,7 @@ define([
                   bin.getNested('reference').decrement(strand, overlap)
                   var base = mismatch.base
                   if (mismatch.type == 'insertion') {
-                    base = 'ins ' + base
+                    base = `ins ${base}`
                   } else if (mismatch.type == 'skip') {
                     base = 'skip'
                   }

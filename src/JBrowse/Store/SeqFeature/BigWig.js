@@ -97,11 +97,11 @@ define([
         if (size > this.config.chunkSizeLimit) {
           errorcallback(
             new JBrowseErrors.DataOverflow(
-              'Too much data. Chunk size ' +
-                Util.commifyNumber(size) +
-                ' bytes exceeds chunkSizeLimit of ' +
-                Util.commifyNumber(this.config.chunkSizeLimit) +
-                '.',
+              `Too much data. Chunk size ${Util.commifyNumber(
+                size,
+              )} bytes exceeds chunkSizeLimit of ${Util.commifyNumber(
+                this.config.chunkSizeLimit,
+              )}.`,
             ),
           )
         } else {
@@ -215,7 +215,7 @@ define([
                 }).call(this)
               } else {
                 console.warn(
-                  'BigWig ' + this.data.url + ' has no total summary data.',
+                  `BigWig ${this.data.url} has no total summary data.`,
                 )
               }
 

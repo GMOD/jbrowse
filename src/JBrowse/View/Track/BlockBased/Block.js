@@ -22,7 +22,7 @@ define(['dojo/_base/declare', 'dijit/Destroyable', 'JBrowse/Util'], function (
     },
 
     toString: function () {
-      return this.startBase + '..' + this.endBase
+      return `${this.startBase}..${this.endBase}`
     },
 
     destroy: function () {

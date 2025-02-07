@@ -32,7 +32,7 @@ define(['dojo/_base/declare', 'dojo/query', 'JBrowse/View/Ruler'], function (
         {
           className: 'ruler vertical_ruler',
           style: {
-            height: this.height + 'px',
+            height: `${this.height}px`,
             width: '10px',
             position: 'absolute',
             zIndex: 17,
@@ -45,17 +45,14 @@ define(['dojo/_base/declare', 'dojo/query', 'JBrowse/View/Ruler'], function (
       if (this.window_info && 'x' in this.window_info) {
         if ('yScalePosition' in this.config) {
           if (this.config.yScalePosition == 'right') {
-            this.yscale.style.left =
-              this.window_info.x + (this.window_info.width - 1 || 0) + 'px'
+            this.yscale.style.left = `${this.window_info.x + (this.window_info.width - 1 || 0)}px`
           } else if (this.config.yScalePosition == 'left') {
-            this.yscale.style.left = this.window_info.x + 10 + 1 + 'px'
+            this.yscale.style.left = `${this.window_info.x + 10 + 1}px`
           } else if (this.config.yScalePosition == 'center') {
-            this.yscale.style.left =
-              this.window_info.x + (this.window_info.width || 0) / 2 + 'px'
+            this.yscale.style.left = `${this.window_info.x + (this.window_info.width || 0) / 2}px`
           }
         } else {
-          this.yscale.style.left =
-            this.window_info.x + (this.window_info.width || 0) / 2 + 'px'
+          this.yscale.style.left = `${this.window_info.x + (this.window_info.width || 0) / 2}px`
         }
       }
 
@@ -101,17 +98,14 @@ define(['dojo/_base/declare', 'dojo/query', 'JBrowse/View/Ruler'], function (
         if (this.yscale) {
           if ('yScalePosition' in this.config) {
             if (this.config.yScalePosition == 'right') {
-              this.yscale.style.left =
-                this.window_info.x + (this.window_info.width - 1 || 0) + 'px'
+              this.yscale.style.left = `${this.window_info.x + (this.window_info.width - 1 || 0)}px`
             } else if (this.config.yScalePosition == 'left') {
-              this.yscale.style.left = this.window_info.x + 10 + 'px'
+              this.yscale.style.left = `${this.window_info.x + 10}px`
             } else if (this.config.yScalePosition == 'center') {
-              this.yscale.style.left =
-                this.window_info.x + (this.window_info.width || 0) / 2 + 'px'
+              this.yscale.style.left = `${this.window_info.x + (this.window_info.width || 0) / 2}px`
             }
           } else {
-            this.yscale.style.left =
-              this.window_info.x + (this.window_info.width || 0) / 2 + 'px'
+            this.yscale.style.left = `${this.window_info.x + (this.window_info.width || 0) / 2}px`
           }
         }
       }

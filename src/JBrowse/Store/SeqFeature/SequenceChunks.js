@@ -112,7 +112,7 @@ define([
             .replace('-', 'n')
           // zero-pad the hex string to be 8 chars if necessary
           while (hex.length < 8) {
-            hex = '0' + hex
+            hex = `0${hex}`
           }
           var dirpath = []
           for (var i = 0; i < hex.length; i += 3) {
@@ -150,7 +150,7 @@ define([
 
     _fetchChunk: function (sequrl, chunkNum) {
       return request.get(
-        sequrl + chunkNum + '.txt' + (this.compress ? 'z' : ''),
+        `${sequrl + chunkNum}.txt${this.compress ? 'z' : ''}`,
         { handleAs: 'text', headers: { 'X-Requested-With': null } },
       )
     },

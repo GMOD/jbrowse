@@ -15,7 +15,8 @@
  * 4. Disabled state
  * 		.dojoxTriStateCheckBoxDisabled|.dojoxTriStateCheckBoxCheckedDisabled|.dojoxTriStateCheckBoxMixedDisabled - for background image
  */
-.dojoxTriStateCheckBox,  .dojoxTriStateCheckBoxIcon {
+.dojoxTriStateCheckBox,
+.dojoxTriStateCheckBoxIcon {
   background-image: url('../img/tristate.png');
   /* checkbox sprite image */
 
@@ -25,17 +26,17 @@
   margin: 0 2px 0 0;
   padding: 5px 5px 5px 5px;
 }
-.dj_ie6 .dojoxTriStateCheckBox, .dj_ie6  .dojoxTriStateCheckBoxIcon {
+.dj_ie6 .dojoxTriStateCheckBox,
+.dj_ie6 .dojoxTriStateCheckBoxIcon {
   background-image: url('../img/tristate.png');
   /* checkbox sprite image */
-
 }
-.dojoxTriStateCheckBox{
+.dojoxTriStateCheckBox {
   /* unchecked */
 
   background-position: -30px;
 }
-.dojoxTriStateCheckBoxChecked{
+.dojoxTriStateCheckBoxChecked {
   /* checked */
   background-position: 0px;
 }
@@ -76,28 +77,27 @@
 }
 
 .dijit_a11y .dojoxTriStateCheckBoxHover .dojoxTriStateCheckBoxInner,
-.dijit_a11y .dojoxTriStateCheckBoxFocused .dojoxTriStateCheckBoxInner{
+.dijit_a11y .dojoxTriStateCheckBoxFocused .dojoxTriStateCheckBoxInner {
   /* focused or hovering over */
   border: dashed;
 }
 
 .dijit_a11y .dojoxTriStateCheckBoxHover .dojoxTriStateCheckBoxInner,
-.dijit_a11y .dojoxTriStateCheckBoxFocused .dojoxTriStateCheckBoxInner{
+.dijit_a11y .dojoxTriStateCheckBoxFocused .dojoxTriStateCheckBoxInner {
   /* focused or hovering over */
   border: solid;
 }
 
-.dijit_a11y .dojoxTriStateCheckBoxDisabled .dojoxTriStateCheckBoxInner{
+.dijit_a11y .dojoxTriStateCheckBoxDisabled .dojoxTriStateCheckBoxInner {
   /* focused or hovering over */
   opacity: 0.5;
 }
 
-.dj_ie .dijit_a11y .dojoxTriStateCheckBoxDisabled .dojoxTriStateCheckBoxInner{
+.dj_ie .dijit_a11y .dojoxTriStateCheckBoxDisabled .dojoxTriStateCheckBoxInner {
   /* disabled */
 }
 
-
-.dojoxTriStateCheckBoxInner{
+.dojoxTriStateCheckBoxInner {
   /* inner text */
 
   visibility: hidden;
@@ -106,7 +106,7 @@
   text-align: center;
 }
 
-.dijit_a11y .dojoxTriStateCheckBoxInner{
+.dijit_a11y .dojoxTriStateCheckBoxInner {
   /* inner text */
 
   visibility: visible;
@@ -121,8 +121,8 @@
   border: 0;
   width: 30px;
   height: 22px;
-  background-position:center center;
-  background-repeat:no-repeat;
+  background-position: center center;
+  background-repeat: no-repeat;
 }
 
 .dj_ie .dojoxTriStateCheckBoxInput {

@@ -1,10 +1,6 @@
 {
   "docs": {
-    "Tutorial": [
-      "installation",
-      "tutorial",
-      "tutorial_classic"
-    ],
+    "Tutorial": ["installation", "tutorial", "tutorial_classic"],
     "Configuring tracks": [
       "reference_sequence",
       "canvas_features",

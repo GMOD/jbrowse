@@ -129,7 +129,7 @@ define([
       error.info && error.info[0] && error.info[0].mid
         ? error.info.map(({ mid }) => mid).join(', ')
         : error
-    window.JBrowse.fatalError('Failed to load resource: ' + errString)
+    window.JBrowse.fatalError(`Failed to load resource: ${errString}`)
   })
 
   /**
@@ -361,7 +361,7 @@ define([
           let configEntry = dojoConfig.packages.find(c => c.name === p.name)
           if (configEntry) {
             p.css = configEntry.css
-              ? configEntry.pluginDir + '/' + configEntry.css
+              ? `${configEntry.pluginDir}/${configEntry.css}`
               : false
             p.js = configEntry.location
           } else {
@@ -382,7 +382,7 @@ define([
 
         dojo.global.require(
           array.map(plugins, function (p) {
-            return p.name + '/main'
+            return `${p.name}/main`
           }),
           dojo.hitch(this, function () {
             array.forEach(
@@ -392,7 +392,7 @@ define([
                 var thisPluginDone = pluginDeferreds[i]
                 if (typeof pluginClass == 'string') {
                   console.error(
-                    'could not load plugin ' + plugin.name + ': ' + pluginClass,
+                    `could not load plugin ${plugin.name}: ${pluginClass}`,
                   )
                 } else {
                   // make the plugin's arguments out of
@@ -409,7 +409,7 @@ define([
                   var cssLoaded
                   if (plugin.css) {
                     cssLoaded = this._loadCSS({
-                      url: this.resolveUrl(plugin.css + '/main.css'),
+                      url: this.resolveUrl(`${plugin.css}/main.css`),
                     })
                   } else {
                     cssLoaded = new Deferred()
@@ -458,9 +458,9 @@ define([
           thisB.container,
         )
         dojo.byId('welcome').innerHTML =
-          'Welcome! To get started with <i>JBrowse-' +
-          thisB.version +
-          '</i>, select a sequence file or an existing data directory'
+          `Welcome! To get started with <i>JBrowse-${
+            thisB.version
+          }</i>, select a sequence file or an existing data directory`
 
         on(
           dojo.byId('newOpen'),
@@ -531,17 +531,14 @@ define([
       function formatError(error) {
         if (error) {
           if (error.status) {
-            error =
-              error.status +
-              ' (' +
-              error.statusText +
-              ') when attempting to fetch ' +
-              error.url
+            error = `${error.status} (${
+              error.statusText
+            }) when attempting to fetch ${error.url}`
           }
-          console.error(error.stack || '' + error)
-          error = error + ''
+          console.error(error.stack || `${error}`)
+          error = `${error}`
           if (!/\.$/.exec(error)) {
-            error = error + '.'
+            error = `${error}.`
           }
 
           error = dojoxHtmlEntities.encode(error)
@@ -579,7 +576,7 @@ define([
                   'div',
                   {
                     className: 'error',
-                    innerHTML: formatError(error) + '',
+                    innerHTML: `${formatError(error)}`,
                   },
                   errors_div,
                 )
@@ -603,7 +600,7 @@ define([
         var errors_div = dojo.byId('fatal_error_list') || document.body
         dojo.create(
           'div',
-          { className: 'error', innerHTML: formatError(error) + '' },
+          { className: 'error', innerHTML: `${formatError(error)}` },
           errors_div,
         )
       }
@@ -611,7 +608,7 @@ define([
     loadSessions: function () {
       var fs = electronRequire('fs')
       var app = electronRequire('electron').remote.app
-      var path = this.config.electronData + '/sessions.json'
+      var path = `${this.config.electronData}/sessions.json`
 
       var obj = JSON.parse(fs.readFileSync(path, 'utf8'))
       var table = dojo.create(
@@ -634,10 +631,9 @@ define([
       }
       array.forEach(obj, function (session) {
         var tr = dojo.create('tr', {}, table)
-        var url =
-          window.location.href.split('?')[0] +
-          '?data=' +
-          Util.replacePath(session.session)
+        var url = `${
+          window.location.href.split('?')[0]
+        }?data=${Util.replacePath(session.session)}`
         dojo.create(
           'div',
           {
@@ -663,7 +659,7 @@ define([
         dojo.create(
           'td',
           {
-            innerHTML: '<a href="' + url + '">' + session.session + '</a>',
+            innerHTML: `<a href="${url}">${session.session}</a>`,
           },
           tr,
         )
@@ -779,7 +775,7 @@ define([
               },
               function (e) {
                 deferred.reject(
-                  'Could not load reference sequence definitions. ' + e,
+                  `Could not load reference sequence definitions. ${e}`,
                 )
               },
             )
@@ -861,7 +857,7 @@ define([
         if ((type = conf.type)) {
           var thisB = this
           if (type.indexOf('/') == -1) {
-            type = 'JBrowse/Store/Names/' + type
+            type = `JBrowse/Store/Names/${type}`
           }
           dojo.global.require([type], function (CLASS) {
             thisB.nameStore = new CLASS(dojo.mixin({ browser: thisB }, conf))
@@ -954,7 +950,7 @@ define([
 
         var about = this.browserMeta()
         var aboutDialog = new InfoDialog({
-          title: 'About ' + about.title,
+          title: `About ${about.title}`,
           content: about.description,
           className: 'about-dialog',
         })
@@ -1370,10 +1366,9 @@ define([
             window.history.replaceState({}, '', shareURL)
           }
           if (thisObj.config.update_browser_title) {
-            document.title =
-              thisObj.browserMeta().title +
-              ' ' +
-              thisObj.view.visibleRegionLocString()
+            document.title = `${
+              thisObj.browserMeta().title
+            } ${thisObj.view.visibleRegionLocString()}`
           }
         }
         dojo.connect(this, 'onCoarseMove', updateLocationBar)
@@ -1435,8 +1430,8 @@ define([
       d.promise.then(function () {
         var combTrackConfig = {
           type: 'JBrowse/View/Track/Combination',
-          label: 'combination_track' + thisB._combinationTrackCount++,
-          key: 'Combination Track ' + thisB._combinationTrackCount,
+          label: `combination_track${thisB._combinationTrackCount++}`,
+          key: `Combination Track ${thisB._combinationTrackCount}`,
           metadata: {
             Description:
               'Drag-and-drop interface that creates a track out of combinations of other tracks.',
@@ -1508,10 +1503,10 @@ define([
               this.addGlobalMenuItem(
                 'dataset',
                 new dijitMenuItem({
-                  id: 'menubar_dataset_bookmark_' + id,
+                  id: `menubar_dataset_bookmark_${id}`,
                   label:
                     id == this.config.dataset_id
-                      ? '<b>' + dataset.name + '</b>'
+                      ? `<b>${dataset.name}</b>`
                       : dataset.name,
                   iconClass: 'dijitIconBookmark',
                   onClick: dojo.hitch(dataset, function () {
@@ -1534,7 +1529,7 @@ define([
 
     saveSessionDir: function (directory) {
       var fs = electronRequire('fs')
-      var path = this.config.electronData + '/sessions.json'
+      var path = `${this.config.electronData}/sessions.json`
       var obj = []
 
       try {
@@ -1557,7 +1552,7 @@ define([
 
     openDirectoryElectron: function (directory) {
       this.saveSessionDir(directory)
-      window.location = '?data=' + Util.replacePath(directory)
+      window.location = `?data=${Util.replacePath(directory)}`
     },
 
     openConfig: function (plugins) {
@@ -1572,7 +1567,7 @@ define([
 
       var dir = this.config.dataRoot
       var trackList = JSON.parse(
-        fs.readFileSync(dir + '/trackList.json', 'utf8'),
+        fs.readFileSync(`${dir}/trackList.json`, 'utf8'),
       )
 
       //remap existing plugins to object form
@@ -1580,7 +1575,7 @@ define([
       if (lang.isArray(trackList.plugins)) {
         var temp = {}
         array.forEach(trackList.plugins, function (p) {
-          temp[p] = { name: p, location: dir + '/' + p }
+          temp[p] = { name: p, location: `${dir}/${p}` }
         })
         trackList.plugins = temp
       }
@@ -1593,7 +1588,7 @@ define([
 
       try {
         fs.writeFileSync(
-          dir + '/trackList.json',
+          `${dir}/trackList.json`,
           JSON.stringify(trackList, null, 2),
         )
       } catch (e) {
@@ -1663,7 +1658,7 @@ define([
       }
       try {
         fs.writeFileSync(
-          Util.unReplacePath(dir) + '/trackList.json',
+          `${Util.unReplacePath(dir)}/trackList.json`,
           JSON.stringify(minTrackList, null, 2),
         )
       } catch (e) {
@@ -1774,20 +1769,19 @@ define([
             // fix dir to be user data if we are accessing a url for fasta
             var dir = this.config.electronData
             fs.existsSync(dir) || fs.mkdirSync(dir) // make base folder exist first before subdir
-            dir += '/' + confs[0].label
+            dir += `/${confs[0].label}`
 
             try {
               fs.existsSync(dir) || fs.mkdirSync(dir)
               fs.writeFileSync(
-                dir + '/trackList.json',
+                `${dir}/trackList.json`,
                 JSON.stringify(trackList, null, 2),
               )
-              fs.closeSync(fs.openSync(dir + '/tracks.conf', 'w'))
+              fs.closeSync(fs.openSync(`${dir}/tracks.conf`, 'w'))
               this.saveSessionDir(dir)
-              window.location =
-                window.location.href.split('?')[0] +
-                '?data=' +
-                Util.replacePath(dir)
+              window.location = `${
+                window.location.href.split('?')[0]
+              }?data=${Util.replacePath(dir)}`
             } catch (e) {
               alert('Failed to save session')
               console.error(e)
@@ -1849,7 +1843,7 @@ define([
                   resolve()
                 },
                 error => {
-                  this.fatalError('Error getting refSeq: ' + error)
+                  this.fatalError(`Error getting refSeq: ${error}`)
                   reject(error)
                 },
               )
@@ -1871,49 +1865,38 @@ define([
 
       if (about.description) {
         about.description +=
-          '<div class="powered_by">' +
-          'Powered by <a target="_blank" href="http://jbrowse.org">JBrowse ' +
-          verstring +
-          '</a>.' +
-          '</div>'
+          `${
+            '<div class="powered_by">' +
+            'Powered by <a target="_blank" href="http://jbrowse.org">JBrowse '
+          }${verstring}</a>.` + `</div>`
       } else {
         about.description =
-          '<div class="default_about">' +
-          '  <img class="logo" src="' +
-          this.resolveUrl('img/JBrowseLogo_small.png') +
-          '">' +
-          '  <h1>JBrowse ' +
-          verstring +
-          '</h1>' +
-          '  <div class="tagline">A next-generation genome browser<br> built with JavaScript and HTML5.</div>' +
-          '  <a class="mainsite" target="_blank" href="http://jbrowse.org">JBrowse website</a>' +
-          '  <div class="gmod">JBrowse is a <a target="_blank" href="http://gmod.org">GMOD</a> project.</div>' +
-          '  <div class="copyright">' +
-          packagejson.copyright +
-          '</div>' +
-          (Object.keys(this.plugins).length > 1 &&
-          !this.config.noPluginsForAboutBox
-            ? '  <div class="loaded-plugins">Loaded plugins<ul class="plugins-list">' +
-              array
-                .map(
-                  Object.keys(this.plugins),
-                  function (elt) {
-                    var p = this.plugins[elt]
-                    return (
-                      '<li>' +
-                      (p.url ? '<a href="' + p.url + '">' : '') +
-                      p.name +
-                      (p.url ? '</a>' : '') +
-                      (p.author ? ' (' + p.author + ')' : '') +
-                      '</li>'
-                    )
-                  },
-                  this,
-                )
-                .join('') +
-              '  </ul></div>'
-            : '') +
-          '</div>'
+          `${
+            '<div class="default_about">' + '  <img class="logo" src="'
+          }${this.resolveUrl('img/JBrowseLogo_small.png')}">` +
+          `  <h1>JBrowse ${verstring}</h1>` +
+          `  <div class="tagline">A next-generation genome browser<br> built with JavaScript and HTML5.</div>` +
+          `  <a class="mainsite" target="_blank" href="http://jbrowse.org">JBrowse website</a>` +
+          `  <div class="gmod">JBrowse is a <a target="_blank" href="http://gmod.org">GMOD</a> project.</div>` +
+          `  <div class="copyright">${packagejson.copyright}</div>${
+            Object.keys(this.plugins).length > 1 &&
+            !this.config.noPluginsForAboutBox
+              ? `  <div class="loaded-plugins">Loaded plugins<ul class="plugins-list">${array
+                  .map(
+                    Object.keys(this.plugins),
+                    function (elt) {
+                      var p = this.plugins[elt]
+                      return `<li>${p.url ? `<a href="${p.url}">` : ''}${
+                        p.name
+                      }${p.url ? '</a>' : ''}${
+                        p.author ? ` (${p.author})` : ''
+                      }</li>`
+                    },
+                    this,
+                  )
+                  .join('')}  </ul></div>`
+              : ''
+          }</div>`
       }
       return about
     },
@@ -2079,11 +2062,11 @@ define([
             args = dojo.mixin(
               {
                 className: menuName,
-                innerHTML:
-                  '<span class="icon"></span> ' +
-                  (args.text || Util.ucFirst(menuName)),
+                innerHTML: `<span class="icon"></span> ${
+                  args.text || Util.ucFirst(menuName)
+                }`,
                 dropDown: menu,
-                id: 'dropdownbutton_' + menuName,
+                id: `dropdownbutton_${menuName}`,
               },
               args || {},
             )
@@ -2104,7 +2087,7 @@ define([
       }
 
       var menu = new dijitDropDownMenu({
-        id: 'dropdownmenu_' + menuName,
+        id: `dropdownmenu_${menuName}`,
         leftClickToOpen: true,
       })
       dojo.forEach(items, function (item) {
@@ -2241,15 +2224,11 @@ define([
       accounts.forEach(function (user, trackerNum) {
         // if we're adding jbrowse.org user, also include new dimension references (replacing ga.js custom variables)
         if (user == jbrowseUser) {
-          analyticsScript +=
-            "ga('create', '" + user + "', 'auto', 'jbrowseTracker');"
+          analyticsScript += `ga('create', '${user}', 'auto', 'jbrowseTracker');`
         } else {
-          analyticsScript +=
-            "ga('create', '" +
-            user +
-            "', 'auto', 'customTracker" +
-            trackerNum +
-            "');"
+          analyticsScript += `ga('create', '${user}', 'auto', 'customTracker${
+            trackerNum
+          }');`
         }
       })
 
@@ -2262,18 +2241,16 @@ define([
           var googleMetrics = 'loadTime'
 
           googleDimensions.split(/\s+/).forEach(function (key, index) {
-            gaData['dimension' + (index + 1)] = stats[key]
+            gaData[`dimension${index + 1}`] = stats[key]
           })
 
           gaData.metric1 = Math.round(stats.loadTime * 1000)
 
-          analyticsScript +=
-            "ga('jbrowseTracker.send', 'pageview'," +
-            JSON.stringify(gaData) +
-            ');'
+          analyticsScript += `ga('jbrowseTracker.send', 'pageview',${JSON.stringify(
+            gaData,
+          )});`
         } else {
-          analyticsScript +=
-            "ga('customTracker" + viewerNum + ".send', 'pageview');"
+          analyticsScript += `ga('customTracker${viewerNum}.send', 'pageview');`
         }
       })
 
@@ -2296,10 +2273,9 @@ define([
       }
 
       // phone home with a GET request made by a script tag
-      var clientReport =
-        protocol +
-        '://jbrowse.org/analytics/clientReport?' +
-        dojo.objectToQuery(stats)
+      var clientReport = `${
+        protocol
+      }://jbrowse.org/analytics/clientReport?${dojo.objectToQuery(stats)}`
 
       dojo.create(
         'img',
@@ -2334,14 +2310,14 @@ define([
 
       var conf = this.config.stores[storeName]
       if (!conf) {
-        console.warn("store '" + storeName + "' not found")
+        console.warn(`store '${storeName}' not found`)
         callback(null)
         return
       }
 
       var storeClassName = conf.type
       if (!storeClassName) {
-        console.warn('store ' + storeName + ' has no type defined')
+        console.warn(`store ${storeName} has no type defined`)
         callback(null)
         return
       }
@@ -2388,7 +2364,7 @@ define([
      */
     uniqCounter: 0,
     addStoreConfig: function (/**String*/ name, /**Object*/ storeConfig) {
-      name = name || 'addStore' + this.uniqCounter++
+      name = name || `addStore${this.uniqCounter++}`
 
       if (!this.config.stores) {
         this.config.stores = {}
@@ -2398,7 +2374,7 @@ define([
       }
 
       if (this.config.stores[name] || this._storeCache[name]) {
-        throw 'store ' + name + ' already exists!'
+        throw `store ${name} already exists!`
       }
 
       this.config.stores[name] = storeConfig
@@ -2473,7 +2449,7 @@ define([
 
       // count the number and types of tracks
       dojo.forEach(this.config.tracks, function (trackConfig) {
-        var typeKey = 'track-types-' + trackConfig.type || 'null'
+        var typeKey = `track-types-${trackConfig.type}` || 'null'
         stats[typeKey] = (stats[typeKey] || 0) + 1
       })
 
@@ -2736,9 +2712,9 @@ define([
         function (conf) {
           if (!this.trackConfigsByName[conf.label]) {
             console.warn(
-              'track with label ' +
-                conf.label +
-                ' does not exist yet.  creating a new one.',
+              `track with label ${
+                conf.label
+              } does not exist yet.  creating a new one.`,
             )
           }
 
@@ -2771,7 +2747,7 @@ define([
         function (toDelete) {
           if (!this.trackConfigsByName[toDelete.label]) {
             console.warn(
-              'track ' + toDelete.label + ' does not exist, cannot delete',
+              `track ${toDelete.label} does not exist, cannot delete`,
             )
             return
           }
@@ -2932,10 +2908,10 @@ define([
             this.view.overviewBox.l,
         )
         dojo.style(this.locationTrap, {
-          width: trapRight - trapLeft + 'px',
-          borderBottomWidth: this.view.locationTrapHeight + 'px',
-          borderLeftWidth: trapLeft + 'px',
-          borderRightWidth: this.view.overviewBox.w - trapRight + 'px',
+          width: `${trapRight - trapLeft}px`,
+          borderBottomWidth: `${this.view.locationTrapHeight}px`,
+          borderLeftWidth: `${trapLeft}px`,
+          borderRightWidth: `${this.view.overviewBox.w - trapRight}px`,
         })
       }
     },
@@ -2951,7 +2927,7 @@ define([
           function (sourceDef) {
             var url = sourceDef.relativeUrl
               ? Util.resolveUrl(
-                  thisB.config.dataRoot + '/',
+                  `${thisB.config.dataRoot}/`,
                   sourceDef.relativeUrl,
                 )
               : sourceDef.url || 'trackMeta.csv'
@@ -2970,10 +2946,9 @@ define([
               }[type]
             if (!storeClass) {
               console.error(
-                "No store class found for type '" +
-                  type +
-                  "', cannot load track metadata from URL " +
-                  url,
+                `No store class found for type '${
+                  type
+                }', cannot load track metadata from URL ${url}`,
               )
               return null
             }
@@ -3025,7 +3000,7 @@ define([
             ? this.config.trackSelector.type
             : 'Hierarchical'
         if (!/\//.test(tl_class)) {
-          tl_class = 'JBrowse/View/TrackList/' + tl_class
+          tl_class = `JBrowse/View/TrackList/${tl_class}`
         }
 
         // load all the classes we need
@@ -3133,10 +3108,9 @@ define([
 
           new InfoDialog({
             title: 'Not found',
-            content:
-              'Not found: <span class="locString">' +
-              dompurify.sanitize(loc) +
-              '</span>',
+            content: `Not found: <span class="locString">${dompurify.sanitize(
+              loc,
+            )}</span>`,
             className: 'notfound-dialog',
           }).show()
           if (!thisB.view.pxPerBp) {
@@ -3170,10 +3144,10 @@ define([
           if (location.initial && !ref) {
             new InfoDialog({
               title: 'Not found',
-              content:
-                'Not found: <span class="locString">' +
-                Util.assembleLocString(location, false) +
-                '</span>',
+              content: `Not found: <span class="locString">${Util.assembleLocString(
+                location,
+                false,
+              )}</span>`,
               className: 'notfound-dialog',
             }).show()
             ref = this.refSeq
@@ -3287,11 +3261,10 @@ define([
               new LocationChoiceDialog({
                 browser: this,
                 locationChoices: goingTo.multipleLocations,
-                title: 'Choose ' + goingTo.name + ' location',
-                prompt:
-                  '"' +
-                  goingTo.name +
-                  '" is found in multiple locations.  Please choose a location to view.',
+                title: `Choose ${goingTo.name} location`,
+                prompt: `"${
+                  goingTo.name
+                }" is found in multiple locations.  Please choose a location to view.`,
               }).show()
             }
             return true
@@ -3359,9 +3332,7 @@ define([
       // warn if redefining
       if (this.globalKeyboardShortcuts[keychar]) {
         console.warn(
-          "WARNING: JBrowse global keyboard shortcut '" +
-            keychar +
-            "' redefined",
+          `WARNING: JBrowse global keyboard shortcut '${keychar}' redefined`,
         )
       }
 
@@ -3578,7 +3549,7 @@ define([
         //this.searchVal = searchVal;
         var searchVal = this.locationBox.get('value')
         if (searchVal.length) {
-          searchVal = ' "' + searchVal + '"'
+          searchVal = ` "${searchVal}"`
         }
         var locationVal = Util.assembleLocStringWithLength(currRegion)
 
@@ -3714,8 +3685,8 @@ define([
      * @returns the new value of the cookie, same as dojo.cookie
      */
     cookie: function (keyWithoutId, value) {
-      keyWithoutId = this.config.containerID + '-' + keyWithoutId
-      var keyWithId = keyWithoutId + '-' + (this.config.dataset_id || '')
+      keyWithoutId = `${this.config.containerID}-${keyWithoutId}`
+      var keyWithId = `${keyWithoutId}-${this.config.dataset_id || ''}`
       if (typeof value == 'object') {
         value = dojo.toJson(value)
       }
@@ -3723,13 +3694,9 @@ define([
       var sizeLimit = this.config.cookieSizeLimit || 1200
       if (value != null && value.length > sizeLimit) {
         console.warn(
-          "not setting cookie '" +
-            keyWithId +
-            "', value too big (" +
-            value.length +
-            ' > ' +
-            sizeLimit +
-            ')',
+          `not setting cookie '${keyWithId}', value too big (${
+            value.length
+          } > ${sizeLimit})`,
         )
         return localStorage.getItem(keyWithId)
       } else if (value != null) {
@@ -4024,7 +3991,7 @@ define([
                 value: this.refSeqOrder[i],
               })
             }
-            var tooManyMessage = '(first ' + numrefs + ' ref seqs)'
+            var tooManyMessage = `(first ${numrefs} ref seqs)`
             if (this.refSeqOrder.length > max) {
               options.push({
                 label: tooManyMessage,
@@ -4103,7 +4070,7 @@ define([
             }.call(this) ||
             20
 
-          this.locationBox.domNode.style.width = locLength + 'ex'
+          this.locationBox.domNode.style.width = `${locLength}ex`
         }),
       )
 
@@ -4119,12 +4086,10 @@ define([
     getBookmarks: function () {
       if (this.config.bookmarkService) {
         return request(
-          this.config.bookmarkService +
-            '?' +
-            ioQuery.objectToQuery({
-              sequence: this.refSeq.name,
-              organism: this.config.dataset_id,
-            }),
+          `${this.config.bookmarkService}?${ioQuery.objectToQuery({
+            sequence: this.refSeq.name,
+            organism: this.config.dataset_id,
+          })}`,
           {
             handleAs: 'json',
           },

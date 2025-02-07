@@ -27,11 +27,11 @@ define([
         this.print('track')
         if (this.track) {
           if (this.track.name) {
-            this.print(' name="' + this.track.name + '"')
+            this.print(` name="${this.track.name}"`)
           }
           var metadata = this.track.getMetadata()
           if (metadata.key) {
-            this.print(' description="' + metadata.key + '"')
+            this.print(` description="${metadata.key}"`)
           }
         }
         this.print(' useScore=0')
@@ -81,7 +81,7 @@ define([
 
         // normalize the strand field
         fields[5] = { 1: '+', '-1': '-', 0: '+' }[fields[5]] || fields[5]
-        return fields.join('\t') + '\n'
+        return `${fields.join('\t')}\n`
       },
     },
   )

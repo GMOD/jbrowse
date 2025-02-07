@@ -25,7 +25,7 @@ define([
                 c[index.indexConfKey]
                   ? c[index.indexConfKey].url || c[index.indexConfKey].blob.name
                   : c[index.indexUrlConfKey],
-                index.indexExtensionMap || '.' + index.indexExtension,
+                index.indexExtensionMap || `.${index.indexExtension}`,
               ) == basename
             ) {
               // it's a match, put it in
@@ -37,7 +37,7 @@ define([
         // go through again and look for index files that don't have the base extension in them
         basename = Util.basename(
           basename,
-          this.fileExtensionMap || '.' + this.fileExtension,
+          this.fileExtensionMap || `.${this.fileExtension}`,
         )
         for (var n in configs) {
           var c = configs[n]
@@ -48,7 +48,7 @@ define([
                 c[index.indexConfKey]
                   ? c[index.indexConfKey].url || c[index.indexConfKey].blob.name
                   : c[index.indexUrlConfKey],
-                index.indexExtensionMap || '.' + index.indexExtension,
+                index.indexExtensionMap || `.${index.indexExtension}`,
               ) == basename
             ) {
               // it's a match, put it in
@@ -59,7 +59,7 @@ define([
         }
 
         // otherwise make a new store config for it
-        var newName = this.name + '_' + basename + '_' + uniqCounter++
+        var newName = `${this.name}_${basename}_${uniqCounter++}`
         configs[newName] = {
           type: this.storeType,
           name: newName,
@@ -78,7 +78,7 @@ define([
                 : resource.url
                   ? resource.url
                   : '',
-              index.indexExtensionMap || '.' + index.indexExtension,
+              index.indexExtensionMap || `.${index.indexExtension}`,
             )
             if (!basename) {
               return false
@@ -107,7 +107,7 @@ define([
                   c[this.fileConfKey]
                     ? c[this.fileConfKey].url || c[this.fileConfKey].blob.name
                     : c[this.fileUrlConfKey],
-                  this.fileExtensionMap || '.' + this.fileExtension,
+                  this.fileExtensionMap || `.${this.fileExtension}`,
                 ) == basename
               ) {
                 // it's a match, put it in
@@ -117,15 +117,10 @@ define([
             }
 
             // otherwise make a new store
-            var newName =
-              this.name +
-              '_' +
-              Util.basename(
-                basename,
-                this.fileExtensionMap || '.' + this.fileExtension,
-              ) +
-              '_' +
-              uniqCounter++
+            var newName = `${this.name}_${Util.basename(
+              basename,
+              this.fileExtensionMap || `.${this.fileExtension}`,
+            )}_${uniqCounter++}`
             configs[newName] = {
               name: newName,
               type: this.storeType,
