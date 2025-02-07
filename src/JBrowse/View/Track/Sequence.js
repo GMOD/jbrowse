@@ -317,8 +317,9 @@ define([
 
           aminoAcidSpan.style.width = charWidth
           if (drawChars) {
+            // a single char shouldnt be xss'able...
             // eslint-disable-next-line xss/no-mixed-html
-            aminoAcidSpan.innerHTML = dompurify.sanitize(translated.charAt(i))
+            aminoAcidSpan.innerHTML = translated.charAt(i)
           }
           tr.appendChild(aminoAcidSpan)
         }
