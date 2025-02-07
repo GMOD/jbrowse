@@ -1,4 +1,3 @@
-import dompurify from 'dompurify'
 /**
  * Feature track that draws features using HTML5 canvas elements.
  */
@@ -8,7 +7,6 @@ define([
   'dojo/_base/array',
   'dojo/_base/lang',
   'dojo/_base/event',
-  'dojo/mouse',
   'dojo/dom-construct',
   'dojo/Deferred',
   'dojo/on',
@@ -28,7 +26,6 @@ define([
   array,
   lang,
   domEvent,
-  mouse,
   domConstruct,
   Deferred,
   on,
@@ -66,8 +63,6 @@ define([
 
     addAll: function (fRects) {
       var byID = this.byID
-      var cW = this.dims.w
-      var cH = this.dims.h
       array.forEach(
         fRects,
         function (fRect) {
@@ -276,8 +271,6 @@ define([
       fillBlock: function (args) {
         var blockIndex = args.blockIndex
         var block = args.block
-        var leftBase = args.leftBase
-        var rightBase = args.rightBase
         var scale = args.scale
 
         if (!has('canvas')) {
@@ -288,9 +281,8 @@ define([
         }
 
         var fill = lang.hitch(this, function (stats) {
-          // calculate some additional view parameters that
-          // might depend on the feature stats and add them to
-          // the view args we pass down
+          // calculate some additional view parameters that might depend on the
+          // feature stats and add them to the view args we pass down
           var renderArgs = lang.mixin(
             {
               stats: stats,
@@ -653,11 +645,10 @@ define([
 
         const layout = this._getLayout(scale)
 
-        // query for a slightly larger region than the block, so that
-        // we can draw any pieces of glyphs that overlap this block,
-        // but the feature of which does not actually lie in the block
-        // (long labels that extend outside the feature's bounds, for
-        // example)
+        // query for a slightly larger region than the block, so that we can
+        // draw any pieces of glyphs that overlap this block, but the feature
+        // of which does not actually lie in the block (long labels that extend
+        // outside the feature's bounds, for example)
         const bpExpansion = Math.round(
           this.config.maxFeatureGlyphExpansion / scale,
         )
@@ -684,10 +675,8 @@ define([
             args,
             feature,
             glyph => {
-              // have the glyph attempt
-              // to add a rendering of
-              // this feature to the
-              // layout
+              // have the glyph attempt to add a rendering of this feature to
+              // the layout
               var fRect = glyph.layoutFeature(args, layout, feature)
               if (fRect === null) {
                 // could not lay out, would exceed our configured maxHeight
@@ -700,7 +689,8 @@ define([
                 }
               }
 
-              // this might happen after all the features have been sent from the store
+              // this might happen after all the features have been sent from
+              // the store
               if (!--featuresInProgress && allFeaturesRead) {
                 featuresLaidOut.resolve()
               }
@@ -741,8 +731,6 @@ define([
                 },
                 block.domNode,
               ))
-              const ctx = c.getContext('2d')
-              // scale the canvas to work well with the various device pixel ratios
               this._scaleCanvas(c)
 
               if (block.maxHeightExceeded) {
@@ -942,8 +930,7 @@ define([
         }
         try {
           var ctx = viewArgs.block.featureCanvas.getContext('2d')
-          // ctx.translate( viewArgs.block.offsetLeft - this.featureCanvas.offsetLeft, 0 );
-          // console.log( viewArgs.blockIndex, 'block offset', viewArgs.block.offsetLeft - this.featureCanvas.offsetLeft );
+
           return ctx
         } catch (e) {
           console.error(e, e.stack)
@@ -964,8 +951,8 @@ define([
         }
       },
 
-      // given viewargs and a feature object, highlight that feature in
-      // all blocks.  if feature is undefined or null, unhighlight any currently
+      // given viewargs and a feature object, highlight that feature in all
+      // blocks.  if feature is undefined or null, unhighlight any currently
       // highlighted feature
       mouseoverFeature: function (feature, evt) {
         if (this.lastMouseover == feature) {
