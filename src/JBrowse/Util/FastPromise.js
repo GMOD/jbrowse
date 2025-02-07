@@ -4,29 +4,22 @@
  * uses.
  */
 
-define([
-       ],
-       function(
-       ) {
+define([], function () {
+  var fastpromise = function () {
+    this.callbacks = []
+  }
 
-var fastpromise = function() {
-    this.callbacks = [];
-};
+  fastpromise.prototype.then = function (callback) {
+    if ('value' in this) callback(this.value)
+    else this.callbacks.push(callback)
+  }
 
-fastpromise.prototype.then = function( callback ) {
-    if( 'value' in this )
-        callback( this.value );
-    else
-        this.callbacks.push( callback );
-};
+  fastpromise.prototype.resolve = function (value) {
+    this.value = value
+    var c = this.callbacks
+    delete this.callbacks
+    for (var i = 0; i < c.length; i++) c[i](this.value)
+  }
 
-fastpromise.prototype.resolve = function( value ) {
-    this.value = value;
-    var c = this.callbacks;
-    delete this.callbacks;
-    for( var i = 0; i<c.length; i++ )
-        c[i]( this.value );
-};
-
-return fastpromise;
-});
+  return fastpromise
+})

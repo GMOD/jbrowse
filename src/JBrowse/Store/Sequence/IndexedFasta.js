@@ -1,2 +1,4 @@
 // renamed
-define( [ 'JBrowse/Store/SeqFeature/IndexedFasta' ], function(s) { return s; } );
+define(['JBrowse/Store/SeqFeature/IndexedFasta'], function (s) {
+  return s
+})

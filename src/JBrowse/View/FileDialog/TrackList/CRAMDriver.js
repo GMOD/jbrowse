@@ -1,10 +1,8 @@
-define([
-    'dojo/_base/declare',
-    './_IndexedFileDriver'
-],
-function( declare, IndexedFileDriver ) {
-
-return declare( IndexedFileDriver,  {
+define(['dojo/_base/declare', './_IndexedFileDriver'], function (
+  declare,
+  IndexedFileDriver,
+) {
+  return declare(IndexedFileDriver, {
     name: 'CRAM',
     storeType: 'JBrowse/Store/SeqFeature/CRAM',
 
@@ -14,8 +12,6 @@ return declare( IndexedFileDriver,  {
 
     indexExtension: 'cram.crai',
     indexConfKey: 'crai',
-    indexUrlConfKey: 'craiUrlTemplate'
-});
-
-});
-
+    indexUrlConfKey: 'craiUrlTemplate',
+  })
+})
