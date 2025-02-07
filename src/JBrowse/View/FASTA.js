@@ -64,6 +64,8 @@ define([
         {
           className: 'fasta',
           cols: this.width,
+          // false positive
+          // eslint-disable-next-line xss/no-mixed-html
           rows: Math.min(lineCount, this.htmlMaxRows),
           readonly: true,
         },

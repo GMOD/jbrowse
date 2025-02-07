@@ -437,7 +437,7 @@ define([
       require(['dojo/text!JBrowse/View/Resource/Welcome.html'], function (
         Welcome,
       ) {
-        container.innerHTML = Welcome
+        container.innerHTML = dompurify.sanitize(Welcome)
         var topPane = dojo.create(
           'div',
           { style: { overflow: 'hidden' } },
@@ -471,7 +471,11 @@ define([
           var errors_div = dojo.byId('fatal_error_list')
           dojo.create(
             'div',
-            { className: 'error', innerHTML: error },
+            {
+              className: 'error',
+              // eslint-disable-next-line xss/no-mixed-html
+              innerHTML: dompurify.sanitize(error),
+            },
             errors_div,
           )
         }
@@ -555,7 +559,8 @@ define([
             require([
               'dojo/text!JBrowse/View/Resource/Welcome_old.html',
             ], function (Welcome_old) {
-              container.innerHTML = Welcome_old
+              // eslint-disable-next-line xss/no-mixed-html
+              container.innerHTML = dompurify.sanitize(Welcome_old)
               if (error) {
                 var errors_div = dojo.byId('fatal_error_list')
                 dojo.create(
@@ -796,14 +801,15 @@ define([
     _loadCSS: function (css) {
       var deferred = new Deferred()
       if (typeof css == 'string') {
-        // if it has '{' in it, it probably is not a URL, but is a string of CSS statements
+        // if it has '{' in it, it probably is not a URL, but is a string of
+        // CSS statements
         if (css.indexOf('{') > -1) {
           dojo.create(
             'style',
             {
               'data-from': 'JBrowse Config',
               type: 'text/css',
-              innerHTML: css,
+              innerHTML: dompurify.sanitize(css),
             },
             document.head,
           )
