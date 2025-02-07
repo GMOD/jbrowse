@@ -9,6 +9,8 @@ define([
   'JBrowse/View/Track/HTMLFeatures',
   'JBrowse/View/Track/_VariantDetailMixin',
 ], function (declare, all, HTMLFeatures, VariantDetailsMixin) {
+  // false positive
+  // eslint-disable-next-line xss/no-mixed-html
   return declare([HTMLFeatures, VariantDetailsMixin], {
     _trackMenuOptions: function () {
       return all([

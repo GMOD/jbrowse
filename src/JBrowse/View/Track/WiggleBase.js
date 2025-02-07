@@ -1,3 +1,5 @@
+import dompurify from 'dompurify'
+
 define([
   'dojo/_base/declare',
   'dojo/_base/array',
@@ -673,17 +675,21 @@ define([
 
     _showPixelValue: function (scoreDisplay, score) {
       if (typeof score == 'number') {
-        // display the score with only 6
-        // significant digits, avoiding
-        // most confusion about the
-        // approximative properties of
-        // IEEE floating point numbers
-        // parsed out of BigWig files
-        scoreDisplay.innerHTML = parseFloat(score.toPrecision(6))
+        // display the score with only 6 significant digits, avoiding most
+        // confusion about the approximative properties of IEEE floating point
+        // numbers parsed out of BigWig files
+
+        // eslint-disable-next-line xss/no-mixed-html
+        scoreDisplay.innerHTML = dompurify.sanitize(
+          parseFloat(score.toPrecision(6)),
+        )
         return true
       } else if (score && typeof score['score'] == 'number') {
         // "score" may be an object.
-        scoreDisplay.innerHTML = parseFloat(score['score'].toPrecision(6))
+        // eslint-disable-next-line xss/no-mixed-html
+        scoreDisplay.innerHTML = dompurify.sanitize(
+          parseFloat(score['score'].toPrecision(6)),
+        )
         return true
       } else {
         return false

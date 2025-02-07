@@ -280,6 +280,7 @@ define([
           'div',
           {
             className: 'faceted_tracksel_on_off tab',
+            // eslint-disable-next-line xss/no-mixed-html
             innerHTML: dompurify.sanitize(
               `<img src="${this.browser.resolveUrl('img/left_arrow.png')}"><div>Select<br>tracks</div>`,
             ),
@@ -300,6 +301,7 @@ define([
         this.topPane = new dijit.layout.ContentPane({
           region: 'top',
           id: 'faceted_tracksel_top',
+          // eslint-disable-next-line xss/no-mixed-html
           content: dompurify.sanitize(
             '<div class="title">Select Tracks</div> ' +
               '<div class="topLink" style="cursor: help"><a title="Track selector help">Help</a></div>',
@@ -316,6 +318,7 @@ define([
               refocus: false,
               draggable: false,
               title: 'Track Selection',
+              // eslint-disable-next-line xss/no-mixed-html
               content: dompurify.sanitize(
                 '<div class="main">' +
                   '<p>The JBrowse Faceted Track Selector makes it easy to search through' +
@@ -359,6 +362,7 @@ define([
         this.busyIndicator = dojo.create(
           'div',
           {
+            // eslint-disable-next-line xss/no-mixed-html
             innerHTML: dompurify.sanitize(
               `<img src="${this.browser.resolveUrl('img/spinner.gif')}">`,
             ),
@@ -374,6 +378,7 @@ define([
             content: [
               dojo.create('button', {
                 className: 'faceted_tracksel_on_off',
+                // eslint-disable-next-line xss/no-mixed-html
                 innerHTML: dompurify.sanitize(
                   `<img src="${this.browser.resolveUrl(
                     'img/left_arrow.png',
@@ -383,6 +388,7 @@ define([
               }),
               dojo.create('button', {
                 className: 'clear_filters',
+                // eslint-disable-next-line xss/no-mixed-html
                 innerHTML: dompurify.sanitize(
                   `<img src="${this.browser.resolveUrl('img/red_x.png')}">` +
                     `<div>Clear All Filters</div>`,

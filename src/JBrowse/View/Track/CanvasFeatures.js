@@ -1,3 +1,4 @@
+import dompurify from 'dompurify'
 /**
  * Feature track that draws features using HTML5 canvas elements.
  */
@@ -1076,18 +1077,17 @@ define([
                         'label',
                       ),
                     )
-                    labelSpan.innerHTML = this.config.unsafeMouseover
-                      ? t
-                      : Util.escapeHTML(t)
+
+                    // eslint-disable-next-line xss/no-mixed-html
+                    labelSpan.innerHTML = Util.escapeHTML(t)
                     return
                   }
                   if (label) {
                     labelSpan.style.display = 'block'
                     labelSpan.style.font = label.font
                     labelSpan.style.color = label.fill
-                    labelSpan.innerHTML = this.config.unsafeMouseover
-                      ? label.text
-                      : Util.escapeHTML(label.text)
+                    // eslint-disable-next-line xss/no-mixed-html
+                    labelSpan.innerHTML = Util.escapeHTML(label.text)
                   } else {
                     labelSpan.style.display = 'none'
                     labelSpan.innerHTML = '(no label)'
@@ -1096,9 +1096,10 @@ define([
                     descriptionSpan.style.display = 'block'
                     descriptionSpan.style.font = description.font
                     descriptionSpan.style.color = description.fill
-                    descriptionSpan.innerHTML = this.config.unsafeMouseover
-                      ? description.text
-                      : Util.escapeHTML(description.text)
+                    // eslint-disable-next-line xss/no-mixed-html
+                    descriptionSpan.innerHTML = Util.escapeHTML(
+                      description.text,
+                    )
                   } else {
                     descriptionSpan.style.display = 'none'
                     descriptionSpan.innerHTML = '(no description)'

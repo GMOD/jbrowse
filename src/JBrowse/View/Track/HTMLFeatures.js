@@ -1,16 +1,12 @@
+import dompurify from 'dompurify'
+
 define([
   'dojo/_base/declare',
   'dojo/_base/lang',
   'dojo/_base/array',
-  'dojo/dom-construct',
   'dojo/dom-geometry',
   'dojo/on',
   'dojo/query',
-  'JBrowse/has',
-  'dijit/Dialog',
-  'dijit/form/Select',
-  'dijit/form/RadioButton',
-  'dijit/form/Button',
   'JBrowse/View/Track/BlockBased',
   'JBrowse/View/Track/_YScaleMixin',
   'JBrowse/View/Track/_ExportMixin',
@@ -23,15 +19,9 @@ define([
   declare,
   lang,
   array,
-  dom,
   domGeom,
   on,
   query,
-  has,
-  dijitDialog,
-  dijitSelect,
-  dijitRadioButton,
-  dijitButton,
   BlockBased,
   YScaleMixin,
   ExportMixin,
@@ -41,6 +31,8 @@ define([
   Layout,
   Location,
 ) {
+  // unclear what this was
+  // eslint-disable-next-line xss/no-mixed-html
   var HTMLFeatures = declare(
     [
       BlockBased,
@@ -1440,21 +1432,13 @@ define([
             'div',
             {
               className: `feature-label${highlighted ? ' highlighted' : ''}`,
-              innerHTML:
-                (name
-                  ? `<div class="feature-name">${
-                      this.config.unsafeHTMLFeatures
-                        ? name
-                        : Util.escapeHTML(name)
-                    }</div>`
-                  : '') +
-                (description
-                  ? ` <div class="feature-description">${
-                      this.config.unsafeHTMLFeatures
-                        ? description
-                        : Util.escapeHTML(description)
-                    }</div>`
-                  : ''),
+              // eslint-disable-next-line xss/no-mixed-html
+              innerHTML: dompurify.sanitize(
+                (name ? `<div class="feature-name">${name}</div>` : '') +
+                  (description
+                    ? ` <div class="feature-description">${description}</div>`
+                    : ''),
+              ),
               style: {
                 top: `${top + this.glyphHeight + 2}px`,
                 left: `${(100 * (layoutStart - block.startBase)) / blockWidth}%`,

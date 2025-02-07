@@ -1,3 +1,5 @@
+import dompurify from 'dompurify'
+
 define([
   'dojo/_base/declare',
   'dojo/_base/lang',
@@ -847,7 +849,6 @@ define([
 
           for (i = 0; i < numBlocks; i++) {
             if (this.blocks[i]) {
-              //if (!this.blocks[i].style) console.log(this.blocks);
               this.blocks[i].domNode.style.left = `${i * widthPct}%`
               this.blocks[i].domNode.style.width = `${widthPct}%`
             }
@@ -865,7 +866,8 @@ define([
           'div',
           {
             className: class_ || 'message',
-            innerHTML: message,
+            // eslint-disable-next-line xss/no-mixed-html
+            innerHTML: Util.escapeHTML(message),
           },
           block.domNode,
         )
@@ -981,7 +983,6 @@ define([
           var spec = track._processMenuSpec(dojo.clone(inputSpec), ctx)
           var url = spec.url || spec.href
           spec.url = url
-          var style = dojo.clone(spec.style || {})
 
           // try to understand the `action` setting
           spec.action =
@@ -1321,7 +1322,9 @@ define([
                 className: 'dialog-new-window',
                 title: 'open in new window',
                 onclick: dojo.hitch(dialog, 'hide'),
-                innerHTML: spec.url,
+
+                // eslint-disable-next-line xss/no-mixed-html
+                innerHTML: dompurify.sanitize(spec.url),
               },
               dialog.titleBar,
             )
@@ -1540,13 +1543,14 @@ define([
                   zIndex: 1000,
                   left: `${left}%`,
                 },
-                innerHTML: label,
+                // eslint-disable-next-line xss/no-mixed-html
+                innerHTML: dompurify.sanitize(label),
               },
               args.block.domNode,
             )
           }
           if (trimRight <= 0) {
-            var d2 = domConstruct.create(
+            domConstruct.create(
               'div',
               {
                 className: 'horizontaltext',
@@ -1555,7 +1559,9 @@ define([
                   zIndex: 1000,
                   left: `${left + width}%`,
                 },
-                innerHTML: rlabel,
+
+                // eslint-disable-next-line xss/no-mixed-html
+                innerHTML: dompurify.sanitize(rlabel),
               },
               args.block.domNode,
             )

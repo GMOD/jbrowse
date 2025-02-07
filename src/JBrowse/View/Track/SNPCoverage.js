@@ -1,23 +1,16 @@
+import dompurify from 'dompurify'
+
 define([
   'dojo/_base/declare',
-  'dojo/_base/array',
   'JBrowse/View/Track/Wiggle/XYPlot',
   'JBrowse/Util',
   'JBrowse/View/Track/_AlignmentsMixin',
   'JBrowse/Store/SeqFeature/SNPCoverage',
-], function (
-  declare,
-  array,
-  WiggleXY,
-  Util,
-  AlignmentsMixin,
-  SNPCoverageStore,
-) {
-  var dojof = Util.dojof
-
+], function (declare, WiggleXY, Util, AlignmentsMixin, SNPCoverageStore) {
   return declare([WiggleXY, AlignmentsMixin], {
     constructor: function () {
-      // force conf variables that are meaningless for this kind of track, and maybe harmful
+      // force conf variables that are meaningless for this kind of track, and
+      // maybe harmful
       delete this.config.bicolor_pivot
       delete this.config.scale
       delete this.config.align
@@ -352,7 +345,7 @@ define([
       }
       if (score.snpsCounted) {
         var total = score.total()
-        var scoreSummary = '<table>'
+        var scoreSummary = ''
 
         score.forEach(function (count, category) {
           // if this count has more nested categories, do counts of those
@@ -380,12 +373,19 @@ define([
         scoreSummary += `<tr class="total"><td>Total</td><td class="count">${fmtNum(
           total,
         )}</td><td class="pct">&nbsp;</td><td class="subdist">&nbsp;</td></tr>`
-        scoreDisplay.innerHTML = `${scoreSummary}</table>`
+        // eslint-disable-next-line xss/no-mixed-html
+        scoreDisplay.innerHTML = dompurify.sanitize(
+          `<table>${scoreSummary}</table>`,
+        )
+
         return true
       } else {
-        scoreDisplay.innerHTML = `<table><tr><td>Total</td><td class="count">${fmtNum(
-          score,
-        )}</td></tr></table>`
+        // eslint-disable-next-line xss/no-mixed-html
+        scoreDisplay.innerHTML = dompurify.sanitize(
+          `<table><tr><td>Total</td><td class="count">${fmtNum(
+            score,
+          )}</td></tr></table>`,
+        )
         return true
       }
     },
