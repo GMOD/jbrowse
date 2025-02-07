@@ -186,6 +186,8 @@ define([
       var content = [
         dom.create('div', {
           className: 'intro',
+
+          // eslint-disable-next-line xss/no-mixed-html
           innerHTML: dompurify.sanitize(
             args.introMsg ||
               'Add any combination of data files and URLs, and JBrowse will automatically suggest tracks to display their contents.',

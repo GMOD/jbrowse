@@ -444,6 +444,8 @@ define([
           { style: { overflow: 'hidden' } },
           thisB.container,
         )
+
+        // eslint-disable-next-line xss/no-mixed-html
         dojo.byId('welcome').innerHTML = dompurify.sanitize(
           `Welcome! To get started with <i>JBrowse-${
             thisB.version
@@ -652,6 +654,7 @@ define([
         dojo.create(
           'td',
           {
+            // eslint-disable-next-line xss/no-mixed-html
             innerHTML: dompurify(`<a href="${url}">${session.session}</a>`),
           },
           tr,
@@ -2041,6 +2044,8 @@ define([
             args = dojo.mixin(
               {
                 className: menuName,
+
+                // eslint-disable-next-line xss/no-mixed-html
                 innerHTML: dompurify.sanitize(
                   `<span class="icon"></span> ${
                     args.text || Util.ucFirst(menuName)

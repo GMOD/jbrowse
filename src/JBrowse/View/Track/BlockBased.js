@@ -290,6 +290,7 @@ define([
 
         this.labelHTML = newHTML
         query('.track-label-text', this.label).forEach(function (n) {
+          // eslint-disable-next-line xss/no-mixed-html
           n.innerHTML = dompurify.sanitize(newHTML)
         })
         this.labelHeight = this.label.offsetHeight
@@ -601,6 +602,8 @@ define([
           'div',
           {
             className: 'error',
+
+            // eslint-disable-next-line xss/no-mixed-html
             innerHTML: dompurify.sanitize(
               `<h2>Error</h2><div class="text">An error was encountered when displaying this track.</div>${
                 message

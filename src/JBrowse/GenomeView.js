@@ -245,6 +245,8 @@ define([
             node:
               hint == 'avatar'
                 ? dojo.create('div', {
+
+          // eslint-disable-next-line xss/no-mixed-html
                     innerHTML: dompurify.sanitize(
                       trackConfig.key || trackConfig.label,
                     ),

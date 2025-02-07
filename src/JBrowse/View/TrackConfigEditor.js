@@ -136,6 +136,7 @@ define([
     },
 
     _reportError: function (error) {
+      // eslint-disable-next-line xss/no-mixed-html
       this.errorReportArea.innerHTML = dompurify.sanitize(
         `<div class="error">${error}</div>`,
       )

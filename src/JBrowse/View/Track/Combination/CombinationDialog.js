@@ -57,6 +57,8 @@ define([
       nodesToAdd.push(
         dom.create('div', {
           className: 'intro',
+
+          // eslint-disable-next-line xss/no-mixed-html
           innerHTML: dompurify.sanitize(
             `Adding ${this.currType} track ${
               this.newTrackKey

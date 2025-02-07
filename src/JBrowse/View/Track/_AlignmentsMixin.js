@@ -79,17 +79,9 @@ define([
           .toLowerCase()}`,
         innerHTML: '',
       })
-      var fmt = dojo.hitch(this, function (name, value, feature, unsafe) {
+      var fmt = dojo.hitch(this, function (name, value, feature) {
         name = Util.ucFirst(name.replace(/_/g, ' '))
-        return this.renderDetailField(
-          container,
-          name,
-          value,
-          feature,
-          null,
-          {},
-          unsafe,
-        )
+        return this.renderDetailField(container, name, value, feature, null, {})
       })
 
       this._renderCoreDetails(track, f, div, container)
@@ -189,7 +181,6 @@ define([
           var colors = {}
           try {
             var styleSheets = this._getStyleSheets(document.styleSheets)
-            console.log({ styleSheets })
             array.forEach(styleSheets, function (sheet) {
               // avoid modifying cssRules for plugins which generates
               // SecurityException on Firefox
@@ -198,8 +189,7 @@ define([
                 return
               }
               array.forEach(classes, function (c) {
-                console.log({ c })
-                var match = /\.base_([^\s_]+)$/.exec(c.selectorText)
+                var match = /^\.base_([^\s_]+)$/.exec(c.selectorText)
                 if (match && match[1]) {
                   var base = match[1]
                   match = /\#[0-9a-f]{3,6}|(?:rgb|hsl)a?\([^\)]*\)/gi.exec(
@@ -451,6 +441,8 @@ define([
           'div',
           {
             className: 'renderTable',
+
+            // eslint-disable-next-line xss/no-mixed-html
             innerHTML: dompurify.sanitize(
               `<h2 class="sectiontitle">Matches</h2><div style=\"font-family: Courier; white-space: pre;\">${
                 ret_str
@@ -464,6 +456,7 @@ define([
           'div',
           {
             className: 'renderTable',
+            // eslint-disable-next-line xss/no-mixed-html
             innerHTML: dompurify.sanitize(
               `${
                 '<h2 class="sectiontitle">Matches</h2><div style=\"font-family: Courier; white-space: pre;\">' +
