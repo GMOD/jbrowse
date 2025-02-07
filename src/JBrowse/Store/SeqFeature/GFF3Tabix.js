@@ -144,8 +144,12 @@ define([
                       this._isTopLevelFeatureType(featureType)
                     ) {
                       let start = line.start - 1 // gff is 1-based
-                      if (start < minStart) minStart = start
-                      if (line.end > maxEnd) maxEnd = line.end
+                      if (start < minStart) {
+                        minStart = start
+                      }
+                      if (line.end > maxEnd) {
+                        maxEnd = line.end
+                      }
                     }
                   })
                   if (maxEnd > query.end || minStart < query.start) {
@@ -182,8 +186,9 @@ define([
                     // the file, we can use this later to synthesize a unique ID for
                     // features that don't have one
                     if (lineRecord.fields[8] && lineRecord.fields[8] !== '.') {
-                      if (!lineRecord.fields[8].includes('_lineHash'))
+                      if (!lineRecord.fields[8].includes('_lineHash')) {
                         lineRecord.fields[8] += `;_lineHash=${lineRecord.lineHash}`
+                      }
                     } else {
                       lineRecord.fields[8] = `_lineHash=${lineRecord.lineHash}`
                     }
@@ -213,7 +218,9 @@ define([
                     error = new Errors.DataOverflow(error.message)
                   }
                   errorCallback(error)
-                } else console.error(error)
+                } else {
+                  console.error(error)
+                }
               },
             )
             .catch(errorCallback)
@@ -239,9 +246,13 @@ define([
         ]
         for (var a in data.attributes) {
           let b = a.toLowerCase()
-          if (defaultFields.includes(b)) b += '2' //reproduce behavior of NCList
+          if (defaultFields.includes(b)) {
+            b += '2'
+          } //reproduce behavior of NCList
           f[b] = data.attributes[a]
-          if (f[b].length == 1) f[b] = f[b][0]
+          if (f[b].length == 1) {
+            f[b] = f[b][0]
+          }
         }
         f.uniqueID = `offset-${f._linehash}`
 

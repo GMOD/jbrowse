@@ -119,7 +119,9 @@ define([
                     error = new Errors.DataOverflow(error.message)
                   }
                   errorCallback(error)
-                } else console.error(error)
+                } else {
+                  console.error(error)
+                }
               })
           })
           .catch(errorCallback)

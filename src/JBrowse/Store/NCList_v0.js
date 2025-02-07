@@ -32,8 +32,11 @@ define(['JBrowse/Finisher', 'JBrowse/Util'], function (Finisher, Util) {
     var myIntervals = intervals //.concat();
     //sort by OL
     myIntervals.sort(function (a, b) {
-      if (a[0] != b[0]) return a[0] - b[0]
-      else return b[1] - a[1]
+      if (a[0] != b[0]) {
+        return a[0] - b[0]
+      } else {
+        return b[1] - a[1]
+      }
     })
     var sublistStack = []
     var curList = []
@@ -77,14 +80,20 @@ define(['JBrowse/Finisher', 'JBrowse/Util'], function (Finisher, Util) {
 
     while (high - low > 1) {
       mid = (low + high) >>> 1
-      if (arr[mid][itemIndex] > item) high = mid
-      else low = mid
+      if (arr[mid][itemIndex] > item) {
+        high = mid
+      } else {
+        low = mid
+      }
     }
 
     //if we're iterating rightward, return the high index;
     //if leftward, the low index
-    if (1 == itemIndex) return high
-    else return low
+    if (1 == itemIndex) {
+      return high
+    } else {
+      return low
+    }
   }
 
   NCList_v0.prototype.iterHelper = function (
@@ -165,8 +174,9 @@ define(['JBrowse/Finisher', 'JBrowse/Util'], function (Finisher, Util) {
                   testIndex,
                   path.concat(parentIndex),
                 )
-                for (var c = 0; c < lazyObj.callbacks.length; c++)
+                for (var c = 0; c < lazyObj.callbacks.length; c++) {
                   lazyObj.callbacks[c](o)
+                }
                 finish.dec()
               }
             })(arr[i], arr[i][this.lazyIndex], this.sublistIndex, i),
@@ -179,7 +189,7 @@ define(['JBrowse/Finisher', 'JBrowse/Util'], function (Finisher, Util) {
         fun(arr[i], path.concat(i))
       }
 
-      if (arr[i][this.sublistIndex])
+      if (arr[i][this.sublistIndex]) {
         this.iterHelper(
           arr[i][this.sublistIndex],
           from,
@@ -191,6 +201,7 @@ define(['JBrowse/Finisher', 'JBrowse/Util'], function (Finisher, Util) {
           testIndex,
           path.concat(i),
         )
+      }
       i += inc
     }
   }
@@ -227,7 +238,9 @@ define(['JBrowse/Finisher', 'JBrowse/Util'], function (Finisher, Util) {
 
     var result = new Array(numBins)
     var binWidth = (to - from) / numBins
-    for (var i = 0; i < numBins; i++) result[i] = 0
+    for (var i = 0; i < numBins; i++) {
+      result[i] = 0
+    }
     //this.histHelper(this.topList, from, to, result, numBins, (to - from) / numBins);
     this.iterate(
       from,
@@ -235,7 +248,9 @@ define(['JBrowse/Finisher', 'JBrowse/Util'], function (Finisher, Util) {
       function (feat) {
         var firstBin = Math.max(0, ((feat[0] - from) / binWidth) | 0)
         var lastBin = Math.min(numBins, ((feat[1] - from) / binWidth) | 0)
-        for (var bin = firstBin; bin <= lastBin; bin++) result[bin]++
+        for (var bin = firstBin; bin <= lastBin; bin++) {
+          result[bin]++
+        }
       },
       function () {
         callback(result)

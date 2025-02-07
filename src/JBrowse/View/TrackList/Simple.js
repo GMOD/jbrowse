@@ -54,7 +54,9 @@ define([
         this.browser.subscribe(
           '/dnd/drop',
           dojo.hitch(this, function (source, nodes, copy, target) {
-            if (target !== this.trackListWidget) return
+            if (target !== this.trackListWidget) {
+              return
+            }
 
             // get the configs from the tracks being dragged in
             var confs = dojo.filter(
@@ -69,7 +71,9 @@ define([
             // return if no confs; whatever was
             // dragged here probably wasn't a
             // track
-            if (!confs.length) return
+            if (!confs.length) {
+              return
+            }
 
             this.dndDrop = true
             this.browser.publish('/jbrowse/v1/v/tracks/hide', confs)
@@ -113,11 +117,15 @@ define([
           trackConfigs,
           function (conf) {
             var oldNode = this.inactiveTrackNodes[conf.label]
-            if (!oldNode) return
+            if (!oldNode) {
+              return
+            }
             delete this.inactiveTrackNodes[conf.label]
 
             this.trackListWidget.delItem(oldNode.id)
-            if (oldNode.parentNode) oldNode.parentNode.removeChild(oldNode)
+            if (oldNode.parentNode) {
+              oldNode.parentNode.removeChild(oldNode)
+            }
 
             this.trackListWidget.insertNodes(
               false,
@@ -240,7 +248,9 @@ define([
       },
 
       _onMouseDown: function (current, e) {
-        if (!current) return
+        if (!current) {
+          return
+        }
         var thisW = this.trackListWidget
         if (!e.ctrlKey && !e.shiftKey) {
           thisW.simpleSelection = true
@@ -255,11 +265,15 @@ define([
           this._select(current)
           if (current != this.anchor) {
             for (; i < nodes.length; i++) {
-              if (nodes[i] == this.anchor || nodes[i] == current) break
+              if (nodes[i] == this.anchor || nodes[i] == current) {
+                break
+              }
             }
             i++
             for (; i < nodes.length; i++) {
-              if (nodes[i] == this.anchor || nodes[i] == current) break
+              if (nodes[i] == this.anchor || nodes[i] == current) {
+                break
+              }
               this._select(nodes[i])
             }
           }
@@ -323,10 +337,14 @@ define([
           trackConfigs || [],
           function (conf) {
             var oldNode = this.inactiveTrackNodes[conf.label]
-            if (!oldNode) return
+            if (!oldNode) {
+              return
+            }
             delete this.inactiveTrackNodes[conf.label]
 
-            if (oldNode.parentNode) oldNode.parentNode.removeChild(oldNode)
+            if (oldNode.parentNode) {
+              oldNode.parentNode.removeChild(oldNode)
+            }
 
             this.trackListWidget.delItem(oldNode.id)
           },

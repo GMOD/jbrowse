@@ -33,7 +33,9 @@ define([
     },
 
     generateJsonFromKeyArray: function (inputJson, keyArray, keyDepth, value) {
-      if (!keyArray || keyArray.length == keyDepth) return
+      if (!keyArray || keyArray.length == keyDepth) {
+        return
+      }
 
       var firstKey = keyArray[keyDepth - 1]
       // set value if the last one

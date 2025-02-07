@@ -71,8 +71,9 @@ define([
       // },
 
       _makeQuery: function (query) {
-        if (this.config.variables)
+        if (this.config.variables) {
           query = dojo.mixin(dojo.mixin({}, this.config.variables), query)
+        }
 
         return Util.fillTemplate(this.queryTemplate, query)
       },
@@ -122,7 +123,9 @@ define([
 
       _resultsToFeatures: function (results, featCallback) {
         var rows = ((results || {}).results || {}).bindings || []
-        if (!rows.length) return
+        if (!rows.length) {
+          return
+        }
         var fields = results.head.vars
         var requiredFields = ['start', 'end', 'strand', 'uniqueID']
         for (var i = 0; i < requiredFields.length; i++) {
@@ -143,7 +146,9 @@ define([
 
             var data = f.data
             array.forEach(fields, function (field) {
-              if (field in row) data[field] = row[field].value
+              if (field in row) {
+                data[field] = row[field].value
+              }
             })
             data.start = parseInt(data.start)
             data.end = parseInt(data.end)

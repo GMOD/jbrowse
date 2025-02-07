@@ -27,29 +27,34 @@ define([
      */
     constructor: function (args) {
       let dataBlob
-      if (args.fasta) dataBlob = new BlobFilehandleWrapper(args.fasta)
-      else if (args.urlTemplate)
+      if (args.fasta) {
+        dataBlob = new BlobFilehandleWrapper(args.fasta)
+      } else if (args.urlTemplate) {
         dataBlob = new BlobFilehandleWrapper(
           new XHRBlob(this.resolveUrl(args.urlTemplate), {
             expectRanges: true,
           }),
         )
-      else
+      } else {
         dataBlob = new BlobFilehandleWrapper(
           new XHRBlob('data.fa', { expectRanges: true }),
         )
+      }
 
       let indexBlob
-      if (args.fai) indexBlob = new BlobFilehandleWrapper(args.fai)
-      else if (args.faiUrlTemplate)
+      if (args.fai) {
+        indexBlob = new BlobFilehandleWrapper(args.fai)
+      } else if (args.faiUrlTemplate) {
         indexBlob = new BlobFilehandleWrapper(
           new XHRBlob(this.resolveUrl(args.faiUrlTemplate)),
         )
-      else if (args.urlTemplate)
+      } else if (args.urlTemplate) {
         indexBlob = new BlobFilehandleWrapper(
           new XHRBlob(this.resolveUrl(args.urlTemplate + '.fai')),
         )
-      else throw new Error('no index provided, must provide a FASTA index')
+      } else {
+        throw new Error('no index provided, must provide a FASTA index')
+      }
 
       this.source = dataBlob.toString()
 
@@ -77,8 +82,9 @@ define([
       }
       var refname = query.ref
       // if they both regularize to the same thing, use this.refSeq.name since that is guaranteed to be from refseq store
-      if (!this.browser.compareReferenceNames(this.refSeq.name, refname))
+      if (!this.browser.compareReferenceNames(this.refSeq.name, refname)) {
         refname = this.refSeq.name
+      }
 
       this.fasta
         .getResiduesByName(refname, query.start, query.end)

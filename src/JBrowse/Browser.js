@@ -148,11 +148,14 @@ define([
       this.config = params || {}
 
       // if we're in the unit tests, stop here and don't do any more initialization
-      if (this.config.unitTestMode) return
+      if (this.config.unitTestMode) {
+        return
+      }
 
       // hook for externally applied initialization that can be setup in index.html
-      if (typeof this.config.initExtra === 'function')
+      if (typeof this.config.initExtra === 'function') {
         this.config.initExtra(this, params)
+      }
 
       this.startTime = new Date()
 
@@ -176,8 +179,9 @@ define([
           if (
             thisB.config.initialHighlight &&
             thisB.config.initialHighlight != '/'
-          )
+          ) {
             thisB.setHighlight(new Location(thisB.config.initialHighlight))
+          }
 
           thisB.initPlugins().then(function () {
             thisB.loadNames()
@@ -324,7 +328,9 @@ define([
             return newplugins
           }.call(this)
         }
-        if (!lang.isArray(plugins)) plugins = [plugins]
+        if (!lang.isArray(plugins)) {
+          plugins = [plugins]
+        }
 
         plugins.unshift.apply(plugins, this._corePlugins())
 
@@ -519,7 +525,9 @@ define([
           }
           console.error(error.stack || '' + error)
           error = error + ''
-          if (!/\.$/.exec(error)) error = error + '.'
+          if (!/\.$/.exec(error)) {
+            error = error + '.'
+          }
 
           error = dojoxHtmlEntities.encode(error)
         }
@@ -763,8 +771,9 @@ define([
 
     loadUserCSS: function () {
       return this._milestoneFunction('loadUserCSS', function (deferred) {
-        if (this.config.css && !lang.isArray(this.config.css))
+        if (this.config.css && !lang.isArray(this.config.css)) {
           this.config.css = [this.config.css]
+        }
 
         var css = this.config.css || []
         if (!css.length) {
@@ -822,14 +831,20 @@ define([
           dojo.clone(this.config.names || {}),
           this.config.autocomplete || {},
         )
-        if (!conf.url) conf.url = this.config.nameUrl || 'data/names/'
+        if (!conf.url) {
+          conf.url = this.config.nameUrl || 'data/names/'
+        }
 
-        if (conf.baseUrl) conf.url = Util.resolveUrl(conf.baseUrl, conf.url)
+        if (conf.baseUrl) {
+          conf.url = Util.resolveUrl(conf.baseUrl, conf.url)
+        }
 
         var type
         if ((type = conf.type)) {
           var thisB = this
-          if (type.indexOf('/') == -1) type = 'JBrowse/Store/Names/' + type
+          if (type.indexOf('/') == -1) {
+            type = 'JBrowse/Store/Names/' + type
+          }
           dojo.global.require([type], function (CLASS) {
             thisB.nameStore = new CLASS(dojo.mixin({ browser: thisB }, conf))
             deferred.resolve({ success: true })
@@ -870,7 +885,9 @@ define([
      */
     regularizeLocation: function (location) {
       var ref = this.findReferenceSequence(location.ref || location.objectName)
-      if (ref) location.ref = ref.name
+      if (ref) {
+        location.ref = ref.name
+      }
       return location
     },
 
@@ -942,7 +959,9 @@ define([
         )
         this.overviewDiv = overview
         // overview=0 hides the overview, but we still need it to exist
-        if (!this.config.show_overview) overview.style.cssText = 'display: none'
+        if (!this.config.show_overview) {
+          overview.style.cssText = 'display: none'
+        }
 
         if (Util.isElectron() && !this.config.hideGenomeOptions) {
           this.addGlobalMenuItem(
@@ -1029,7 +1048,9 @@ define([
                 dojo.hitch(aboutDialog, 'show'),
               )
             }
-          } else this.renderDatasetSelect(menuBar)
+          } else {
+            this.renderDatasetSelect(menuBar)
+          }
 
           // make the file menu
           this.addGlobalMenuItem(
@@ -1113,7 +1134,9 @@ define([
                     var tracks = thisObj.view.visibleTracks()
                     array.forEach(tracks, function (track) {
                       // operate only on XYPlot or Density tracks
-                      if (!/\b(XYPlot|Density)/.test(track.config.type)) return
+                      if (!/\b(XYPlot|Density)/.test(track.config.type)) {
+                        return
+                      }
 
                       track.trackHeightChanged = true
                       track.updateUserStyles({
@@ -1280,8 +1303,9 @@ define([
             menuBar.appendChild(snapLink)
           }
         } else {
-          if (this.config.show_fullviewlink)
+          if (this.config.show_fullviewlink) {
             menuBar.appendChild(this.makeFullViewLink())
+          }
         }
 
         this.viewElem = document.createElement('div')
@@ -1324,13 +1348,15 @@ define([
             thisObj.config.updateBrowserURL &&
             window.history &&
             window.history.replaceState
-          )
+          ) {
             window.history.replaceState({}, '', shareURL)
-          if (thisObj.config.update_browser_title)
+          }
+          if (thisObj.config.update_browser_title) {
             document.title =
               thisObj.browserMeta().title +
               ' ' +
               thisObj.view.visibleRegionLocString()
+          }
         }
         dojo.connect(this, 'onCoarseMove', updateLocationBar)
         this.subscribe('/jbrowse/v1/n/tracks/visibleChanged', updateLocationBar)
@@ -1373,8 +1399,9 @@ define([
     },
 
     createCombinationTrack: function () {
-      if (this._combinationTrackCount === undefined)
+      if (this._combinationTrackCount === undefined) {
         this._combinationTrackCount = 0
+      }
       var d = new Deferred()
       var storeConf = {
         browser: this,
@@ -1413,8 +1440,9 @@ define([
         var dsconfig = this.config.datasets || {}
         var datasetChoices = []
         for (var id in dsconfig) {
-          if (!/^_/.test(id))
+          if (!/^_/.test(id)) {
             datasetChoices.push(Object.assign({ id: id }, dsconfig[id]))
+          }
         }
 
         const combobox = new dijitComboBox({
@@ -1425,14 +1453,19 @@ define([
             data: datasetChoices,
           }),
           onChange: dsName => {
-            if (!dsName) return false
+            if (!dsName) {
+              return false
+            }
             const dsID = datasetChoices.find(d => d.name === dsName).id
             const ds = (this.config.datasets || {})[dsID]
             let conf = this.config
             if (ds) {
               let link2Parent = conf.datasetLinkToParentIframe || false
-              if (link2Parent) window.parent.location = ds.url
-              else window.location = ds.url
+              if (link2Parent) {
+                window.parent.location = ds.url
+              } else {
+                window.location = ds.url
+              }
             }
             return false
           },
@@ -1466,8 +1499,11 @@ define([
                   onClick: dojo.hitch(dataset, function () {
                     // if datasetLinkToParentIframe=true, link to parent of iframe.
                     let link2Parent = conf.datasetLinkToParentIframe || false
-                    if (link2Parent) window.parent.location = this.url
-                    else window.location = this.url
+                    if (link2Parent) {
+                      window.parent.location = this.url
+                    } else {
+                      window.location = this.url
+                    }
                   }),
                 }),
               )
@@ -1494,8 +1530,9 @@ define([
         array.every(obj, function (elt) {
           return elt.session != dir
         })
-      )
+      ) {
         obj.push({ session: dir })
+      }
 
       fs.writeFileSync(path, JSON.stringify(obj, null, 2), 'utf8')
     },
@@ -1510,8 +1547,9 @@ define([
         !confirm(
           'If you have opened any new tracks, please save them before continuing. Are you sure you want to continue?',
         )
-      )
+      ) {
         return
+      }
       var fs = electronRequire('fs')
 
       var dir = this.config.dataRoot
@@ -1551,8 +1589,9 @@ define([
         !confirm(
           'This will overwrite tracks and config data in your data directory. Are you sure you want to continue?',
         )
-      )
+      ) {
         return
+      }
 
       var fs = electronRequire('fs')
       var dir = this.config.dataRoot
@@ -1595,7 +1634,9 @@ define([
         array.forEach(this.config.plugins, function (p) {
           tmp[p] = typeof p == 'object' ? p : { name: p }
         })
-      } else tmp = this.config.plugins
+      } else {
+        tmp = this.config.plugins
+      }
       var minTrackList = {
         tracks: trackConfs,
         refSeqs: this.config.refSeqs,
@@ -1747,9 +1788,13 @@ define([
           return new Promise((resolve, reject) => {
             const trackConfigs = results.trackConfs || []
             const [conf] = trackConfigs
-            if (!conf) return reject('no track configs')
+            if (!conf) {
+              return reject('no track configs')
+            }
             const storeConf = conf.store
-            if (!storeConf) return reject('no store config')
+            if (!storeConf) {
+              return reject('no store config')
+            }
 
             dojo.global.require([storeConf.type], storeClass => {
               if (
@@ -1871,7 +1916,9 @@ define([
       types.knownTrackTypes.push(typeName)
 
       // add its label
-      if (args.label) types.trackTypeLabels[typeName] = args.label
+      if (args.label) {
+        types.trackTypeLabels[typeName] = args.label
+      }
 
       // uniqify knownTrackTypes
       var seen = {}
@@ -1894,7 +1941,7 @@ define([
     },
     getTrackTypes: function () {
       // create the default types if necessary
-      if (!this._knownTrackTypes)
+      if (!this._knownTrackTypes) {
         this._knownTrackTypes = {
           // map of store type -> default track type to use for the store
           trackTypeDefaults: {
@@ -1945,6 +1992,7 @@ define([
 
           trackTypeLabels: {},
         }
+      }
 
       return this._knownTrackTypes
     },
@@ -1983,8 +2031,9 @@ define([
             this.publish('/jbrowse/v1/v/tracks/new', confs)
 
             // if requested, send out another message that the user wants to show them
-            if (results.trackDisposition == 'openImmediately')
+            if (results.trackDisposition == 'openImmediately') {
               this.publish('/jbrowse/v1/v/tracks/show', confs)
+            }
           }
         }),
       })
@@ -2032,7 +2081,9 @@ define([
 
     makeGlobalMenu: function (menuName) {
       var items = (this._globalMenuItems || {})[menuName] || []
-      if (!items.length) return null
+      if (!items.length) {
+        return null
+      }
 
       var menu = new dijitDropDownMenu({
         id: 'dropdownmenu_' + menuName,
@@ -2048,8 +2099,12 @@ define([
     },
 
     addGlobalMenuItem: function (menuName, item) {
-      if (!this._globalMenuItems) this._globalMenuItems = {}
-      if (!this._globalMenuItems[menuName]) this._globalMenuItems[menuName] = []
+      if (!this._globalMenuItems) {
+        this._globalMenuItems = {}
+      }
+      if (!this._globalMenuItems[menuName]) {
+        this._globalMenuItems[menuName] = []
+      }
       this._globalMenuItems[menuName].push(item)
     },
 
@@ -2130,7 +2185,9 @@ define([
      * sequences and their average length.
      */
     reportUsageStats: function () {
-      if (this.config.suppressUsageStatistics) return
+      if (this.config.suppressUsageStatistics) {
+        return
+      }
 
       var stats = this._calculateClientStats()
       this._reportGoogleUsageStats(stats)
@@ -2216,8 +2273,9 @@ define([
       if (
         typeof this.config.clientReport != 'undefined' &&
         typeof this.config.clientReport.protocol != 'undefined'
-      )
+      ) {
         protocol = this.config.clientReport.protocol
+      }
 
       // phone home with a GET request made by a script tag
       var clientReport =
@@ -2242,7 +2300,9 @@ define([
      * instantiating it if necessary.
      */
     getStore: function (storeName, callback) {
-      if (!callback) throw 'invalid arguments'
+      if (!callback) {
+        throw 'invalid arguments'
+      }
 
       var storeCache = this._storeCache || {}
       this._storeCache = storeCache
@@ -2285,11 +2345,12 @@ define([
             typeof storeArgs.storeCache === 'undefined' ||
             storeArgs.storeCache !== false
 
-          if (cache)
+          if (cache) {
             this._storeCache[storeName] = {
               refCount: 1,
               store: store,
             }
+          }
 
           callback(store)
           // release the callback because apparently require
@@ -2311,8 +2372,12 @@ define([
     addStoreConfig: function (/**String*/ name, /**Object*/ storeConfig) {
       name = name || 'addStore' + this.uniqCounter++
 
-      if (!this.config.stores) this.config.stores = {}
-      if (!this._storeCache) this._storeCache = {}
+      if (!this.config.stores) {
+        this.config.stores = {}
+      }
+      if (!this._storeCache) {
+        this._storeCache = {}
+      }
 
       if (this.config.stores[name] || this._storeCache[name]) {
         throw 'store ' + name + ' already exists!'
@@ -2335,8 +2400,9 @@ define([
     // not actually being used yet
     releaseStore: function (storeName) {
       var storeRecord = this._storeCache[storeName]
-      if (storeRecord && !--storeRecord.refCount)
+      if (storeRecord && !--storeRecord.refCount) {
         delete this._storeCache[storeName]
+      }
     },
 
     _calculateClientStats: function () {
@@ -2355,7 +2421,9 @@ define([
                 this.refSeqOrder,
                 function (name) {
                   var ref = this.allRefs[name]
-                  if (!ref) return 0
+                  if (!ref) {
+                    return 0
+                  }
                   return ref.end - ref.start
                 },
                 this,
@@ -2395,7 +2463,9 @@ define([
     },
 
     publish: function () {
-      if (this.config.logMessages) console.log(arguments)
+      if (this.config.logMessages) {
+        console.log(arguments)
+      }
 
       return topic.publish.apply(topic, arguments)
     },
@@ -2418,8 +2488,9 @@ define([
     },
 
     onResize: function () {
-      if (this.navbox)
+      if (this.navbox) {
         this.view.locationTrapHeight = dojo.marginBox(this.navbox).h
+      }
     },
 
     /**
@@ -2488,7 +2559,9 @@ define([
      * Fetch or create a named Deferred, which is how milestones are implemented.
      */
     _getDeferred: function (name) {
-      if (!this._deferred) this._deferred = {}
+      if (!this._deferred) {
+        this._deferred = {}
+      }
       return (
         this._deferred[name] ||
         (this._deferred[name] = function () {
@@ -2550,10 +2623,11 @@ define([
               !Util.isElectron() &&
               (parsedDataRoot.host !== currentParsed.host ||
                 parsedDataRoot.protocol !== currentParsed.protocol)
-            )
+            ) {
               throw new Error(
                 'Invalid JBrowse dataRoot setting. For security, absolute URLs are not allowed. Set `allowCrossOriginDataRoot` to true to disable this security check.',
               )
+            }
           }
         }
 
@@ -2567,8 +2641,9 @@ define([
             this.config = finishedConfig
 
             //apply document.domain from a loaded conf file
-            if (this.config.documentDomain)
+            if (this.config.documentDomain) {
               document.domain = this.config.documentDomain
+            }
 
             // pass the tracks configurations through
             // addTrackConfigs so that it will be indexed and such
@@ -2590,7 +2665,9 @@ define([
             })
 
             // set empty tracks array if we have none
-            if (!this.config.tracks) this.config.tracks = []
+            if (!this.config.tracks) {
+              this.config.tracks = []
+            }
 
             deferred.resolve({ success: true })
           }),
@@ -2604,8 +2681,12 @@ define([
      * @private
      */
     _addTrackConfigs: function (/**Array*/ configs) {
-      if (!this.config.tracks) this.config.tracks = []
-      if (!this.trackConfigsByName) this.trackConfigsByName = {}
+      if (!this.config.tracks) {
+        this.config.tracks = []
+      }
+      if (!this.trackConfigsByName) {
+        this.trackConfigsByName = {}
+      }
 
       array.forEach(
         configs,
@@ -2628,7 +2709,9 @@ define([
      * @private
      */
     _replaceTrackConfigs: function (/**Array*/ newConfigs) {
-      if (!this.trackConfigsByName) this.trackConfigsByName = {}
+      if (!this.trackConfigsByName) {
+        this.trackConfigsByName = {}
+      }
 
       array.forEach(
         newConfigs,
@@ -2741,7 +2824,9 @@ define([
      * @param refSeqs {Array} array of refseq records to add to the browser
      */
     addRefseqs: function (refSeqs) {
-      if (!this.allRefs) this.allRefs = {}
+      if (!this.allRefs) {
+        this.allRefs = {}
+      }
 
       refSeqs.forEach((r, id) => {
         // save the original index of the reference for
@@ -2807,7 +2892,9 @@ define([
      * or the currently shown ref seq if no name is given.
      */
     getRefSeq: function (name) {
-      if (typeof name != 'string') return this.refSeq || undefined
+      if (typeof name != 'string') {
+        return this.refSeq || undefined
+      }
 
       return this.allRefs[name]
     },
@@ -2919,8 +3006,9 @@ define([
           : (this.config.trackSelector || {}).type
             ? this.config.trackSelector.type
             : 'Hierarchical'
-        if (!/\//.test(tl_class))
+        if (!/\//.test(tl_class)) {
           tl_class = 'JBrowse/View/TrackList/' + tl_class
+        }
 
         // load all the classes we need
         dojo.global.require(
@@ -3003,7 +3091,9 @@ define([
       this.afterMilestone('initView', function () {
         // lastly, try to search our feature names for it
         var ret = thisB.searchNames(loc).then(function (found) {
-          if (found) return
+          if (found) {
+            return
+          }
 
           // First check if loc is the name of a ref seq before attempting to parse the locstring for basepair location info
           var ref = thisB.findReferenceSequence(loc)
@@ -3040,7 +3130,9 @@ define([
 
     findReferenceSequence: function (name) {
       for (var n in this.allRefs) {
-        if (!this.compareReferenceNames(n, name)) return this.allRefs[n]
+        if (!this.compareReferenceNames(n, name)) {
+          return this.allRefs[n]
+        }
       }
       return null
     },
@@ -3147,17 +3239,22 @@ define([
 
             //first check for exact case match
             for (var i = 0; i < nameMatches.length; i++) {
-              if (nameMatches[i].name == loc) goingTo = nameMatches[i]
+              if (nameMatches[i].name == loc) {
+                goingTo = nameMatches[i]
+              }
             }
             //if no exact case match, try a case-insentitive match
             if (!goingTo) {
               for (i = 0; i < nameMatches.length; i++) {
-                if (nameMatches[i].name.toLowerCase() == loc.toLowerCase())
+                if (nameMatches[i].name.toLowerCase() == loc.toLowerCase()) {
                   goingTo = nameMatches[i]
+                }
               }
             }
             //else just pick a match
-            if (!goingTo) goingTo = nameMatches[0]
+            if (!goingTo) {
+              goingTo = nameMatches[0]
+            }
 
             // if it has one location, go to it
             if (goingTo.location) {
@@ -3207,9 +3304,13 @@ define([
       this.afterMilestone(
         'initView',
         dojo.hitch(this, function () {
-          if (typeof trackNames == 'string') trackNames = trackNames.split(',')
+          if (typeof trackNames == 'string') {
+            trackNames = trackNames.split(',')
+          }
 
-          if (!trackNames) return
+          if (!trackNames) {
+            return
+          }
 
           var trackConfs = dojo.filter(
             dojo.map(
@@ -3238,12 +3339,13 @@ define([
      */
     setGlobalKeyboardShortcut: function (keychar) {
       // warn if redefining
-      if (this.globalKeyboardShortcuts[keychar])
+      if (this.globalKeyboardShortcuts[keychar]) {
         console.warn(
           "WARNING: JBrowse global keyboard shortcut '" +
             keychar +
             "' redefined",
         )
+      }
 
       // make the wrapped handler func
       var func = dojo.hitch.apply(
@@ -3260,7 +3362,9 @@ define([
      */
     globalKeyHandler: function (evt) {
       // if some digit widget is focused, don't process any global keyboard shortcuts
-      if (dijitFocus.curNode) return
+      if (dijitFocus.curNode) {
+        return
+      }
 
       var shortcut =
         this.globalKeyboardShortcuts[
@@ -3302,7 +3406,9 @@ define([
 
     makeShareLink: function () {
       // don't make the link if we were explicitly configured not to
-      if ('share_link' in this.config && !this.config.share_link) return null
+      if ('share_link' in this.config && !this.config.share_link) {
+        return null
+      }
 
       var browser = this
       var shareURL = '#'
@@ -3453,7 +3559,9 @@ define([
       if (this.locationBox) {
         //this.searchVal = searchVal;
         var searchVal = this.locationBox.get('value')
-        if (searchVal.length) searchVal = ' "' + searchVal + '"'
+        if (searchVal.length) {
+          searchVal = ' "' + searchVal + '"'
+        }
         var locationVal = Util.assembleLocStringWithLength(currRegion)
 
         this.locationBox.set(
@@ -3521,7 +3629,9 @@ define([
       var oldLocMap = dojo.fromJson(this.cookie('location')) || {
         _version: 1,
       }
-      if (!oldLocMap['_version']) oldLocMap = this._migrateLocMap(oldLocMap)
+      if (!oldLocMap['_version']) {
+        oldLocMap = this._migrateLocMap(oldLocMap)
+      }
       oldLocMap[this.refSeq.name] = {
         l: locString,
         t: Math.round(new Date().getTime() / 1000) - 1340211510,
@@ -3553,7 +3663,9 @@ define([
     _limitLocMap: function (locMap, maxEntries) {
       // don't do anything if the loc map has fewer than the max
       var locRefs = dojof.keys(locMap)
-      if (locRefs.length <= maxEntries) return locMap
+      if (locRefs.length <= maxEntries) {
+        return locMap
+      }
 
       // otherwise, calculate the least recently used that we need to
       // get rid of to be under the size limit
@@ -3586,7 +3698,9 @@ define([
     cookie: function (keyWithoutId, value) {
       keyWithoutId = this.config.containerID + '-' + keyWithoutId
       var keyWithId = keyWithoutId + '-' + (this.config.dataset_id || '')
-      if (typeof value == 'object') value = dojo.toJson(value)
+      if (typeof value == 'object') {
+        value = dojo.toJson(value)
+      }
 
       var sizeLimit = this.config.cookieSizeLimit || 1200
       if (value != null && value.length > sizeLimit) {
@@ -3789,12 +3903,16 @@ define([
             // add a moreMatches class to our hacked-in "more options" option
             _createOption: function (item) {
               var option = this.inherited(arguments)
-              if (item.hitLimit) dojo.addClass(option, 'moreMatches')
+              if (item.hitLimit) {
+                dojo.addClass(option, 'moreMatches')
+              }
               return option
             },
             // prevent the "more matches" option from being clicked
             onClick: function (node) {
-              if (dojo.hasClass(node, 'moreMatches')) return null
+              if (dojo.hasClass(node, 'moreMatches')) {
+                return null
+              }
 
               var ret = this.inherited(arguments)
               thisB.navigateTo(thisB.locationBox.get('value'))
@@ -3922,7 +4040,9 @@ define([
             this.config.locationBoxLength ||
             function () {
               // if we have no refseqs, just use 20 chars
-              if (!this.refSeqOrder.length) return 20
+              if (!this.refSeqOrder.length) {
+                return 20
+              }
 
               // if there are not tons of refseqs, pick the longest-named
               // one.  otherwise just pick the last one
@@ -3934,12 +4054,15 @@ define([
                       this.refSeqOrder,
                       function (name) {
                         var ref = this.allRefs[name]
-                        if (!ref.length) ref.length = ref.end - ref.start + 1
+                        if (!ref.length) {
+                          ref.length = ref.end - ref.start + 1
+                        }
                         if (
                           !longestNamedRef ||
                           longestNamedRef.length < ref.length
-                        )
+                        ) {
                           longestNamedRef = ref
+                        }
                       },
                       this,
                     )
@@ -3988,16 +4111,20 @@ define([
             handleAs: 'json',
           },
         )
-      } else return this.config.bookmarks
+      } else {
+        return this.config.bookmarks
+      }
     },
 
     /**
      * Set a new highlight.  Returns the new highlight.
      */
     setHighlight: function (newHighlight) {
-      if (newHighlight && newHighlight instanceof Location)
+      if (newHighlight && newHighlight instanceof Location) {
         this._highlight = newHighlight
-      else if (newHighlight) this._highlight = new Location(newHighlight)
+      } else if (newHighlight) {
+        this._highlight = new Location(newHighlight)
+      }
 
       this.publish('/jbrowse/v1/n/globalHighlightChanged', [this._highlight])
 
@@ -4027,7 +4154,9 @@ define([
       location = this.regularizeLocation(location)
 
       var oldHighlight = this.getHighlight()
-      if (oldHighlight) this.view.hideRegion(oldHighlight)
+      if (oldHighlight) {
+        this.view.hideRegion(oldHighlight)
+      }
       this.view.hideRegion(location)
       this.setHighlight(location)
       this.view.showVisibleBlocks(false)
@@ -4042,7 +4171,9 @@ define([
 
       if (this.config.highlightSearchedRegions) {
         var oldHighlight = this.getHighlight()
-        if (oldHighlight) this.view.hideRegion(oldHighlight)
+        if (oldHighlight) {
+          this.view.hideRegion(oldHighlight)
+        }
         this.view.hideRegion(location)
         this.setHighlight(location)
       }
@@ -4061,7 +4192,9 @@ define([
         this._subscription[id].remove()
       }
 
-      if (this.containerWidget) this.containerWidget.destroyRecursive(true)
+      if (this.containerWidget) {
+        this.containerWidget.destroyRecursive(true)
+      }
 
       while (this.container && this.container.firstChild) {
         this.container.removeChild(this.container.firstChild)

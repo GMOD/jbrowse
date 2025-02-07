@@ -49,8 +49,9 @@ define([
 
       var refname = query.ref
       // if they both regularize to the same thing, use this.refSeq.name since that is guaranteed to be from refseq store
-      if (!this.browser.compareReferenceNames(this.refSeq.name, refname))
+      if (!this.browser.compareReferenceNames(this.refSeq.name, refname)) {
         refname = this.refSeq.name
+      }
 
       var chunkSize =
         (refname == this.refSeq.name && this.refSeq.seqChunkSize) ||
@@ -84,7 +85,9 @@ define([
       var haveError
       array.forEach(chunks, function (c) {
         cache.get(c, function (item, e) {
-          if (e && !haveError) errorCallback(e)
+          if (e && !haveError) {
+            errorCallback(e)
+          }
           if ((haveError = haveError || e)) {
             return
           }
@@ -108,7 +111,9 @@ define([
             .toLowerCase()
             .replace('-', 'n')
           // zero-pad the hex string to be 8 chars if necessary
-          while (hex.length < 8) hex = '0' + hex
+          while (hex.length < 8) {
+            hex = '0' + hex
+          }
           var dirpath = []
           for (var i = 0; i < hex.length; i += 3) {
             dirpath.push(hex.substring(i, i + 3))
@@ -119,8 +124,11 @@ define([
       this._fetchChunk(sequrl, chunk.chunkNum).then(
         lang.hitch(d, 'resolve'),
         function (e) {
-          if (e.response.status == 404) d.resolve('')
-          else d.reject(e)
+          if (e.response.status == 404) {
+            d.resolve('')
+          } else {
+            d.reject(e)
+          }
         },
       )
       d.then(

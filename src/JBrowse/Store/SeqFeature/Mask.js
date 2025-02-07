@@ -218,7 +218,9 @@ define([
         }
       }
 
-      if (!spans.length) return []
+      if (!spans.length) {
+        return []
+      }
       spans.sort(function (a, b) {
         return a.start - b.start
       })

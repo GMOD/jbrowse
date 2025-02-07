@@ -136,12 +136,16 @@ class CramSlightlyLazyFeature {
 
   _get(field) {
     const methodName = `_get_${field}`
-    if (this[methodName]) return this[methodName]()
+    if (this[methodName]) {
+      return this[methodName]()
+    }
     return undefined
   }
   get(field) {
     const methodName = `_get_${field.toLowerCase()}`
-    if (this[methodName]) return this[methodName]()
+    if (this[methodName]) {
+      return this[methodName]()
+    }
     return undefined
   }
 
@@ -201,26 +205,32 @@ define([
        */
       constructor: function (args) {
         let dataBlob
-        if (args.cram) dataBlob = new BlobFilehandleWrapper(args.cram)
-        else if (args.urlTemplate)
+        if (args.cram) {
+          dataBlob = new BlobFilehandleWrapper(args.cram)
+        } else if (args.urlTemplate) {
           dataBlob = new BlobFilehandleWrapper(
             new XHRBlob(this.resolveUrl(args.urlTemplate || 'data.cram'), {
               expectRanges: true,
             }),
           )
-        else throw new Error('must provide either `cram` or `urlTemplate`')
+        } else {
+          throw new Error('must provide either `cram` or `urlTemplate`')
+        }
 
         let indexBlob
-        if (args.crai) indexBlob = new BlobFilehandleWrapper(args.crai)
-        else if (args.craiUrlTemplate)
+        if (args.crai) {
+          indexBlob = new BlobFilehandleWrapper(args.crai)
+        } else if (args.craiUrlTemplate) {
           indexBlob = new BlobFilehandleWrapper(
             new XHRBlob(this.resolveUrl(args.craiUrlTemplate)),
           )
-        else if (args.urlTemplate)
+        } else if (args.urlTemplate) {
           indexBlob = new BlobFilehandleWrapper(
             new XHRBlob(this.resolveUrl(args.urlTemplate + '.crai')),
           )
-        else throw new Error('no index provided, must provide a CRAM index')
+        } else {
+          throw new Error('no index provided, must provide a CRAM index')
+        }
 
         this.source = dataBlob.toString()
 
@@ -294,9 +304,11 @@ define([
       _refNameToId(refName) {
         // use info from the SAM header if possible, but fall back to using
         // the ref seq order from when the browser's refseqs were loaded
-        if (this._samHeader.refSeqNameToId)
+        if (this._samHeader.refSeqNameToId) {
           return this._samHeader.refSeqNameToId[refName]
-        else return this.browser.getRefSeqNumber(refName)
+        } else {
+          return this.browser.getRefSeqNumber(refName)
+        }
       },
 
       _refIdToName(refId) {
@@ -322,9 +334,13 @@ define([
         start -= 1 // convert from 1-based closed to interbase
 
         const refSeqStore = await this._getRefSeqStore()
-        if (!refSeqStore) return undefined
+        if (!refSeqStore) {
+          return undefined
+        }
         const refName = this._refIdToName(seqId)
-        if (!refName) return undefined
+        if (!refName) {
+          return undefined
+        }
 
         const seqChunks = await new Promise((resolve, reject) => {
           let features = []
@@ -350,7 +366,7 @@ define([
           })
 
         const sequence = trimmed.join('')
-        if (sequence.length !== end - start)
+        if (sequence.length !== end - start) {
           throw new Error(
             `sequence fetch failed: fetching ${(
               start - 1
@@ -358,6 +374,7 @@ define([
               end - start
             ).toLocaleString()}`,
           )
+        }
         return sequence
       },
 
@@ -368,7 +385,9 @@ define([
       hasRefSeq: function (seqName, callback, errorCallback) {
         seqName = this.browser.regularizeReferenceName(seqName)
         const refSeqNumber = this._refNameToId(seqName)
-        if (refSeqNumber === undefined) callback(false)
+        if (refSeqNumber === undefined) {
+          callback(false)
+        }
 
         this._deferred.stats
           .then(() => this.cram.hasDataForReferenceSequence(refSeqNumber))

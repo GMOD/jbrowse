@@ -65,7 +65,7 @@ define([
             dojo.forEach(
               data.items || [],
               function (i) {
-                if (dojo.isArray(i.Tracks))
+                if (dojo.isArray(i.Tracks)) {
                   dojo.forEach(
                     i.Tracks,
                     function (trackName) {
@@ -77,6 +77,7 @@ define([
                     },
                     this,
                   )
+                }
               },
               this,
             )

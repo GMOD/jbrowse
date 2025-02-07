@@ -51,8 +51,12 @@ define([
         f.start = spans[span].start
         f.end = spans[span].end
         f.score = spans[span].score
-        if (spans[span].segment) f.segment = spans[span].segment
-        if (spans[span].type) f.type = spans[span].type
+        if (spans[span].segment) {
+          f.segment = spans[span].segment
+        }
+        if (spans[span].type) {
+          f.type = spans[span].type
+        }
         f.source = this.name
 
         features.push(f)
@@ -67,7 +71,9 @@ define([
       var i = 0
       var j = 0
 
-      if (!pseudosA.length && !pseudosB.length) return retPseudos
+      if (!pseudosA.length && !pseudosB.length) {
+        return retPseudos
+      }
 
       // Critical values are the starts and ends of features for either set of spans.
       // nextCritical will iterate through all critical values.
@@ -83,8 +89,12 @@ define([
       while (i < pseudosA.length && j < pseudosB.length) {
         // Decide whether to add a span to the list at all - we don't add spans if the gap from this critical point to the
         // next critical point is not inside any feature.
-        if (nextCritical == pseudosA[i].start) inA = true
-        if (nextCritical == pseudosB[j].start) inB = true
+        if (nextCritical == pseudosA[i].start) {
+          inA = true
+        }
+        if (nextCritical == pseudosB[j].start) {
+          inB = true
+        }
         var addPseudo = inA || inB
         var newPseudo
         // If we're inside at least one pseudo-feature, adds data for the current feature.
@@ -105,7 +115,9 @@ define([
           }
         }
         // Dividing by zero or other invalid operation being performed, don't add the feature
-        if (newPseudo.score === undefined) addPseudo = false
+        if (newPseudo.score === undefined) {
+          addPseudo = false
+        }
 
         // Fetches the next critical point (the next base pair greater than the current nextCritical value
         //    that is either the beginning or the end of a pseudo)
@@ -125,7 +137,9 @@ define([
           })
 
         nextCritical = _possibleCriticals[0]
-        if (!nextCritical) break
+        if (!nextCritical) {
+          break
+        }
 
         // Determines whether the next pseudo to be created will use data from pseudosA or pseudosB or both
         if (nextCritical == pseudosA[i].end) {

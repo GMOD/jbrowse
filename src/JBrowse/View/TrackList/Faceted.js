@@ -151,7 +151,9 @@ define([
       _coerceFilter: function (filter) {
         // if we have a non-function filter, coerce to an array,
         // then convert that array to a function
-        if (typeof filter == 'string') filter = [filter]
+        if (typeof filter == 'string') {
+          filter = [filter]
+        }
         if (dojo.isArray(filter)) {
           filter = function (store, facetName) {
             return array.some(filter, function (fn) {
@@ -167,8 +169,12 @@ define([
        * @private
        */
       _ifNotSuppressed: function (suppressFlags, callback) {
-        if (typeof suppressFlags == 'string') suppressFlags = [suppressFlags]
-        if (!this.suppress) this.suppress = {}
+        if (typeof suppressFlags == 'string') {
+          suppressFlags = [suppressFlags]
+        }
+        if (!this.suppress) {
+          this.suppress = {}
+        }
         if (
           array.some(
             suppressFlags,
@@ -177,8 +183,9 @@ define([
             },
             this,
           )
-        )
+        ) {
           return undefined
+        }
         return callback.call(this)
       },
 
@@ -187,8 +194,12 @@ define([
        * @private
        */
       _suppress: function (suppressFlags, callback) {
-        if (typeof suppressFlags == 'string') suppressFlags = [suppressFlags]
-        if (!this.suppress) this.suppress = {}
+        if (typeof suppressFlags == 'string') {
+          suppressFlags = [suppressFlags]
+        }
+        if (!this.suppress) {
+          this.suppress = {}
+        }
         dojo.forEach(
           suppressFlags,
           function (f) {
@@ -208,8 +219,12 @@ define([
       },
 
       _suppressAsync: function (suppressFlags, callback) {
-        if (typeof suppressFlags == 'string') suppressFlags = [suppressFlags]
-        if (!this.suppress) this.suppress = {}
+        if (typeof suppressFlags == 'string') {
+          suppressFlags = [suppressFlags]
+        }
+        if (!this.suppress) {
+          this.suppress = {}
+        }
         dojo.forEach(
           suppressFlags,
           function (f) {
@@ -420,8 +435,11 @@ define([
 
       _busy: function (busy) {
         this.busyCount = Math.max(0, (this.busyCount || 0) + (busy ? 1 : -1))
-        if (this.busyCount > 0) dojo.addClass(this.containerElem, 'busy')
-        else dojo.removeClass(this.containerElem, 'busy')
+        if (this.busyCount > 0) {
+          dojo.addClass(this.containerElem, 'busy')
+        } else {
+          dojo.removeClass(this.containerElem, 'busy')
+        }
       },
 
       renderGrid: function () {
@@ -468,8 +486,9 @@ define([
 
         // set the grid's initial sort index
         var sortIndex = this.config.initialSortColumn || 0
-        if (typeof sortIndex == 'string')
+        if (typeof sortIndex == 'string') {
           sortIndex = array.indexOf(displayColumns, sortIndex)
+        }
         grid.setSortIndex(sortIndex + 1)
 
         // monkey-patch the grid to customize some of its behaviors
@@ -556,12 +575,14 @@ define([
                 evt.keyCode == dojo.keys.SHIFT ||
                 evt.keyCode == dojo.keys.CTRL ||
                 evt.keyCode == dojo.keys.ALT
-              )
+              ) {
                 return
+              }
 
               // use a timeout to avoid updating the display too fast
-              if (this.textFilterTimeout)
+              if (this.textFilterTimeout) {
                 window.clearTimeout(this.textFilterTimeout)
+              }
               this.textFilterTimeout = window.setTimeout(
                 lang.hitch(this, function () {
                   // do a new search and update the display
@@ -621,9 +642,11 @@ define([
        * @private
        */
       _updateTextFilterControl: function () {
-        if (this.textFilterInput.value.length)
+        if (this.textFilterInput.value.length) {
           dojo.addClass(this.textFilterLabel, 'selected')
-        else dojo.removeClass(this.textFilterLabel, 'selected')
+        } else {
+          dojo.removeClass(this.textFilterLabel, 'selected')
+        }
       },
 
       /**
@@ -661,7 +684,9 @@ define([
           function (facetName) {
             // get the values of this facet
             var values = store.getFacetValues(facetName).sort()
-            if (!values || !values.length) return
+            if (!values || !values.length) {
+              return
+            }
 
             var facetPane = this._renderFacetSelector(facetName, values)
             container.addChild(facetPane)
@@ -770,9 +795,10 @@ define([
         dojo.forEach(
           dojof.keys(this.facetSelectors),
           function (facetName) {
-            if (facetName == 'My Tracks')
+            if (facetName == 'My Tracks') {
               // || facetName == skipFacetName )
               return
+            }
             var thisFacetCounts = this.trackDataStore.getFacetCounts(facetName)
             dojo.forEach(
               this.facetSelectors[facetName] || [],
@@ -784,8 +810,11 @@ define([
                     ? thisFacetCounts[selectorNode.facetValue] || 0
                     : 0
                   countNode.innerHTML = Util.addCommas(count)
-                  if (count) dojo.removeClass(selectorNode, 'disabled')
-                  else dojo.addClass(selectorNode, 'disabled')
+                  if (count) {
+                    dojo.removeClass(selectorNode, 'disabled')
+                  } else {
+                    dojo.addClass(selectorNode, 'disabled')
+                  }
                 }, this)
                 //dojo.removeClass(selector,'selected');
               },
@@ -928,7 +957,9 @@ define([
           this.trackDataStore.getFacetNames(),
           function (facetName) {
             var options = this.facetSelectors[facetName]
-            if (!options) return
+            if (!options) {
+              return
+            }
 
             var selectedFacets = dojo.map(
               dojo.filter(options, is_selected),
@@ -936,7 +967,9 @@ define([
                 return opt.facetValue
               },
             )
-            if (selectedFacets.length) newQuery[facetName] = selectedFacets
+            if (selectedFacets.length) {
+              newQuery[facetName] = selectedFacets
+            }
           },
           this,
         )
@@ -992,8 +1025,9 @@ define([
                 var item = this.dataGrid.getItem(i)
                 if (item) {
                   var label = this.dataGrid.store.getIdentity(item)
-                  if (this.tracksActive[label])
+                  if (this.tracksActive[label]) {
                     this.dataGrid.rowSelectCell.toggleRow(i, true)
+                  }
                 }
               }
             })

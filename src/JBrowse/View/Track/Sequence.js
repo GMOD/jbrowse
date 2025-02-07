@@ -119,8 +119,9 @@ define([
               args.finishCallback()
             },
             function (error) {
-              if (args.errorCallback) args.errorCallback(error)
-              else {
+              if (args.errorCallback) {
+                args.errorCallback(error)
+              } else {
                 console.error(error)
                 args.finishCallback()
               }
@@ -174,7 +175,7 @@ define([
         var charSize = this.getCharacterMeasurements('sequence')
         var bigTiles = scale > charSize.w + 4 // whether to add .big styles to the base tiles
         var seqNode
-        if (this.config.showReverseStrand || this.config.showForwardStrand)
+        if (this.config.showReverseStrand || this.config.showForwardStrand) {
           seqNode = dom.create(
             'table',
             {
@@ -186,12 +187,14 @@ define([
             },
             block.domNode,
           )
+        }
 
         // add a table for the forward strand
-        if (this.config.showForwardStrand)
+        if (this.config.showForwardStrand) {
           seqNode.appendChild(
             this._renderSeqTr(blockStart, blockEnd, blockSeq, scale),
           )
+        }
 
         // and one for the reverse strand
         if (this.config.showReverseStrand) {
@@ -291,7 +294,9 @@ define([
         charWidth = 100 / translated.length + '%'
 
         var drawChars = scale >= charSize.w
-        if (drawChars) table.className += ' big'
+        if (drawChars) {
+          table.className += ' big'
+        }
 
         for (var i = 0; i < translated.length; i++) {
           var aminoAcidSpan = document.createElement('td')

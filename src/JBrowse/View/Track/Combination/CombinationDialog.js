@@ -192,7 +192,9 @@ define([
         })
       }
 
-      if (maskOps[0]) this.maskOpButtons[0].set('checked', 'checked')
+      if (maskOps[0]) {
+        this.maskOpButtons[0].set('checked', 'checked')
+      }
 
       if (maskOps.length <= 1) {
         if (!maskOps.length || maskOps[0] == '0000') {
@@ -209,7 +211,9 @@ define([
     },
 
     _createActionBar: function (addingEnabled) {
-      if (addingEnabled === undefined) addingEnabled = true
+      if (addingEnabled === undefined) {
+        addingEnabled = true
+      }
       var actionBar = dom.create('div', {
         className: 'dijitDialogPaneActionBar',
       })
@@ -232,7 +236,9 @@ define([
 
       btnCombine.placeAt(actionBar)
 
-      if (!addingEnabled) btnCombine.set('disabled', 'disabled')
+      if (!addingEnabled) {
+        btnCombine.set('disabled', 'disabled')
+      }
       return actionBar
     },
 
@@ -245,8 +251,9 @@ define([
     ) {
       offset = offset || 0
       while (parent.firstChild) {
-        if (dijit.byId(parent.firstChild.id))
+        if (dijit.byId(parent.firstChild.id)) {
           dijit.byId(parent.firstChild.id).destroy()
+        }
         dom.destroy(parent.firstChild)
       }
       var buttons = []
@@ -284,7 +291,9 @@ define([
 
     //Type checking necessary?
     _generateSuffixList: function (prefix, stringlist, offset) {
-      if (offset === undefined) offset = 0
+      if (offset === undefined) {
+        offset = 0
+      }
       return this._makeUnique(
         stringlist
           .filter(function (value) {
@@ -321,10 +330,13 @@ define([
         }
       }
 
-      if (prefix == '0020') whichArgChange(true, 'L')
-      else if (prefix == '0002') whichArgChange(true, 'R')
-      else if (prefix == '1111' && offset == 0) whichArgChange(true, '?')
-      else {
+      if (prefix == '0020') {
+        whichArgChange(true, 'L')
+      } else if (prefix == '0002') {
+        whichArgChange(true, 'R')
+      } else if (prefix == '1111' && offset == 0) {
+        whichArgChange(true, '?')
+      } else {
         var rbLeft = this._renderRadioButton(parent, 'L', 'left')
         var rbRight = this._renderRadioButton(parent, 'R', 'right')
         leftRightButtons.push(rbLeft)
@@ -404,7 +416,9 @@ define([
           break
       }
       var opNode = this._transformTree(opString.substring(2), opTree1, opTree2)
-      if (childToUse == undefined) return opNode
+      if (childToUse == undefined) {
+        return opNode
+      }
 
       retTree[childToUse] = opNode
       return retTree
@@ -442,11 +456,15 @@ define([
         allowedOps = this.trackClasses['mask'].allowedOps
         if (this.currType == 'set') {
           var candidate2 = candidate + '20'
-          for (var i in allowedOps) allowedList.push(candidate2 + allowedOps[i])
+          for (var i in allowedOps) {
+            allowedList.push(candidate2 + allowedOps[i])
+          }
         }
         if (this.oldType == 'set') {
           var candidate2 = candidate + '02'
-          for (var i in allowedOps) allowedList.push(candidate2 + allowedOps[i])
+          for (var i in allowedOps) {
+            allowedList.push(candidate2 + allowedOps[i])
+          }
         }
       } else if (candidate == '10') {
         if (this.currType == 'set') {
@@ -535,12 +553,16 @@ define([
       this.dialog.on('Hide', function () {
         if (thisB.previewTree) {
           thisB.previewTree.recursivelyCall(function (node) {
-            if (node.highlighted) delete node.highlighted
+            if (node.highlighted) {
+              delete node.highlighted
+            }
           })
         }
-        if (thisB.shouldCombine)
+        if (thisB.shouldCombine) {
           callback(thisB.previewTree, thisB.newStore, thisB.newDisplayType)
-        else cancelCallback()
+        } else {
+          cancelCallback()
+        }
       })
     },
 

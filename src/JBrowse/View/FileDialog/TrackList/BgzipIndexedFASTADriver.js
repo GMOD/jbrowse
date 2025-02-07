@@ -39,7 +39,9 @@ define([
           resource.file ? resource.file.name : resource.url ? resource.url : '',
           this.fileExtensionMap,
         )
-        if (!basename) return false
+        if (!basename) {
+          return false
+        }
 
         // go through the configs and see if there is one for an index that seems to match
         for (var n in configs) {
@@ -79,7 +81,9 @@ define([
           resource.file ? resource.file.name : resource.url ? resource.url : '',
           this.indexExtensionMap,
         )
-        if (!basename) return false
+        if (!basename) {
+          return false
+        }
 
         for (var n in configs) {
           var c = configs[n]
@@ -123,7 +127,9 @@ define([
           resource.file ? resource.file.name : resource.url ? resource.url : '',
           this.doubleIndexExtensionMap,
         )
-        if (!basename) return false
+        if (!basename) {
+          return false
+        }
 
         for (var n in configs) {
           var c = configs[n]
@@ -161,7 +167,9 @@ define([
 
         configs[newName][this.doubleIndexConfKey] = this._makeBlob(resource)
         return true
-      } else return false
+      } else {
+        return false
+      }
     },
 
     // try to merge any singleton file and index stores.  currently can only do this if there is one of each
@@ -186,7 +194,9 @@ define([
         : resource.url
           ? new XHRBlob(resource.url)
           : null
-      if (!r) throw 'unknown resource type'
+      if (!r) {
+        throw 'unknown resource type'
+      }
       return r
     },
 

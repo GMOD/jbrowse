@@ -39,15 +39,24 @@ define([
 
     _getSubparts: function (f) {
       var c = f.children()
-      if (!c) return []
+      if (!c) {
+        return []
+      }
 
-      if (c && this.config.inferCdsParts) c = this._makeCDSs(f, c)
+      if (c && this.config.inferCdsParts) {
+        c = this._makeCDSs(f, c)
+      }
 
-      if (c && this.config.impliedUTRs) c = this._makeUTRs(f, c)
+      if (c && this.config.impliedUTRs) {
+        c = this._makeUTRs(f, c)
+      }
 
       var filtered = []
-      for (var i = 0; i < c.length; i++)
-        if (this._filterSubpart(c[i])) filtered.push(c[i])
+      for (var i = 0; i < c.length; i++) {
+        if (this._filterSubpart(c[i])) {
+          filtered.push(c[i])
+        }
+      }
 
       return filtered
     },
@@ -69,12 +78,17 @@ define([
         if (/^cds/i.test(type)) {
           // if any CDSs parts are present already,
           // bail and return all subparts as-is
-          if (/:CDS:/i.test(subparts[i].get('name'))) return subparts
+          if (/:CDS:/i.test(subparts[i].get('name'))) {
+            return subparts
+          }
 
           codeIndices.push(i)
-          if (codeStart > subparts[i].get('start'))
+          if (codeStart > subparts[i].get('start')) {
             codeStart = subparts[i].get('start')
-          if (codeEnd < subparts[i].get('end')) codeEnd = subparts[i].get('end')
+          }
+          if (codeEnd < subparts[i].get('end')) {
+            codeEnd = subparts[i].get('end')
+          }
         } else {
           if (/exon/i.test(type)) {
             exons.push(subparts[i])
@@ -86,12 +100,14 @@ define([
       codeIndices.sort(function (a, b) {
         return b - a
       })
-      for (i = codeIndices.length - 1; i >= 0; i--)
+      for (i = codeIndices.length - 1; i >= 0; i--) {
         subparts.splice(codeIndices[i], 1)
+      }
 
       // bail if we don't have exons and cds
-      if (!(exons.length && codeStart < Infinity && codeEnd > -Infinity))
+      if (!(exons.length && codeStart < Infinity && codeEnd > -Infinity)) {
         return subparts
+      }
 
       // make sure the exons are sorted by coord
       exons.sort(function (a, b) {
@@ -169,9 +185,12 @@ define([
       for (i = 0; i < subparts.length; i++) {
         type = subparts[i].get('type')
         if (/^cds/i.test(type)) {
-          if (codeStart > subparts[i].get('start'))
+          if (codeStart > subparts[i].get('start')) {
             codeStart = subparts[i].get('start')
-          if (codeEnd < subparts[i].get('end')) codeEnd = subparts[i].get('end')
+          }
+          if (codeEnd < subparts[i].get('end')) {
+            codeEnd = subparts[i].get('end')
+          }
         } else if (/exon/i.test(type)) {
           exons.push(subparts[i])
         } else if (this._isUTR(subparts[i])) {
@@ -181,8 +200,9 @@ define([
       }
 
       // bail if we don't have exons and CDS
-      if (!(exons.length && codeStart < Infinity && codeEnd > -Infinity))
+      if (!(exons.length && codeStart < Infinity && codeEnd > -Infinity)) {
         return subparts
+      }
 
       // make sure the exons are sorted by coord
       exons.sort(function (a, b) {
@@ -193,10 +213,12 @@ define([
 
       // make the left-hand UTRs
       var start, end
-      if (!haveLeftUTR)
+      if (!haveLeftUTR) {
         for (i = 0; i < exons.length; i++) {
           start = exons[i].get('start')
-          if (start >= codeStart) break
+          if (start >= codeStart) {
+            break
+          }
           end =
             codeStart > exons[i].get('end') ? exons[i].get('end') : codeStart
 
@@ -212,12 +234,15 @@ define([
             }),
           )
         }
+      }
 
       // make the right-hand UTRs
-      if (!haveRightUTR)
+      if (!haveRightUTR) {
         for (i = exons.length - 1; i >= 0; i--) {
           end = exons[i].get('end')
-          if (end <= codeEnd) break
+          if (end <= codeEnd) {
+            break
+          }
 
           start =
             codeEnd < exons[i].get('start') ? exons[i].get('start') : codeEnd
@@ -233,6 +258,7 @@ define([
             }),
           )
         }
+      }
 
       return subparts
     },
@@ -263,8 +289,9 @@ define([
     _getFeatureHeight: function (viewInfo, feature) {
       var height = this.inherited(arguments)
 
-      if (this._isUTR(feature))
+      if (this._isUTR(feature)) {
         return (height * this.getStyle(feature, 'utrHeightPercent')) / 100
+      }
 
       return height
     },

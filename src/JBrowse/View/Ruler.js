@@ -27,7 +27,9 @@ define([
   }
 
   Ruler.prototype.render_to = function (target_div) {
-    if (typeof target_div == 'string') target_div = dojo.byId(target_div)
+    if (typeof target_div == 'string') {
+      target_div = dojo.byId(target_div)
+    }
 
     var target_dims = dojo.position(target_div)
 

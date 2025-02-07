@@ -170,19 +170,28 @@ class BamSlightlyLazyFeature {
 
   _get(field) {
     const methodName = `_get_${field}`
-    if (this[methodName]) return this[methodName]()
-    else return this.record.get(field)
+    if (this[methodName]) {
+      return this[methodName]()
+    } else {
+      return this.record.get(field)
+    }
   }
   get(field) {
     const methodName = `_get_${field.toLowerCase()}`
-    if (this[methodName]) return this[methodName]()
-    else return this.record.get(field)
+    if (this[methodName]) {
+      return this[methodName]()
+    } else {
+      return this.record.get(field)
+    }
   }
 
   getCaseSensitive(field) {
     const methodName = `_get_${field}`
-    if (this[methodName]) return this[methodName]()
-    else return this.record._get(field)
+    if (this[methodName]) {
+      return this[methodName]()
+    } else {
+      return this.record._get(field)
+    }
   }
 
   parent() {}
@@ -231,32 +240,38 @@ define([
     {
       constructor(args) {
         let dataBlob
-        if (args.bam) dataBlob = new BlobFilehandleWrapper(args.bam)
-        else if (args.urlTemplate)
+        if (args.bam) {
+          dataBlob = new BlobFilehandleWrapper(args.bam)
+        } else if (args.urlTemplate) {
           dataBlob = new BlobFilehandleWrapper(
             new XHRBlob(this.resolveUrl(args.urlTemplate || 'data.bam'), {
               expectRanges: true,
             }),
           )
-        else throw new Error('must provide either `bam` or `urlTemplate`')
+        } else {
+          throw new Error('must provide either `bam` or `urlTemplate`')
+        }
 
         let baiBlob, csiBlob
-        if (args.bai) baiBlob = new BlobFilehandleWrapper(args.bai)
-        else if (args.csi) csiBlob = new BlobFilehandleWrapper(args.csi)
-        else if (args.baiUrlTemplate)
+        if (args.bai) {
+          baiBlob = new BlobFilehandleWrapper(args.bai)
+        } else if (args.csi) {
+          csiBlob = new BlobFilehandleWrapper(args.csi)
+        } else if (args.baiUrlTemplate) {
           baiBlob = new BlobFilehandleWrapper(
             new XHRBlob(this.resolveUrl(args.baiUrlTemplate)),
           )
-        else if (args.csiUrlTemplate)
+        } else if (args.csiUrlTemplate) {
           csiBlob = new BlobFilehandleWrapper(
             new XHRBlob(this.resolveUrl(args.csiUrlTemplate)),
           )
-        else if (args.urlTemplate)
+        } else if (args.urlTemplate) {
           baiBlob = new BlobFilehandleWrapper(
             new XHRBlob(this.resolveUrl(args.urlTemplate + '.bai')),
           )
-        else
+        } else {
           throw new Error('no index provided, must provide a BAI or CSI index')
+        }
 
         this.source = dataBlob.toString()
 
@@ -311,7 +326,9 @@ define([
       // sequence.  needed for some of its calculations
       async seqFetch(refName, start, end) {
         const refSeqStore = await this._getRefSeqStore()
-        if (!refSeqStore) return undefined
+        if (!refSeqStore) {
+          return undefined
+        }
 
         const seqChunks = await new Promise((resolve, reject) => {
           let features = []
@@ -337,7 +354,7 @@ define([
           })
 
         const sequence = trimmed.join('')
-        if (sequence.length !== end - start)
+        if (sequence.length !== end - start) {
           throw new Error(
             `sequence fetch failed: fetching ${(
               start - 1
@@ -345,6 +362,7 @@ define([
               end - start
             ).toLocaleString()}`,
           )
+        }
         return sequence
       },
 
@@ -376,9 +394,11 @@ define([
       _refNameToId(refName) {
         // use info from the SAM header if possible, but fall back to using
         // the ref seq order from when the browser's refseqs were loaded
-        if (this._samHeader.refSeqNameToId)
+        if (this._samHeader.refSeqNameToId) {
           return this._samHeader.refSeqNameToId[refName]
-        else return this.browser.getRefSeqNumber(refName)
+        } else {
+          return this.browser.getRefSeqNumber(refName)
+        }
       },
 
       _refIdToName(refId) {

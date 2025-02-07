@@ -181,8 +181,9 @@ define([
               count >= indicatorMinHeight
             ) {
               snpContext.save()
-              if (thisB.browser.config.highResolutionMode != 'disabled')
+              if (thisB.browser.config.highResolutionMode != 'disabled') {
                 snpContext.scale(ratio, 1)
+              }
               snpContext.beginPath()
               snpContext.arc(
                 fRect.l + 0.5 * fRect.w,
@@ -199,8 +200,9 @@ define([
               snpContext.lineWidth = 1
               snpContext.strokeStyle = 'black'
               snpContext.stroke()
-              if (thisB.browser.config.highResolutionMode != 'disabled')
+              if (thisB.browser.config.highResolutionMode != 'disabled') {
                 snpContext.restore()
+              }
             }
           })
 
@@ -289,8 +291,12 @@ define([
         if (spans.hasOwnProperty(index)) {
           var w = Math.round((spans[index].end - spans[index].start) * scale)
           var l = Math.round((spans[index].start - leftBase) * scale)
-          if (l + w >= canvas.width) w = canvas.width - l // correct possible rounding errors
-          if (w == 0) continue // skip if there's no width.
+          if (l + w >= canvas.width) {
+            w = canvas.width - l
+          } // correct possible rounding errors
+          if (w == 0) {
+            continue
+          } // skip if there's no width.
           ctx2.drawImage(canvas, l, 0, w, canvasHeight, l, 0, w, canvasHeight)
           context.globalAlpha = booleanAlpha
           // clear masked region and redraw at lower opacity.
@@ -316,7 +322,9 @@ define([
      * It displays more complete data.
      */
     _showPixelValue: function (scoreDisplay, score) {
-      if (!score || !score.score) return false
+      if (!score || !score.score) {
+        return false
+      }
       score = score.score
 
       function fmtNum(num) {
@@ -327,7 +335,9 @@ define([
       }
       function pctString(count) {
         count = Math.round((count / total) * 100)
-        if (typeof count == 'number' && !isNaN(count)) return count + '%'
+        if (typeof count == 'number' && !isNaN(count)) {
+          return count + '%'
+        }
         return ''
       }
       if (score.snpsCounted) {
@@ -343,7 +353,9 @@ define([
               subdistribution.push(fmtNum(count) + ' ' + category)
             })
             subdistribution = subdistribution.join(', ')
-            if (subdistribution) subdistribution = '(' + subdistribution + ')'
+            if (subdistribution) {
+              subdistribution = '(' + subdistribution + ')'
+            }
           }
 
           category =

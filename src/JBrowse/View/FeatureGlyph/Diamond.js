@@ -21,9 +21,12 @@ define(['dojo/_base/declare', 'dojo/_base/lang', './Box'], function (
       style = style || lang.hitch(this, 'getStyle')
 
       var height = this._getFeatureHeight(viewInfo, feature)
-      if (!height) return
-      if (height != overallHeight)
+      if (!height) {
+        return
+      }
+      if (height != overallHeight) {
         top += Math.round((overallHeight - height) / 2)
+      }
 
       // background
       var bgcolor = style(feature, 'color')

@@ -263,12 +263,16 @@ define(['./arrayCopy'], function (arrayCopy) {
   }
 
   ZStream.prototype.inflate = function (f) {
-    if (this.istate == null) return Z_STREAM_ERROR
+    if (this.istate == null) {
+      return Z_STREAM_ERROR
+    }
     return this.istate.inflate(this, f)
   }
 
   ZStream.prototype.inflateEnd = function () {
-    if (this.istate == null) return Z_STREAM_ERROR
+    if (this.istate == null) {
+      return Z_STREAM_ERROR
+    }
     var ret = istate.inflateEnd(this)
     this.istate = null
     return ret
@@ -394,7 +398,9 @@ define(['./arrayCopy'], function (arrayCopy) {
   }
 
   Inflate.prototype.inflateReset = function (z) {
-    if (z == null || z.istate == null) return Z_STREAM_ERROR
+    if (z == null || z.istate == null) {
+      return Z_STREAM_ERROR
+    }
 
     z.total_in = z.total_out = 0
     z.msg = null
@@ -404,7 +410,9 @@ define(['./arrayCopy'], function (arrayCopy) {
   }
 
   Inflate.prototype.inflateEnd = function (z) {
-    if (this.blocks != null) this.blocks.free(z)
+    if (this.blocks != null) {
+      this.blocks.free(z)
+    }
     this.blocks = null
     return Z_OK
   }
@@ -441,14 +449,17 @@ define(['./arrayCopy'], function (arrayCopy) {
   Inflate.prototype.inflate = function (z, f) {
     var r, b
 
-    if (z == null || z.istate == null || z.next_in == null)
+    if (z == null || z.istate == null || z.next_in == null) {
       return Z_STREAM_ERROR
+    }
     f = f == Z_FINISH ? Z_BUF_ERROR : Z_OK
     r = Z_BUF_ERROR
     while (true) {
       switch (z.istate.mode) {
         case METHOD:
-          if (z.avail_in == 0) return r
+          if (z.avail_in == 0) {
+            return r
+          }
           r = f
 
           z.avail_in--
@@ -470,7 +481,9 @@ define(['./arrayCopy'], function (arrayCopy) {
           }
           z.istate.mode = FLAG
         case FLAG:
-          if (z.avail_in == 0) return r
+          if (z.avail_in == 0) {
+            return r
+          }
           r = f
 
           z.avail_in--
@@ -490,7 +503,9 @@ define(['./arrayCopy'], function (arrayCopy) {
           }
           z.istate.mode = DICT4
         case DICT4:
-          if (z.avail_in == 0) return r
+          if (z.avail_in == 0) {
+            return r
+          }
           r = f
 
           z.avail_in--
@@ -499,7 +514,9 @@ define(['./arrayCopy'], function (arrayCopy) {
             ((z.next_in[z.next_in_index++] & 0xff) << 24) & 0xff000000
           z.istate.mode = DICT3
         case DICT3:
-          if (z.avail_in == 0) return r
+          if (z.avail_in == 0) {
+            return r
+          }
           r = f
 
           z.avail_in--
@@ -508,7 +525,9 @@ define(['./arrayCopy'], function (arrayCopy) {
             ((z.next_in[z.next_in_index++] & 0xff) << 16) & 0xff0000
           z.istate.mode = DICT2
         case DICT2:
-          if (z.avail_in == 0) return r
+          if (z.avail_in == 0) {
+            return r
+          }
           r = f
 
           z.avail_in--
@@ -516,7 +535,9 @@ define(['./arrayCopy'], function (arrayCopy) {
           z.istate.need += ((z.next_in[z.next_in_index++] & 0xff) << 8) & 0xff00
           z.istate.mode = DICT1
         case DICT1:
-          if (z.avail_in == 0) return r
+          if (z.avail_in == 0) {
+            return r
+          }
           r = f
 
           z.avail_in--
@@ -551,7 +572,9 @@ define(['./arrayCopy'], function (arrayCopy) {
           }
           z.istate.mode = CHECK4
         case CHECK4:
-          if (z.avail_in == 0) return r
+          if (z.avail_in == 0) {
+            return r
+          }
           r = f
 
           z.avail_in--
@@ -560,7 +583,9 @@ define(['./arrayCopy'], function (arrayCopy) {
             ((z.next_in[z.next_in_index++] & 0xff) << 24) & 0xff000000
           z.istate.mode = CHECK3
         case CHECK3:
-          if (z.avail_in == 0) return r
+          if (z.avail_in == 0) {
+            return r
+          }
           r = f
 
           z.avail_in--
@@ -569,7 +594,9 @@ define(['./arrayCopy'], function (arrayCopy) {
             ((z.next_in[z.next_in_index++] & 0xff) << 16) & 0xff0000
           z.istate.mode = CHECK2
         case CHECK2:
-          if (z.avail_in == 0) return r
+          if (z.avail_in == 0) {
+            return r
+          }
           r = f
 
           z.avail_in--
@@ -577,7 +604,9 @@ define(['./arrayCopy'], function (arrayCopy) {
           z.istate.need += ((z.next_in[z.next_in_index++] & 0xff) << 8) & 0xff00
           z.istate.mode = CHECK1
         case CHECK1:
-          if (z.avail_in == 0) return r
+          if (z.avail_in == 0) {
+            return r
+          }
           r = f
 
           z.avail_in--
@@ -609,8 +638,9 @@ define(['./arrayCopy'], function (arrayCopy) {
   ) {
     var index = 0
     var length = dictLength
-    if (z == null || z.istate == null || z.istate.mode != DICT0)
+    if (z == null || z.istate == null || z.istate.mode != DICT0) {
       return Z_STREAM_ERROR
+    }
 
     if (adler32(1, dictionary, 0, dictLength) != z.adler) {
       return Z_DATA_ERROR
@@ -637,12 +667,16 @@ define(['./arrayCopy'], function (arrayCopy) {
     var r, w // temporaries to save total_in and total_out
 
     // set up
-    if (z == null || z.istate == null) return Z_STREAM_ERROR
+    if (z == null || z.istate == null) {
+      return Z_STREAM_ERROR
+    }
     if (z.istate.mode != BAD) {
       z.istate.mode = BAD
       z.istate.marker = 0
     }
-    if ((n = z.avail_in) == 0) return Z_BUF_ERROR
+    if ((n = z.avail_in) == 0) {
+      return Z_BUF_ERROR
+    }
     p = z.next_in_index
     m = z.istate.marker
 
@@ -685,8 +719,9 @@ define(['./arrayCopy'], function (arrayCopy) {
   // decompressing, PPP checks that at the end of input packet, inflate is
   // waiting for these length bytes.
   Inflate.prototype.inflateSyncPoint = function (z) {
-    if (z == null || z.istate == null || z.istate.blocks == null)
+    if (z == null || z.istate == null || z.istate.blocks == null) {
       return Z_STREAM_ERROR
+    }
     return z.istate.blocks.sync_point()
   }
 
@@ -729,7 +764,9 @@ define(['./arrayCopy'], function (arrayCopy) {
   }
 
   InfBlocks.prototype.reset = function (z, c) {
-    if (c) c[0] = this.check
+    if (c) {
+      c[0] = this.check
+    }
     if (this.mode == IB_CODES) {
       this.codes.free(z)
     }
@@ -921,14 +958,20 @@ define(['./arrayCopy'], function (arrayCopy) {
           r = Z_OK
 
           t = this.left
-          if (t > n) t = n
-          if (t > m) t = m
+          if (t > n) {
+            t = n
+          }
+          if (t > m) {
+            t = m
+          }
           arrayCopy(z.next_in, p, this.window, q, t)
           p += t
           n -= t
           q += t
           m -= t
-          if ((this.left -= t) != 0) break
+          if ((this.left -= t) != 0) {
+            break
+          }
           this.mode = this.last != 0 ? IB_DRY : IB_TYPE
           break
         case IB_TABLE:
@@ -1287,8 +1330,12 @@ define(['./arrayCopy'], function (arrayCopy) {
 
     // compute number of bytes to copy as far as end of window
     n = (q <= this.write ? this.write : this.end) - q
-    if (n > z.avail_out) n = z.avail_out
-    if (n != 0 && r == Z_BUF_ERROR) r = Z_OK
+    if (n > z.avail_out) {
+      n = z.avail_out
+    }
+    if (n != 0 && r == Z_BUF_ERROR) {
+      r = Z_OK
+    }
 
     // update counters
     z.avail_out -= n
@@ -1309,12 +1356,18 @@ define(['./arrayCopy'], function (arrayCopy) {
     if (q == this.end) {
       // wrap pointers
       q = 0
-      if (this.write == this.end) this.write = 0
+      if (this.write == this.end) {
+        this.write = 0
+      }
 
       // compute bytes to copy
       n = this.write - q
-      if (n > z.avail_out) n = z.avail_out
-      if (n != 0 && r == Z_BUF_ERROR) r = Z_OK
+      if (n > z.avail_out) {
+        n = z.avail_out
+      }
+      if (n != 0 && r == Z_BUF_ERROR) {
+        r = Z_OK
+      }
 
       // update counters
       z.avail_out -= n
@@ -1433,8 +1486,9 @@ define(['./arrayCopy'], function (arrayCopy) {
           j = this.need
 
           while (k < j) {
-            if (n != 0) r = Z_OK
-            else {
+            if (n != 0) {
+              r = Z_OK
+            } else {
               s.bitb = b
               s.bitk = k
               z.avail_in = n
@@ -1495,8 +1549,9 @@ define(['./arrayCopy'], function (arrayCopy) {
           j = this.get
 
           while (k < j) {
-            if (n != 0) r = Z_OK
-            else {
+            if (n != 0) {
+              r = Z_OK
+            } else {
               s.bitb = b
               s.bitk = k
               z.avail_in = n
@@ -1523,8 +1578,9 @@ define(['./arrayCopy'], function (arrayCopy) {
           j = this.need
 
           while (k < j) {
-            if (n != 0) r = Z_OK
-            else {
+            if (n != 0) {
+              r = Z_OK
+            } else {
               s.bitb = b
               s.bitk = k
               z.avail_in = n
@@ -1573,8 +1629,9 @@ define(['./arrayCopy'], function (arrayCopy) {
           j = this.get
 
           while (k < j) {
-            if (n != 0) r = Z_OK
-            else {
+            if (n != 0) {
+              r = Z_OK
+            } else {
               s.bitb = b
               s.bitk = k
               z.avail_in = n
@@ -1632,7 +1689,9 @@ define(['./arrayCopy'], function (arrayCopy) {
             s.window[q++] = s.window[f++]
             m--
 
-            if (f == s.end) f = 0
+            if (f == s.end) {
+              f = 0
+            }
             this.len--
           }
           this.mode = IC_START
@@ -2041,13 +2100,19 @@ define(['./arrayCopy'], function (arrayCopy) {
 
     // Find minimum and maximum length, bound *m by those
     l = m[0]
-    for (j = 1; j <= BMAX; j++) if (this.c[j] != 0) break
+    for (j = 1; j <= BMAX; j++) {
+      if (this.c[j] != 0) {
+        break
+      }
+    }
     k = j // minimum code length
     if (l < j) {
       l = j
     }
     for (i = BMAX; i != 0; i--) {
-      if (this.c[i] != 0) break
+      if (this.c[i] != 0) {
+        break
+      }
     }
     g = i // maximum code length
     if (l > i) {
@@ -2117,7 +2182,9 @@ define(['./arrayCopy'], function (arrayCopy) {
             if (j < z) {
               while (++j < z) {
                 // try smaller tables up to z bits
-                if ((f <<= 1) <= this.c[++xp]) break // enough codes to use up j bits
+                if ((f <<= 1) <= this.c[++xp]) {
+                  break
+                } // enough codes to use up j bits
                 f -= this.c[xp] // else deduct codes from patterns
               }
             }

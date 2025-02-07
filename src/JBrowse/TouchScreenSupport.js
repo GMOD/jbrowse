@@ -28,7 +28,9 @@ define([], function () {
       var leftPane = document.getElementById('tracksAvail'),
         rightPane = document.getElementById('container')
 
-      if (!leftPane) return rightPane
+      if (!leftPane) {
+        return rightPane
+      }
 
       if (first.pageX < leftPane.offsetLeft + leftPane.offsetWidth) {
         return leftPane

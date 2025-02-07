@@ -66,7 +66,9 @@ define([
       var subfeatures = feature.children()
 
       // if this gene weirdly has no subfeatures, just render as a box
-      if (!subfeatures || !subfeatures.length) return this.inherited(arguments)
+      if (!subfeatures || !subfeatures.length) {
+        return this.inherited(arguments)
+      }
 
       // get the rects for the children
       var padding = 1
@@ -125,7 +127,9 @@ define([
               subRect.label = transcriptLabel
               subRect.l -= transcriptLabel.w
               subRect.w += transcriptLabel.w
-              if (transcriptLabel.h > subRect.h) subRect.h = transcriptLabel.h
+              if (transcriptLabel.h > subRect.h) {
+                subRect.h = transcriptLabel.h
+              }
               transcriptLabel.yOffset = Math.floor(subRect.h / 2)
               transcriptLabel.xOffset = 0
             }
@@ -142,11 +146,14 @@ define([
       fRect.w = Math.max(fRect.r - fRect.l + 1, 2)
       delete fRect.r
       fRect.rect = { l: fRect.l, h: fRect.h, w: fRect.w }
-      if (viewArgs.displayMode != 'compact')
+      if (viewArgs.displayMode != 'compact') {
         fRect.h += this.getStyle(feature, 'marginBottom') || 0
+      }
 
       // no labels or descriptions if displayMode is collapsed, so stop here
-      if (viewArgs.displayMode == 'collapsed') return fRect
+      if (viewArgs.displayMode == 'collapsed') {
+        return fRect
+      }
 
       // expand the fRect to accommodate labels if necessary
       this._expandRectangleWithLabels(viewArgs, feature, fRect)
@@ -157,25 +164,29 @@ define([
 
     layoutFeature: function (viewInfo, layout, feature) {
       var fRect = this.inherited(arguments)
-      if (fRect)
+      if (fRect) {
         array.forEach(fRect.subRects, function (subrect) {
           subrect.t += fRect.t
           subrect.rect.t += fRect.t
         })
+      }
       return fRect
     },
 
     renderFeature(context, fRect) {
       const subRects = fRect.subRects
-      if (!subRects || subRects.length === 0) return this.inherited(arguments)
+      if (!subRects || subRects.length === 0) {
+        return this.inherited(arguments)
+      }
 
-      if (fRect.viewInfo.displayMode != 'collapsed')
+      if (fRect.viewInfo.displayMode != 'collapsed') {
         context.clearRect(
           Math.floor(fRect.l),
           fRect.t,
           Math.ceil(fRect.w - Math.floor(fRect.l) + fRect.l),
           fRect.h,
         )
+      }
 
       for (var i = 0; i < subRects.length; i++) {
         subRects[i].glyph.renderFeature(context, subRects[i])

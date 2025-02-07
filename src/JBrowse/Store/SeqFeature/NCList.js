@@ -101,7 +101,9 @@ define([
                 thisB._failAllDeferred(
                   'Server returned an HTTP ' + error.response.status + ' error',
                 )
-              } else thisB._failAllDeferred(error)
+              } else {
+                thisB._failAllDeferred(error)
+              }
             },
           )
       }
@@ -191,8 +193,9 @@ define([
           // rather than the 20,000)
           var histogramMeta = data._histograms.meta[0]
           for (var i = 0; i < data._histograms.meta.length; i++) {
-            if (basesPerBin >= data._histograms.meta[i].basesPerBin)
+            if (basesPerBin >= data._histograms.meta[i].basesPerBin) {
               histogramMeta = data._histograms.meta[i]
+            }
           }
 
           // number of bins in the server-supplied histogram for each current bin
@@ -210,7 +213,9 @@ define([
             )
             binRatio = Math.round(binRatio)
             var histogram = []
-            for (var bin = 0; bin < numBins; bin++) histogram[bin] = 0
+            for (var bin = 0; bin < numBins; bin++) {
+              histogram[bin] = 0
+            }
 
             histogramMeta.lazyArray.range(
               firstServerBin,

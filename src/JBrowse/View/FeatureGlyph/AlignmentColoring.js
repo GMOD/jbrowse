@@ -60,7 +60,9 @@ define(['JBrowse/Util'], function (Util) {
         return strand == 1 || strand == '+'
           ? glyph.getStyle(feature, 'color_fwd_strand')
           : glyph.getStyle(feature, 'color_rev_strand')
-      } else return glyph.getStyle(feature, 'color_nostrand')
+      } else {
+        return glyph.getStyle(feature, 'color_nostrand')
+      }
     },
 
     getOrientation(feature, score, glyph, track) {

@@ -54,13 +54,15 @@ define([
         // find conf vars that set events, like `onClick`
         for (var key in this.config) {
           var handlerName = key.replace(/^on(?=[A-Z])/, '')
-          if (handlerName != key)
+          if (handlerName != key) {
             handlers[handlerName.toLowerCase()] = this.config[key]
+          }
         }
         // interpret handlers that are just strings to be URLs that should be opened
         for (key in handlers) {
-          if (typeof handlers[key] == 'string')
+          if (typeof handlers[key] == 'string') {
             handlers[key] = { url: handlers[key] }
+          }
         }
         return handlers
       }.call(this)

@@ -26,7 +26,9 @@ define(['dojo/_base/declare', 'dijit/Destroyable', 'JBrowse/Util'], function (
     },
 
     destroy: function () {
-      if (this.domNode) Util.removeAttribute(this.domNode, 'block')
+      if (this.domNode) {
+        Util.removeAttribute(this.domNode, 'block')
+      }
       this.inherited(arguments)
     },
   })

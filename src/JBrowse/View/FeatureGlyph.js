@@ -27,7 +27,9 @@ define([
               var end = fRect.m[0].l
               for (var i in fRect.m) {
                 var m = fRect.m[i]
-                if (m.l > end) break
+                if (m.l > end) {
+                  break
+                }
                 end = m.l + m.w
               }
               if (end >= l + w) {
@@ -119,7 +121,9 @@ define([
       var startbp = fRect.l / scale + leftBase
       var endbp = (fRect.l + fRect.w) / scale + leftBase
       fRect.t = layout.addRect(feature.id(), startbp, endbp, fRect.h, feature)
-      if (fRect.t === null) return null
+      if (fRect.t === null) {
+        return null
+      }
 
       fRect.f = feature
 
@@ -154,13 +158,19 @@ define([
             m.w += m.l - l
             m.l = l
           }
-          if (m.w > w) m.w = w
+          if (m.w > w) {
+            m.w = w
+          }
           if (m.l < 0) {
             m.w += m.l
             m.l = 0
           }
-          if (m.l + m.w > l + w) m.w = w + l - m.l
-          if (m.l + m.w > context.canvas.width) m.w = context.canvas.width - m.l
+          if (m.l + m.w > l + w) {
+            m.w = w + l - m.l
+          }
+          if (m.l + m.w > context.canvas.width) {
+            m.w = context.canvas.width - m.l
+          }
           ctx2.drawImage(
             context.canvas,
             m.l,

@@ -76,14 +76,16 @@ define([
         var s = this._globalStats || {}
 
         // calc mean and standard deviation if necessary
-        if (!('scoreMean' in s))
+        if (!('scoreMean' in s)) {
           s.scoreMean = s.basesCovered ? s.scoreSum / s.basesCovered : 0
-        if (!('scoreStdDev' in s))
+        }
+        if (!('scoreStdDev' in s)) {
           s.scoreStdDev = this._calcStdFromSums(
             s.scoreSum,
             s.scoreSumSquares,
             s.basesCovered,
           )
+        }
 
         successCallback(s)
       },
@@ -92,7 +94,7 @@ define([
        * Read from the bbi file, respecting the configured chunkSizeLimit.
        */
       _read: function (start, size, callback, errorcallback) {
-        if (size > this.config.chunkSizeLimit)
+        if (size > this.config.chunkSizeLimit) {
           errorcallback(
             new JBrowseErrors.DataOverflow(
               'Too much data. Chunk size ' +
@@ -102,7 +104,9 @@ define([
                 '.',
             ),
           )
-        else this.data.read.apply(this.data, arguments)
+        } else {
+          this.data.read.apply(this.data, arguments)
+        }
       },
 
       _load: function (headerLen = 2000) {
@@ -137,10 +141,11 @@ define([
               this.type = magic == this.BIG_BED_MAGIC ? 'bigbed' : 'bigwig'
 
               this.fileSize = (res || {}).size
-              if (!this.fileSize)
+              if (!this.fileSize) {
                 console.warn(
                   'cannot get size of BigWig/BigBed file, widest zoom level not available',
                 )
+              }
 
               this.version = data.getUint16()
               this.numZoomLevels = data.getUint16()
@@ -262,8 +267,9 @@ define([
             }
             var data = thisB.newDataView(bpt)
 
-            if (data.getUint32() !== 2026540177)
+            if (data.getUint32() !== 2026540177) {
               throw 'parse error: not a Kent bPlusTree'
+            }
             var blockSize = data.getUint32()
             var keySize = data.getUint32()
             var valSize = data.getUint32()
@@ -273,7 +279,9 @@ define([
             //dlog('blockSize=' + blockSize + '    keySize=' + keySize + '   valSize=' + valSize + '    itemCount=' + itemCount);
 
             var bptReadNode = function (offset) {
-              if (offset >= bpt.length) throw 'reading beyond end of buffer'
+              if (offset >= bpt.length) {
+                throw 'reading beyond end of buffer'
+              }
               var isLeafNode = data.getUint8(offset)
               var cnt = data.getUint16(offset + 2)
               //dlog('ReadNode: ' + offset + '     type=' + isLeafNode + '   count=' + cnt);
@@ -388,7 +396,9 @@ define([
       },
 
       getView: function (scale) {
-        if (!this.zoomLevels || !this.zoomLevels.length) return null
+        if (!this.zoomLevels || !this.zoomLevels.length) {
+          return null
+        }
 
         if (!this._viewCache || this._viewCache.scale != scale) {
           this._viewCache = {
@@ -403,9 +413,10 @@ define([
         var basesPerPx = 1 / scale
         //console.log('getting view for '+basesPerSpan+' bases per span');
         var maxLevel = this.zoomLevels.length
-        if (!this.fileSize)
+        if (!this.fileSize) {
           // if we don't know the file size, we can't fetch the highest zoom level :-(
           maxLevel--
+        }
         for (var i = maxLevel; i >= 0; i--) {
           var zh = this.zoomLevels[i]
           if (zh && zh.reductionLevel <= 2 * basesPerPx) {
@@ -427,7 +438,9 @@ define([
           const fieldDefinition = this.autoSql.fields.find(
             field => field.name.toLowerCase() === lcTagName,
           )
-          if (fieldDefinition) return fieldDefinition
+          if (fieldDefinition) {
+            return fieldDefinition
+          }
         }
       },
 

@@ -11,9 +11,11 @@ define([], function () {
   }
 
   fastpromise.prototype.then = function (callback, errback) {
-    if ('value' in this) callback(this.value)
-    else if ('error' in this) errback(this.error)
-    else {
+    if ('value' in this) {
+      callback(this.value)
+    } else if ('error' in this) {
+      errback(this.error)
+    } else {
       this.callbacks.push(callback)
       this.errbacks.push(errback)
     }
@@ -24,7 +26,9 @@ define([], function () {
     delete this.errbacks
     var c = this.callbacks
     delete this.callbacks
-    for (var i = 0; i < c.length; i++) c[i](this.value)
+    for (var i = 0; i < c.length; i++) {
+      c[i](this.value)
+    }
   }
 
   fastpromise.prototype.reject = function (error) {
@@ -32,7 +36,9 @@ define([], function () {
     delete this.callbacks
     var c = this.errbacks
     delete this.errbacks
-    for (var i = 0; i < c.length; i++) c[i](error)
+    for (var i = 0; i < c.length; i++) {
+      c[i](error)
+    }
   }
 
   return fastpromise

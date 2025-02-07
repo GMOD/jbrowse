@@ -60,7 +60,9 @@ define([
      */
     _configureTopLevelFeaturesTransform: function () {
       const confVal = this.getConf('topLevelFeatures', [this])
-      if (!confVal) return
+      if (!confVal) {
+        return
+      }
 
       if (typeof confVal === 'function') {
         this._topLevelFeaturesTransform = confVal
@@ -197,14 +199,19 @@ define([
         }))
 
       cache.get(query, function (stats, error) {
-        if (error) errorCallback(error)
-        else successCallback(stats)
+        if (error) {
+          errorCallback(error)
+        } else {
+          successCallback(stats)
+        }
       })
     },
 
     // utility method that calculates standard deviation from sum and sum of squares
     _calcStdFromSums: function (sum, sumSquares, n) {
-      if (n == 0) return 0
+      if (n == 0) {
+        return 0
+      }
 
       var variance = sumSquares - (sum * sum) / n
       if (n > 1) {
@@ -237,12 +244,13 @@ define([
      * Add a transformation function to be applied to features read from the store.
      */
     addFeatureTransform: function (transformFunction) {
-      if (!this.supportsFeatureTransforms)
+      if (!this.supportsFeatureTransforms) {
         throw new Error(
           'store class ' +
             this.getConf('type') +
             ' does not support feature transforms',
         )
+      }
       this._featureTransforms.push(transformFunction)
     },
 
@@ -280,8 +288,9 @@ define([
      * @private
      */
     _findSubfeaturesWithTypes(types, feature) {
-      if (types.includes(feature.get('type'))) return [feature]
-      else {
+      if (types.includes(feature.get('type'))) {
+        return [feature]
+      } else {
         let children = feature.children()
         if (children && children.length) {
           const matchingFeatures = []
@@ -291,7 +300,9 @@ define([
             ),
           )
           return matchingFeatures
-        } else return []
+        } else {
+          return []
+        }
       }
     },
 
@@ -325,15 +336,18 @@ define([
       // pad with spaces at the beginning of the string if necessary
       var len = query.end - query.start
       var sequence = ''
-      while (sequence.length < len) sequence += ' '
+      while (sequence.length < len) {
+        sequence += ' '
+      }
 
       var thisB = this
       this.getFeatures(
         lang.mixin({ reference_sequences_only: true }, query),
         function (f) {
           var seq = f.get('residues') || f.get('seq')
-          if (seq)
+          if (seq) {
             sequence = replaceAt(sequence, f.get('start') - query.start, seq)
+          }
         },
         function () {
           seqCallback(sequence)

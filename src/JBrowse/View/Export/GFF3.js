@@ -114,14 +114,19 @@ define([
         )
 
         // convert back from interbase
-        if (typeof parseInt(fields[3]) == 'number') fields[3]++
+        if (typeof parseInt(fields[3]) == 'number') {
+          fields[3]++
+        }
         // normalize the strand field
         fields[6] = { 1: '+', '-1': '-', 0: '.' }[fields[6]] || fields[6]
 
         // format the attributes
         var attr = this._gff3_attributes(feature)
-        if (parentID) attr.Parent = parentID
-        else delete attr.Parent
+        if (parentID) {
+          attr.Parent = parentID
+        } else {
+          delete attr.Parent
+        }
 
         var subfeatures = array.map(
           feature.get('subfeatures') || [],
@@ -180,8 +185,11 @@ define([
           function (tag) {
             var val = feature.get(tag)
             var valtype = typeof val
-            if (valtype == 'boolean') val = val ? 1 : 0
-            else if (valtype == 'undefined') return
+            if (valtype == 'boolean') {
+              val = val ? 1 : 0
+            } else if (valtype == 'undefined') {
+              return
+            }
             tag =
               this._gff3_reserved_attribute(tag) ||
               this._ensure_non_reserved(tag)

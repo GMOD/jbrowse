@@ -140,7 +140,9 @@ define(['dojo/_base/declare', 'dojo/request', 'JBrowse/Util'], function (
 
       mappingsFromNode: function (prefix, node) {
         var results = []
-        if (node[1] !== null) results.push([prefix, node[1]])
+        if (node[1] !== null) {
+          results.push([prefix, node[1]])
+        }
         for (var i = 2; i < node.length; i++) {
           if ('string' == typeof node[i][0]) {
             results = results.concat(
@@ -153,9 +155,12 @@ define(['dojo/_base/declare', 'dojo/request', 'JBrowse/Util'], function (
 
       valuesFromNode: function (node) {
         var results = []
-        if (node[1] !== null) results.push(node[1])
-        for (var i = 2; i < node.length; i++)
+        if (node[1] !== null) {
+          results.push(node[1])
+        }
+        for (var i = 2; i < node.length; i++) {
           results = results.concat(this.valuesFromNode(node[i]))
+        }
         return results
       },
 
@@ -170,8 +175,9 @@ define(['dojo/_base/declare', 'dojo/request', 'JBrowse/Util'], function (
         this.findNode(
           key,
           function (prefix, node) {
-            if (prefix.toLowerCase() == key.toLowerCase() && node[1])
+            if (prefix.toLowerCase() == key.toLowerCase() && node[1]) {
               callback(node[1])
+            }
           },
           notfoundCallback,
         )
@@ -190,7 +196,9 @@ define(['dojo/_base/declare', 'dojo/request', 'JBrowse/Util'], function (
           query,
           function (path) {
             var node = trie.root
-            for (var i = 0; i < path.length; i++) node = node[path[i]]
+            for (var i = 0; i < path.length; i++) {
+              node = node[path[i]]
+            }
             var foundPrefix = trie.pathToPrefix(path)
             foundCallback(foundPrefix, node)
           },

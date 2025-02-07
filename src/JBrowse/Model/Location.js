@@ -2,9 +2,13 @@ define(['dojo/_base/array', 'JBrowse/Util'], function (array, Util) {
   return Util.fastDeclare({
     constructor: function (args) {
       if (args) {
-        if (typeof args == 'string') args = Util.parseLocString(args)
+        if (typeof args == 'string') {
+          args = Util.parseLocString(args)
+        }
 
-        if (args.location) this._populate(args.location)
+        if (args.location) {
+          this._populate(args.location)
+        }
         if (args.feature) {
           var f = args.feature
           this._populate({
@@ -25,7 +29,9 @@ define(['dojo/_base/array', 'JBrowse/Util'], function (array, Util) {
       array.forEach(
         'ref,start,end,strand,tracks,objectName'.split(','),
         function (p) {
-          if (p in args) this[p] = args[p]
+          if (p in args) {
+            this[p] = args[p]
+          }
         },
         this,
       )
@@ -33,8 +39,11 @@ define(['dojo/_base/array', 'JBrowse/Util'], function (array, Util) {
 
     toString: function () {
       var locstring = Util.assembleLocString(this)
-      if (this.objectName) return locstring + ' (' + this.objectName + ')'
-      else return locstring
+      if (this.objectName) {
+        return locstring + ' (' + this.objectName + ')'
+      } else {
+        return locstring
+      }
     },
 
     fromString: function (str) {

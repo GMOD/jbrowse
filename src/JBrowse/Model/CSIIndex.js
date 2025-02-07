@@ -120,24 +120,36 @@ define([
 
     featureCount: function (refName, refNameIsID) {
       var tid
-      if (refNameIsID) tid = refName
-      else tid = this.getRefId(refName)
+      if (refNameIsID) {
+        tid = refName
+      } else {
+        tid = this.getRefId(refName)
+      }
 
       var indexes = this._indices[tid]
-      if (!indexes) return -1
+      if (!indexes) {
+        return -1
+      }
       var bl = this._bin_limit(this.minShift, this.depth)
       var ret = indexes.binIndex[bl + 1]
       return ret ? ret[ret.length - 1].minv.offset : -1
     },
     blocksForRange: function (refName, beg, end, refNameIsID) {
-      if (beg < 0) beg = 0
+      if (beg < 0) {
+        beg = 0
+      }
 
       var tid
-      if (refNameIsID) tid = refName
-      else tid = this.getRefId(refName)
+      if (refNameIsID) {
+        tid = refName
+      } else {
+        tid = this.getRefId(refName)
+      }
 
       var indexes = this._indices[tid]
-      if (!indexes) return []
+      if (!indexes) {
+        return []
+      }
 
       var linearIndex = indexes.linearIndex,
         binIndex = indexes.binIndex
@@ -158,22 +170,32 @@ define([
         n_off += (binIndex[bins[i]] || []).length
       }
 
-      if (n_off == 0) return []
+      if (n_off == 0) {
+        return []
+      }
 
       var off = []
 
       var chunks
-      for (i = n_off = 0; i < bins.length; ++i)
-        if ((chunks = binIndex[bins[i]]))
-          for (var j = 0; j < chunks.length; ++j)
-            //if( min_off.compareTo( chunks[j].maxv ) < 0 )
+      for (i = n_off = 0; i < bins.length; ++i) {
+        if ((chunks = binIndex[bins[i]])) {
+          for (
+            var j = 0;
+            j < chunks.length;
+            ++j //if( min_off.compareTo( chunks[j].maxv ) < 0 )
+          ) {
             off[n_off++] = new Chunk(
               chunks[j].minv,
               chunks[j].maxv,
               chunks[j].bin,
             )
+          }
+        }
+      }
 
-      if (!off.length) return []
+      if (!off.length) {
+        return []
+      }
 
       off = off.sort(function (a, b) {
         return a.compareTo(b)
@@ -198,7 +220,9 @@ define([
         s = min_shift,
         t = ((1 << (depth * 3)) - 1) / 7
       for (--end, l = depth; l > 0; --l, s += 3, t -= 1 << (l * 3)) {
-        if (beg >> s == end >> s) return t + (beg >> s)
+        if (beg >> s == end >> s) {
+          return t + (beg >> s)
+        }
       }
       return 0
     },
@@ -216,7 +240,9 @@ define([
       ) {
         let b = t + rshift(beg, s)
         let e = t + rshift(end, s)
-        for (let i = b; i <= e; ++i) bins[n++] = i
+        for (let i = b; i <= e; ++i) {
+          bins[n++] = i
+        }
       }
       return bins
     },

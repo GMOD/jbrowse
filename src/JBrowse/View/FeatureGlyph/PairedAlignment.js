@@ -8,13 +8,14 @@ define([
 ], function (declare, array, lang, Alignment, AlignmentColoring, Util) {
   return declare(Alignment, {
     clearFeat(context, fRect) {
-      if (this.track.displayMode != 'collapsed')
+      if (this.track.displayMode != 'collapsed') {
         context.clearRect(
           Math.floor(fRect.l),
           fRect.t,
           Math.ceil(fRect.w),
           fRect.h,
         )
+      }
     },
     renderFeature(context, fRect) {
       const f = fRect.f
