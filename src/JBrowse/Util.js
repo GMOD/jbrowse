@@ -35,7 +35,7 @@ define([
     },
 
     escapeHTML: function (str) {
-      dompurify.sanitize(str)
+      return dompurify.sanitize(str)
     },
 
     unescapeHTML: function (str) {

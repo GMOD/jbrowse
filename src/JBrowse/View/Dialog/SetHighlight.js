@@ -1,22 +1,11 @@
 define([
   'dojo/_base/declare',
   'dojo/dom-construct',
-  'dijit/focus',
   'dijit/form/TextBox',
   'JBrowse/View/Dialog/WithActionBar',
-  'dojo/on',
   'dijit/form/Button',
   'JBrowse/Model/Location',
-], function (
-  declare,
-  dom,
-  focus,
-  dijitTextBox,
-  ActionBarDialog,
-  on,
-  Button,
-  Location,
-) {
+], function (declare, dom, dijitTextBox, ActionBarDialog, Button, Location) {
   return declare(
     ActionBarDialog,
 
@@ -56,8 +45,6 @@ define([
       },
 
       show: function (callback) {
-        var thisB = this
-
         dojo.addClass(this.domNode, 'setHighlightDialog')
 
         var visibleLocation = this.browser.view.visibleRegionLocString()
@@ -86,7 +73,8 @@ define([
       },
 
       getLocation: function () {
-        // have to use onChange to get the value of the text box to work around a bug in dijit
+        // have to use onChange to get the value of the text box to work around
+        // a bug in dijit
         return new Location(this.highlightInput.get('value'))
       },
 

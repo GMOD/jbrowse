@@ -1,3 +1,5 @@
+import dompurify from 'dompurify'
+
 define(['dojo/_base/declare', 'JBrowse/View/InfoDialog'], function (
   declare,
   InfoDialog,
@@ -11,7 +13,7 @@ define(['dojo/_base/declare', 'JBrowse/View/InfoDialog'], function (
 
       if (!args.content && !args.href) {
         // make a div containing our help text
-        this.content = this.defaultContent
+        this.content = dompurify.sanitize(this.defaultContent)
       }
     },
 

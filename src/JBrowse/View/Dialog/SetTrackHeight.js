@@ -1,22 +1,12 @@
+import dompurify from 'dompurify'
+
 define([
   'dojo/_base/declare',
   'dojo/dom-construct',
-  'dijit/focus',
   'dijit/form/NumberSpinner',
   'JBrowse/View/Dialog/WithActionBar',
-  'dojo/on',
   'dijit/form/Button',
-  'JBrowse/Model/Location',
-], function (
-  declare,
-  dom,
-  focus,
-  NumberSpinner,
-  ActionBarDialog,
-  on,
-  Button,
-  Location,
-) {
+], function (declare, dom, NumberSpinner, ActionBarDialog, Button) {
   return declare(ActionBarDialog, {
     /**
      * Dijit Dialog subclass that pops up prompt for the user to
@@ -75,7 +65,10 @@ define([
           innerHTML: '',
         }),
         this.heightSpinner.domNode,
-        dom.create('span', { innerHTML: this.msg || ' pixels' }),
+        dom.create('span', {
+          // eslint-disable-next-line xss/no-mixed-html
+          innerHTML: dompurify.sanitize(this.msg || ' pixels'),
+        }),
       ])
 
       this.inherited(arguments)

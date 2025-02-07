@@ -4,7 +4,6 @@
 define([
   'dojo/_base/declare',
   'dojo/_base/array',
-  'dojo/_base/lang',
   'dojo/aspect',
   'dojo/on',
   'dojo/dom-construct',
@@ -14,7 +13,6 @@ define([
 ], function (
   declare,
   array,
-  lang,
   aspect,
   on,
   domConstruct,
@@ -273,10 +271,10 @@ define([
                 dojo.hitch(this, function (seq) {
                   valueContainer = dojo.byId(valueContainerID) || valueContainer
                   valueContainer.innerHTML = ''
-                  // the HTML is rewritten by the dojo dialog
-                  // parser, but this callback may be called either
-                  // before or after that happens.  if the fetch by
-                  // ID fails, we have come back before the parse.
+                  // the HTML is rewritten by the dojo dialog parser, but this
+                  // callback may be called either before or after that
+                  // happens.  if the fetch by ID fails, we have come back
+                  // before the parse.
                   var textArea = new FASTAView({
                     track: this,
                     width: 62,
