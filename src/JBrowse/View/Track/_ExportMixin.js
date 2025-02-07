@@ -1,3 +1,5 @@
+import dompurify from 'dompurify'
+
 define([
   'dojo/_base/declare',
   'dojo/_base/array',
@@ -122,7 +124,13 @@ define([
         },
       })
       var regionFieldset = dom.create('fieldset', { className: 'region' }, form)
-      dom.create('legend', { innerHTML: 'Region to save' }, regionFieldset)
+      dom.create(
+        'legend',
+        {
+          innerHTML: 'Region to save',
+        },
+        regionFieldset,
+      )
 
       var checked = 0
       array.forEach(possibleRegions, function (r) {
@@ -138,11 +146,14 @@ define([
           'label',
           {
             for: regionButton.id,
-            innerHTML: `${r.description} - <span class="locString">${
-              locstring
-            }</span> (${Util.humanReadableNumber(r.length)}${
-              r.canExport ? 'b' : 'b, too large'
-            })`,
+            // eslint-disable-next-line xss/no-mixed-html
+            innerHTML: dompurify.sanitize(
+              `${r.description} - <span class="locString">${
+                locstring
+              }</span> (${Util.humanReadableNumber(r.length)}${
+                r.canExport ? 'b' : 'b, too large'
+              })`,
+            ),
           },
           regionFieldset,
         )
@@ -180,7 +191,11 @@ define([
           formatFieldset.appendChild(formatButton.domNode)
           var formatButtonLabel = dom.create(
             'label',
-            { for: formatButton.id, innerHTML: fmt.label },
+            {
+              for: formatButton.id,
+              // eslint-disable-next-line xss/no-mixed-html
+              innerHTML: dompurify.sanitize(fmt.label),
+            },
             formatFieldset,
           )
 

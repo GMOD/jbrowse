@@ -56,7 +56,8 @@ define([
           'div',
           {
             className: 'prompt',
-            innerHTML: this.prompt,
+            // eslint-disable-next-line xss/no-mixed-html
+            innerHTML: dompurify.sanitize(this.prompt),
           },
           container,
         )

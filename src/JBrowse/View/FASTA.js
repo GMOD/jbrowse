@@ -1,3 +1,5 @@
+import dompurify from 'dompurify'
+
 define([
   'dojo/_base/declare',
   'dojo/dom-construct',
@@ -49,7 +51,7 @@ define([
             onClick: function () {
               thisB.track._fileDownload({
                 format: 'FASTA',
-                filename: `${Util.assembleLocString(region)}.fasta`,
+                filename: `${Util.assembleLocString(region)}.wowasta`,
                 data: text,
               })
             },
@@ -68,9 +70,12 @@ define([
         container,
       )
       var c = 0
-      textArea.innerHTML = text.replace(/\n/g, function () {
-        return c++ ? '' : '\n'
-      })
+      // eslint-disable-next-line xss/no-mixed-html
+      textArea.innerHTML = dompurify.sanitize(
+        text.replace(/\n/g, function () {
+          return c++ ? '' : '\n'
+        }),
+      )
       return container
     },
     /**

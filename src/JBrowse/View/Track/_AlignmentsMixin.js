@@ -36,6 +36,7 @@ define([
             .toLowerCase()}`,
           style: { width: '1000px' },
         })
+        // eslint-disable-next-line xss/no-mixed-html
         dojo.place('<div><h1>Paired read details</h1></div><br />', container)
         var flexContainer = dojo.create(
           'div',

@@ -99,6 +99,8 @@ define([
             var typeSelect = new Select({
               options: [
                 {
+                  // false positive
+                  // eslint-disable-next-line xss/no-mixed-html
                   label: '<span class="ghosted">file type?</span>',
                   value: null,
                 },
@@ -163,9 +165,12 @@ define([
               'td',
               {
                 width: '1%',
-                innerHTML: `<div class="${
-                  res.file ? 'dijitIconFile' : 'jbrowseIconLink'
-                }"></div>`,
+                // eslint-disable-next-line xss/no-mixed-html
+                innerHTML: dompurify.sanitize(
+                  `<div class="${
+                    res.file ? 'dijitIconFile' : 'jbrowseIconLink'
+                  }"></div>`,
+                ),
               },
               tr,
             )
