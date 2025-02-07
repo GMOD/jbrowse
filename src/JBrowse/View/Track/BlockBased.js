@@ -1257,15 +1257,12 @@ define([
         var dialog
 
         function setContent(dialog, content) {
-          // content can be a promise or Deferred
           if (typeof content.then == 'function') {
             content.then(function (c) {
-              dialog.set('content', c)
+              dialog.set('content', dompurify.sanitize(c))
             })
-          }
-          // or maybe it's just a regular object
-          else {
-            dialog.set('content', content)
+          } else {
+            dialog.set('content', dompurify.sanitize(content))
           }
         }
 
