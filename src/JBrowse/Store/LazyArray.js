@@ -59,7 +59,9 @@ define(['JBrowse/Util', 'JBrowse/Finisher', 'dojo/_base/xhr'], function (
     var firstChunk = Math.floor(start / this.chunkSize)
     var lastChunk = Math.floor(end / this.chunkSize)
 
-    if (postFun === undefined) /** @inner */ postFun = function () {}
+    if (postFun === undefined) {
+      /** @inner */ postFun = function () {}
+    }
     var finish = new Finisher(postFun)
 
     for (var chunk = firstChunk; chunk <= lastChunk; chunk++) {

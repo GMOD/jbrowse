@@ -39,18 +39,22 @@ define([
           img.style.height = img.height + 'px'
           img.style.width = 100 * (img.baseWidth / blockWidth) + '%'
           this.heightUpdate(img.height, blockIndex)
-          if (composeCallback) composeCallback()
+          if (composeCallback) {
+            composeCallback()
+          }
           return true
         })
 
-        if (has('ie'))
+        if (has('ie')) {
           // in IE, have to delay calling it for a (arbitrary) 1/4
           // second because the image's height is not always
           // available when the onload event fires.  >:-{
           return function () {
             window.setTimeout(handler, 250)
           }
-        else return handler
+        } else {
+          return handler
+        }
       },
 
       fillBlock: function (args) {
@@ -94,12 +98,14 @@ define([
                   blockIndex,
                   blockWidth,
                 )
-                if (im.complete)
+                if (im.complete) {
                   // just call the handler ourselves if the image is already loaded
                   loadhandler()
-                else
-                  // otherwise schedule it
+                }
+                // otherwise schedule it
+                else {
                   im.onload = loadhandler
+                }
               },
               this,
             )
@@ -117,7 +123,9 @@ define([
       },
 
       startZoom: function (destScale, destStart, destEnd) {
-        if (this.empty) return
+        if (this.empty) {
+          return
+        }
       },
 
       endZoom: function (destScale, destBlockBases) {
@@ -135,7 +143,9 @@ define([
         containerStart,
         containerEnd,
       ) {
-        if (!(sourceBlock && destBlock)) return
+        if (!(sourceBlock && destBlock)) {
+          return
+        }
 
         var children = sourceBlock.domNode.childNodes
         var destLeft = destBlock.startBase

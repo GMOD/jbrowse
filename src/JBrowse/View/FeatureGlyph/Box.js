@@ -46,13 +46,17 @@ define([
     _getFeatureHeight: function (viewArgs, feature) {
       var h = this.getStyle(feature, 'height')
 
-      if (viewArgs.displayMode == 'compact') h = Math.round(0.45 * h)
+      if (viewArgs.displayMode == 'compact') {
+        h = Math.round(0.45 * h)
+      }
 
       if (this.getStyle(feature, 'strandArrow')) {
         var strand = feature.get('strand')
-        if (strand == 1) h = Math.max(this._embeddedImages.plusArrow.height, h)
-        else if (strand == -1)
+        if (strand == 1) {
+          h = Math.max(this._embeddedImages.plusArrow.height, h)
+        } else if (strand == -1) {
           h = Math.max(this._embeddedImages.minusArrow.height, h)
+        }
       }
 
       return h
@@ -79,8 +83,9 @@ define([
         t: 0,
       }
       fRect.w = fRect.rect.w // in case it was increased
-      if (viewArgs.displayMode != 'compact')
+      if (viewArgs.displayMode != 'compact') {
         fRect.h += this.getStyle(feature, 'marginBottom') || 0
+      }
       // if we are showing strand arrowheads, expand the frect a little
       if (this.getStyle(feature, 'strandArrow')) {
         var strand = (fRect.strandArrow = feature.get('strand'))
@@ -96,7 +101,9 @@ define([
       }
 
       // no labels or descriptions if displayMode is collapsed, so stop here
-      if (viewArgs.displayMode == 'collapsed') return fRect
+      if (viewArgs.displayMode == 'collapsed') {
+        return fRect
+      }
 
       this._expandRectangleWithLabels(viewArgs, feature, fRect)
       this._addMasksToRect(viewArgs, feature, fRect)
@@ -106,7 +113,9 @@ define([
 
     layoutFeature: function (viewArgs, layout, feature) {
       var rect = this.inherited(arguments)
-      if (!rect) return rect
+      if (!rect) {
+        return rect
+      }
 
       // need to set the top of the inner rect
       rect.rect.t = rect.t
@@ -184,13 +193,14 @@ define([
     },
 
     renderFeature: function (context, fRect) {
-      if (this.track.displayMode != 'collapsed')
+      if (this.track.displayMode != 'collapsed') {
         context.clearRect(
           Math.floor(fRect.l),
           fRect.t,
           Math.ceil(fRect.w - Math.floor(fRect.l) + fRect.l),
           fRect.h,
         )
+      }
 
       this.renderBox(
         context,
@@ -223,9 +233,12 @@ define([
       style = style || lang.hitch(this, 'getStyle')
 
       var height = this._getFeatureHeight(viewInfo, feature)
-      if (!height) return
-      if (height != overallHeight)
+      if (!height) {
+        return
+      }
+      if (height != overallHeight) {
         top += Math.round((overallHeight - height) / 2)
+      }
 
       // background
       var bgcolor = style(feature, 'color')
@@ -353,13 +366,14 @@ define([
           } else if (fLabelRecord.baseline === 'middle') {
             clearTop = labelTop - fLabelRecord.h / 2
           }
-          if (clearTop)
+          if (clearTop) {
             context.clearRect(
               labelLeft,
               clearTop,
               fLabelRecord.w,
               fLabelRecord.h,
             )
+          }
 
           context.fillText(fLabelRecord.text, labelLeft, labelTop)
         }

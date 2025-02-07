@@ -89,7 +89,7 @@ function testWithConfig(config) {
              });
 
              if( ! config.noCache ) // this test does not work under noCache because the backend is not dynamic
-                 it( 'supports feature_range_cache', function() {
+                 {it( 'supports feature_range_cache', function() {
                      var withRangeCache = new RESTStore(
                          {
                              browser: {},
@@ -137,7 +137,7 @@ function testWithConfig(config) {
                                expect( features[3].children()[1].children()[0].get('type') ).toEqual( 'SNV' );
                            });
 
-                 });
+                 });}
 
              it( 'supports feature histograms if implemented', function() {
                      expect( store.getRegionFeatureDensities ).toBeFalsy();

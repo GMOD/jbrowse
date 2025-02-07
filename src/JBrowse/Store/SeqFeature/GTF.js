@@ -60,17 +60,20 @@ define([
                 regRefName in seenRefs &&
                 prevFeature &&
                 prevFeature.seq_id != feature.seq_id
-              )
+              ) {
                 featuresSorted = false
+              }
               if (
                 prevFeature &&
                 prevFeature.seq_id == feature.seq_id &&
                 feature.start < prevFeature.start
-              )
+              ) {
                 featuresSorted = false
+              }
 
-              if (!(regRefName in seenRefs))
+              if (!(regRefName in seenRefs)) {
                 seenRefs[regRefName] = features.length
+              }
 
               features.push(feature)
             })
@@ -113,14 +116,19 @@ define([
             features[i].seq_id,
           )
 
-          if (!(regRefName in refs)) refs[regRefName] = i
+          if (!(regRefName in refs)) {
+            refs[regRefName] = i
+          }
         }
         this.refSeqs = refs
       },
 
       _compareFeatureData: function (a, b) {
-        if (a.seq_id < b.seq_id) return -1
-        else if (a.seq_id > b.seq_id) return 1
+        if (a.seq_id < b.seq_id) {
+          return -1
+        } else if (a.seq_id > b.seq_id) {
+          return 1
+        }
 
         return a.start - b.start
       },
@@ -177,7 +185,9 @@ define([
           // features are sorted by ref seq and start coord, so we
           // can stop if we are past the ref seq or the end of the
           // query region
-          if (f._reg_seq_id != refName || f.get('start') > query.end) break
+          if (f._reg_seq_id != refName || f.get('start') > query.end) {
+            break
+          }
 
           if (checkEnd(f)) {
             this.applyFeatureTransforms([f]).forEach(featureCallback)
@@ -212,7 +222,9 @@ define([
           this._featureData,
           this,
         )
-        if (sub.length) f.subfeatures = sub
+        if (sub.length) {
+          f.subfeatures = sub
+        }
 
         return f
       },

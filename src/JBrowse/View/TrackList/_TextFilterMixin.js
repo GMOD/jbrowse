@@ -29,8 +29,9 @@ define([
               this.textFilterInput.value = ''
             }
 
-            if (this.textFilterTimeout)
+            if (this.textFilterTimeout) {
               window.clearTimeout(this.textFilterTimeout)
+            }
             this.textFilterTimeout = window.setTimeout(
               lang.hitch(this, function () {
                 this._updateTextFilterControl()
@@ -74,9 +75,11 @@ define([
      * @private
      */
     _updateTextFilterControl: function () {
-      if (this.textFilterInput.value.length)
+      if (this.textFilterInput.value.length) {
         domClass.remove(this.textFilterDiv, 'dijitDisabled')
-      else domClass.add(this.textFilterDiv, 'dijitDisabled')
+      } else {
+        domClass.add(this.textFilterDiv, 'dijitDisabled')
+      }
     },
 
     _textFilter: function (text) {

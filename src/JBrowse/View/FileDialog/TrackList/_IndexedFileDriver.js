@@ -11,7 +11,9 @@ define([
         var basename = Util.basename(
           resource.file ? resource.file.name : resource.url ? resource.url : '',
         )
-        if (!basename) return false
+        if (!basename) {
+          return false
+        }
 
         // go through the configs and see if there is one for an index that seems to match
         for (var n in configs) {
@@ -62,7 +64,9 @@ define([
           resource.file ? resource.file.name : resource.url ? resource.url : '',
           '.' + this.indexExtension,
         )
-        if (!basename) return false
+        if (!basename) {
+          return false
+        }
 
         // go through the configs and look for data files that match like zee.bam -> zee.bam.bai
         for (var n in configs) {
@@ -110,7 +114,9 @@ define([
 
         configs[newName][this.indexConfKey] = this._makeBlob(resource)
         return true
-      } else return false
+      } else {
+        return false
+      }
     },
 
     // try to merge any singleton file and index stores.  currently can only do this if there is one of each
@@ -145,12 +151,14 @@ define([
       if (singletonFileCount == 1 && singletonIndexCount == 1) {
         for (var indexName in singletonIndexes) {
           for (var fileName in singletonFiles) {
-            if (singletonIndexes[indexName][this.indexUrlConfKey])
+            if (singletonIndexes[indexName][this.indexUrlConfKey]) {
               singletonFiles[fileName][this.indexUrlConfKey] =
                 singletonIndexes[indexName][this.indexUrlConfKey]
-            if (singletonIndexes[indexName][this.indexConfKey])
+            }
+            if (singletonIndexes[indexName][this.indexConfKey]) {
               singletonFiles[fileName][this.indexConfKey] =
                 singletonIndexes[indexName][this.indexConfKey]
+            }
 
             delete configs[indexName]
           }
@@ -165,7 +173,9 @@ define([
 
       // delete any remaining singleton Files, unless they are URLs
       for (var fileName in singletonFiles) {
-        if (!configs[fileName][this.fileUrlConfKey]) delete configs[fileName]
+        if (!configs[fileName][this.fileUrlConfKey]) {
+          delete configs[fileName]
+        }
       }
     },
 
@@ -175,7 +185,9 @@ define([
         : resource.url
           ? new XHRBlob(resource.url)
           : null
-      if (!r) throw 'unknown resource type'
+      if (!r) {
+        throw 'unknown resource type'
+      }
       return r
     },
 

@@ -18,13 +18,14 @@ define([
     },
 
     renderFeature: function (context, fRect) {
-      if (this.track.displayMode != 'collapsed')
+      if (this.track.displayMode != 'collapsed') {
         context.clearRect(
           Math.floor(fRect.l),
           fRect.t,
           Math.ceil(fRect.w),
           fRect.h,
         )
+      }
 
       this.renderConnector(context, fRect)
       this.renderSegments(context, fRect)
@@ -50,12 +51,15 @@ define([
 
     renderSegments(context, fRect) {
       let subparts = this._getSubparts(fRect.f)
-      if (!subparts.length) return
+      if (!subparts.length) {
+        return
+      }
 
       let parentFeature = fRect.f
       let styleFunc = (feature, stylename) => {
-        if (stylename === 'height')
+        if (stylename === 'height') {
           return this._getFeatureHeight(fRect.viewInfo, feature)
+        }
 
         return (
           this.getStyle(feature, stylename) ||
@@ -103,7 +107,9 @@ define([
             feature,
             `subSubPart_${stylename}`,
           )
-          if (subsubSpecificStyle) return subsubSpecificStyle
+          if (subsubSpecificStyle) {
+            return subsubSpecificStyle
+          }
 
           // otherwise use the main style and darken it somewhat
           let style = styleFunc(feature, stylename)
@@ -151,14 +157,16 @@ define([
     },
 
     _filterSubpart(feature) {
-      if (!this._subpartsFilter)
+      if (!this._subpartsFilter) {
         this._subpartsFilter = this._makeSubpartsFilter('subParts')
+      }
       return this._subpartsFilter(feature)
     },
 
     _filterSubSubpart(feature) {
-      if (!this._subSubpartsFilter)
+      if (!this._subSubpartsFilter) {
         this._subSubpartsFilter = this._makeSubpartsFilter('subSubParts')
+      }
 
       return this._subSubpartsFilter(feature)
     },
@@ -168,9 +176,10 @@ define([
     _makeSubpartsFilter(confKey = 'subParts') {
       let filter = this.getConf(confKey)
 
-      if (typeof filter == 'string')
+      if (typeof filter == 'string') {
         // convert to array
         filter = filter.split(/\s*,\s*/)
+      }
 
       if (Array.isArray(filter)) {
         let typeNames = filter.map(typeName => typeName.toLowerCase())

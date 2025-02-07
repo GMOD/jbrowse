@@ -38,7 +38,9 @@ define([
             }
           // if we have a non-function filter, coerce to an array,
           // then convert that array to a function
-          if (typeof filter == 'string') filter = [filter]
+          if (typeof filter == 'string') {
+            filter = [filter]
+          }
           if (dojo.isArray(filter)) {
             var oldfilter = filter
             filter = function (facetName) {
@@ -94,8 +96,9 @@ define([
           // index the track metadata from each of the stores
 
           var storeFetchFinished = dojo.hitch(this, function () {
-            if (++stores_fetched_count == args.metadataStores.length)
+            if (++stores_fetched_count == args.metadataStores.length) {
               this._finishLoad()
+            }
           })
           dojo.forEach(
             args.metadataStores,
@@ -151,7 +154,9 @@ define([
         metarecord.key = conf.key
         metarecord.conf = conf
         metarecord['track type'] = conf.type
-        if (conf.category) metarecord.category = conf.category
+        if (conf.category) {
+          metarecord.category = conf.category
+        }
         return metarecord
       },
 
@@ -163,7 +168,9 @@ define([
           var bcs = (b || 'Uncategorized').split(/\s*\/\s*/)
           var ac, bc, compresult
           while ((ac = acs.shift()) && (bc = bcs.shift())) {
-            if ((compresult = ac.localeCompare(bc))) return compresult
+            if ((compresult = ac.localeCompare(bc))) {
+              return compresult
+            }
           }
           return 0
         },
@@ -187,12 +194,14 @@ define([
 
             var name = conf.label
             var item = this.fetchItemByIdentity(name)
-            if (!item)
+            if (!item) {
               console.error(
                 'failed to add ' + name + ' track to track metadata store',
                 conf,
               )
-            else if (!suppressEvents) this.onNew(item)
+            } else if (!suppressEvents) {
+              this.onNew(item)
+            }
           },
           this,
         )
@@ -214,7 +223,9 @@ define([
             var item = this.fetchItemByIdentity(name)
             if (item) {
               item.DELETED = true
-              if (!suppressEvents) this.onDelete(item)
+              if (!suppressEvents) {
+                this.onDelete(item)
+              }
             }
           },
           this,
@@ -306,7 +317,9 @@ define([
             var newitem = {}
             dojo.forEach(itemattrs, function (attr) {
               // stores sometimes emit undef attributes  >:-{
-              if (!attr) return
+              if (!attr) {
+                return
+              }
 
               var lcattr = attr.toLowerCase()
               storeAttributes[lcattr] = true
@@ -330,8 +343,9 @@ define([
               // record for this item
               var ident = this.getIdentity(item)
               var existingItem = this.identIndex[ident]
-              if (existingItem && existingItem.DELETED)
+              if (existingItem && existingItem.DELETED) {
                 delete existingItem.DELETED
+              }
 
               // skip this item if we have already
               // seen it from this store, or if we
@@ -403,7 +417,9 @@ define([
                 use_facets,
                 function (facet) {
                   var value = this.getValue(item, facet, undefined)
-                  if (typeof value == 'undefined') return
+                  if (typeof value == 'undefined') {
+                    return
+                  }
                   gotDataForItem[facet][this.getIdentity(item)] = 1
                   this._indexItem(facet, value, item)
                 },
@@ -508,7 +524,9 @@ define([
        */
       getFacetValues: function (facetName) {
         var index = this.facetIndexes.byName[facetName]
-        if (!index) return []
+        if (!index) {
+          return []
+        }
 
         return dojof.keys(index.byValue)
       },
@@ -519,7 +537,9 @@ define([
        */
       getFacetStats: function (facetName) {
         var index = this.facetIndexes.byName[facetName]
-        if (!index) return {}
+        if (!index) {
+          return {}
+        }
 
         var stats = {}
         dojo.forEach(
@@ -565,8 +585,11 @@ define([
       loadItem: function (args) {},
 
       getItem: function (label) {
-        if (this.ready) return this.identIndex[label]
-        else return null
+        if (this.ready) {
+          return this.identIndex[label]
+        } else {
+          return null
+        }
       },
 
       // used by the dojo.data.util.simpleFetch mixin to implement fetch()
@@ -804,7 +827,9 @@ define([
 
       _countItem: function (facetMatchCounts, item, facetName) {
         var facetEntry = facetMatchCounts[facetName]
-        if (!facetEntry) facetEntry = facetMatchCounts[facetName] = {}
+        if (!facetEntry) {
+          facetEntry = facetMatchCounts[facetName] = {}
+        }
         var facets = facetName == '__other__' ? this.facets : [facetName]
         dojo.forEach(
           facets,
@@ -873,7 +898,9 @@ define([
        * @private
        */
       _compileTextFilter: function (textString) {
-        if (textString === undefined) return null
+        if (textString === undefined) {
+          return null
+        }
 
         // parse out words and quoted words, and convert each into a regexp
         var rQuotedWord = /\s*["']([^"']+)["']\s*/g

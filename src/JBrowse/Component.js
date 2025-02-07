@@ -15,8 +15,9 @@ define(['dojo/_base/declare', 'dojo/_base/lang', 'JBrowse/Util'], function (
       this._finalizeConfig(args.config)
 
       this.browser = args.browser
-      if (!this.browser)
+      if (!this.browser) {
         throw 'a reference to the main browser is required by this constructor'
+      }
 
       this.compiledConfig = {}
     },
@@ -43,8 +44,12 @@ define(['dojo/_base/declare', 'dojo/_base/lang', 'JBrowse/Util'], function (
     },
 
     _mergeConfigs: function (a, b) {
-      if (b === null) return null
-      if (a === null) a = {}
+      if (b === null) {
+        return null
+      }
+      if (a === null) {
+        a = {}
+      }
 
       for (var prop in b) {
         if (
@@ -66,13 +71,18 @@ define(['dojo/_base/declare', 'dojo/_base/lang', 'JBrowse/Util'], function (
     _compileConfigurationPath: function (path) {
       var confVal = this.config
 
-      if (typeof path == 'string') path = path.split('.')
-      while (path.length && confVal) confVal = confVal[path.shift()]
+      if (typeof path == 'string') {
+        path = path.split('.')
+      }
+      while (path.length && confVal) {
+        confVal = confVal[path.shift()]
+      }
 
-      if (path.length)
+      if (path.length) {
         return function () {
           return null
         }
+      }
 
       return typeof confVal == 'function'
         ? confVal
@@ -111,7 +121,9 @@ define(['dojo/_base/declare', 'dojo/_base/lang', 'JBrowse/Util'], function (
      */
     fillTemplate: function (str, values) {
       // skip if it's not a string or the string has no interpolations
-      if (typeof str != 'string' || str.indexOf('{') == -1) return str
+      if (typeof str != 'string' || str.indexOf('{') == -1) {
+        return str
+      }
 
       // fill in a bunch of args for this.refSeq or this.ref
       var templateFillArgs = {
@@ -130,7 +142,9 @@ define(['dojo/_base/declare', 'dojo/_base/lang', 'JBrowse/Util'], function (
           (/^0*(\d+)/.exec(templateFillArgs.refSeqNum) || [])[1] || ''
       }
 
-      if (values) lang.mixin(templateFillArgs, values)
+      if (values) {
+        lang.mixin(templateFillArgs, values)
+      }
 
       return Util.fillTemplate(str, templateFillArgs)
     },

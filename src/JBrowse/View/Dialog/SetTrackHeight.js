@@ -43,8 +43,9 @@ define([
             isNaN(height) ||
             height < this.heightConstraints.min ||
             height > this.heightConstraints.max
-          )
+          ) {
             return
+          }
           this.setCallback && this.setCallback(height)
           this.hide()
         }),

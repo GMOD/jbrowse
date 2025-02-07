@@ -26,9 +26,13 @@ define([
         // print the BED header
         this.print('track')
         if (this.track) {
-          if (this.track.name) this.print(' name="' + this.track.name + '"')
+          if (this.track.name) {
+            this.print(' name="' + this.track.name + '"')
+          }
           var metadata = this.track.getMetadata()
-          if (metadata.key) this.print(' description="' + metadata.key + '"')
+          if (metadata.key) {
+            this.print(' description="' + metadata.key + '"')
+          }
         }
         this.print(' useScore=0')
         this.print('\n')
@@ -67,7 +71,9 @@ define([
           ),
           function (data) {
             var t = typeof data
-            if (t == 'string' || t == 'number') return data
+            if (t == 'string' || t == 'number') {
+              return data
+            }
             return ''
           },
           this,

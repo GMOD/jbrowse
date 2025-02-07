@@ -11,14 +11,18 @@ define(['dojo/_base/declare'], function (declare) {
           this._originalError = args
           this.message = '' + args
           this.stack = args.stack
-        } else dojo.mixin(this, args)
+        } else {
+          dojo.mixin(this, args)
+        }
       } else if (typeof args == 'string') {
         this._originalError = new Error()
         this.message = args
         this.stack = this._originalError.stack
       }
 
-      if (!this.message) this.message = this._defaultMessage
+      if (!this.message) {
+        this.message = this._defaultMessage
+      }
     },
   })
 

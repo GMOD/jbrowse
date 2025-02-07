@@ -14,7 +14,9 @@ define([
           resource.file ? resource.file.name : resource.url ? resource.url : '',
           ['.bb'],
         )
-        if (!basename) return false
+        if (!basename) {
+          return false
+        }
 
         var newName = 'BigBed_' + basename + '_' + uniqCounter++
         configs[newName] = {
@@ -24,7 +26,9 @@ define([
           name: newName,
         }
         return true
-      } else return false
+      } else {
+        return false
+      }
     },
 
     finalizeConfiguration: function (configs) {},
@@ -35,7 +39,9 @@ define([
         : resource.url
           ? new XHRBlob(resource.url)
           : null
-      if (!r) throw 'unknown resource type'
+      if (!r) {
+        throw 'unknown resource type'
+      }
       return r
     },
 

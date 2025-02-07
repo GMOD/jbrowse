@@ -131,7 +131,9 @@ define([
           return
         }
 
-        if (blockIndex !== undefined) this.blockHeights[blockIndex] = height
+        if (blockIndex !== undefined) {
+          this.blockHeights[blockIndex] = height
+        }
 
         this.height = Math.max(this.height, height)
 
@@ -172,7 +174,9 @@ define([
         this.labelHTML = ''
         this.labelHeight = 0
 
-        if (this.config.pinned) this.setPinned(true)
+        if (this.config.pinned) {
+          this.setPinned(true)
+        }
 
         if (!this.label) {
           this.makeTrackLabel()
@@ -259,7 +263,9 @@ define([
       initBlocks: function () {
         this.blocks = new Array(this.numBlocks)
         this.blockHeights = new Array(this.numBlocks)
-        for (var i = 0; i < this.numBlocks; i++) this.blockHeights[i] = 0
+        for (var i = 0; i < this.numBlocks; i++) {
+          this.blockHeights[i] = 0
+        }
         this.firstAttached = null
         this.lastAttached = null
         this._adjustBlanks()
@@ -267,14 +273,18 @@ define([
 
       clear: function () {
         if (this.blocks) {
-          for (var i = 0; i < this.numBlocks; i++) this._hideBlock(i)
+          for (var i = 0; i < this.numBlocks; i++) {
+            this._hideBlock(i)
+          }
         }
         this.initBlocks()
         this.makeTrackMenu()
       },
 
       setLabel: function (newHTML) {
-        if (this.label === undefined || this.labelHTML == newHTML) return
+        if (this.label === undefined || this.labelHTML == newHTML) {
+          return
+        }
 
         this.labelHTML = newHTML
         query('.track-label-text', this.label).forEach(function (n) {
@@ -313,12 +323,15 @@ define([
           return
         }
 
-        if (this.blocks === undefined || !this.blocks.length) return
+        if (this.blocks === undefined || !this.blocks.length) {
+          return
+        }
 
         // this might make more sense in setViewInfo, but the label element
         // isn't in the DOM tree yet at that point
-        if (this.labelHeight == 0 && this.label)
+        if (this.labelHeight == 0 && this.label) {
           this.labelHeight = this.label.offsetHeight
+        }
 
         this.inShowRange = true
         this.height = this.labelHeight
@@ -366,8 +379,9 @@ define([
           )
         }
         // if we have a finishing callback, call it when we have finished all our _showBlock calls
-        if (finishCallback)
+        if (finishCallback) {
           Promise.all(blockShowingPromises).then(finishCallback, finishCallback)
+        }
 
         //detach left blocks
         var destBlock = this.blocks[first]
@@ -406,7 +420,9 @@ define([
       },
 
       cleanupBlock: function (block) {
-        if (block) block.destroy()
+        if (block) {
+          block.destroy()
+        }
       },
 
       /**
@@ -452,9 +468,12 @@ define([
       },
 
       hideAll: function () {
-        if (null == this.firstAttached) return
-        for (var i = this.firstAttached; i <= this.lastAttached; i++)
+        if (null == this.firstAttached) {
+          return
+        }
+        for (var i = this.firstAttached; i <= this.lastAttached; i++) {
           this._hideBlock(i)
+        }
 
         this.firstAttached = null
         this.lastAttached = null
@@ -463,9 +482,11 @@ define([
 
       // hides all blocks that overlap the given region/location
       hideRegion: function (location) {
-        if (null == this.firstAttached) return
+        if (null == this.firstAttached) {
+          return
+        }
         // hide all blocks that overlap the given region
-        for (var i = this.firstAttached; i <= this.lastAttached; i++)
+        for (var i = this.firstAttached; i <= this.lastAttached; i++) {
           if (
             this.blocks[i] &&
             location.ref == this.refSeq.name &&
@@ -473,8 +494,10 @@ define([
               this.blocks[i].leftBase > location.end ||
               this.blocks[i].rightBase < location.start
             )
-          )
+          ) {
             this._hideBlock(i)
+          }
+        }
 
         this._adjustBlanks()
       },
@@ -485,7 +508,9 @@ define([
        */
       changed: function () {
         this.hideAll()
-        if (this._changedCallback) this._changedCallback()
+        if (this._changedCallback) {
+          this._changedCallback()
+        }
       },
 
       _makeLoadingMessage: function () {
@@ -524,34 +549,36 @@ define([
 
         var isObject = typeof error == 'object'
 
-        if (isObject && error instanceof Errors.TimeOut && errorContext.block)
+        if (isObject && error instanceof Errors.TimeOut && errorContext.block) {
           this.fillBlockTimeout(
             errorContext.blockIndex,
             errorContext.block,
             error,
           )
-        else if (isObject && error instanceof Errors.DataOverflow) {
-          if (errorContext.block)
+        } else if (isObject && error instanceof Errors.DataOverflow) {
+          if (errorContext.block) {
             this.fillTooManyFeaturesMessage(
               errorContext.blockIndex,
               errorContext.block,
               viewArgs.scale,
               error,
             )
-          else
+          } else {
             array.forEach(
               this.blocks,
               function (block, blockIndex) {
-                if (block)
+                if (block) {
                   this.fillTooManyFeaturesMessage(
                     blockIndex,
                     block,
                     viewArgs.scale,
                     error,
                   )
+                }
               },
               this,
             )
+          }
         } else {
           console.error(error.stack || '' + error, error)
           this.fatalError = error
@@ -608,7 +635,9 @@ define([
       },
 
       markBlockHeightOverflow: function (block) {
-        if (block.heightOverflowed) return
+        if (block.heightOverflowed) {
+          return
+        }
 
         block.heightOverflowed = true
         domClass.add(block.domNode, 'height_overflow')
@@ -637,13 +666,17 @@ define([
       ) {
         if (this.empty || this.fatalError) {
           this.heightUpdate(this.labelHeight)
-          if (finishCallback) finishCallback()
+          if (finishCallback) {
+            finishCallback()
+          }
           return
         }
 
         if (this.blocks[blockIndex]) {
           this.heightUpdate(this.blockHeights[blockIndex], blockIndex)
-          if (finishCallback) finishCallback()
+          if (finishCallback) {
+            finishCallback()
+          }
           return
         }
 
@@ -677,7 +710,9 @@ define([
 
         if (this.fatalError) {
           this.fillBlockError(blockIndex, block)
-          if (finishCallback) finishCallback()
+          if (finishCallback) {
+            finishCallback()
+          }
           return
         }
 
@@ -687,9 +722,12 @@ define([
         block.domNode.appendChild(loadMessage)
 
         var finish = function () {
-          if (block && loadMessage.parentNode)
+          if (block && loadMessage.parentNode) {
             block.domNode.removeChild(loadMessage)
-          if (finishCallback) finishCallback()
+          }
+          if (finishCallback) {
+            finishCallback()
+          }
         }
 
         var viewargs = {
@@ -717,7 +755,9 @@ define([
         var newBlocks = new Array(this.numBlocks)
         var newHeights = new Array(this.numBlocks)
         var i
-        for (i = 0; i < this.numBlocks; i++) newHeights[i] = 0
+        for (i = 0; i < this.numBlocks; i++) {
+          newHeights[i] = 0
+        }
 
         var destBlock
         if (
@@ -735,8 +775,11 @@ define([
             0,
             Math.min(this.numBlocks - 1, this.lastAttached + delta),
           )
-          if (delta < 0) destBlock = this.blocks[this.firstAttached - delta]
-          else destBlock = this.blocks[this.lastAttached - delta]
+          if (delta < 0) {
+            destBlock = this.blocks[this.firstAttached - delta]
+          } else {
+            destBlock = this.blocks[this.lastAttached - delta]
+          }
         }
 
         for (i = 0; i < this.blocks.length; i++) {
@@ -744,15 +787,17 @@ define([
           if (newIndex < 0 || newIndex >= this.numBlocks) {
             //We're not keeping this block around, so delete
             //the old one.
-            if (destBlock && this.blocks[i])
+            if (destBlock && this.blocks[i]) {
               this.transfer(this.blocks[i], destBlock)
+            }
             this._hideBlock(i)
           } else {
             //move block
             newBlocks[newIndex] = this.blocks[i]
-            if (newBlocks[newIndex])
+            if (newBlocks[newIndex]) {
               newBlocks[newIndex].domNode.style.left =
                 newIndex * this.widthPct + '%'
+            }
 
             newHeights[newIndex] = this.blockHeights[i]
           }
@@ -766,13 +811,16 @@ define([
         var i, oldLast
         this.numBlocks = numBlocks
         this.widthPct = widthPct
-        if (blockDelta) this.moveBlocks(-blockDelta)
+        if (blockDelta) {
+          this.moveBlocks(-blockDelta)
+        }
         if (this.blocks && this.blocks.length > 0) {
           //if we're shrinking, clear out the end blocks
           var destBlock = this.blocks[numBlocks - 1]
           for (i = numBlocks; i < this.blocks.length; i++) {
-            if (destBlock && this.blocks[i])
+            if (destBlock && this.blocks[i]) {
               this.transfer(this.blocks[i], destBlock)
+            }
             this._hideBlock(i)
           }
           oldLast = this.blocks.length
@@ -790,13 +838,14 @@ define([
             this.lastAttached = null
           }
 
-          if (this.blocks.length != numBlocks)
+          if (this.blocks.length != numBlocks) {
             throw new Error(
               'block number mismatch: should be ' +
                 numBlocks +
                 '; blocks.length: ' +
                 this.blocks.length,
             )
+          }
 
           for (i = 0; i < numBlocks; i++) {
             if (this.blocks[i]) {
@@ -838,12 +887,15 @@ define([
         if (this.fatalErrorMessageElement) {
           this.fatalErrorMessageElement.style.width =
             this.window_info.width * 0.6 + 'px'
-          if ('x' in coords)
+          if ('x' in coords) {
             this.fatalErrorMessageElement.style.left =
               coords.x + this.window_info.width * 0.2 + 'px'
+          }
         }
 
-        if (this.label && 'x' in coords) this.label.style.left = coords.x + 'px'
+        if (this.label && 'x' in coords) {
+          this.label.style.left = coords.x + 'px'
+        }
       },
 
       /**
@@ -887,7 +939,9 @@ define([
               // only draw other menu items if they do something when clicked.
               // drawing menu items that do nothing when clicked
               // would frustrate users.
-              if (menuConf.label && !menuConf.onClick) menuConf.disabled = true
+              if (menuConf.label && !menuConf.onClick) {
+                menuConf.disabled = true
+              }
 
               // currently can only use preloaded types
               var class_ =
@@ -923,7 +977,9 @@ define([
         }
 
         var handler = function (evt) {
-          if (track.genomeView.dragging) return
+          if (track.genomeView.dragging) {
+            return
+          }
 
           var ctx = context || this
           var spec = track._processMenuSpec(dojo.clone(inputSpec), ctx)
@@ -954,9 +1010,11 @@ define([
               navigateto: 'navigateTo',
             }[('' + spec.action).toLowerCase()]
 
-            if (spec.action == 'newWindow') window.open(url, '_blank')
-            else if (spec.action == 'navigateTo') window.location = url
-            else if (
+            if (spec.action == 'newWindow') {
+              window.open(url, '_blank')
+            } else if (spec.action == 'navigateTo') {
+              window.location = url
+            } else if (
               spec.action in
               {
                 iframeDialog: 1,
@@ -964,8 +1022,9 @@ define([
                 xhrDialog: 1,
                 bareDialog: 1,
               }
-            )
+            ) {
               track._openDialog(spec, evt, ctx)
+            }
           } else if (typeof spec.action == 'function') {
             spec.action.call(ctx, evt)
           } else {
@@ -975,7 +1034,9 @@ define([
 
         // if there is a label, set it on the handler so that it's
         // accessible for tooltips or whatever.
-        if (inputSpec.label) handler.label = inputSpec.label
+        if (inputSpec.label) {
+          handler.label = inputSpec.label
+        }
 
         return handler
       },
@@ -993,7 +1054,9 @@ define([
         var metadata = lang.clone(this.getMetadata())
         delete metadata.key
         delete metadata.label
-        if (typeof metadata.conf == 'object') delete metadata.conf
+        if (typeof metadata.conf == 'object') {
+          delete metadata.conf
+        }
         if (
           this.browser &&
           this.browser.config &&
@@ -1045,8 +1108,11 @@ define([
       setPinned: function (p) {
         this.config.pinned = !!p
 
-        if (this.config.pinned) domClass.add(this.div, 'pinned')
-        else domClass.remove(this.div, 'pinned')
+        if (this.config.pinned) {
+          domClass.add(this.div, 'pinned')
+        } else {
+          domClass.remove(this.div, 'pinned')
+        }
 
         return this.config.pinned
       },
@@ -1102,10 +1168,11 @@ define([
                 title: 'Delete track?',
                 message: 'Really delete this track?',
               }).show(function (confirmed) {
-                if (confirmed)
+                if (confirmed) {
                   that.browser.publish('/jbrowse/v1/v/tracks/delete', [
                     that.config,
                   ])
+                }
               })
             },
           },
@@ -1115,13 +1182,14 @@ define([
       _processMenuSpec: function (spec, context) {
         for (var x in spec) {
           if (spec.hasOwnProperty(x)) {
-            if (typeof spec[x] == 'object')
+            if (typeof spec[x] == 'object') {
               spec[x] = this._processMenuSpec(spec[x], context)
-            else
+            } else {
               spec[x] = this.template(
                 context.feature,
                 this._evalConf(context, spec[x], x),
               )
+            }
           }
         }
         return spec
@@ -1185,30 +1253,38 @@ define([
             (featureName ? featureName + ' details' : 'Details'),
           style: dojo.clone(spec.style || {}),
         }
-        if (spec.dialog) declare.safeMixin(dialogOpts, spec.dialog)
+        if (spec.dialog) {
+          declare.safeMixin(dialogOpts, spec.dialog)
+        }
 
         var dialog
 
         function setContent(dialog, content) {
           // content can be a promise or Deferred
-          if (typeof content.then == 'function')
+          if (typeof content.then == 'function') {
             content.then(function (c) {
               dialog.set('content', c)
             })
+          }
           // or maybe it's just a regular object
-          else dialog.set('content', content)
+          else {
+            dialog.set('content', content)
+          }
         }
 
         // if dialog == xhr, open the link in a dialog
         // with the html from the URL just shoved in it
         if (type == 'xhr' || type == 'content') {
-          if (type == 'xhr') dialogOpts.href = spec.url
+          if (type == 'xhr') {
+            dialogOpts.href = spec.url
+          }
 
           dialog = new InfoDialog(dialogOpts)
           context.dialog = dialog
 
-          if (type == 'content')
+          if (type == 'content') {
             setContent(dialog, this._evalConf(context, spec.content, null))
+          }
 
           Util.removeAttribute(context, 'dialog')
         } else if (type == 'bare') {
@@ -1287,14 +1363,17 @@ define([
        * with whatever is returned by obj.get('foo')
        */
       template: function (/** Object */ obj, /** String */ template) {
-        if (typeof template != 'string' || !obj) return template
+        if (typeof template != 'string' || !obj) {
+          return template
+        }
 
         var valid = true
         if (template) {
           return template.replace(/\{([^}]+)\}/g, function (match, group) {
             var val = obj ? obj.get(group.toLowerCase()) : undefined
-            if (val !== undefined) return val
-            else {
+            if (val !== undefined) {
+              return val
+            } else {
               return ''
             }
           })
@@ -1316,7 +1395,9 @@ define([
             thisB.labelMenuButton
           ) {
             // remove our old track menu if we have one
-            if (thisB.trackMenu) thisB.trackMenu.destroyRecursive()
+            if (thisB.trackMenu) {
+              thisB.trackMenu.destroyRecursive()
+            }
 
             // render and bind our track menu
             var menu = thisB._renderContextMenu(options, {
@@ -1358,7 +1439,9 @@ define([
               array.forEach(
                 books.features,
                 function (bookmark) {
-                  if (bookmark.ref != this.refSeq.name) return
+                  if (bookmark.ref != this.refSeq.name) {
+                    return
+                  }
                   var loc = new Location(
                     bookmark.refseq +
                       ':' +
@@ -1385,7 +1468,9 @@ define([
           array.forEach(
             bookmarks.features,
             function (bookmark) {
-              if (bookmark.ref != this.refSeq.name) return
+              if (bookmark.ref != this.refSeq.name) {
+                return
+              }
               var loc = new Location(
                 bookmark.refseq + ':' + bookmark.start + '..' + bookmark.end,
               )
@@ -1404,8 +1489,9 @@ define([
 
       renderRegionHighlight: function (args, highlight, color, label, rlabel) {
         // do nothing if the highlight does not overlap this region
-        if (highlight.start > args.rightBase || highlight.end < args.leftBase)
+        if (highlight.start > args.rightBase || highlight.end < args.leftBase) {
           return
+        }
 
         var block_span = args.rightBase - args.leftBase
 

@@ -70,7 +70,9 @@ define([
       array.forEach(
         fRects,
         function (fRect) {
-          if (!fRect) return
+          if (!fRect) {
+            return
+          }
 
           // by ID
           byID[fRect.f.id()] = fRect
@@ -155,11 +157,12 @@ define([
           events: {
             contextmenu: function (feature, fRect, block, track, evt) {
               evt = domEvent.fix(evt)
-              if (fRect && fRect.contextMenu)
+              if (fRect && fRect.contextMenu) {
                 fRect.contextMenu._openMyself({
                   target: block.featureCanvas,
                   coords: { x: evt.pageX, y: evt.pageY },
                 })
+              }
               domEvent.stop(evt)
             },
           },
@@ -259,10 +262,13 @@ define([
         // or a Box otherwise
         if (!guess) {
           let children = feature.children()
-          if (children && children.length) guess = 'Segments'
-          else if (feature.get('block_count') || feature.get('thick_start'))
+          if (children && children.length) {
+            guess = 'Segments'
+          } else if (feature.get('block_count') || feature.get('thick_start')) {
             guess = 'UCSC/BED'
-          else guess = 'Box'
+          } else {
+            guess = 'Box'
+          }
         }
 
         return 'JBrowse/View/FeatureGlyph/' + guess
@@ -349,7 +355,9 @@ define([
           (this.config.histograms.store || this.store.getRegionFeatureDensities)
         ) {
           this.fillHistograms(viewArgs)
-        } else this.inherited(arguments)
+        } else {
+          this.inherited(arguments)
+        }
       },
 
       // create the layout if we need to, and if we can
@@ -404,7 +412,9 @@ define([
               return
             }
             // if this require came back after we are already destroyed, just ignore it
-            if (thisB.destroyed) return
+            if (thisB.destroyed) {
+              return
+            }
 
             glyph = thisB.glyphsLoaded[glyphClassName] = new GlyphClass({
               track: thisB,
@@ -533,8 +543,9 @@ define([
             (histData.bins &&
               (features = this._histBinsToFeatures(viewArgs, histData)))
           )
-        )
+        ) {
           return
+        }
 
         var block = viewArgs.block
         var height = this.config.histograms.height
@@ -605,8 +616,9 @@ define([
           this.yscale_params.height == height &&
           this.yscale_params.max == maxVal &&
           this.yscale_params.min == minVal
-        )
+        ) {
           return
+        }
 
         this.yscale_params = {
           height: height,
@@ -661,7 +673,9 @@ define([
         }
 
         const featCallback = feature => {
-          if (this.destroyed || !this.filterFeature(feature)) return
+          if (this.destroyed || !this.filterFeature(feature)) {
+            return
+          }
           fRects.push(null) // put a placeholder in the fRects array
           featuresInProgress++
           var rectNumber = fRects.length - 1
@@ -682,8 +696,9 @@ define([
                 block.maxHeightExceeded = true
               } else {
                 // laid out successfully
-                if (!(fRect.l >= blockWidthPx || fRect.l + fRect.w < 0))
+                if (!(fRect.l >= blockWidthPx || fRect.l + fRect.w < 0)) {
                   fRects[rectNumber] = fRect
+                }
               }
 
               // this might happen after all the features have been sent from the store
@@ -700,7 +715,9 @@ define([
           featCallback,
           // callback when all features sent
           () => {
-            if (this.destroyed) return
+            if (this.destroyed) {
+              return
+            }
 
             allFeaturesRead = true
             if (!featuresInProgress && !featuresLaidOut.isFulfilled()) {
@@ -729,7 +746,9 @@ define([
               // scale the canvas to work well with the various device pixel ratios
               this._scaleCanvas(c)
 
-              if (block.maxHeightExceeded) this.markBlockHeightOverflow(block)
+              if (block.maxHeightExceeded) {
+                this.markBlockHeightOverflow(block)
+              }
 
               this.heightUpdate(totalHeight, blockIndex)
 
@@ -842,7 +861,9 @@ define([
       },
 
       _makeLabelTooltip: function () {
-        if (!this.showTooltips || this.labelTooltip) return
+        if (!this.showTooltips || this.labelTooltip) {
+          return
+        }
 
         var labelTooltip = (this.labelTooltip = domConstruct.create(
           'div',
@@ -917,7 +938,9 @@ define([
       },
 
       getRenderingContext: function (viewArgs) {
-        if (!viewArgs.block || !viewArgs.block.featureCanvas) return null
+        if (!viewArgs.block || !viewArgs.block.featureCanvas) {
+          return null
+        }
         try {
           var ctx = viewArgs.block.featureCanvas.getContext('2d')
           // ctx.translate( viewArgs.block.offsetLeft - this.featureCanvas.offsetLeft, 0 );
@@ -935,7 +958,9 @@ define([
         if (context) {
           var thisB = this
           array.forEach(fRects, function (fRect) {
-            if (fRect) thisB.renderFeature(context, fRect)
+            if (fRect) {
+              thisB.renderFeature(context, fRect)
+            }
           })
         }
       },
@@ -944,38 +969,56 @@ define([
       // all blocks.  if feature is undefined or null, unhighlight any currently
       // highlighted feature
       mouseoverFeature: function (feature, evt) {
-        if (this.lastMouseover == feature) return
+        if (this.lastMouseover == feature) {
+          return
+        }
 
-        if (evt) var bpX = this.browser.view.absXtoBp(evt.clientX)
+        if (evt) {
+          var bpX = this.browser.view.absXtoBp(evt.clientX)
+        }
 
-        if (this.labelTooltip) this.labelTooltip.style.display = 'none'
+        if (this.labelTooltip) {
+          this.labelTooltip.style.display = 'none'
+        }
 
         array.forEach(
           this.blocks,
           function (block, i) {
-            if (!block) return
+            if (!block) {
+              return
+            }
             var context = this.getRenderingContext({
               block: block,
               leftBase: block.startBase,
               scale: block.scale,
             })
-            if (!context) return
+            if (!context) {
+              return
+            }
 
             if (this.lastMouseover && block.fRectIndex) {
               var r = block.fRectIndex.getByID(this.lastMouseover.id())
-              if (r) this.renderFeature(context, r)
+              if (r) {
+                this.renderFeature(context, r)
+              }
             }
 
-            if (block.tooltipTimeout) window.clearTimeout(block.tooltipTimeout)
+            if (block.tooltipTimeout) {
+              window.clearTimeout(block.tooltipTimeout)
+            }
 
             if (feature) {
               var fRect =
                 block.fRectIndex && block.fRectIndex.getByID(feature.id())
-              if (!fRect) return
+              if (!fRect) {
+                return
+              }
 
               if (block.containsBp(bpX)) {
                 var renderTooltip = dojo.hitch(this, function () {
-                  if (!this.labelTooltip) return
+                  if (!this.labelTooltip) {
+                    return
+                  }
 
                   var context = lang.mixin({
                     track: this,
@@ -1010,7 +1053,9 @@ define([
                       text,
                     )
 
-                  if (!label && !description) return
+                  if (!label && !description) {
+                    return
+                  }
 
                   if (!this.ignoreTooltipTimeout) {
                     this.labelTooltip.style.left = evt.clientX + 'px'
@@ -1061,9 +1106,11 @@ define([
                     descriptionSpan.innerHTML = '(no description)'
                   }
                 })
-                if (this.ignoreTooltipTimeout) renderTooltip()
-                else
+                if (this.ignoreTooltipTimeout) {
+                  renderTooltip()
+                } else {
                   block.tooltipTimeout = window.setTimeout(renderTooltip, 600)
+                }
               }
 
               fRect.glyph.mouseoverFeature(context, fRect)
@@ -1087,8 +1134,9 @@ define([
         this.inherited(arguments)
 
         // garbage collect the layout
-        if (block && this.layout)
+        if (block && this.layout) {
           this.layout.discardRange(block.startBase, block.endBase)
+        }
       },
 
       // draw each feature
@@ -1196,7 +1244,9 @@ define([
           }
 
           this.blocks.forEach(block => {
-            if (!block || !block.fRectIndex || this.zooming) return
+            if (!block || !block.fRectIndex || this.zooming) {
+              return
+            }
 
             var idx = block.fRectIndex.byID
             for (var id in idx) {

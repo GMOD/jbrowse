@@ -19,7 +19,9 @@ define(['dojo/_base/declare', 'dojo/_base/lang'], function (declare, lang) {
     _getFeatureDescriptiveThing: function (field, defaultFields, feature) {
       var dConf = this.config.style[field] || this.config[field]
 
-      if (!dConf) return null
+      if (!dConf) {
+        return null
+      }
 
       // if the description is a function, just call it
       if (typeof dConf == 'function') {
@@ -27,7 +29,9 @@ define(['dojo/_base/declare', 'dojo/_base/lang'], function (declare, lang) {
       }
       // otherwise try to parse it as a field list
       else {
-        if (!this.descriptionFields) this.descriptionFields = {}
+        if (!this.descriptionFields) {
+          this.descriptionFields = {}
+        }
 
         // parse our description varname conf if necessary
         var fields =
@@ -58,7 +62,9 @@ define(['dojo/_base/declare', 'dojo/_base/lang'], function (declare, lang) {
         // return the value of the first field that contains something
         for (var i = 0; i < fields.length; i++) {
           var d = feature.get(fields[i])
-          if (d) return d
+          if (d) {
+            return d
+          }
         }
         return null
       }

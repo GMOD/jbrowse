@@ -120,8 +120,9 @@ define([
                   this.applyFeatureTransforms([
                     this.lineToFeature(metadata.columnNumbers, line),
                   ]).forEach(f => {
-                    if (this.config.featureCallback)
+                    if (this.config.featureCallback) {
                       f = this.config.featureCallback(f)
+                    }
                     featureCallback(f)
                   })
                 },
@@ -136,7 +137,9 @@ define([
                   error = new Errors.DataOverflow(error.message)
                 }
                 errorCallback(error)
-              } else console.error(error)
+              } else {
+                console.error(error)
+              }
             })
         }, errorCallback)
       },

@@ -28,8 +28,9 @@ define([
         this.renderGridlines(args.block, args.leftBase, args.rightBase)
 
         var highlight = this.browser.getHighlight()
-        if (highlight && highlight.ref == this.refSeq.name)
+        if (highlight && highlight.ref == this.refSeq.name) {
           this.renderRegionHighlight(args, highlight)
+        }
 
         var bookmarks = this.browser.getBookmarks()
         if (bookmarks) {

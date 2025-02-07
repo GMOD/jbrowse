@@ -102,8 +102,12 @@ define([], function () {
       for (var f = 0; f < classes[cl].attributes.length; f++) {
         this.fields[cl][classes[cl].attributes[f]] = f + 1
       }
-      if (classes[cl].proto === undefined) classes[cl].proto = {}
-      if (classes[cl].isArrayAttr === undefined) classes[cl].isArrayAttr = {}
+      if (classes[cl].proto === undefined) {
+        classes[cl].proto = {}
+      }
+      if (classes[cl].isArrayAttr === undefined) {
+        classes[cl].isArrayAttr = {}
+      }
     }
   }
 
@@ -131,8 +135,9 @@ define([], function () {
       } else {
         var adhocIndex = this.classes[obj[0]].attributes.length + 1
         if (adhocIndex >= obj.length || !(attr in obj[adhocIndex])) {
-          if (attr in this.classes[obj[0]].proto)
+          if (attr in this.classes[obj[0]].proto) {
             return this.classes[obj[0]].proto[attr]
+          }
           return undefined
         }
         return obj[adhocIndex][attr]
@@ -150,7 +155,9 @@ define([], function () {
         obj[this.fields[obj[0]][lcattr]] = val
       } else {
         var adhocIndex = this.classes[obj[0]].attributes.length + 1
-        if (adhocIndex >= obj.length) obj[adhocIndex] = {}
+        if (adhocIndex >= obj.length) {
+          obj[adhocIndex] = {}
+        }
         obj[adhocIndex][attr] = val
       }
     }
@@ -175,7 +182,9 @@ define([], function () {
     // the "classes" array for this object
     var indices = this.attrIndices(attr)
     return function (obj, val) {
-      if (indices[obj[0]] !== undefined) obj[indices[obj[0]]] = val
+      if (indices[obj[0]] !== undefined) {
+        obj[indices[obj[0]]] = val
+      }
     }
   }
 
@@ -184,8 +193,11 @@ define([], function () {
     // the "classes" array for this object
     var indices = this.attrIndices(attr)
     return function (obj) {
-      if (indices[obj[0]] !== undefined) return obj[indices[obj[0]]]
-      else return undefined
+      if (indices[obj[0]] !== undefined) {
+        return obj[indices[obj[0]]]
+      } else {
+        return undefined
+      }
     }
   }
 
@@ -230,13 +242,19 @@ console.log( feature.get('start') + ',' + feature.get('end') );
       accessors = {
         get: function (field) {
           var f = this.get.field_accessors[field.toLowerCase()]
-          if (f) return f.call(this)
-          else return undefined
+          if (f) {
+            return f.call(this)
+          } else {
+            return undefined
+          }
         },
         set: function (field, val) {
           var f = this.set.field_accessors[field]
-          if (f) return f.call(this, val)
-          else return undefined
+          if (f) {
+            return f.call(this, val)
+          } else {
+            return undefined
+          }
         },
         tags: function () {
           return tags[this[0]] || []
@@ -267,7 +285,9 @@ console.log( feature.get('start') + ',' + feature.get('end') );
 
     // use that to make precalculated get and set accessors for each field
     for (var attrname in indices) {
-      if (!indices.hasOwnProperty(attrname)) continue
+      if (!indices.hasOwnProperty(attrname)) {
+        continue
+      }
 
       // get
       accessors.get.field_accessors[attrname] = (function () {

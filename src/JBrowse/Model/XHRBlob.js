@@ -69,10 +69,11 @@ define([
     return getfetch(url, headers).then(
       res => {
         const responseDate = new Date()
-        if (res.status !== 206 && res.status !== 200)
+        if (res.status !== 206 && res.status !== 200) {
           throw new Error(
             `HTTP ${res.status} when fetching ${url} bytes ${start}-${end}`,
           )
+        }
 
         // translate the Headers object into a regular key -> value object.
         // will miss duplicate headers of course
@@ -221,7 +222,9 @@ define([
             buffer.byteOffset + buffer.byteLength,
           )
           callback(arrayBuffer)
-        } else throw new Error('could not convert response to ArrayBuffer')
+        } else {
+          throw new Error('could not convert response to ArrayBuffer')
+        }
       },
 
       read(offset = 0, length, callback, failCallback) {

@@ -20,41 +20,49 @@ define([
      */
     constructor: function (args) {
       let dataBlob
-      if (args.bgzfa) dataBlob = new BlobFilehandleWrapper(args.bgzfa)
-      else if (args.urlTemplate)
+      if (args.bgzfa) {
+        dataBlob = new BlobFilehandleWrapper(args.bgzfa)
+      } else if (args.urlTemplate) {
         dataBlob = new BlobFilehandleWrapper(
           new XHRBlob(this.resolveUrl(args.urlTemplate), {
             expectRanges: true,
           }),
         )
-      else
+      } else {
         dataBlob = new BlobFilehandleWrapper(
           new XHRBlob('data.fa', { expectRanges: true }),
         )
+      }
 
       let indexBlob
-      if (args.fai) indexBlob = new BlobFilehandleWrapper(args.fai)
-      else if (args.faiUrlTemplate)
+      if (args.fai) {
+        indexBlob = new BlobFilehandleWrapper(args.fai)
+      } else if (args.faiUrlTemplate) {
         indexBlob = new BlobFilehandleWrapper(
           new XHRBlob(this.resolveUrl(args.faiUrlTemplate)),
         )
-      else if (args.urlTemplate)
+      } else if (args.urlTemplate) {
         indexBlob = new BlobFilehandleWrapper(
           new XHRBlob(this.resolveUrl(args.urlTemplate + '.fai')),
         )
-      else throw new Error('no index provided, must provide a FASTA index')
+      } else {
+        throw new Error('no index provided, must provide a FASTA index')
+      }
 
       let gziBlob
-      if (args.gzi) gziBlob = new BlobFilehandleWrapper(args.gzi)
-      else if (args.gziUrlTemplate)
+      if (args.gzi) {
+        gziBlob = new BlobFilehandleWrapper(args.gzi)
+      } else if (args.gziUrlTemplate) {
         gziBlob = new BlobFilehandleWrapper(
           new XHRBlob(this.resolveUrl(args.gziUrlTemplate)),
         )
-      else if (args.urlTemplate)
+      } else if (args.urlTemplate) {
         gziBlob = new BlobFilehandleWrapper(
           new XHRBlob(this.resolveUrl(args.urlTemplate + '.gzi')),
         )
-      else throw new Error('no gzi index provided, must provide a GZI index')
+      } else {
+        throw new Error('no gzi index provided, must provide a GZI index')
+      }
 
       this.source = dataBlob.toString()
 

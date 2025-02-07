@@ -75,7 +75,9 @@ define([
       var coverageBins = new Array(binMax)
       for (var i = 0; i < binMax; i++) {
         coverageBins[i] = new NestedFrequencyTable()
-        if (binWidth == 1) coverageBins[i].snpsCounted = true
+        if (binWidth == 1) {
+          coverageBins[i].snpsCounted = true
+        }
       }
 
       function forEachBin(start, end, callback) {
@@ -84,23 +86,29 @@ define([
         var sb = Math.floor(s),
           eb = Math.floor(e)
 
-        if (sb >= binMax || eb < 0) return // does not overlap this block
+        if (sb >= binMax || eb < 0) {
+          return
+        } // does not overlap this block
 
         // enforce 0 <= bin < binMax
-        if (sb < 0) s = sb = 0
+        if (sb < 0) {
+          s = sb = 0
+        }
         if (eb >= binMax) {
           eb = binMax - 1
           e = binMax
         }
 
         // now iterate
-        if (sb == eb)
+        if (sb == eb) {
           // if in the same bin, just one call
           callback(sb, e - s)
-        else {
+        } else {
           // if in different bins, two or more calls
           callback(sb, sb + 1 - s)
-          for (var i = sb + 1; i < eb; i++) callback(i, 1)
+          for (var i = sb + 1; i < eb; i++) {
+            callback(i, 1)
+          }
           callback(eb, e - eb)
         }
       }
@@ -108,7 +116,9 @@ define([
       thisB.store.getFeatures(
         query,
         function (feature) {
-          if (!thisB.filter(feature)) return
+          if (!thisB.filter(feature)) {
+            return
+          }
 
           var strand =
             { '-1': '-', 1: '+' }['' + feature.get('strand')] || 'unstranded'
@@ -138,8 +148,11 @@ define([
                   var bin = coverageBins[binNumber]
                   bin.getNested('reference').decrement(strand, overlap)
                   var base = mismatch.base
-                  if (mismatch.type == 'insertion') base = 'ins ' + base
-                  else if (mismatch.type == 'skip') base = 'skip'
+                  if (mismatch.type == 'insertion') {
+                    base = 'ins ' + base
+                  } else if (mismatch.type == 'skip') {
+                    base = 'skip'
+                  }
                   bin.getNested(base).increment(strand, overlap)
                 },
               )
@@ -178,8 +191,9 @@ define([
                     if (sequence) {
                       for (var base = leftBase; base <= rightBase; base++) {
                         var bin = binNumber(base)
-                        if (coverageBins[bin])
+                        if (coverageBins[bin]) {
                           coverageBins[bin].refBase = sequence[bin]
+                        }
                       }
                     }
                     makeFeatures()

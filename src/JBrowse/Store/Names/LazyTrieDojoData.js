@@ -23,7 +23,9 @@ define([
        * @param args.tooManyMatchesMessage
        */
       constructor: function (/**Object*/ args) {
-        if (!args.namesTrie) throw 'must provide a namesTrie argument'
+        if (!args.namesTrie) {
+          throw 'must provide a namesTrie argument'
+        }
 
         this.namesTrie = args.namesTrie
 
@@ -99,9 +101,13 @@ define([
           }
         }.call(this)
 
-        if (!request.store) request.store = this
+        if (!request.store) {
+          request.store = this
+        }
 
-        if (request.onBegin) request.onBegin.call(scope, 0, request)
+        if (request.onBegin) {
+          request.onBegin.call(scope, 0, request)
+        }
 
         var prefix = (request.query.name || '').toString().replace(/\*$/, '')
 
@@ -111,7 +117,9 @@ define([
             dojo.hitch(this, function (tree) {
               var matches = []
 
-              if (aborted) return
+              if (aborted) {
+                return
+              }
 
               // are we working with a post-JBrowse 1.4 data structure?
               var post1_4 =
@@ -151,22 +159,28 @@ define([
               )
 
               // if we found more than the match limit
-              if (matchesRemaining < 0)
+              if (matchesRemaining < 0) {
                 matches.push({
                   name: this.tooManyMatchesMessage,
                   hitLimit: true,
                 })
+              }
 
-              if (request.sort)
+              if (request.sort) {
                 matches.sort(
                   dojo.data.util.sorter.createSortFunction(request.sort, this),
                 )
-              if (!aborted && request.onItem)
+              }
+              if (!aborted && request.onItem) {
                 dojo.forEach(matches, function (item) {
-                  if (!aborted) request.onItem.call(scope, item, request)
+                  if (!aborted) {
+                    request.onItem.call(scope, item, request)
+                  }
                 })
-              if (!aborted && request.onComplete)
+              }
+              if (!aborted && request.onComplete) {
                 request.onComplete.call(scope, matches, request)
+              }
             }),
           )
         } else if (request.onComplete) {

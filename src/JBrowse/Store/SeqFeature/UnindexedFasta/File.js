@@ -84,13 +84,15 @@ define([
             fastaString += String.fromCharCode(bytes[i])
           }
 
-          if (!(fastaString && fastaString.length))
+          if (!(fastaString && fastaString.length)) {
             failCallback('Could not read file: ' + fastaFile.name)
-          else {
+          } else {
             var data = this.parseString(fastaString)
-            if (!data.length)
+            if (!data.length) {
               failCallback('File contained no (FASTA) sequences')
-            else successCallback(data)
+            } else {
+              successCallback(data)
+            }
           }
         }),
         failCallback,
@@ -100,9 +102,10 @@ define([
     parseString: function (fastaString) {
       var data = []
       var addSeq = function (s) {
-        if ('name' in s && s.seq.length)
+        if ('name' in s && s.seq.length) {
           // ignore empty sequences
           data.push(s)
+        }
       }
       var current = { seq: '' }
       var lines = fastaString.match(/^.*((\r\n|\n|\r)|$)/gm) // this is wasteful, maybe try to avoid storing split lines separately later
@@ -112,7 +115,9 @@ define([
         if ((m = /^>(\S*)/.exec(lines[i]))) {
           addSeq(current)
           current = { seq: '' }
-          if (m[1].length) current.name = m[1]
+          if (m[1].length) {
+            current.name = m[1]
+          }
         } else if ((m = /^\s*(\S+)\s*$/.exec(lines[i]))) {
           current.seq += m[1]
         }

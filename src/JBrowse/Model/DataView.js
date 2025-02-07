@@ -50,7 +50,9 @@ define([], function () {
    */
   DataView.prototype.getUint64 = function (byteOffset, littleEndian) {
     var result = this.getUint64Approx(byteOffset, littleEndian)
-    if (result.overflow) throw new Error('integer overflow')
+    if (result.overflow) {
+      throw new Error('integer overflow')
+    }
     return result
   }
 

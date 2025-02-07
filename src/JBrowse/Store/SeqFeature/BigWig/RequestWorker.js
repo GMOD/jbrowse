@@ -276,7 +276,9 @@ define([
           end: fmax,
         }
 
-        for (var k in opts) data[k] = opts[k]
+        for (var k in opts) {
+          data[k] = opts[k]
+        }
 
         var id = data.id
         delete data.id
@@ -437,9 +439,12 @@ define([
             } else if (autoField._requestWorkerCache.isArray) {
               // parse array values
               columnVal = columnVal.split(',')
-              if (columnVal[columnVal.length - 1] === '') columnVal.pop()
-              if (autoField._requestWorkerCache.arrayIsNumeric)
+              if (columnVal[columnVal.length - 1] === '') {
+                columnVal.pop()
+              }
+              if (autoField._requestWorkerCache.arrayIsNumeric) {
                 columnVal = columnVal.map(str => Number(str))
+              }
             }
 
             featureData[snakeCase(autoField.name)] = columnVal

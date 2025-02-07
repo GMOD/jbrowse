@@ -135,7 +135,9 @@ define([
     _renderSeqQual: function (feature) {
       var seq = feature.get('seq'),
         qual = feature.get('qual') || ''
-      if (!seq) return ''
+      if (!seq) {
+        return ''
+      }
 
       qual = qual.split(/\s+/)
 
@@ -147,7 +149,9 @@ define([
           '"><span class="seq">' +
           seq[i] +
           '</span>'
-        if (qual[i]) html += '<span class="qual">' + qual[i] + '</span>'
+        if (qual[i]) {
+          html += '<span class="qual">' + qual[i] + '</span>'
+        }
         html += '</div>'
       }
       return '<div class="baseQuality">' + html + '</div>'
@@ -162,8 +166,9 @@ define([
           let rules = sheet.cssRules || sheet.rules
           let includedSheets = [sheet]
           array.forEach(rules, rule => {
-            if (rule.styleSheet)
+            if (rule.styleSheet) {
               includedSheets.push(...this._getStyleSheets([rule.styleSheet]))
+            }
           })
           outSheets.push(...includedSheets)
         } catch (e) {
@@ -187,7 +192,9 @@ define([
             array.forEach(styleSheets, function (sheet) {
               // avoid modifying cssRules for plugins which generates SecurityException on Firefox
               var classes = sheet.rules || sheet.cssRules
-              if (!classes) return
+              if (!classes) {
+                return
+              }
               array.forEach(classes, function (c) {
                 var match = /^\.jbrowse\s+\.base_([^\s_]+)$/.exec(
                   c.selectorText,
@@ -352,11 +359,17 @@ define([
         }
 
         mismatchesAtCurrentPosition.sort(function (a, b) {
-          if (a.type == 'insertion') return -1
-          else if (a.type == 'deletion') return 1
-          else if (a.type == 'mismatch') return 1
-          else if (a.type == 'skip') return 1
-          else return 0
+          if (a.type == 'insertion') {
+            return -1
+          } else if (a.type == 'deletion') {
+            return 1
+          } else if (a.type == 'mismatch') {
+            return 1
+          } else if (a.type == 'skip') {
+            return 1
+          } else {
+            return 0
+          }
         })
 
         for (var k = 0; k < mismatchesAtCurrentPosition.length; k++) {
@@ -488,7 +501,9 @@ define([
 
     //stackoverflow http://stackoverflow.com/questions/2686855/is-there-a-javascript-function-that-can-pad-a-string-to-get-to-a-determined-leng
     pad: function (pad, str, padLeft) {
-      if (typeof str === 'undefined') return pad
+      if (typeof str === 'undefined') {
+        return pad
+      }
       if (padLeft) {
         return (pad + str).slice(-pad.length)
       } else {

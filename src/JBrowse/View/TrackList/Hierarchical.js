@@ -151,7 +151,9 @@ define([
 
         this.get('trackMetaData').fetch({
           onItem: function (i) {
-            if (i.conf) tracks.push(i)
+            if (i.conf) {
+              tracks.push(i)
+            }
           },
           onComplete: () => {
             // make a pane at the top to hold uncategorized tracks
@@ -277,8 +279,9 @@ define([
             }
 
             // hook point
-            if (typeof thisB.extendCheckbox === 'function')
+            if (typeof thisB.extendCheckbox === 'function') {
               var checkBoxProps = thisB.extendCheckbox(checkBoxProps, trackConf)
+            }
 
             var checkbox = dom.create('input', checkBoxProps, labelNode)
             var trackLabel = trackConf.label
@@ -359,7 +362,9 @@ define([
       // update the titles of the given category and its parents
       _updateTitles: function (category) {
         this._updateTitle(category)
-        if (category.parent) this._updateTitles(category.parent)
+        if (category.parent) {
+          this._updateTitles(category.parent)
+        }
       },
 
       _findTrack: function _findTrack(trackLabel, callback, r) {
@@ -370,7 +375,9 @@ define([
             callback(category.tracks[trackLabel], category)
             return true
           } else {
-            if (this._findTrack(trackLabel, callback, category)) return true
+            if (this._findTrack(trackLabel, callback, category)) {
+              return true
+            }
           }
         }
         return false

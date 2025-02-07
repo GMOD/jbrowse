@@ -17,9 +17,13 @@ define([
         // print the track definition
         this.print('track type=wiggle_0')
         if (this.track) {
-          if (this.track.name) this.print(' name="' + this.track.name + '"')
+          if (this.track.name) {
+            this.print(' name="' + this.track.name + '"')
+          }
           var metadata = this.track.getMetadata()
-          if (metadata.key) this.print(' description="' + metadata.key + '"')
+          if (metadata.key) {
+            this.print(' description="' + metadata.key + '"')
+          }
         }
         this.print('\n')
       },

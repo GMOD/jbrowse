@@ -21,7 +21,9 @@ define([
         args.track && args.track._canSaveFiles && args.track._canSaveFiles()
 
       // hook point
-      if (typeof this.initData === 'function') this.initData(args)
+      if (typeof this.initData === 'function') {
+        this.initData(args)
+      }
     },
     renderHTML: function (region, seq, parent) {
       var thisB = this
@@ -34,8 +36,9 @@ define([
         var thisB = this
 
         // hook point
-        if (typeof thisB.addButtons === 'function')
+        if (typeof thisB.addButtons === 'function') {
           thisB.addButtons(region, seq, toolbar)
+        }
 
         toolbar.addChild(
           new Button({

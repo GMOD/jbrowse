@@ -43,7 +43,9 @@ define([
       var line
       while ((line = lineIterator.getline())) {
         // only interested in meta and header lines
-        if (line[0] != '#') continue
+        if (line[0] != '#') {
+          continue
+        }
 
         // parse meta line using the parseHeader configuration callback function
         var metaData = (this.config.parseHeader || function () {})(line)
@@ -88,7 +90,9 @@ define([
     },
 
     unescape(s) {
-      if (s === null) return null
+      if (s === null) {
+        return null
+      }
 
       return s.replace(/%([0-9A-Fa-f]{2})/g, function (match, seq) {
         return String.fromCharCode(parseInt(seq, 16))
@@ -112,9 +116,15 @@ define([
           parsed[bed_feature_names[i]] = f[i] == '.' ? null : f[i]
         }
       }
-      if (parsed.start !== null) parsed.start = parseInt(parsed.start, 10)
-      if (parsed.end !== null) parsed.end = parseInt(parsed.end, 10)
-      if (parsed.score != null) parsed.score = parseFloat(parsed.score, 10)
+      if (parsed.start !== null) {
+        parsed.start = parseInt(parsed.start, 10)
+      }
+      if (parsed.end !== null) {
+        parsed.end = parseInt(parsed.end, 10)
+      }
+      if (parsed.score != null) {
+        parsed.score = parseFloat(parsed.score, 10)
+      }
 
       parsed.strand = { '+': 1, '-': -1 }[parsed.strand] || 0
 
@@ -122,8 +132,11 @@ define([
     },
 
     _return_item: function (i) {
-      if (i[0]) this.featureCallback(i)
-      else if (i.comment) this.commentCallback(i, this.store)
+      if (i[0]) {
+        this.featureCallback(i)
+      } else if (i.comment) {
+        this.commentCallback(i, this.store)
+      }
     },
   })
 })

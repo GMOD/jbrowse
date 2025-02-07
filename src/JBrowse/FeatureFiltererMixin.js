@@ -25,15 +25,18 @@ define(['dojo/_base/declare', 'dojo/_base/array'], function (declare, array) {
     // that we can tell them apart.  stringification and strict
     // equality don't always work.
     _getFeatureFilterName: function (uniqName) {
-      if (uniqName === undefined) return 'featureFilter_' + ++serialNumber
+      if (uniqName === undefined) {
+        return 'featureFilter_' + ++serialNumber
+      }
       return uniqName
     },
 
     removeFeatureFilter: function (uniqName) {
       var newchain = []
       for (var i = 0; i < this._featureFilterChain.length; i++) {
-        if (this._featureFilterChain[i].name !== uniqName)
+        if (this._featureFilterChain[i].name !== uniqName) {
           newchain.push(this._featureFilterChain[i])
+        }
       }
       this._featureFilterChain = newchain
       this._buildFeatureFilter()
@@ -42,11 +45,11 @@ define(['dojo/_base/declare', 'dojo/_base/array'], function (declare, array) {
     _buildFeatureFilter: function () {
       var filterChain = this._featureFilterChain.slice()
 
-      if (!filterChain.length)
+      if (!filterChain.length) {
         this.filterFeature = function (feat) {
           return this.featureFilterParentComponent.filterFeature(feat)
         }
-      else if (filterChain.length == 1) {
+      } else if (filterChain.length == 1) {
         var single = filterChain[0].filter
         this.filterFeature = function (feat) {
           return (
@@ -54,16 +57,21 @@ define(['dojo/_base/declare', 'dojo/_base/array'], function (declare, array) {
             this.featureFilterParentComponent.filterFeature(feat)
           )
         }
-      } else
+      } else {
         this.filterFeature = function (feat) {
-          for (var i = 0; i < filterChain.length; i++)
-            if (!filterChain[i].filter.call(this, feat)) return false
+          for (var i = 0; i < filterChain.length; i++) {
+            if (!filterChain[i].filter.call(this, feat)) {
+              return false
+            }
+          }
 
-          if (!this.featureFilterParentComponent.filterFeature(feat))
+          if (!this.featureFilterParentComponent.filterFeature(feat)) {
             return false
+          }
 
           return true
         }
+      }
     },
 
     featureFilterParentComponent: {

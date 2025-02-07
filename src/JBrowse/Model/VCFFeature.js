@@ -40,9 +40,13 @@ define(['JBrowse/Util'], function (Util) {
       var t = []
       var d = this.data
       for (var k in d) {
-        if (d.hasOwnProperty(k)) t.push(k)
+        if (d.hasOwnProperty(k)) {
+          t.push(k)
+        }
       }
-      if (!d.genotypes) t.push('genotypes')
+      if (!d.genotypes) {
+        t.push('genotypes')
+      }
       return t
     },
 
@@ -141,7 +145,9 @@ define(['JBrowse/Util'], function (Util) {
             values: info[field],
           })
           var meta = this.parser.getMetadata('INFO', field)
-          if (meta) i.meta = meta
+          if (meta) {
+            i.meta = meta
+          }
           featureData[field] = i
         }
       }
@@ -173,8 +179,11 @@ define(['JBrowse/Util'], function (Util) {
         const prefixes = new Set()
         ;[...descriptions].forEach(desc => {
           const prefix = desc.match(/(\w+? \w+? -> )(?:<)\w+(?:>)/)
-          if (prefix && prefix[1]) prefixes.add(prefix[1])
-          else prefixes.add(desc)
+          if (prefix && prefix[1]) {
+            prefixes.add(prefix[1])
+          } else {
+            prefixes.add(desc)
+          }
         })
         const new_descs = []
         ;[...prefixes].forEach(prefix => {
@@ -190,7 +199,9 @@ define(['JBrowse/Util'], function (Util) {
       }
       if (soTerms.size) {
         return [[...soTerms].join(','), [...descriptions].join(',')]
-      } else return [null, null]
+      } else {
+        return [null, null]
+      }
     },
 
     _altTypeToSO: {
@@ -215,8 +226,9 @@ define(['JBrowse/Util'], function (Util) {
       // look for a definition with an SO type for this
       let soTerm = this._altTypeToSO[alt]
       // if no SO term but ALT is in metadata, assume sequence_variant
-      if (!soTerm && this.parser.getMetadata('ALT', alt))
+      if (!soTerm && this.parser.getMetadata('ALT', alt)) {
         soTerm = 'sequence_variant'
+      }
       if (soTerm) {
         let description = this.parser.getMetadata('ALT', alt, 'Description')
           ? alt + ' - ' + this.parser.getMetadata('ALT', alt, 'Description')
@@ -244,23 +256,27 @@ define(['JBrowse/Util'], function (Util) {
         return ['SNV', this._makeDescriptionString('SNV', ref, alt)]
       }
 
-      if (ref.length == alt.length)
-        if (ref.split('').reverse().join('') == alt)
+      if (ref.length == alt.length) {
+        if (ref.split('').reverse().join('') == alt) {
           return [
             'inversion',
             this._makeDescriptionString('inversion', ref, alt),
           ]
-        else
+        } else {
           return [
             'substitution',
             this._makeDescriptionString('substitution', ref, alt),
           ]
+        }
+      }
 
-      if (ref.length <= alt.length)
+      if (ref.length <= alt.length) {
         return ['insertion', this._makeDescriptionString('insertion', ref, alt)]
+      }
 
-      if (ref.length > alt.length)
+      if (ref.length > alt.length) {
         return ['deletion', this._makeDescriptionString('deletion', ref, alt)]
+      }
 
       return ['indel', this._makeDescriptionString('indel', ref, alt)]
     },

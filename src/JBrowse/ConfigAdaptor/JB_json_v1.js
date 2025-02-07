@@ -105,7 +105,9 @@ define([
           else {
             var tracks = []
             for (var label in o.tracks) {
-              if (!('label' in o.tracks[label])) o.tracks[label].label = label
+              if (!('label' in o.tracks[label])) {
+                o.tracks[label].label = label
+              }
               tracks.push(o.tracks[label])
             }
             o.tracks = tracks
@@ -123,7 +125,9 @@ define([
           if (!lang.isArray(meta.sources)) {
             var sources = []
             for (var name in meta.sources) {
-              if (!('name' in meta.sources)) meta.sources[name].name = name
+              if (!('name' in meta.sources)) {
+                meta.sources[name].name = name
+              }
               sources.push(meta.sources[name])
             }
             meta.sources = sources
@@ -134,14 +138,18 @@ define([
             if (typeof sourceDef == 'string') {
               meta.sources[i] = { url: sourceDef }
               var typeMatch = sourceDef.match(/\.(\w+)$/)
-              if (typeMatch) meta.sources[i].type = typeMatch[1].toLowerCase()
+              if (typeMatch) {
+                meta.sources[i].type = typeMatch[1].toLowerCase()
+              }
             }
           })
         }
 
         o.sourceUrl = o.sourceUrl || load_args.config.url
         o.baseUrl = o.baseUrl || Util.resolveUrl(o.sourceUrl, '.')
-        if (o.baseUrl.length && !/\/$/.test(o.baseUrl)) o.baseUrl += '/'
+        if (o.baseUrl.length && !/\/$/.test(o.baseUrl)) {
+          o.baseUrl += '/'
+        }
 
         if (o.sourceUrl) {
           // set a default baseUrl in each of the track and store
@@ -149,20 +157,27 @@ define([
           var addBase = []
             .concat(o.tracks || [])
             .concat(dojof.values(o.stores || {}))
-          if (o.names) addBase.push(o.names)
+          if (o.names) {
+            addBase.push(o.names)
+          }
 
           array.forEach(
             addBase,
             function (t) {
-              if (!t.baseUrl) t.baseUrl = o.baseUrl || '/'
+              if (!t.baseUrl) {
+                t.baseUrl = o.baseUrl || '/'
+              }
             },
             this,
           )
 
           //resolve the refSeqs and nameUrl if present
-          if (o.refSeqs && typeof o.refSeqs == 'string')
+          if (o.refSeqs && typeof o.refSeqs == 'string') {
             o.refSeqs = Util.resolveUrl(o.sourceUrl, o.refSeqs)
-          if (o.nameUrl) o.nameUrl = Util.resolveUrl(o.sourceUrl, o.nameUrl)
+          }
+          if (o.nameUrl) {
+            o.nameUrl = Util.resolveUrl(o.sourceUrl, o.nameUrl)
+          }
         }
 
         o = this.regularizeTrackConfigs(o)
@@ -189,7 +204,9 @@ define([
             }
 
             // skip if it's a new-style track def
-            if (trackConfig.store) return
+            if (trackConfig.store) {
+              return
+            }
 
             var trackClassName = this._regularizeClass(
               'JBrowse/View/Track',
@@ -205,8 +222,9 @@ define([
             this._synthesizeTrackStoreConfig(conf, trackConfig)
 
             if (trackConfig.histograms) {
-              if (!trackConfig.histograms.baseUrl)
+              if (!trackConfig.histograms.baseUrl) {
                 trackConfig.histograms.baseUrl = trackConfig.baseUrl
+              }
               this._synthesizeTrackStoreConfig(conf, trackConfig.histograms)
             }
           },
@@ -300,10 +318,14 @@ define([
       },
 
       _regularizeClass: function (root, class_) {
-        if (!class_) return null
+        if (!class_) {
+          return null
+        }
 
         // prefix the class names with JBrowse/* if they contain no slashes
-        if (!/\//.test(class_)) class_ = root + '/' + class_
+        if (!/\//.test(class_)) {
+          class_ = root + '/' + class_
+        }
         class_ = class_.replace(/^\//)
         return class_
       },

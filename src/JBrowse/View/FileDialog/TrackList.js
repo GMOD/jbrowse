@@ -83,11 +83,12 @@ define([
         this,
       )
 
-      if (resources.length)
+      if (resources.length) {
         console.warn(
           'Not all resources could be assigned to tracks.  Unused resources:',
           resources,
         )
+      }
     },
 
     _makeTrackConfs: function () {
@@ -145,8 +146,9 @@ define([
       // delete the separate track confs for any of the stores that were
       // incorporated into other tracks as histograms
       for (var n in coverageStores) {
-        if (coverageStores[n].used)
+        if (coverageStores[n].used) {
           delete this.trackConfs[coverageStores[n].name]
+        }
       }
     },
 

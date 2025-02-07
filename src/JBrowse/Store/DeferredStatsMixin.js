@@ -21,7 +21,9 @@ define(['dojo/_base/declare', 'dojo/Deferred', 'JBrowse/Util'], function (
      * queued until the Deferred is resolved.
      */
     _deferGlobalStats: function () {
-      if (!this._deferred) this._deferred = {}
+      if (!this._deferred) {
+        this._deferred = {}
+      }
       this._deferred.stats = new Deferred()
     },
 

@@ -31,15 +31,21 @@ define([
       ) {
         this.bwg = bwg
         this.autoSql = autoSql
-        if (!(cirTreeOffset >= 0)) throw 'invalid cirTreeOffset!'
-        if (!(cirTreeLength > 0)) throw 'invalid cirTreeLength!'
+        if (!(cirTreeOffset >= 0)) {
+          throw 'invalid cirTreeOffset!'
+        }
+        if (!(cirTreeLength > 0)) {
+          throw 'invalid cirTreeLength!'
+        }
 
         this.cirTreeOffset = cirTreeOffset
         this.cirTreeLength = cirTreeLength
         this.isSummary = isSummary
 
         function countFeatures(features) {
-          if (!features) return 0
+          if (!features) {
+            return 0
+          }
           let total = features.length
           features.forEach(feature => {
             total += countFeatures(feature.children())
@@ -82,8 +88,11 @@ define([
 
       readWigDataByIdWithCache(chr, min, max, callback, errorCallback) {
         this.featureCache.get([chr, min, max], (result, error) => {
-          if (error) errorCallback(error)
-          else callback(result)
+          if (error) {
+            errorCallback(error)
+          } else {
+            callback(result)
+          }
         })
       },
 

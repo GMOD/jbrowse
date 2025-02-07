@@ -70,7 +70,9 @@ define([
             // skip the first line if we have a
             // nonzero offset, because it is probably
             // incomplete
-            if (!skipFirst) lineCallback()
+            if (!skipFirst) {
+              lineCallback()
+            }
             skipFirst = false
           },
           endCallback,

@@ -56,23 +56,27 @@ define([
         array.some(locations, function (l) {
           return l.label
         })
-      )
+      ) {
         columns.unshift({ label: 'Name', field: 'label' })
+      }
       if (
         array.some(locations, function (l) {
           return l.description
         })
-      )
+      ) {
         columns.unshift({ label: 'Description', field: 'description' })
+      }
       if (
         array.some(locations, function (l) {
           return l.score
         })
-      )
+      ) {
         columns.unshift({ label: 'Score', field: 'score' })
+      }
       columns.push({ label: 'Location', field: 'locstring' })
-      if (locations.length && locations[0].tracks)
+      if (locations.length && locations[0].tracks) {
         columns.push({ label: 'Track', field: 'tracks' })
+      }
       if (args.buttons) {
         columns.push({
           label: '',

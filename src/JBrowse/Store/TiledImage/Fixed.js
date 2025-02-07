@@ -41,10 +41,12 @@ define([
       loadSuccess: function (o) {
         this.globalStats = o.stats || {}
         //backcompat
-        if (!('scoreMin' in this.globalStats))
+        if (!('scoreMin' in this.globalStats)) {
           this.globalStats.scoreMin = this.globalStats.global_min
-        if (!('scoreMax' in this.globalStats))
+        }
+        if (!('scoreMax' in this.globalStats)) {
           this.globalStats.scoreMax = this.globalStats.global_max
+        }
 
         //tileWidth: width, in pixels, of the tiles
         this.tileWidth = o.tileWidth
@@ -61,7 +63,9 @@ define([
        */
       _getZoom: function (scale) {
         var result = this.zoomCache[scale]
-        if (result) return result
+        if (result) {
+          return result
+        }
 
         result = this.zoomLevels[0]
         var desiredBases = this.tileWidth / scale
@@ -69,8 +73,9 @@ define([
           if (
             Math.abs(this.zoomLevels[i].basesPerTile - desiredBases) <
             Math.abs(result.basesPerTile - desiredBases)
-          )
+          ) {
             result = this.zoomLevels[i]
+          }
         }
 
         this.zoomCache[scale] = result
@@ -80,8 +85,9 @@ define([
       getImages: function (query, callback, errorCallback) {
         var thisB = this
         this._deferred.images.then(function (result) {
-          if (result.success) thisB._getImages(query, callback, errorCallback)
-          else {
+          if (result.success) {
+            thisB._getImages(query, callback, errorCallback)
+          } else {
             thisB.error = result.error
             errorCallback(result.error || result)
           }

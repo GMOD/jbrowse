@@ -39,22 +39,29 @@ define([
               value = JSON.parse(match[1])
             }
             // parse numbers if it looks numeric
-            else if (/^[\+\-]?[\d\.,]+([eE][\-\+]?\d+)?$/.test(value))
+            else if (/^[\+\-]?[\d\.,]+([eE][\-\+]?\d+)?$/.test(value)) {
               value = parseFloat(value.replace(/,/g, ''))
+            }
 
             var path = section.concat(keypath).join('.')
             if (operation == '+=') {
               var existing = lang.getObject(path, false, data)
               if (existing) {
-                if (!lang.isArray(existing)) existing = [existing]
+                if (!lang.isArray(existing)) {
+                  existing = [existing]
+                }
               } else {
                 existing = []
               }
               existing.push(value)
               value = existing
             }
-            if (value == 'true') value = true
-            if (value == 'false') value = false
+            if (value == 'true') {
+              value = true
+            }
+            if (value == 'false') {
+              value = false
+            }
             lang.setObject(path, value, data)
           } catch (e) {
             throw new Error(
@@ -81,8 +88,9 @@ define([
             recordVal()
             keypath = value = undefined
             section = match[1].trim().split(/\s*\.\s*/)
-            if (section.length == 1 && section[0].toLowerCase() == 'general')
+            if (section.length == 1 && section[0].toLowerCase() == 'general') {
               section = []
+            }
           }
           // new value
           else if (

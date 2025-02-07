@@ -6,9 +6,13 @@ define([], function () {
     //subject: what's being animated
     //callback: function to call at the end of the animation
     //time: time for the animation to run
-    if (subject === undefined) return
+    if (subject === undefined) {
+      return
+    }
     //don't want a zoom and a slide going on at the same time
-    if ('animation' in subject) subject.animation.stop()
+    if ('animation' in subject) {
+      subject.animation.stop()
+    }
     this.index = 0
     this.time = time
     this.subject = subject

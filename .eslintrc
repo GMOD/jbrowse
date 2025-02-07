@@ -1,18 +1,16 @@
 {
   "parser": "babel-eslint",
-  "extends": [
-  ],
-  "plugins": [
-  ],
+  "extends": [],
+  "plugins": [],
   "env": {
-      "browser": true,
-      "amd": true,
-      "es6": true
+    "browser": true,
+    "amd": true,
+    "es6": true
   },
-  "globals": {
-  },
+  "globals": {},
   "rules": {
     "no-underscore-dangle": 0,
-    "no-undef": "error"
+    "no-undef": "error",
+    "curly": "error"
   }
 }

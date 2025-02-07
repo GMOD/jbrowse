@@ -100,7 +100,9 @@ define([
     // (in a multi-segment read)
     _nextSegmentViewLoc: function (feature, factor) {
       var nextLocStr = feature.get('next_segment_position')
-      if (!nextLocStr) return undefined
+      if (!nextLocStr) {
+        return undefined
+      }
 
       var s = nextLocStr.split(':')
       var refName = s[0]

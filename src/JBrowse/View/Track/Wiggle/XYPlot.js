@@ -65,7 +65,9 @@ define([
               var scaling = new Scale(this.config, stats)
 
               // bump minDisplayed to 0 if it is within 0.5% of it
-              if (Math.abs(scaling.min / scaling.max) < 0.005) scaling.min = 0
+              if (Math.abs(scaling.min / scaling.max) < 0.005) {
+                scaling.min = 0
+              }
 
               // update our track y-scale to reflect it
               this.makeYScale({
@@ -126,7 +128,9 @@ define([
         dojo.forEach(
           pixels,
           function (p, i) {
-            if (!p) return
+            if (!p) {
+              return
+            }
             var score = toY(p['score'])
             var f = p['feat']
 

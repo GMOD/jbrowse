@@ -90,14 +90,17 @@ define([
           return item.strand == strand || !item.strand
         })
         .map(function (item) {
-          if (!item.strand)
+          if (!item.strand) {
             return {
               start: item.start,
               end: item.end,
               strand: strand,
             }
+          }
           // Adds strand to strandless spans
-          else return item
+          else {
+            return item
+          }
         })
     },
 

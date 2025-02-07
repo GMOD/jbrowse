@@ -69,21 +69,24 @@ define([
         // find conf vars that set events, like `onClick`
         for (var key in this.config) {
           var handlerName = key.replace(/^on(?=[A-Z])/, '')
-          if (handlerName != key)
+          if (handlerName != key) {
             handlers[handlerName.toLowerCase()] = this.config[key]
+          }
         }
         // interpret handlers that are just strings to be URLs that should be opened
         for (key in handlers) {
-          if (typeof handlers[key] == 'string')
+          if (typeof handlers[key] == 'string') {
             handlers[key] = { url: handlers[key] }
+          }
         }
         return handlers
       }.call(this)
       // only call _makeClickHandler() if we have related settings in config
-      if (this.eventHandlers.click)
+      if (this.eventHandlers.click) {
         this.eventHandlers.click = this._makeClickHandler(
           this.eventHandlers.click,
         )
+      }
     },
 
     _getScaling: function (viewArgs, successCallback, errorCallback) {
@@ -172,12 +175,16 @@ define([
         },
 
         function (f) {
-          if (thisB.filterFeature(f)) features.push(f)
+          if (thisB.filterFeature(f)) {
+            features.push(f)
+          }
         },
         dojo.hitch(this, function (args) {
           // if the block has been freed in the meantime,
           // don't try to render
-          if (!(block.domNode && block.domNode.parentNode)) return
+          if (!(block.domNode && block.domNode.parentNode)) {
+            return
+          }
 
           var featureRects = array.map(
             features,
@@ -195,7 +202,9 @@ define([
             featureRects,
           )
 
-          if (args && args.maskingSpans) block.maskingSpans = args.maskingSpans // used for masking
+          if (args && args.maskingSpans) {
+            block.maskingSpans = args.maskingSpans
+          } // used for masking
 
           finishCallback()
         }),
@@ -213,7 +222,9 @@ define([
 
       // don't render this block again if we have already rendered
       // it with this scaling scheme
-      if (!this.scaling.compare(block.scaling) || !block.pixelScores) return
+      if (!this.scaling.compare(block.scaling) || !block.pixelScores) {
+        return
+      }
 
       block.scaling = this.scaling
 
@@ -337,11 +348,12 @@ define([
           thisB.scaling = scaling
           // render all of the blocks that need it
           array.forEach(thisB.blocks, function (block, blockIndex) {
-            if (block && block.domNode.parentNode)
+            if (block && block.domNode.parentNode) {
               thisB.renderBlock({
                 block: block,
                 blockIndex: blockIndex,
               })
+            }
           })
           callback()
         },
@@ -558,7 +570,7 @@ define([
       var gv = this.browser.view
       var thisB = this
 
-      if (!this._mouseoverEvent)
+      if (!this._mouseoverEvent) {
         this._mouseoverEvent = this.own(
           on(this.div, 'mousemove', function (evt) {
             evt = domEvent.fix(evt)
@@ -566,21 +578,24 @@ define([
             thisB.mouseover(bpX, evt)
           }),
         )[0]
-      if (!this._mouseoutEvent)
+      }
+      if (!this._mouseoutEvent) {
         this._mouseoutEvent = this.own(
           on(this.div, mouse.leave, function (evt) {
             thisB.mouseover(undefined)
           }),
         )[0]
+      }
 
       // only add if we have config setting a click eventHandler for this track
-      if (thisB.eventHandlers.click && !this._mouseClickEvent)
+      if (thisB.eventHandlers.click && !this._mouseClickEvent) {
         this._mouseClickEvent = this.own(
           on(this.div, 'click', thisB.eventHandlers.click),
         )[0]
+      }
 
       // make elements and events to display it
-      if (!this.scoreDisplay)
+      if (!this.scoreDisplay) {
         this.scoreDisplay = {
           flag: dojo.create(
             'div',
@@ -607,6 +622,7 @@ define([
             this.div,
           ),
         }
+      }
     },
 
     mouseover: function (bpX, evt) {
@@ -628,7 +644,9 @@ define([
           return false
         })
 
-        if (!(block && block.canvas && block.pixelScores && evt)) return
+        if (!(block && block.canvas && block.pixelScores && evt)) {
+          return
+        }
 
         var pixelValues = block.pixelScores
         var canvas = block.canvas

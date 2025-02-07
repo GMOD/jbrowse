@@ -23,11 +23,13 @@ define([
      */
     constructor: function (args) {
       let dataBlob
-      if (args.blob) dataBlob = new BlobFilehandleWrapper(args.blob)
-      else if (args.urlTemplate)
+      if (args.blob) {
+        dataBlob = new BlobFilehandleWrapper(args.blob)
+      } else if (args.urlTemplate) {
         dataBlob = new BlobFilehandleWrapper(
           new XHRBlob(this.resolveUrl(args.urlTemplate)),
         )
+      }
 
       this.source = dataBlob.toString()
       this.data = dataBlob

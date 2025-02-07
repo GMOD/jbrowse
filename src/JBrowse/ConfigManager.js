@@ -68,7 +68,9 @@ define([
 
                 finalConf = AdaptorUtil.evalHooks(finalConf)
 
-                if (!thisB.skipValidation) thisB._validateConfig(finalConf)
+                if (!thisB.skipValidation) {
+                  thisB._validateConfig(finalConf)
+                }
 
                 return finalConf
               },
@@ -88,7 +90,9 @@ define([
 
       _getConfigAdaptor: function (config_def, callback) {
         var adaptor_name = 'JBrowse/ConfigAdaptor/' + config_def.format
-        if ('version' in config_def) adaptor_name += '_v' + config_def.version
+        if ('version' in config_def) {
+          adaptor_name += '_v' + config_def.version
+        }
         adaptor_name.replace(/\W/g, '')
         return Util.loadJS([adaptor_name]).then(function (modules) {
           return new modules[0](config_def)
@@ -103,12 +107,14 @@ define([
 
         var type = typeof subconfig
         if (lang.isArray(subconfig)) {
-          for (var i = 0; i < subconfig.length; i++)
+          for (var i = 0; i < subconfig.length; i++) {
             subconfig[i] = this._fillTemplates(subconfig[i], config)
+          }
         } else if (type == 'object') {
           for (var name in subconfig) {
-            if (subconfig.hasOwnProperty(name) && !skip[name])
+            if (subconfig.hasOwnProperty(name) && !skip[name]) {
               subconfig[name] = this._fillTemplates(subconfig[name], config)
+            }
           }
         } else if (type == 'string') {
           return Util.fillTemplate(subconfig, config)
@@ -161,7 +167,7 @@ define([
         // instantiate the adaptor and load the config
         return this._getConfigAdaptor(include)
           .then(function (adaptor) {
-            if (!adaptor)
+            if (!adaptor) {
               throw new Error(
                 'Could not load config ' +
                   include.url +
@@ -171,6 +177,7 @@ define([
                   ' version ' +
                   include.version,
               )
+            }
 
             return adaptor.load({
               config: include,
@@ -179,7 +186,9 @@ define([
           })
           .then(null, function (error) {
             try {
-              if (error.response.status == 404) return {}
+              if (error.response.status == 404) {
+                return {}
+              }
             } catch (e) {}
 
             throw error
@@ -187,10 +196,14 @@ define([
       },
 
       _regularizeIncludes: function (includes) {
-        if (!includes) return []
+        if (!includes) {
+          return []
+        }
 
         // coerce include to an array
-        if (typeof includes != 'object') includes = [includes]
+        if (typeof includes != 'object') {
+          includes = [includes]
+        }
 
         // include array might have undefined elements in it if
         // somebody left a trailing comma in and we are running under
@@ -201,7 +214,9 @@ define([
 
         return array.map(includes, function (include) {
           // coerce bare strings in the includes to URLs
-          if (typeof include == 'string') include = { url: include }
+          if (typeof include == 'string') {
+            include = { url: include }
+          }
 
           // set defaults for format and version
           if (!('format' in include)) {
@@ -228,11 +243,15 @@ define([
        * @returns nothing meaningful
        */
       _validateConfig: function (c) {
-        if (!c.tracks) c.tracks = []
+        if (!c.tracks) {
+          c.tracks = []
+        }
         if (!c.baseUrl) {
           this._fatalError('Must provide a `baseUrl` in configuration')
         }
-        if (this.hasFatalErrors) throw 'Errors in configuration, cannot start.'
+        if (this.hasFatalErrors) {
+          throw 'Errors in configuration, cannot start.'
+        }
       },
 
       /**
@@ -255,9 +274,13 @@ define([
        * @private
        */
       _mergeConfigs: function (a, b) {
-        if (b === null) return null
+        if (b === null) {
+          return null
+        }
 
-        if (a === null) a = {}
+        if (a === null) {
+          a = {}
+        }
 
         for (var prop in b) {
           if (prop == 'tracks' && prop in a) {
@@ -289,7 +312,9 @@ define([
        * @private
        */
       _mergeTrackConfigs: function (a, b) {
-        if (!b.length) return a
+        if (!b.length) {
+          return a
+        }
 
         // index the tracks in `a` by track label
         var aTracks = {}

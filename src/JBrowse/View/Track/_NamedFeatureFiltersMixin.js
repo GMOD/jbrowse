@@ -13,27 +13,35 @@ define(['dojo/_base/declare', 'dojo/_base/array', 'dojo/when'], function (
       var thisB = this
       return when(this._getNamedFeatureFilters()).then(function (filters) {
         for (var filtername in filters) {
-          if (thisB.config[filtername])
+          if (thisB.config[filtername]) {
             thisB.addFeatureFilter(filters[filtername].func, filtername)
-          else thisB.removeFeatureFilter(filtername)
+          } else {
+            thisB.removeFeatureFilter(filtername)
+          }
         }
       })
     },
 
     _toggleFeatureFilter: function (filtername, setActive) {
       // if no setActive, we will toggle it
-      if (setActive === undefined) setActive = !this.config[filtername]
+      if (setActive === undefined) {
+        setActive = !this.config[filtername]
+      }
 
       // nothing to do if not changed
-      if (!!setActive === !!this.config[filtername]) return
+      if (!!setActive === !!this.config[filtername]) {
+        return
+      }
 
       this.config[filtername] = setActive
 
       var thisB = this
       when(this._getNamedFeatureFilters(), function (filters) {
-        if (setActive)
+        if (setActive) {
           thisB.addFeatureFilter(filters[filtername].func, filtername)
-        else thisB.removeFeatureFilter(filtername)
+        } else {
+          thisB.removeFeatureFilter(filtername)
+        }
 
         thisB.changed()
       })
@@ -62,7 +70,9 @@ define(['dojo/_base/declare', 'dojo/_base/array', 'dojo/when'], function (
 
     _makeFeatureFilterTrackMenuItem: function (filtername, filterspec) {
       var thisB = this
-      if (filtername == 'SEPARATOR') return { type: 'dijit/MenuSeparator' }
+      if (filtername == 'SEPARATOR') {
+        return { type: 'dijit/MenuSeparator' }
+      }
       return {
         label: filterspec.desc,
         title: filterspec.title,

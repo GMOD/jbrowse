@@ -24,7 +24,9 @@ define(['dojo/_base/declare', 'JBrowse/Component'], function (
 
       // not really utilized.  ignore for now
       notifyChanged: function (changeDescription) {
-        if (this.changeCallback) this.changeCallback(changeDescription)
+        if (this.changeCallback) {
+          this.changeCallback(changeDescription)
+        }
       },
 
       /**

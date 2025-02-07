@@ -38,7 +38,9 @@ define([
        */
       formatFeature: function (feature) {
         var thisB = this
-        if (!this.headerPrinted) this.headerPrinted = this._printHeader(feature)
+        if (!this.headerPrinted) {
+          this.headerPrinted = this._printHeader(feature)
+        }
 
         var featLine = [
           feature.get('start') + 1,
@@ -86,7 +88,9 @@ define([
       },
 
       stringifyAttributeValue: function (val) {
-        if (val == null) return null
+        if (val == null) {
+          return null
+        }
         return val.hasOwnProperty('toString')
           ? val.toString()
           : val instanceof Array

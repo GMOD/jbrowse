@@ -63,7 +63,9 @@ define([
 
     _hexToDirPath: function (hex) {
       // zero-pad the hex string to be 8 chars if necessary
-      while (hex.length < 8) hex = '0' + hex
+      while (hex.length < 8) {
+        hex = '0' + hex
+      }
       hex = hex.substr(8 - this.meta.hash_hex_characters)
       var dirpath = []
       for (var i = 0; i < hex.length; i += 3) {

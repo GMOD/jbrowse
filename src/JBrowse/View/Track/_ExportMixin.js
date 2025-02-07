@@ -39,7 +39,9 @@ define([
     },
 
     _canExport: function () {
-      if (this.config.noExport) return false
+      if (this.config.noExport) {
+        return false
+      }
 
       var highlightedRegion = this.browser.getHighlight()
       var visibleRegion = this.browser.view.visibleRegion()
@@ -366,7 +368,9 @@ define([
     _readRadio: function (r) {
       if (r.length) {
         for (var i = 0; i < r.length; i++) {
-          if (r[i].checked) return r[i].value
+          if (r[i].checked) {
+            return r[i].value
+          }
         }
       }
       return r.value
@@ -374,7 +378,9 @@ define([
 
     exportRegion: function (region, format, callback) {
       // parse the locstring if necessary
-      if (typeof region == 'string') region = Util.parseLocString(region)
+      if (typeof region == 'string') {
+        region = Util.parseLocString(region)
+      }
 
       // we can only export from the currently-visible reference
       // sequence right now
@@ -404,7 +410,7 @@ define([
     _trackMenuOptions: function () {
       var opts = this.inherited(arguments)
 
-      if (!this.config.noExport)
+      if (!this.config.noExport) {
         // add a "Save track data as" option to the track menu
         opts.push({
           label: 'Save track data',
@@ -414,13 +420,16 @@ define([
           content: this._exportDialogContent,
           dialog: { id: 'exportDialog', className: 'export-dialog' },
         })
+      }
 
       return opts
     },
 
     _canExportRegion: function (l) {
       //console.log('can generic export?');
-      if (!l) return false
+      if (!l) {
+        return false
+      }
 
       // if we have a maxExportSpan configured for this track, use it.
       if (

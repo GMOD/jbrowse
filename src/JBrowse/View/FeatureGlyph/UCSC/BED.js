@@ -25,26 +25,31 @@ define(['dojo/_base/declare', 'JBrowse/View/FeatureGlyph/Segments'], function (
         const r = Number(stringEncoding[1])
         const g = Number(stringEncoding[2])
         const b = Number(stringEncoding[3])
-        if (!isNaN(r) && !isNaN(g) && !isNaN(b) && (r || g || b))
+        if (!isNaN(r) && !isNaN(g) && !isNaN(b) && (r || g || b)) {
           return `#${hex2(r)}${hex2(g)}${hex2(b)}`
+        }
       } else {
         const rgb = Number(itemRgb)
-        if (rgb) return `#${rgb.toString(16).padStart(6, '0')}`
+        if (rgb) {
+          return `#${rgb.toString(16).padStart(6, '0')}`
+        }
       }
     },
 
     renderSegments(context, fRect) {
       const styleFunc = (feature, stylename) => {
-        if (stylename === 'height')
+        if (stylename === 'height') {
           return this._getFeatureHeight(fRect.viewInfo, feature)
-        else if (
+        } else if (
           stylename === 'color' &&
           this.getConf('itemRgb', [feature, this])
         ) {
           const itemRgb = this.parseItemRgb(
             feature.get('itemRgb') || feature.get('reserved'),
           )
-          if (itemRgb) return itemRgb
+          if (itemRgb) {
+            return itemRgb
+          }
         }
 
         return this.getStyle(feature, stylename)
@@ -57,12 +62,14 @@ define(['dojo/_base/declare', 'JBrowse/View/FeatureGlyph/Segments'], function (
 
       if (blockCount && fRect.f.get('end') - fRect.f.get('start') > 5) {
         let sizes = fRect.f.get('block_sizes')
-        if (!Array.isArray(sizes))
+        if (!Array.isArray(sizes)) {
           sizes = sizes.split(',').map(str => Number(str))
+        }
 
         let starts = fRect.f.get('chrom_starts')
-        if (!Array.isArray(starts))
+        if (!Array.isArray(starts)) {
           starts = starts.split(',').map(str => Number(str))
+        }
 
         const blocksOffset = fRect.f.get('start')
 
@@ -117,9 +124,12 @@ define(['dojo/_base/declare', 'JBrowse/View/FeatureGlyph/Segments'], function (
       const width = viewInfo.block.bpToX(end) - left
       const right = left + width
       const height = this._getFeatureHeight(viewInfo, parentFeature)
-      if (!height) return
-      if (height !== overallHeight)
+      if (!height) {
+        return
+      }
+      if (height !== overallHeight) {
         top += Math.round((overallHeight - height) / 2)
+      }
       const bottom = top + height
       const thickStartPx = viewInfo.block.bpToX(thickStart)
       const thickEndPx = viewInfo.block.bpToX(thickEnd)

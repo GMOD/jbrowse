@@ -11,7 +11,9 @@ define([
         var basename = Util.basename(
           resource.file ? resource.file.name : resource.url ? resource.url : '',
         )
-        if (!basename) return false
+        if (!basename) {
+          return false
+        }
 
         // go through the configs and see if there is one for an index that seems to match
         for (var n in configs) {
@@ -78,7 +80,9 @@ define([
                   : '',
               index.indexExtensionMap || '.' + index.indexExtension,
             )
-            if (!basename) return false
+            if (!basename) {
+              return false
+            }
 
             // go through the configs and look for data files that match like zee.bam -> zee.bam.bai
             for (var n in configs) {
@@ -173,12 +177,14 @@ define([
           for (var fileName in singletonFiles) {
             for (const m in this.indexTypes) {
               const index = this.indexTypes[m]
-              if (singletonIndexes[indexName][index.indexUrlConfKey])
+              if (singletonIndexes[indexName][index.indexUrlConfKey]) {
                 singletonFiles[fileName][index.indexUrlConfKey] =
                   singletonIndexes[indexName][index.indexUrlConfKey]
-              if (singletonIndexes[indexName][index.indexConfKey])
+              }
+              if (singletonIndexes[indexName][index.indexConfKey]) {
                 singletonFiles[fileName][index.indexConfKey] =
                   singletonIndexes[indexName][index.indexConfKey]
+              }
 
               delete configs[indexName]
             }
@@ -194,7 +200,9 @@ define([
 
       // delete any remaining singleton Files, unless they are URLs
       for (var fileName in singletonFiles) {
-        if (!configs[fileName][this.fileUrlConfKey]) delete configs[fileName]
+        if (!configs[fileName][this.fileUrlConfKey]) {
+          delete configs[fileName]
+        }
       }
     },
 
@@ -204,7 +212,9 @@ define([
         : resource.url
           ? new XHRBlob(resource.url)
           : null
-      if (!r) throw 'unknown resource type'
+      if (!r) {
+        throw 'unknown resource type'
+      }
       return r
     },
 

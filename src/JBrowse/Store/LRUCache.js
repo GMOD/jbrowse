@@ -70,24 +70,31 @@ define([
         var results = []
         var cache = this._cacheByKey
         for (var k in cache) {
-          if (keyRegex.test(k) && cache.hasOwnProperty(k))
+          if (keyRegex.test(k) && cache.hasOwnProperty(k)) {
             results.push(cache[k])
+          }
         }
         return results
       },
 
       forEach: function (func, context) {
-        if (!context) context = this
+        if (!context) {
+          context = this
+        }
         var i = 0
         for (var record = this._cacheNewest; record; record = record.next) {
           func.call(context, record, i++)
         }
       },
       some: function (func, context) {
-        if (!context) context = this
+        if (!context) {
+          context = this
+        }
         var i = 0
         for (var record = this._cacheNewest; record; record = record.next) {
-          if (func.call(context, record, i++)) return true
+          if (func.call(context, record, i++)) {
+            return true
+          }
         }
         return false
       },
@@ -97,10 +104,14 @@ define([
       },
 
       touchRecord: function (record) {
-        if (!record) return
+        if (!record) {
+          return
+        }
 
         // already newest, nothing to do
-        if (this._cacheNewest === record) return
+        if (this._cacheNewest === record) {
+          return
+        }
 
         // take it out of the linked list
         this._llRemove(record)
@@ -111,12 +122,20 @@ define([
 
       // take a record out of the LRU linked list
       _llRemove: function (record) {
-        if (record.prev) record.prev.next = record.next
-        if (record.next) record.next.prev = record.prev
+        if (record.prev) {
+          record.prev.next = record.next
+        }
+        if (record.next) {
+          record.next.prev = record.prev
+        }
 
-        if (this._cacheNewest === record) this._cacheNewest = record.prev
+        if (this._cacheNewest === record) {
+          this._cacheNewest = record.prev
+        }
 
-        if (this._cacheOldest === record) this._cacheOldest = record.next
+        if (this._cacheOldest === record) {
+          this._cacheOldest = record.next
+        }
 
         record.prev = null
         record.next = null
@@ -128,7 +147,9 @@ define([
           record.prev = this._cacheNewest
         }
         this._cacheNewest = record
-        if (!this._cacheOldest) this._cacheOldest = record
+        if (!this._cacheOldest) {
+          this._cacheOldest = record
+        }
       },
 
       _attemptFill: function (inKey, keyString, callback) {
@@ -304,7 +325,9 @@ define([
       },
 
       _log: function () {
-        if (this.verbose) console.log.apply(console, arguments)
+        if (this.verbose) {
+          console.log.apply(console, arguments)
+        }
       },
       _warn: function () {
         console.warn.apply(console, arguments)

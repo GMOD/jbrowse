@@ -60,7 +60,9 @@ define(['JBrowse/Util'], function (Util) {
       var t = []
       var d = this.data
       for (var k in d) {
-        if (d.hasOwnProperty(k)) t.push(k)
+        if (d.hasOwnProperty(k)) {
+          t.push(k)
+        }
       }
       return t
     },
@@ -69,7 +71,9 @@ define(['JBrowse/Util'], function (Util) {
      * Get the unique ID of this feature.
      */
     id: function (newid) {
-      if (newid) this._uniqueID = newid
+      if (newid) {
+        this._uniqueID = newid
+      }
       return this._uniqueID
     },
 

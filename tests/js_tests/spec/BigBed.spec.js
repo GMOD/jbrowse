@@ -167,7 +167,7 @@ require([
 // object containing feature data
 function deleteUniqueIDSerial(featureData) {
     Object.entries(featureData).forEach(([name,val]) => {
-        if (!val) return
+        if (!val) {return}
 
         if (name === '_uniqueID') {
             featureData[name] = val.replace(/_\d+$/,'_(serial redacted)')

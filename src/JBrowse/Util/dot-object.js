@@ -59,8 +59,12 @@
       return new DotObject(seperator, override, useArray)
     }
 
-    if (typeof override === 'undefined') override = false
-    if (typeof useArray === 'undefined') useArray = true
+    if (typeof override === 'undefined') {
+      override = false
+    }
+    if (typeof useArray === 'undefined') {
+      useArray = true
+    }
     this.seperator = seperator || '.'
     this.override = override
     this.useArray = useArray

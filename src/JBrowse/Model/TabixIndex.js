@@ -48,17 +48,18 @@ define([
         this._loaded ||
         function () {
           var d = new Deferred()
-          if (!has('typed-arrays'))
+          if (!has('typed-arrays')) {
             d.reject(
               'This web browser lacks support for JavaScript typed arrays.',
             )
-          else
+          } else {
             this.blob.fetch(
               function (data) {
                 thisB._parseIndex(data, d)
               },
               dojo.hitch(d, 'reject'),
             )
+          }
           return d
         }.call(this))
     },
@@ -149,7 +150,9 @@ define([
       function getString() {
         var c,
           s = ''
-        while ((c = getChar())) s += c
+        while ((c = getChar())) {
+          s += c
+        }
         return s.length ? s : null
       }
 
@@ -191,17 +194,23 @@ define([
     featureCount: function (refName) {
       var tid = this.getRefId(refName)
       var indexes = this._indices[tid]
-      if (!indexes) return -1
+      if (!indexes) {
+        return -1
+      }
       var ret = indexes.binIndex[this._bin_limit() + 1]
       return ret ? ret[ret.length - 1].minv.offset : -1
     },
 
     blocksForRange: function (refName, beg, end) {
-      if (beg < 0) beg = 0
+      if (beg < 0) {
+        beg = 0
+      }
 
       var tid = this.getRefId(refName)
       var indexes = this._indices[tid]
-      if (!indexes) return []
+      if (!indexes) {
+        return []
+      }
 
       var linearIndex = indexes.linearIndex,
         binIndex = indexes.binIndex
@@ -223,22 +232,30 @@ define([
         n_off += (binIndex[bins[i]] || []).length
       }
 
-      if (n_off == 0) return []
+      if (n_off == 0) {
+        return []
+      }
 
       var off = []
 
       var chunks
-      for (i = n_off = 0; i < bins.length; ++i)
-        if ((chunks = binIndex[bins[i]]))
-          for (var j = 0; j < chunks.length; ++j)
-            if (min_off.compareTo(chunks[j].maxv) < 0)
+      for (i = n_off = 0; i < bins.length; ++i) {
+        if ((chunks = binIndex[bins[i]])) {
+          for (var j = 0; j < chunks.length; ++j) {
+            if (min_off.compareTo(chunks[j].maxv) < 0) {
               off[n_off++] = new Chunk(
                 chunks[j].minv,
                 chunks[j].maxv,
                 chunks[j].bin,
               )
+            }
+          }
+        }
+      }
 
-      if (!off.length) return []
+      if (!off.length) {
+        return []
+      }
 
       off = off.sort(function (a, b) {
         return a.compareTo(b)
@@ -255,13 +272,16 @@ define([
       n_off = l + 1
 
       // resolve overlaps between adjacent blocks; this may happen due to the merge in indexing
-      for (i = 1; i < n_off; ++i)
-        if (off[i - 1].maxv.compareTo(off[i].minv) >= 0)
+      for (i = 1; i < n_off; ++i) {
+        if (off[i - 1].maxv.compareTo(off[i].minv) >= 0) {
           off[i - 1].maxv = off[i].minv
+        }
+      }
       // merge adjacent blocks
       for (i = 1, l = 0; i < n_off; ++i) {
-        if (off[l].maxv.block == off[i].minv.block) off[l].maxv = off[i].maxv
-        else {
+        if (off[l].maxv.block == off[i].minv.block) {
+          off[l].maxv = off[i].maxv
+        } else {
           ++l
           off[l].minv = off[i].minv
           off[l].maxv = off[i].maxv
@@ -275,11 +295,21 @@ define([
     /* calculate bin given an alignment covering [beg,end) (zero-based, half-close-half-open) */
     _reg2bin: function (beg, end) {
       --end
-      if (beg >> 14 == end >> 14) return ((1 << 15) - 1) / 7 + (beg >> 14)
-      if (beg >> 17 == end >> 17) return ((1 << 12) - 1) / 7 + (beg >> 17)
-      if (beg >> 20 == end >> 20) return ((1 << 9) - 1) / 7 + (beg >> 20)
-      if (beg >> 23 == end >> 23) return ((1 << 6) - 1) / 7 + (beg >> 23)
-      if (beg >> 26 == end >> 26) return ((1 << 3) - 1) / 7 + (beg >> 26)
+      if (beg >> 14 == end >> 14) {
+        return ((1 << 15) - 1) / 7 + (beg >> 14)
+      }
+      if (beg >> 17 == end >> 17) {
+        return ((1 << 12) - 1) / 7 + (beg >> 17)
+      }
+      if (beg >> 20 == end >> 20) {
+        return ((1 << 9) - 1) / 7 + (beg >> 20)
+      }
+      if (beg >> 23 == end >> 23) {
+        return ((1 << 6) - 1) / 7 + (beg >> 23)
+      }
+      if (beg >> 26 == end >> 26) {
+        return ((1 << 3) - 1) / 7 + (beg >> 26)
+      }
       return 0
     },
 
@@ -289,11 +319,21 @@ define([
         list = []
       --end
       list.push(0)
-      for (k = 1 + (beg >> 26); k <= 1 + (end >> 26); ++k) list.push(k)
-      for (k = 9 + (beg >> 23); k <= 9 + (end >> 23); ++k) list.push(k)
-      for (k = 73 + (beg >> 20); k <= 73 + (end >> 20); ++k) list.push(k)
-      for (k = 585 + (beg >> 17); k <= 585 + (end >> 17); ++k) list.push(k)
-      for (k = 4681 + (beg >> 14); k <= 4681 + (end >> 14); ++k) list.push(k)
+      for (k = 1 + (beg >> 26); k <= 1 + (end >> 26); ++k) {
+        list.push(k)
+      }
+      for (k = 9 + (beg >> 23); k <= 9 + (end >> 23); ++k) {
+        list.push(k)
+      }
+      for (k = 73 + (beg >> 20); k <= 73 + (end >> 20); ++k) {
+        list.push(k)
+      }
+      for (k = 585 + (beg >> 17); k <= 585 + (end >> 17); ++k) {
+        list.push(k)
+      }
+      for (k = 4681 + (beg >> 14); k <= 4681 + (end >> 14); ++k) {
+        list.push(k)
+      }
       return list
     },
     _bin_limit: function (min_shift, depth = 5) {

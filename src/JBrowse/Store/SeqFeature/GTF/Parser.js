@@ -90,9 +90,13 @@ define([
     },
 
     _return_item: function (i) {
-      if (i[0]) this.featureCallback(i)
-      else if (i.directive) this.directiveCallback(i)
-      else if (i.comment) this.commentCallback(i)
+      if (i[0]) {
+        this.featureCallback(i)
+      } else if (i.directive) {
+        this.directiveCallback(i)
+      } else if (i.comment) {
+        this.commentCallback(i)
+      }
     },
 
     finish: function () {
@@ -218,7 +222,9 @@ define([
 
     _resolve_references_to: function (feature, id) {
       var references = this.under_construction_orphans[id]
-      if (!references) return
+      if (!references) {
+        return
+      }
 
       for (var attrname in references) {
         var pname =
@@ -242,9 +248,10 @@ define([
             var other_feature
             if ((other_feature = this.under_construction_by_id[to_id])) {
               this._expand_feature(other_feature, feature)
-              if (!pname)
+              if (!pname) {
                 pname =
                   this.container_attributes[attrname] || attrname.toLowerCase()
+              }
               if (
                 !array.some(
                   ids,

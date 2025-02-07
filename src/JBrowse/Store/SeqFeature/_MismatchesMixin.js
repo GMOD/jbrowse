@@ -428,22 +428,25 @@ define(['dojo/_base/declare', 'dojo/_base/array'], function (declare, array) {
       for (let i = 0; i < ops.length; i += 2) {
         var len = +ops[i]
         var op = ops[i + 1]
-        if (op == 'D')
+        if (op == 'D') {
           mismatches.push({
             start: currOffset,
             type: 'deletion',
             base: '*',
             length: len,
           })
-        else if (op == 'N')
+        } else if (op == 'N') {
           mismatches.push({
             start: currOffset,
             type: 'skip',
             base: 'N',
             length: len,
           })
+        }
 
-        if (op != 'I' && op != 'S' && op != 'H') currOffset += len
+        if (op != 'I' && op != 'S' && op != 'H') {
+          currOffset += len
+        }
       }
       return mismatches
     },

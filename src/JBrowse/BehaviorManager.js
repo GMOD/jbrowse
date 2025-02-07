@@ -76,7 +76,9 @@ define([], function () {
    */
   BehaviorManager.prototype._get = function (name) {
     var b = this.behaviors[name]
-    if (!b) throw "no behavior registed with name '" + "'name"
+    if (!b) {
+      throw "no behavior registed with name '" + "'name"
+    }
     return b
   }
 

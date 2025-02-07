@@ -36,8 +36,9 @@ define(['JBrowse/View/Animation'], function (Animation) {
     this.toZoom.style.left = this.initialLeft + newLeft + 'px'
     var forceRedraw = this.toZoom.offsetTop
 
-    if (this.subject.updateStaticElements)
+    if (this.subject.updateStaticElements) {
       this.subject.updateStaticElements({ x: this.initialX - newLeft })
+    }
   }
 
   return Zoomer
