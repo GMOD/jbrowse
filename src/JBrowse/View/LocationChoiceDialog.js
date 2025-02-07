@@ -1,3 +1,4 @@
+import dompurify from 'dompurify'
 /**
  * Dialog box that prompts the user to choose between several
  * different available locations to navigate to.

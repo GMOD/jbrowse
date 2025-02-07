@@ -1,26 +1,14 @@
+import dompurify from 'dompurify'
+
 define([
   'dojo/_base/declare',
   'dojo/_base/array',
   'dojo/dom-construct',
-  'dijit/focus',
-  'dijit/form/TextBox',
   'JBrowse/View/Dialog/WithActionBar',
   'dojo/on',
   'dijit/form/Button',
-  'JBrowse/Model/Location',
   'JBrowse/Util',
-], function (
-  declare,
-  array,
-  dom,
-  focus,
-  dijitTextBox,
-  ActionBarDialog,
-  on,
-  Button,
-  Location,
-  Util,
-) {
+], function (declare, array, dom, ActionBarDialog, on, Button, Util) {
   return declare(
     ActionBarDialog,
 
@@ -127,8 +115,10 @@ define([
         )
 
         on(self.input, 'change', function (here) {
-          console.log(self.input.value)
-          dojo.byId('data_dir_list').innerHTML = self.input.value
+          // eslint-disable-next-line xss/no-mixed-html
+          dojo.byId('data_dir_list').innerHTML = dompurify.sanitize(
+            self.input.value,
+          )
           thisB.datadir = self.input.value
         })
         var checkFrequency = 900
@@ -136,7 +126,10 @@ define([
           // compare with all whitespace changed to commas so that
           // we are insensitive to changes in whitespace
           if (self.input.value != thisB.datadir && !thisB.localopened) {
-            dojo.byId('data_dir_list').innerHTML = self.input.value
+            // eslint-disable-next-line xss/no-mixed-html
+            dojo.byId('data_dir_list').innerHTML = dompurify.sanitize(
+              self.input.value,
+            )
             thisB.datadir = self.input.value
           }
           window.setTimeout(checkForChange, checkFrequency)
@@ -201,7 +194,8 @@ define([
             })
             thisB.datadir = paths[0]
             thisB.localopened = true
-            dojo.byId('data_dir_list').innerHTML = paths[0]
+            // eslint-disable-next-line xss/no-mixed-html
+            dojo.byId('data_dir_list').innerHTML = dompurify.sanitize(paths[0])
           }
         })
 

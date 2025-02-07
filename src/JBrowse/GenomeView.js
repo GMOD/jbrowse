@@ -1,10 +1,11 @@
 import normalizeWheel from 'normalize-wheel'
+import dompurify from 'dompurify'
+
 define([
   'dojo/_base/declare',
   'dojo/_base/array',
   'dojo/dom-construct',
   'JBrowse/Util',
-  'JBrowse/has',
   'dojo/dnd/move',
   'dojo/dnd/Source',
   'dijit/focus',
@@ -15,13 +16,11 @@ define([
   'JBrowse/BehaviorManager',
   'JBrowse/View/Animation/Zoomer',
   'JBrowse/View/Animation/Slider',
-  'JBrowse/View/InfoDialog',
 ], function (
   declare,
   array,
   domConstruct,
   Util,
-  has,
   dndMove,
   dndSource,
   dijitFocus,
@@ -32,7 +31,6 @@ define([
   BehaviorManager,
   Zoomer,
   Slider,
-  InfoDialog,
 ) {
   var dojof = Util.dojof
 
@@ -1174,13 +1172,13 @@ define([
     },
 
     rubberCancel: function (event) {
-      var htmlNode = document.body.parentNode
+      var parentNode = document.body.parentNode
       var bodyNode = document.body
 
       if (
         !event ||
         !(event.relatedTarget || event.toElement) ||
-        htmlNode === (event.relatedTarget || event.toElement) ||
+        parentNode === (event.relatedTarget || event.toElement) ||
         bodyNode === (event.relatedTarget || event.toElement)
       ) {
         this._rubberStop(event)
@@ -1291,12 +1289,12 @@ define([
 
     /** stop the drag if we mouse out of the view */
     checkDragOut: function (event) {
-      var htmlNode = document.body.parentNode
+      var parentNode = document.body.parentNode
       var bodyNode = document.body
 
       if (
         !(event.relatedTarget || event.toElement) ||
-        htmlNode === (event.relatedTarget || event.toElement) ||
+        parentNode === (event.relatedTarget || event.toElement) ||
         bodyNode === (event.relatedTarget || event.toElement)
       ) {
         this.dragEnd(event)
@@ -1687,7 +1685,10 @@ define([
       label.style.display = 'block' //make label visible
       var absfunc = args.xToBp || dojo.hitch(this, 'absXtoBp')
       //set text to BP location (adding 1 to convert from interbase)
-      label.innerHTML = Util.addCommas(Math.floor(absfunc(numX)) + 1)
+      // eslint-disable-next-line xss/no-mixed-html
+      label.innerHTML = dompurify.sanitize(
+        Util.addCommas(Math.floor(absfunc(numX)) + 1),
+      )
 
       //label.style.top = args.top + 'px';
 

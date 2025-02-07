@@ -1,6 +1,7 @@
+import dompurify from 'dompurify'
+
 define([
   'dojo/_base/declare',
-  'dojo/_base/array',
   'dojo/dom-construct',
   'dojo/on',
   'dojo/aspect',
@@ -12,7 +13,6 @@ define([
   'JBrowse/Util',
 ], function (
   declare,
-  array,
   dom,
   on,
   aspect,
@@ -55,7 +55,8 @@ define([
           'div',
           {
             className: 'prompt',
-            innerHTML: this.prompt,
+            // eslint-disable-next-line xss/no-mixed-html
+            innerHTML: dompurify.sanitize(this.prompt),
           },
           container,
         )

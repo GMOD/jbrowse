@@ -1,3 +1,5 @@
+import dompurify from 'dompurify'
+
 define([
   'dojo/_base/declare',
   'dojo/_base/array',
@@ -169,12 +171,19 @@ define([
                 innerHTML: dompurify.sanitize(
                   `<div class="${
                     res.file ? 'dijitIconFile' : 'jbrowseIconLink'
-                  }"></div>`,
+                  }"/>`,
                 ),
               },
               tr,
             )
-            dojo.create('td', { innerHTML: name }, tr)
+            dojo.create(
+              'td',
+              {
+                // eslint-disable-next-line xss/no-mixed-html
+                innerHTML: dompurify.sanitize(name),
+              },
+              tr,
+            )
             dojo.create(
               'td',
               {

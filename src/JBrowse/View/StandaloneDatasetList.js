@@ -1,3 +1,5 @@
+import dompurify from 'dompurify'
+
 define(['dojo/_base/declare', 'dijit/_WidgetBase'], function (
   declare,
 
