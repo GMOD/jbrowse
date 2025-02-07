@@ -108,9 +108,10 @@ define([
         'div',
         {
           className: 'field_container',
-          innerHTML: `<h2 class="field ${class_}"${titleAttr}>${
-            formatted_title
-          }</h2>`,
+          // eslint-disable-next-line xss/no-mixed-html
+          innerHTML: dompurify.sanitize(
+            `<h2 class="field ${class_}"${titleAttr}>${formatted_title}</h2>`,
+          ),
         },
         parentElement,
       )
@@ -122,8 +123,10 @@ define([
 
       var count = this.renderDetailValue(valueContainer, title, val, f, class_)
       if (typeof count == 'number' && count > 4) {
-        query('h2', fieldContainer)[0].innerHTML =
-          `${formatted_title} (${count})`
+        // eslint-disable-next-line xss/no-mixed-html
+        query('h2', fieldContainer)[0].innerHTML = dompurify.sanitize(
+          `${formatted_title} (${count})`,
+        )
       }
 
       return fieldContainer

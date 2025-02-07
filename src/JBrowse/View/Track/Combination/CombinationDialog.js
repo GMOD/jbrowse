@@ -57,9 +57,11 @@ define([
       nodesToAdd.push(
         dom.create('div', {
           className: 'intro',
-          innerHTML: `Adding ${this.currType} track ${
-            this.newTrackKey
-          } to the combination.`,
+          innerHTML: dompurify.sanitize(
+            `Adding ${this.currType} track ${
+              this.newTrackKey
+            } to the combination.`,
+          ),
         }),
       )
 
@@ -81,7 +83,11 @@ define([
       })
       nodesToAdd.push(this.changingOpPanel)
 
-      nodesToAdd.push(dom.create('h2', { innerHTML: 'Combination formula' }))
+      nodesToAdd.push(
+        dom.create('h2', {
+          innerHTML: 'Combination formula',
+        }),
+      )
 
       this.formulaPreview = dom.create('div', {
         innerHTML: '(nothing currently selected)',
