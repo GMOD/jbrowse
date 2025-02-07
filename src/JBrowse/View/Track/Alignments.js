@@ -1,3 +1,5 @@
+import dompurify from 'dompurify'
+
 define([
   'dojo/_base/declare',
   'dojo/_base/array',
@@ -6,8 +8,11 @@ define([
   'JBrowse/View/Track/HTMLFeatures',
   'JBrowse/View/Track/_AlignmentsMixin',
 ], function (declare, array, all, Util, HTMLFeatures, AlignmentsMixin) {
-  // return declare( HTMLFeatures,
+  // false positive
+  // eslint-disable-next-line xss/no-mixed-html
   return declare(
+    // false positive
+    // eslint-disable-next-line xss/no-mixed-html
     [HTMLFeatures, AlignmentsMixin],
     /**
      * @lends JBrowse.View.Track.Alignments
@@ -165,7 +170,8 @@ define([
                             100
                           }%`,
                         },
-                        innerHTML: base,
+                        // eslint-disable-next-line xss/no-mixed-html
+                        innerHTML: dompurify.sanitize(base),
                       },
                       overall,
                     )

@@ -76,7 +76,6 @@ define([
 
         // data store that fetches and filters our track metadata
         this.trackDataStore = args.trackMetaData
-        console.log(args.trackMetaData)
 
         // subscribe to commands coming from the the controller
         this.browser.subscribe(

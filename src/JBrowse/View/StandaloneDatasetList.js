@@ -21,7 +21,8 @@ define(['dojo/_base/declare', 'dijit/_WidgetBase'], function (
           var li = document.createElement('li')
           var a = document.createElement('a')
           a.setAttribute('href', sppData.url)
-          a.innerHTML = sppData.name
+          // eslint-disable-next-line xss/no-mixed-html
+          a.innerHTML = dompurify.sanitize(sppData.name)
           li.appendChild(a)
           ul.appendChild(li)
         }

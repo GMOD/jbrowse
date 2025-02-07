@@ -1,6 +1,8 @@
+import dompurify from 'dompurify'
+
 /**
- * Mixin to provide a `defaultFeatureDetail` method that is optimized
- * for displaying variant data from VCF files.
+ * Mixin to provide a `defaultFeatureDetail` method that is optimized for
+ * displaying variant data from VCF files.
  */
 
 define([
@@ -255,7 +257,8 @@ define([
             'td',
             {
               className: `category level_${level}`,
-              innerHTML: categoryName,
+              // eslint-disable-next-line xss/no-mixed-html
+              innerHTML: dompurify.sanitize(categoryName),
             },
             tr,
           )
@@ -265,7 +268,8 @@ define([
               'td',
               {
                 className: `count level_${level}`,
-                innerHTML: thisTotal,
+                // eslint-disable-next-line xss/no-mixed-html
+                innerHTML: dompurify.sanitize(thisTotal),
               },
               tr,
             )
@@ -283,7 +287,9 @@ define([
               'td',
               {
                 className: `count level_${level}`,
-                innerHTML: count,
+
+                // eslint-disable-next-line xss/no-mixed-html
+                innerHTML: dompurify.sanitize(count),
               },
               tr,
             )
@@ -309,7 +315,12 @@ define([
       )
       domConstruct.create(
         'td',
-        { className: 'count total', innerHTML: total },
+        {
+          className: 'count total',
+
+          // eslint-disable-next-line xss/no-mixed-html
+          innerHTML: dompurify.sanitize(total),
+        },
         totalTR,
       )
       domConstruct.create(
