@@ -61,13 +61,6 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-extlib-
 
-    - name: Cache Python virtualenv
-      uses: actions/cache@v3
-      with:
-        path: ~/python
-        key: ${{ runner.os }}-python-${{ hashFiles('**/requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-python-
 
     - name: Install Perl dependencies
       run: |
