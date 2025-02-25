@@ -63,7 +63,7 @@ class JBrowseTest (object):
             if os.getenv('CHROME_HEADLESS'):
                 options.add_argument('headless')
                 options.add_argument('disable-gpu')
-            return webdriver.Chrome(options=options)
+            return webdriver.Chrome(chrome_options=options)
         elif browser == 'phantom' or browser == 'phantomjs':
             return webdriver.PhantomJS()
         elif browser == 'travis_saucelabs':
@@ -80,19 +80,28 @@ class JBrowseTest (object):
         if not self.base_url:
             self.base_url = os.environ['JBROWSE_URL'] if 'JBROWSE_URL' in os.environ else "http://localhost/jbrowse/index.html"
         return self.base_url
-                el = self.browser.find_element(By.XPATH, expression)
+
+
+    ## convenience methods for us
+
+    def assert_element(self, expression , time=5):
+        self._waits_for_element(expression, time*self.time_dilation)
+        try:
+            if expression.find('/') >= 0:
+                el = self.browser.find_element_by_xpath(expression)
             else:
-                el = self.browser.find_element(By.CSS_SELECTOR, expression)
+                el = self.browser.find_element_by_css_selector( expression )
         except NoSuchElementException:
-            raise AssertionError ("can
+            raise AssertionError ("can't find %s" %expression)
+        return el
 
     def assert_elements( self, expression ):
         self._waits_for_elements( expression, 3*self.time_dilation )
         try:
             if '/' in expression:
-                el = self.browser.find_elements(By.XPATH, expression)
+                el = self.browser.find_elements_by_xpath( expression )
             else:
-                el = self.browser.find_elements(By.CSS_SELECTOR, expression)
+                el = self.browser.find_elements_by_css_selector( expression )
         except NoSuchElementException:
             raise AssertionError ("can't find %s" %expression)
         return el
@@ -105,12 +114,12 @@ class JBrowseTest (object):
         self._waits_for_no_element( expression )
 
     def assert_no_js_errors( self ):
-        assert self.browser.find_element(By.XPATH, '/html/body') \
-                      .get_attribute('JSError') is None
+        assert self.browser.find_element_by_xpath('/html/body') \
+                      .get_attribute('JSError') == None
 
     # Find the query box and put f15 into it and hit enter
     def do_typed_query( self, text ):
-        qbox = self.browser.find_element(By.ID, "location")
+        qbox = self.browser.find_element_by_id("location")
         qbox.clear()
         qbox.send_keys( text )
         qbox.send_keys( Keys.RETURN )
@@ -210,17 +219,17 @@ class JBrowseTest (object):
         return self.assert_elements( "//span[contains(@class,'track-label-text')][contains(.,'%s')]" % string )
 
     def _waits_for_elements( self, expression, time=5):
-        WebDriverWait(self, time*self.time_dilation).until(lambda driver: driver.do_elements_exist(expression))
+        WebDriverWait(self, time*self.time_dilation).until(lambda self: self.do_elements_exist(expression))
 
     def _waits_for_element( self, expression, time=5 ):
-        WebDriverWait(self, time*self.time_dilation).until(lambda driver: driver.does_element_exist(expression))
+        WebDriverWait(self, time*self.time_dilation).until(lambda self: self.does_element_exist(expression))
 
     def _waits_for_no_element( self, expression, time=5 ):
-        WebDriverWait(self, time*self.time_dilation).until(lambda driver: not driver.does_element_exist(expression))
+        WebDriverWait(self, time*self.time_dilation).until(lambda self: not self.does_element_exist(expression))
 
     # Wait until faceted browser has narrowed results to one track
     def wait_until_one_track(self):
-        WebDriverWait(self, 5*self.time_dilation).until(lambda driver: driver.is_one_row())
+        WebDriverWait(self, 5*self.time_dilation).until(lambda self: self.is_one_row())
 
     # Return true/false if faceted browser narrowed down to one track
     def is_one_row(self):
@@ -230,9 +239,9 @@ class JBrowseTest (object):
     def does_element_exist (self, expression):
         try:
             if expression.find('/') >= 0:
-                self.browser.find_element(By.XPATH, expression)
+                self.browser.find_element_by_xpath( expression )
             else:
-                self.browser.find_element(By.CSS_SELECTOR, expression)
+                self.browser.find_element_by_css_selector( expression )
             return True
         except NoSuchElementException:
             return False
@@ -241,9 +250,9 @@ class JBrowseTest (object):
     def do_elements_exist (self, expression):
         try:
             if expression.find('/') >= 0:
-                self.browser.find_elements(By.XPATH, expression)
+                self.browser.find_elements_by_xpath( expression )
             else:
-                self.browser.find_elements(By.CSS_SELECTOR, expression)
+                self.browser.find_elements_by_css_selector( expression )
             return True
         except NoSuchElementException:
             return False
@@ -265,10 +274,10 @@ class JBrowseTest (object):
         self.do_typed_query( name )
 
     def scroll( self ):
-        move_right_button = self.browser.find_element(By.ID, 'moveRight')
+        move_right_button = self.browser.find_element_by_id('moveRight')
         move_right_button.click()
         self.waits_for_scroll(self.browser.title)
-        move_left_button = self.browser.find_element(By.ID, 'moveLeft')
+        move_left_button = self.browser.find_element_by_id('moveLeft')
         move_left_button.click()
         self.waits_for_scroll(self.browser.title)
 
@@ -292,12 +301,12 @@ class JBrowseTest (object):
     # waits for the title of the page to change, since it
     # gets updated after the scroll animation
     def waits_for_scroll ( self, location ):
-        WebDriverWait(self, 5*self.time_dilation).until(lambda driver: driver.browser.title != location)
+        WebDriverWait(self, 5*self.time_dilation).until(lambda self: self.browser.title != location)
 
 
     #Exists because onload() get trigered before JBrowse is ready
     def _waits_for_load(self):
-        WebDriverWait(self.browser, 5*self.time_dilation).until(lambda driver: "data=" in driver.current_url or "js_tests" in driver.current_url)
+        WebDriverWait(self.browser, 5*self.time_dilation).until(lambda self: "data=" in self.current_url or "js_tests")
         if "data=nonexistent" in self.browser.current_url: #account for the test for bad data
             pass
         elif "js_tests" in self.browser.current_url: #account for jasmine tests

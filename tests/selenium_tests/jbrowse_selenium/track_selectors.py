@@ -78,8 +78,8 @@ class FacetedTrackSelector (TrackSelector):
         textfilter.send_keys( tracktext )
 
         # check that the number of matching tracks is 1
-
-        self.test.wait_until_one_track ()
+        
+        self.test.wait_until_one_track () 
         return self.test.assert_element("div.dojoxGridRow")
 
     def _close_selector( self ):
