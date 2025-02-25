@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         perl: [5.26] #for full testing['5.26', '5.14']
-        node: [20]
+        node: [14]
 
     steps:
       - uses: actions/checkout@v3
@@ -25,9 +25,10 @@ jobs:
       - name: Add yarn
         run: |
           npm install -g yarn
-      - uses: actions/setup-python@v5
+
+      - uses: LizardByte/setup-python-action@master
         with:
-          python-version: '3.13'
+          python-version: '2.7'
 
       - name: Set up Perl ${{ matrix.perl }}
         uses: shogo82148/actions-setup-perl@v1
@@ -68,9 +69,10 @@ jobs:
 
       - name: Get release version
         run: |
-          echo "RELEASE_VERSION=$(node -e 'require(\"fs\").readFile(\"src/JBrowse/package.json\", (e,d)=>console.log(JSON.parse(d).version))')" >> $GITHUB_ENV
+          echo "RELEASE_VERSION=$(node -e 'require("fs").readFile("src/JBrowse/package.json", (e,d)=>console.log(JSON.parse(d).version))')" >> $GITHUB_ENV
 
       - name: Setup JBrowse
+        if: always()
         run: |
           JBROWSE_BUILD_MIN=0 ./setup.sh
 
