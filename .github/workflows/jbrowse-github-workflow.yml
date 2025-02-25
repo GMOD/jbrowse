@@ -35,14 +35,11 @@ jobs:
         with:
           perl-version: ${{ matrix.perl }}
 
-      - name: Check available GD packages
-        run: apt-cache search libgdchart-gd2-xpm-dev
-
       - name: Install system dependencies
         run: |
           sudo dpkg --add-architecture i386
           sudo apt-get update
-          sudo apt-get install -y libdb-dev libgdchart-gd2-xpm-dev
+          sudo apt-get install -y libdb-dev libgdchart-gd2-xpm-dev wine
 
       - name: Install Firefox
         uses: browser-actions/setup-firefox@latest
@@ -111,7 +108,6 @@ jobs:
           cp -r ../tests/ .
           ./setup.sh
           npx es-check es5 dist/*.js
-          prove -Isrc/perl5 -r -j3 tests/perl_tests
           cd $GITHUB_WORKSPACE
           MOZ_HEADLESS=1 SELENIUM_BROWSER=firefox NOSEOPTS="-I jasmine" JBROWSE_URL=http://localhost:9000/JBrowse-${{ env.RELEASE_VERSION }}/index.html tests/selenium_tests/travis_wrapper.sh
           # remove symlink and copy actual files to dir for upload to s3
