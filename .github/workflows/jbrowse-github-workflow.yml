@@ -9,10 +9,12 @@ on:
 
 jobs:
   build-and-test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
+        container:
+          image: python:2.7.18-buster
     strategy:
       matrix:
-        perl: ['5.26', '5.14']
+        perl: [5.26]  #for full testing['5.26', '5.14']
         node: [16]
 
     steps:
@@ -32,25 +34,26 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.8'
+        python-version: '2.7'
         cache: 'pip'
+
+    - name: Check available GD packages
+      run: apt-cache search libgdchart-gd2-xpm-dev
 
     - name: Install system dependencies
       run: |
         sudo dpkg --add-architecture i386
         sudo apt-get update
-        sudo apt-get install -y libdb-dev libgd2-xpm-dev wine1.6
+        sudo apt-get install -y libdb-dev libgdchart-gd2-xpm-dev
 
     - name: Install Firefox
       uses: browser-actions/setup-firefox@latest
-      with:
-        firefox-version: '58.0'
 
     - name: Install Geckodriver
       run: |
-        GECKODRIVER_VERSION=0.19.1
+        GECKODRIVER_VERSION=0.36.0
         mkdir ~/geckodriver_${GECKODRIVER_VERSION}
-        wget -O - https://github.com/mozilla/geckodriver/releases/download/v${GECKODRIVER_VERSION}/geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz | tar -xzf - -C ~/geckodriver_${GECKODRIVER_VERSION}
+        wget -O - https://github.com/mozilla/geckodriver/releases/download/v0.36.0/geckodriver-v0.36.0-linux64.tar.gz | tar -xzf - -C ~/geckodriver_${GECKODRIVER_VERSION}
         echo "${HOME}/geckodriver_${GECKODRIVER_VERSION}" >> $GITHUB_PATH
 
     - name: Cache extlib
