@@ -1,198 +1,196 @@
 /* styles for the top menu bar */
 div.menuBar {
-    padding: 1px 0;
-    height: 25px;
+  padding: 1px 0;
+  height: 25px;
 
-    background: #396494;
-    text-align: right;
+  background: #396494;
+  text-align: right;
 
-    line-height: 1;
+  line-height: 1;
 
-    a {
-        color: white;
-    }
+  a {
+    color: white;
+  }
 
-    .dataset-name {
-        font-size: 13px;
-        color: white;
-        font-style: italic;
-        padding-right: 1em;
-        padding-top: 7px;
-    }
+  .dataset-name {
+    font-size: 13px;
+    color: white;
+    font-style: italic;
+    padding-right: 1em;
+    padding-top: 7px;
+  }
 
-    * {
-        outline: none;
-        vertical-align: top;
-    }
-    .dijitButtonNode {
-        background: transparent;
-        border: 2px outset rgba( 120, 120, 120, 0.2 );
-        height: 18px;
-    }
+  * {
+    outline: none;
+    vertical-align: top;
+  }
+  .dijitButtonNode {
+    background: transparent;
+    border: 2px outset rgba(120, 120, 120, 0.2);
+    height: 18px;
+  }
 }
 div.topLink {
-    position: absolute;
-    right: 0;
-    top: 0;
-    z-index: 50;
-    background: white;
-    border: 1px solid #888;
-    border-width: 0 0 1px 1px;
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 50;
+  background: white;
+  border: 1px solid #888;
+  border-width: 0 0 1px 1px;
 }
-div.menuBar a, .topLink a {
-    padding: 0 0.8ex;
-    text-decoration: none;
+div.menuBar a,
+.topLink a {
+  padding: 0 0.8ex;
+  text-decoration: none;
 }
 .menuBar .powered_by {
-    float: left;
-    font-size: 125%;
-    font-family: 'Helvetica Neue', Arial, Helvetica, 'Nimbus Sans L', sans-serif;
-    font-weight: bold;
-    line-height: 25px; /* note this line-height should be the same as the fixed height of the menuBar */
-    cursor: pointer;
+  float: left;
+  font-size: 125%;
+  font-family: 'Helvetica Neue', Arial, Helvetica, 'Nimbus Sans L', sans-serif;
+  font-weight: bold;
+  line-height: 25px; /* note this line-height should be the same as the fixed height of the menuBar */
+  cursor: pointer;
 }
 
 .share {
-    line-height: 18px;
+  line-height: 18px;
 
-    .icon {
-        height: 8px;
-        width: 19px;
-        display: inline;
-        display: inline-block;
-        background: url("../img/glyphs_white.png") no-repeat -149px -91px;
-        margin-right: 2px;
-        margin-top: 2px;
-        vertical-align: middle;
-    }
+  .icon {
+    height: 8px;
+    width: 19px;
+    display: inline;
+    display: inline-block;
+    background: url('../img/glyphs_white.png') no-repeat -149px -91px;
+    margin-right: 2px;
+    margin-top: 2px;
+    vertical-align: middle;
+  }
 }
-a.topLink, a.topLink * {
-    cursor: pointer;
+a.topLink,
+a.topLink * {
+  cursor: pointer;
 }
 .topLink .powered_by {
-    padding: 0 0.5em;
-    color: black;
-    text-decoration: none;
+  padding: 0 0.5em;
+  color: black;
+  text-decoration: none;
 }
 
 .menuBar .dijitButtonHover,
 .menuBar .dijitDropDownButtonHover {
-    background: rgba( 255, 255, 255, 0.07 );
+  background: rgba(255, 255, 255, 0.07);
 }
 .menuBar .dijitButtonActive .dijitButtonNode,
 .menuBar .dijitDropDownButtonActive .dijitButtonNode {
-    border: 2px inset rgba( 120, 120, 120, 0.2 );
+  border: 2px inset rgba(120, 120, 120, 0.2);
 }
 
 .menuBar .dijitButtonNode {
-    padding: 0 1em;
+  padding: 0 1em;
 }
 
 .menuBar .dijitButtonNode * {
-    color: white;
+  color: white;
 }
 .menuBar .config .icon {
-    height: 16px;
-    width: 16px;
-    margin-right: 2px;
-    margin-top: -2px;
-    display: inline;
-    display: inline-block;
-    background: url("../img/glyphs_white.png") no-repeat -168px -27px;
-    vertical-align: middle;
+  height: 16px;
+  width: 16px;
+  margin-right: 2px;
+  margin-top: -2px;
+  display: inline;
+  display: inline-block;
+  background: url('../img/glyphs_white.png') no-repeat -168px -27px;
+  vertical-align: middle;
 }
-
 
 /* dataset selector */
-.menuBar > .menu, .menuBar  > .dijitComboBox {
-    float: left;
-    font-size: 120%;
-    color: white;
-    background: transparent;
-    height: 100%;
-    border: none;
+.menuBar > .menu,
+.menuBar > .dijitComboBox {
+  float: left;
+  font-size: 120%;
+  color: white;
+  background: transparent;
+  height: 100%;
+  border: none;
 }
 .menuBar > .dijitComboBox {
-    > .dijitInputContainer {
-        height: 100%;
+  > .dijitInputContainer {
+    height: 100%;
+  }
+  .dijitArrowButton {
+    padding: 0 3px 0 2px;
+    height: 100%;
+
+    .dijitArrowButtonInner {
+      background: url('../img/spriteArrows.png') no-repeat scroll -56px center;
+      margin-top: 4px;
     }
-    .dijitArrowButton {
-        padding: 0 3px 0 2px;
-        height: 100%;
 
-        .dijitArrowButtonInner {
-            background: url("../img/spriteArrows.png") no-repeat scroll -56px center;
-            margin-top: 4px;
-        }
-
-        &:hover {
-            background: rgba(255,255,255,0.2)
-        }
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
     }
-    .dataset_select {
-        font-weight: bold;
-        background: transparent;
-        border: none;
-        color: inherit;
-        font-size: inherit;
-        font-style: italic;
-        height: 100%;
-        padding-bottom: 1px;
-        padding-left: 3px;
+  }
+  .dataset_select {
+    font-weight: bold;
+    background: transparent;
+    border: none;
+    color: inherit;
+    font-size: inherit;
+    font-style: italic;
+    height: 100%;
+    padding-bottom: 1px;
+    padding-left: 3px;
 
-        .dijitSelectLabel {
-            padding: 0 0.5em;
-            vertical-align: middle;
-        }
-
-        &.dijitSelectHover td {
-            color: white;
-        }
-        .dijitButtonContents {
-            background: transparent;
-            border-color: transparent;
-        }
+    .dijitSelectLabel {
+      padding: 0 0.5em;
+      vertical-align: middle;
     }
+
+    &.dijitSelectHover td {
+      color: white;
+    }
+    .dijitButtonContents {
+      background: transparent;
+      border-color: transparent;
+    }
+  }
 }
 
 &.globalMenu .dijitMenuItem td {
-    padding: 0.5em 2px 0.5em 5px;
+  padding: 0.5em 2px 0.5em 5px;
 }
 
 .menuBar > .menu .dijitButtonNode {
-    border: none;
+  border: none;
 }
 .menuBar > .menu.dijitDropDownButton,
 .menuBar > .menu.dijitDropDownButton * {
-    margin: 0;
-    padding: 0;
-    line-height: 25px;
+  margin: 0;
+  padding: 0;
+  line-height: 25px;
 }
 .menuBar > .menu.dijitDropDownButton .dijitButtonNode {
-    padding: 0 1em 0 0.7em;
-    text-align: left;
+  padding: 0 1em 0 0.7em;
+  text-align: left;
 }
 
 .menuBar > .menu .dijitDropDownButtonHover .dijitButtonNode {
-    background: rgba( 255, 255, 255, 0.07 );
+  background: rgba(255, 255, 255, 0.07);
 }
 .menuBar > .menu .dijitDropDownButtonActive .dijitButtonNode {
-    border: none;
+  border: none;
 }
-
-
 
 .welcome_button {
-    border: 1px black;
-    background-color: #396494;
-    color: white;
-    padding: 10px;
-    margin: 2px;
-    width: 200px
+  border: 1px black;
+  background-color: #396494;
+  color: white;
+  padding: 10px;
+  margin: 2px;
+  width: 200px;
 }
 
-
-
 .welcome_button:hover {
-    background-color: #3A8A9A;
+  background-color: #3a8a9a;
 }

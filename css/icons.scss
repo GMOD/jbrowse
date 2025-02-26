@@ -3,11 +3,10 @@
 .jbrowseIconLink,
 .jbrowseIconCancel,
 .jbrowseIconHorizontalResize,
-.jbrowseIconVerticalResize
-{
-    background-image: url('../img/commonIconsEnabled.png');
-    width: 16px;
-    height: 16px;
+.jbrowseIconVerticalResize {
+  background-image: url('../img/commonIconsEnabled.png');
+  width: 16px;
+  height: 16px;
 }
 
 .dijitDisabled .jbrowseIconHelp,
@@ -15,28 +14,27 @@
 .dijitDisabled .jbrowseIconLink,
 .dijitDisabled .jbrowseIconCancel,
 .dijitDisabled .jbrowseIconHorizontalResize,
-.dijitDisabled .jbrowseIconVerticalResize
-{
-    background-image: url('../img/commonIconsDisabled.png');
-    width: 16px;
-    height: 16px;
+.dijitDisabled .jbrowseIconVerticalResize {
+  background-image: url('../img/commonIconsDisabled.png');
+  width: 16px;
+  height: 16px;
 }
 
 .jbrowseIconHelp {
-    background-position: 0;
+  background-position: 0;
 }
 .jbrowseIconLink {
-    background-position: -152px;
+  background-position: -152px;
 }
 .jbrowseIconCancel {
-    background-position: -170px;
+  background-position: -170px;
 }
 .jbrowseIconBusy {
-    background-image: url('../img/spinner.gif');
+  background-image: url('../img/spinner.gif');
 }
 .jbrowseIconHorizontalResize {
-    background-position: -209px;
+  background-position: -209px;
 }
 .jbrowseIconVerticalResize {
-    background-position: -230px;
+  background-position: -230px;
 }

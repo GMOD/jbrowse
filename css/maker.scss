@@ -10,15 +10,15 @@
 .snap-three_prime_UTR,
 .plus-snap-three_prime_UTR,
 .minus-snap-three_prime_UTR {
-    position: absolute;
-    height: 7px;
-    background-color: #99FFCC;
-    border-style: solid;
-    border-color: #D88;
-    border-width: 2px 0px 2px 0px;
-    z-index: 8;
-    min-width: 1px;
-    cursor: pointer;
+  position: absolute;
+  height: 7px;
+  background-color: #99ffcc;
+  border-style: solid;
+  border-color: #d88;
+  border-width: 2px 0px 2px 0px;
+  z-index: 8;
+  min-width: 1px;
+  cursor: pointer;
 }
 
 /*Augustus*/
@@ -31,15 +31,15 @@
 .augustus-three_prime_UTR,
 .plus-augustus-three_prime_UTR,
 .minus-augustus-three_prime_UTR {
-    position: absolute;
-    height: 7px;
-    background-color: #FFCCFF;
-    border-style: solid;
-    border-color: #D88;
-    border-width: 2px 0px 2px 0px;
-    z-index: 8;
-    min-width: 1px;
-    cursor: pointer;
+  position: absolute;
+  height: 7px;
+  background-color: #ffccff;
+  border-style: solid;
+  border-color: #d88;
+  border-width: 2px 0px 2px 0px;
+  z-index: 8;
+  min-width: 1px;
+  cursor: pointer;
 }
 
 /*GeneMark*/
@@ -52,15 +52,15 @@
 .genemark-three_prime_UTR,
 .plus-genemark-three_prime_UTR,
 .minus-genemark-three_prime_UTR {
-    position: absolute;
-    height: 7px;
-    background-color: #679B68;
-    border-style: solid;
-    border-color: #D88;
-    border-width: 2px 0px 2px 0px;
-    z-index: 8;
-    min-width: 1px;
-    cursor: pointer;
+  position: absolute;
+  height: 7px;
+  background-color: #679b68;
+  border-style: solid;
+  border-color: #d88;
+  border-width: 2px 0px 2px 0px;
+  z-index: 8;
+  min-width: 1px;
+  cursor: pointer;
 }
 
 /*FGENESH*/
@@ -73,125 +73,125 @@
 .fgenesh-three_prime_UTR,
 .plus-fgenesh-three_prime_UTR,
 .minus-fgenesh-three_prime_UTR {
-    position: absolute;
-    height: 7px;
-    background-color: #FF99FF;
-    border-style: solid;
-    border-color: #D88;
-    border-width: 2px 0px 2px 0px;
-    z-index: 8;
-    min-width: 1px;
-    cursor: pointer;
+  position: absolute;
+  height: 7px;
+  background-color: #ff99ff;
+  border-style: solid;
+  border-color: #d88;
+  border-width: 2px 0px 2px 0px;
+  z-index: 8;
+  min-width: 1px;
+  cursor: pointer;
 }
 
 /*protein2genome*/
 .protein2genome_part,
 .plus-protein2genome_part,
 .minus-protein2genome_part {
-    position: absolute;
-    height: 4px;
-    margin-top: -2px;
-    background-color: #FFFF00;
-    border-style: solid;
-    border-color: #6E6E6E;
-    border-width: 1px 1px 1px 1px;
-    z-index: 8;
-    min-width: 1px;
-    cursor: pointer;
+  position: absolute;
+  height: 4px;
+  margin-top: -2px;
+  background-color: #ffff00;
+  border-style: solid;
+  border-color: #6e6e6e;
+  border-width: 1px 1px 1px 1px;
+  z-index: 8;
+  min-width: 1px;
+  cursor: pointer;
 }
 
 /*BLASTN*/
 .blastn_part,
 .plus-blastn_part,
 .minus-blastn_part {
-    position: absolute;
-    height: 4px;
-    margin-top: -2px;
-    background-color: #66CC00;
-    border-style: solid;
-    border-color: #6E6E6E;
-    border-width: 1px 1px 1px 1px;
-    z-index: 8;
-    min-width: 1px;
-    cursor: pointer;
+  position: absolute;
+  height: 4px;
+  margin-top: -2px;
+  background-color: #66cc00;
+  border-style: solid;
+  border-color: #6e6e6e;
+  border-width: 1px 1px 1px 1px;
+  z-index: 8;
+  min-width: 1px;
+  cursor: pointer;
 }
 
 /*BLASTX*/
 .blastx_part,
 .plus-blastx_part,
 .minus-blastx_part {
-    position: absolute;
-    height: 4px;
-    margin-top: -2px;
-background-color: #FF00FF;
-    border-style: solid;
-    border-color: #6E6E6E;
-    border-width: 1px 1px 1px 1px;
-    z-index: 8;
-    min-width: 1px;
-    cursor: pointer;
+  position: absolute;
+  height: 4px;
+  margin-top: -2px;
+  background-color: #ff00ff;
+  border-style: solid;
+  border-color: #6e6e6e;
+  border-width: 1px 1px 1px 1px;
+  z-index: 8;
+  min-width: 1px;
+  cursor: pointer;
 }
 
 /*TBLASTX*/
 .tblastx_part,
 .plus-tblastx_part,
 .minus-tblastx_part {
-    position: absolute;
-    height: 4px;
-    margin-top: -2px;
-    background-color: #663366;
-    border-style: solid;
-    border-color: #6E6E6E;
-    border-width: 1px 1px 1px 1px;
-    z-index: 8;
-    min-width: 1px;
-    cursor: pointer;
+  position: absolute;
+  height: 4px;
+  margin-top: -2px;
+  background-color: #663366;
+  border-style: solid;
+  border-color: #6e6e6e;
+  border-width: 1px 1px 1px 1px;
+  z-index: 8;
+  min-width: 1px;
+  cursor: pointer;
 }
 
 /*est2genome*/
 .est2genome_part,
 .plus-est2genome_part,
 .minus-est2genome_part {
-    position: absolute;
-    height: 4px;
-    margin-top: -2px;
-    background-color: #FAFAD2;
-    border-style: solid;
-    border-color: #6E6E6E;
-    border-width: 1px 1px 1px 1px;
-    z-index: 8;
-    min-width: 1px;
-    cursor: pointer;
+  position: absolute;
+  height: 4px;
+  margin-top: -2px;
+  background-color: #fafad2;
+  border-style: solid;
+  border-color: #6e6e6e;
+  border-width: 1px 1px 1px 1px;
+  z-index: 8;
+  min-width: 1px;
+  cursor: pointer;
 }
 
 /*repeat*/
 .repeat_part,
 .plus-repeat_part,
 .minus-repeat_part {
-    position: absolute;
-    height: 4px;
-    margin-top: -2px;
-    background-color: #FF0000;
-    border-style: solid;
-    border-color: #6E6E6E;
-    border-width: 1px 1px 1px 1px;
-    z-index: 8;
-    min-width: 1px;
-    cursor: pointer;
+  position: absolute;
+  height: 4px;
+  margin-top: -2px;
+  background-color: #ff0000;
+  border-style: solid;
+  border-color: #6e6e6e;
+  border-width: 1px 1px 1px 1px;
+  z-index: 8;
+  min-width: 1px;
+  cursor: pointer;
 }
 
 /*cdna2genome*/
 .cdna2genome_part,
 .plus-cdna2genome_part,
 .minus-cdna2genome_part {
-    position: absolute;
-    height: 4px;
-    margin-top: -2px;
-    background-color: #8C468C;
-    border-style: solid;
-    border-color: #6E6E6E;
-    border-width: 1px 1px 1px 1px;
-    z-index: 8;
-    min-width: 1px;
-    cursor: pointer;
+  position: absolute;
+  height: 4px;
+  margin-top: -2px;
+  background-color: #8c468c;
+  border-style: solid;
+  border-color: #6e6e6e;
+  border-width: 1px 1px 1px 1px;
+  z-index: 8;
+  min-width: 1px;
+  cursor: pointer;
 }
