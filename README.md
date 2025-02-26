@@ -1,7 +1,4 @@
 [![Build Status](https://img.shields.io/github/actions/workflow/status/GMOD/jbrowse/push.yml?branch=master)](https://github.com/GMOD/jbrowse/actions?query=branch%3Amaster+workflow%3APush+)
-
-![Build status](https://github.com/GMOD/jbrowse/actions/workflows/main.yml/badge.svg?branch=master)
-
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v1.4%20adopted-ff69b4.svg)](CODE_OF_CONDUCT.md)
 
 Note: most of our current development is on JBrowse 2, see our github repo here
