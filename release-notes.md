@@ -1,4 +1,4 @@
-# Release 1.16.12     2025-02-26 04:16:16 UTC
+{{$NEXT}}
 
 ## Bug fixes
 
