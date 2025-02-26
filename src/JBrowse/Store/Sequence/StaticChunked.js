@@ -1,2 +1,4 @@
 // renamed
-define( [ 'JBrowse/Store/SeqFeature/SequenceChunks' ], function(s) { return s; } );
+define(['JBrowse/Store/SeqFeature/SequenceChunks'], function (s) {
+  return s
+})
