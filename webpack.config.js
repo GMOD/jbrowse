@@ -58,6 +58,14 @@ var webpackConf = {
   module: {
     rules: [
       {
+        test: /\.html$/i,
+        use: 'raw-loader',
+      },
+      {
+        test: /\.css$/i,
+        use: ['style-loader', 'css-loader'],
+      },
+      {
         test: /\.js$/,
         exclude:
           /node_modules\/(?!(quick-lru|@gmod\/indexedfasta|@gmod\/tabix|@gmod\/tribble-index|@gmod\/bgzf-filehandle))/,
@@ -75,14 +83,19 @@ var webpackConf = {
       },
       {
         test: /src\/JBrowse\/main.js|src\/JBrowse\/standalone.js|tests\/js_tests\/main.js/,
-        use: [{ loader: path.resolve('build/glob-loader.js') }],
+        use: [
+          {
+            loader: path.resolve('build/glob-loader.js'),
+          },
+        ],
       },
       {
         test: /\.(png|jpg|jpeg|gif|svg|woff|woff2)$/,
         use: 'url-loader?limit=10000',
       },
       {
-        // regex replace all JBrowse plugin JS to just remove any use of dojo/domReady!
+        // regex replace all JBrowse plugin JS to just remove any use of
+        // dojo/domReady!
         test: filepath =>
           filepath.indexOf(__dirname + '/plugins') === 0 &&
           /\.js$/.test(filepath),

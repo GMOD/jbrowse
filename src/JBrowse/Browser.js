@@ -2,22 +2,22 @@ const url = cjsRequire('url')
 
 import dompurify from 'dompurify'
 
+import Welcome from './View/Resource/Welcome.html'
+import Welcome_old from './View/Resource/Welcome_old.html'
+
 import packagejson from './package.json'
 define([
   'dojo/_base/declare',
   'dojo/_base/lang',
   'dojo/on',
   'dojo/html',
-  'dojo/query',
   'dojo/dom-construct',
   'dojo/keys',
   'dojo/Deferred',
   'dojo/DeferredList',
   'dojo/topic',
-  'dojo/aspect',
   'dojo/request',
   'dojo/io-query',
-  'JBrowse/has',
   'dojo/_base/array',
   'dijit/layout/ContentPane',
   'dijit/layout/BorderContainer',
@@ -26,10 +26,8 @@ define([
   'dojo/store/Memory',
   'dijit/form/Button',
   'dijit/form/Select',
-  'dijit/form/ToggleButton',
   'dijit/form/DropDownButton',
   'dijit/DropDownMenu',
-  'dijit/CheckedMenuItem',
   'dijit/MenuItem',
   'dijit/MenuSeparator',
   'dojox/form/TriStateCheckBox',
@@ -48,7 +46,6 @@ define([
   'JBrowse/Model/Location',
   'JBrowse/View/LocationChoiceDialog',
   'JBrowse/View/Dialog/SetHighlight',
-  'JBrowse/View/Dialog/Preferences',
   'JBrowse/View/Dialog/OpenDirectory',
   'JBrowse/View/Dialog/SetTrackHeight',
   'JBrowse/View/Dialog/QuickHelp',
@@ -56,7 +53,6 @@ define([
   'JBrowse/Store/SeqFeature/ChromSizes',
   'JBrowse/Store/SeqFeature/UnindexedFasta',
   'JBrowse/Store/SeqFeature/IndexedFasta',
-  'JBrowse/Store/SeqFeature/BgzipIndexedFasta',
   'JBrowse/Store/SeqFeature/TwoBit',
   'dijit/focus',
   '../lazyload.js', // for dynamic CSS loading
@@ -69,16 +65,13 @@ define([
   lang,
   on,
   html,
-  query,
   domConstruct,
   keys,
   Deferred,
   DeferredList,
   topic,
-  aspect,
   request,
   ioQuery,
-  has,
   array,
   dijitContentPane,
   dijitBorderContainer,
@@ -87,10 +80,8 @@ define([
   dojoMemoryStore,
   dijitButton,
   dijitSelectBox,
-  dijitToggleButton,
   dijitDropDownButton,
   dijitDropDownMenu,
-  dijitCheckedMenuItem,
   dijitMenuItem,
   dijitMenuSeparator,
   dojoxTriStateCheckBox,
@@ -109,7 +100,6 @@ define([
   Location,
   LocationChoiceDialog,
   SetHighlightDialog,
-  PreferencesDialog,
   OpenDirectoryDialog,
   SetTrackHeightDialog,
   HelpDialog,
@@ -117,7 +107,6 @@ define([
   ChromSizes,
   UnindexedFasta,
   IndexedFasta,
-  BgzipIndexedFasta,
   TwoBit,
   dijitFocus,
   LazyLoad,
@@ -442,56 +431,52 @@ define([
 
     welcomeScreen: function (container, error) {
       var thisB = this
-      require(['dojo/text!JBrowse/View/Resource/Welcome.html'], function (
-        Welcome,
-      ) {
-        container.innerHTML = Welcome
-        var topPane = dojo.create(
+      container.innerHTML = Welcome
+      console.log({ Welcome })
+      var topPane = dojo.create(
+        'div',
+        { style: { overflow: 'hidden' } },
+        thisB.container,
+      )
+      dojo.byId('welcome').innerHTML =
+        'Welcome! To get started with <i>JBrowse-' +
+        thisB.version +
+        '</i>, select a sequence file or an existing data directory'
+
+      on(dojo.byId('newOpen'), 'click', dojo.hitch(thisB, 'openFastaElectron'))
+      on(dojo.byId('newOpenDirectory'), 'click', function () {
+        new OpenDirectoryDialog({
+          browser: thisB,
+          setCallback: dojo.hitch(thisB, 'openDirectoryElectron'),
+        }).show()
+      })
+
+      try {
+        thisB.loadSessions()
+      } catch (e) {
+        console.error(e)
+      }
+
+      if (error) {
+        console.log(error)
+        var errors_div = dojo.byId('fatal_error_list')
+        dojo.create(
           'div',
-          { style: { overflow: 'hidden' } },
-          thisB.container,
+          {
+            className: 'error',
+            innerHTML: error,
+          },
+          errors_div,
         )
-        dojo.byId('welcome').innerHTML =
-          'Welcome! To get started with <i>JBrowse-' +
-          thisB.version +
-          '</i>, select a sequence file or an existing data directory'
+      }
 
-        on(
-          dojo.byId('newOpen'),
-          'click',
-          dojo.hitch(thisB, 'openFastaElectron'),
-        )
-        on(dojo.byId('newOpenDirectory'), 'click', function () {
-          new OpenDirectoryDialog({
-            browser: thisB,
-            setCallback: dojo.hitch(thisB, 'openDirectoryElectron'),
-          }).show()
-        })
-
+      request(
+        thisB.resolveUrl('sample_data/json/volvox/successfully_run'),
+      ).then(function () {
         try {
-          thisB.loadSessions()
-        } catch (e) {
-          console.error(e)
-        }
-
-        if (error) {
-          console.log(error)
-          var errors_div = dojo.byId('fatal_error_list')
-          dojo.create(
-            'div',
-            { className: 'error', innerHTML: error },
-            errors_div,
-          )
-        }
-
-        request(
-          thisB.resolveUrl('sample_data/json/volvox/successfully_run'),
-        ).then(function () {
-          try {
-            document.getElementById('volvox_data_placeholder').innerHTML =
-              'The example dataset is also available. View <a href="?data=sample_data/json/volvox">Volvox test data here</a>.'
-          } catch (e) {}
-        })
+          document.getElementById('volvox_data_placeholder').innerHTML =
+            'The example dataset is also available. View <a href="?data=sample_data/json/volvox">Volvox test data here</a>.'
+        } catch (e) {}
       })
     },
 
@@ -561,29 +546,25 @@ define([
           dojo.addClass(document.body, this.config.theme || 'tundra') //< tundra dijit theme
 
           if (!Util.isElectron()) {
-            require([
-              'dojo/text!JBrowse/View/Resource/Welcome_old.html',
-            ], function (Welcome_old) {
-              container.innerHTML = Welcome_old
-              if (error) {
-                var errors_div = dojo.byId('fatal_error_list')
-                dojo.create(
-                  'div',
-                  {
-                    className: 'error',
-                    innerHTML: formatError(error) + '',
-                  },
-                  errors_div,
-                )
-              }
-              request(
-                thisB.resolveUrl('sample_data/json/volvox/successfully_run'),
-              ).then(function () {
-                try {
-                  dojo.byId('volvox_data_placeholder').innerHTML =
-                    'However, it appears you have successfully run <code>./setup.sh</code>, so you can see the <a href="?data=sample_data/json/volvox">Volvox test data here</a>.'
-                } catch (e) {}
-              })
+            container.innerHTML = Welcome_old
+            if (error) {
+              var errors_div = dojo.byId('fatal_error_list')
+              dojo.create(
+                'div',
+                {
+                  className: 'error',
+                  innerHTML: formatError(error) + '',
+                },
+                errors_div,
+              )
+            }
+            request(
+              thisB.resolveUrl('sample_data/json/volvox/successfully_run'),
+            ).then(function () {
+              try {
+                dojo.byId('volvox_data_placeholder').innerHTML =
+                  'However, it appears you have successfully run <code>./setup.sh</code>, so you can see the <a href="?data=sample_data/json/volvox">Volvox test data here</a>.'
+              } catch (e) {}
             })
           } else {
             this.welcomeScreen(container, formatError(error))
@@ -805,7 +786,8 @@ define([
     _loadCSS: function (css) {
       var deferred = new Deferred()
       if (typeof css == 'string') {
-        // if it has '{' in it, it probably is not a URL, but is a string of CSS statements
+        // if it has '{' in it, it probably is not a URL, but is a string of
+        // CSS statements
         if (css.indexOf('{') > -1) {
           dojo.create(
             'style',

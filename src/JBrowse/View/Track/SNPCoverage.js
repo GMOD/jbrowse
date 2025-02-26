@@ -1,20 +1,10 @@
 define([
   'dojo/_base/declare',
-  'dojo/_base/array',
   'JBrowse/View/Track/Wiggle/XYPlot',
   'JBrowse/Util',
   'JBrowse/View/Track/_AlignmentsMixin',
   'JBrowse/Store/SeqFeature/SNPCoverage',
-], function (
-  declare,
-  array,
-  WiggleXY,
-  Util,
-  AlignmentsMixin,
-  SNPCoverageStore,
-) {
-  var dojof = Util.dojof
-
+], function (declare, WiggleXY, Util, AlignmentsMixin, SNPCoverageStore) {
   return declare([WiggleXY, AlignmentsMixin], {
     constructor: function () {
       // force conf variables that are meaningless for this kind of track, and maybe harmful
