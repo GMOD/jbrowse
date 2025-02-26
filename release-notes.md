@@ -1,4 +1,10 @@
-# Release 1.16.11     2021-03-11 23:10:58 UTC
+{{$NEXT}}
+
+## Bug fixes
+
+-   Fix URL accessible reflected XSS in ?loc= parameter (pull #1657)
+
+# Release 1.16.11 2021-03-11 23:10:58 UTC
 
 ## Minor improvements
 
