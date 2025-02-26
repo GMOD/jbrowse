@@ -1,0 +1,167 @@
+name: JBrowse CI
+
+on:
+  push:
+    branches: [master, dev]
+    tags: ['*']
+  pull_request:
+    branches: [master, dev]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        perl: [5.26] #for full testing['5.26', '5.14']
+        node: [14]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Node.js ${{ matrix.node }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Add yarn
+        run: |
+          npm install -g yarn
+
+      - uses: LizardByte/setup-python-action@master
+        with:
+          python-version: '2.7'
+
+      - name: Set up Perl ${{ matrix.perl }}
+        uses: shogo82148/actions-setup-perl@v1
+        with:
+          perl-version: ${{ matrix.perl }}
+
+      - name: Install system dependencies
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get update
+          sudo apt-get install -y libdb-dev libgdchart-gd2-xpm-dev wine
+
+      - name: Install Firefox
+        uses: browser-actions/setup-firefox@latest
+
+      - name: Install Geckodriver
+        run: |
+          GECKODRIVER_VERSION=0.36.0
+          mkdir ~/geckodriver_${GECKODRIVER_VERSION}
+          wget -O - https://github.com/mozilla/geckodriver/releases/download/v0.36.0/geckodriver-v0.36.0-linux64.tar.gz | tar -xzf - -C ~/geckodriver_${GECKODRIVER_VERSION}
+          echo "${HOME}/geckodriver_${GECKODRIVER_VERSION}" >> $GITHUB_PATH
+
+      - name: Install Perl dependencies
+        run: |
+          cpanm --notest GD::Image Text::Markdown DateTime JSON
+
+      - name: Install Python dependencies
+        run: |
+          pip install nose selenium
+
+      - name: Set package versions for release
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          build/set_package_versions.pl ${GITHUB_REF#refs/tags/} src/JBrowse/package.json package.json website/siteConfig.js
+
+      - name: Get release version
+        run: |
+          echo "RELEASE_VERSION=$(node -e 'require("fs").readFile("src/JBrowse/package.json", (e,d)=>console.log(JSON.parse(d).version))')" >> $GITHUB_ENV
+
+      - name: Setup JBrowse
+        if: always()
+        run: |
+          JBROWSE_BUILD_MIN=0 ./setup.sh
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Run Perl tests
+        run: prove -Isrc/perl5 -r -j3 tests/perl_tests
+
+      - name: Run JS tests with Puppeteer
+        run: |
+          utils/jb_run.js -p 9000 & sleep 2
+          node tests/js_tests/run-puppeteer.js http://localhost:9000/tests/js_tests/index.html
+          utils/jb_run.js -p 8000 -s jbrowse & sleep 2
+          node tests/js_tests/run-puppeteer.js http://localhost:8000/jbrowse/tests/js_tests/index.html
+
+      - name: Run Electron tests
+        run: |
+          sudo apt-get install -y xvfb
+          xvfb-run node_modules/.bin/ava --timeout=60s tests/electron_tests
+
+      - name: Run Selenium tests
+        run: |
+          MOZ_HEADLESS=1 SELENIUM_BROWSER=firefox JBROWSE_URL=http://localhost:9000/index.html tests/selenium_tests/travis_wrapper.sh
+
+      - name: Build release packages
+        if:
+          github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' ||
+          startsWith(github.ref, 'refs/tags/') || github.event_name ==
+          'pull_request'
+        run: |
+          make -f build/Makefile
+          rm -rf JBrowse-*/
+          unzip -q JBrowse-${{ env.RELEASE_VERSION }}.zip
+          cd JBrowse-${{ env.RELEASE_VERSION }}/
+          cp -r ../tests/ .
+          ./setup.sh
+          npx es-check es5 dist/*.js
+          cd $GITHUB_WORKSPACE
+          MOZ_HEADLESS=1 SELENIUM_BROWSER=firefox NOSEOPTS="-I jasmine" JBROWSE_URL=http://localhost:9000/JBrowse-${{ env.RELEASE_VERSION }}/index.html tests/selenium_tests/travis_wrapper.sh
+          # remove symlink and copy actual files to dir for upload to s3
+          rm JBrowse-${{ env.RELEASE_VERSION }}/sample_data/raw/volvox
+          cp -R docs/tutorial/data_files JBrowse-${{ env.RELEASE_VERSION }}/sample_data/raw/volvox
+
+      - name: Build website
+        run: website/build.sh
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: jbrowse-build
+          path: |
+            JBrowse-*.zip
+            website/build/jbrowse/
+
+      - name: Release to GitHub
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/') && matrix.perl == '5.26'
+        with:
+          files: JBrowse-*.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to npm
+        if: startsWith(github.ref, 'refs/tags/') && matrix.perl == '5.26'
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+          npm publish
+
+      - name: Deploy to S3 (release)
+        if:
+          startsWith(github.ref, 'refs/tags/') && matrix.perl == '5.26' &&
+          contains(github.event.head_commit.message, '[update docs]')
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --acl public-read --cache-control "max-age=1800"
+        env:
+          AWS_S3_BUCKET: jbrowse.org
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+          SOURCE_DIR: JBrowse-${{ env.RELEASE_VERSION }}
+          DEST_DIR: code/JBrowse-${{ env.RELEASE_VERSION }}
+
+      - name: Deploy website to S3
+        if:
+          matrix.perl == '5.26' && contains(github.event.head_commit.message,
+          '[update docs]')
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --acl public-read --cache-control "max-age=1800"
+        env:
+          AWS_S3_BUCKET: jbrowse.org
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+          SOURCE_DIR: website/build/jbrowse/

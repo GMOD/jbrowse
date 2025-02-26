@@ -78,7 +78,7 @@
     "http-range-fetcher": "^1.2.1",
     "imports-loader": "^0.8.0",
     "jasmine-node": "^3.0.0",
-    "node-sass": "^4.12.0",
+    "node-sass": "^4.0.0",
     "puppeteer": "^1.0.0",
     "quick-lru": "^2.0.0",
     "regexp-replace-loader": "^1.0.1",
