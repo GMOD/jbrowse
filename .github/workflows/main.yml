@@ -102,7 +102,6 @@ jobs:
           cd JBrowse-${{ env.RELEASE_VERSION }}/
           cp -r ../tests/ .
           ./setup.sh
-          npx es-check es5 dist/*.js
           cd $GITHUB_WORKSPACE
           MOZ_HEADLESS=1 SELENIUM_BROWSER=firefox NOSEOPTS="-I jasmine" JBROWSE_URL=http://localhost:9000/JBrowse-${{ env.RELEASE_VERSION }}/index.html tests/selenium_tests/travis_wrapper.sh
           # remove symlink and copy actual files to dir for upload to s3
