@@ -1,11 +1,6 @@
 name: JBrowse CI
 
-on:
-  push:
-    branches: [master, dev]
-    tags: ['*']
-  pull_request:
-    branches: [master, dev]
+on: push
 
 jobs:
   build-and-test:
