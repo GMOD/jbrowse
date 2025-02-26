@@ -1,0 +1,74 @@
+@import url('../node_modules/dijit/themes/tundra/tundra.css');
+@import url('../node_modules/dgrid/css/dgrid.css');
+@import url('./dojobase.css');
+@import url('./icons.css');
+
+@import url('./dialog.css');
+@import url('./export_dialog.css');
+@import url('./file_dialog.css');
+@import url('./main.css');
+
+@import url('./main.css');
+
+@import url('./track_styles.css');
+@import url('./sequence.css');
+@import url('./protein.css');
+@import url('./menubar.css');
+@import url('./toolbar.css');
+@import url('./icons.css');
+@import url('./tristate.css');
+@import url('./combination_tracks.css');
+
+/* CSS styles for the various types of feature glyphs */
+@import url('./hierarchical_track_selector.css');
+@import url('./faceted_track_selector.css');
+
+/* CSS styles specifically for MAKER output */
+@import url('./maker.css');
+
+/* base CSS environment, with dojo and some resetting */
+.jbrowse,
+.dijitDialog,
+.dijitMenu {
+  color: black;
+  background: white;
+  font-size: 12px;
+  font-family:
+    Univers,
+    Trebuchet MS,
+    Helvetica,
+    Arial,
+    sans-serif;
+
+  table,
+  tbody,
+  th,
+  tr,
+  td {
+    background: none;
+    color: inherit;
+  }
+  tr,
+  td,
+  table {
+    margin: 0;
+    border: 0;
+    padding: 0;
+    line-height: normal;
+  }
+  label {
+    font-weight: inherit;
+  }
+}
+
+.dijitDialog {
+  line-height: 17px;
+}
+
+/* main application CSS styles */
+.jbrowse {
+  line-height: 1;
+  &.dijitDialog {
+    line-height: 17px;
+  }
+}

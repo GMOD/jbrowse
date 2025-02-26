@@ -1,5 +1,6 @@
 @import '../node_modules/dojox/form/resources/UploaderFileList.css';
-&.fileDialog {
+
+.fileDialog {
   color: #333;
 
   label {
