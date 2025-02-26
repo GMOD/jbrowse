@@ -174,8 +174,9 @@ define([
       return outSheets
     },
 
-    // get the appropriate HTML color string to use for a given base
-    // letter.  case insensitive.  'reference' gives the color to draw matches with the reference.
+    // get the appropriate HTML color string to use for a given base letter.
+    // case insensitive.  'reference' gives the color to draw matches with the
+    // reference.
     colorForBase: function (base) {
       // get the base colors out of CSS
       this._baseStyles =
@@ -184,14 +185,17 @@ define([
           var colors = {}
           try {
             var styleSheets = this._getStyleSheets(document.styleSheets)
+            console.log({ styleSheets })
             array.forEach(styleSheets, function (sheet) {
-              // avoid modifying cssRules for plugins which generates SecurityException on Firefox
+              // avoid modifying cssRules for plugins which generates
+              // SecurityException on Firefox
               var classes = sheet.rules || sheet.cssRules
-              if (!classes) return
+              if (!classes) {
+                return
+              }
               array.forEach(classes, function (c) {
-                var match = /^\.jbrowse\s+\.base_([^\s_]+)$/.exec(
-                  c.selectorText,
-                )
+                console.log({ c })
+                var match = /\.base_([^\s_]+)$/.exec(c.selectorText)
                 if (match && match[1]) {
                   var base = match[1]
                   match = /\#[0-9a-f]{3,6}|(?:rgb|hsl)a?\([^\)]*\)/gi.exec(
