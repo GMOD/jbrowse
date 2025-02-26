@@ -82,22 +82,6 @@ var webpackConf = {
         },
       },
       {
-        test: /\.js$/,
-        exclude:
-          /node_modules\/(?!(quick-lru|@gmod\/indexedfasta|@gmod\/tabix|@gmod\/tribble-index|@gmod\/bgzf-filehandle))/,
-        use: {
-          loader: 'babel-loader',
-          options: {
-            presets: ['es2015-without-strict'],
-            plugins: [
-              'transform-async-to-generator',
-              'transform-es2015-classes',
-            ],
-            cacheDirectory: true,
-          },
-        },
-      },
-      {
         test: /src\/JBrowse\/main.js|src\/JBrowse\/standalone.js|tests\/js_tests\/main.js/,
         use: [
           {
