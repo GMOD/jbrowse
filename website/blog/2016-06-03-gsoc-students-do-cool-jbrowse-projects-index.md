@@ -2,7 +2,7 @@
 layout: post
 title: GSoC Students Do Cool JBrowse Projects
 date: 2016-06-03
-tags: ["google summer of code","News"]
+tags: ['google summer of code', 'News']
 ---
 
 <div>I'm pleased to introduce two Google Summer of Code students who are working actively on Jbrowse projects:</div>
@@ -28,6 +28,8 @@ tags: ["google summer of code","News"]
 <div>
 Saksham is an audiophile, science, technology and philosophy indulgent who drives to live, and is an occasional poet.
 
-GitHub: [https://github.com/<wbr />sakshamsaxena](https://github.com/sakshamsaxena),
-LinkedIn: [https://www.<wbr />linkedin.com/in/saxenasaksham](https://www.linkedin.com/in/saxenasaksham)
+GitHub:
+[https://github.com/<wbr />sakshamsaxena](https://github.com/sakshamsaxena),
+LinkedIn:
+[https://www.<wbr />linkedin.com/in/saxenasaksham](https://www.linkedin.com/in/saxenasaksham)
 Blog/Tumblr: [sakshamsaxena.in](http://sakshamsaxena.in/)</div>

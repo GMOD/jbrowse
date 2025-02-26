@@ -5,27 +5,41 @@ title: Alignments tracks
 
 # Alignment Tracks (BAM and CRAM)
 
-JBrowse has several track types that are designed for displaying alignment data, particularly from BAM and CRAM files. BAM and CRAM files used with JBrowse must be compressed and sorted by leftmost coordinate.
+JBrowse has several track types that are designed for displaying alignment data,
+particularly from BAM and CRAM files. BAM and CRAM files used with JBrowse must
+be compressed and sorted by leftmost coordinate.
 
-The JBrowse BAM parsing library makes extensive use of code from [BioDalliance](http://www.biodalliance.org/), while the CRAM support is based on the `@gmod/cram` npm module.
+The JBrowse BAM parsing library makes extensive use of code from
+[BioDalliance](http://www.biodalliance.org/), while the CRAM support is based on
+the `@gmod/cram` npm module.
 
 ## Alignments2
 
-Introduced in JBrowse 1.8.0, `Alignments2` tracks are designed to display alignment data, such as from BAM files. This track type shows basepair-level mismatches, insertions, deletions, and skipped regions between aligned reads and the reference, and highlights paired reads in red if their mates are missing.
+Introduced in JBrowse 1.8.0, `Alignments2` tracks are designed to display
+alignment data, such as from BAM files. This track type shows basepair-level
+mismatches, insertions, deletions, and skipped regions between aligned reads and
+the reference, and highlights paired reads in red if their mates are missing.
 
-Base mismatches are displayed based on the contents of the feature's `MD` field (containing a BAM MD mismatch string), and/or `CIGAR` field. If your BAM file does not contain MD tags, one common way to generate them is with the `samtools calmd` command.
+Base mismatches are displayed based on the contents of the feature's `MD` field
+(containing a BAM MD mismatch string), and/or `CIGAR` field. If your BAM file
+does not contain MD tags, one common way to generate them is with the
+`samtools calmd` command.
 
-`Alignments2` is a faster implementation of the older `Alignments` track type that draws alignments using the HTML5 canvas. In the interest of speed, `Alignments2` tracks do not display any text labels or descriptions alongside features, and do not draw arrowheads indicating strandedness, instead relying on color to denote the strand of alignments.
+`Alignments2` is a faster implementation of the older `Alignments` track type
+that draws alignments using the HTML5 canvas. In the interest of speed,
+`Alignments2` tracks do not display any text labels or descriptions alongside
+features, and do not draw arrowheads indicating strandedness, instead relying on
+color to denote the strand of alignments.
 
-`Alignments2` tracks support the same advanced clicking behavior as CanvasFeatures tracks, but does not support right-click menus.
+`Alignments2` tracks support the same advanced clicking behavior as
+CanvasFeatures tracks, but does not support right-click menus.
 
 The most basic Alignments2 track configuration in tracks.conf format is
 
-[tracks.alignments]
-urlTemplate=FM.01.new.sorted.chr11.bam
-type=Alignments2
+[tracks.alignments] urlTemplate=FM.01.new.sorted.chr11.bam type=Alignments2
 
-The above track template infers that the storeClass is a BAM store. Not all track and store types can do this inference but Alignments2 allows this
+The above track template infers that the storeClass is a BAM store. Not all
+track and store types can do this inference but Alignments2 allows this
 
 ## Paired read options
 
@@ -51,7 +65,8 @@ See [paired read configuration also](paired_reads.html) for more information
 
 ### Histograms configuration
 
-A pre-defined histogram e.g. from a bigwig can be defined on the Alignments2 track. Example
+A pre-defined histogram e.g. from a bigwig can be defined on the Alignments2
+track. Example
 
 ```
 [tracks.bam]
@@ -84,7 +99,10 @@ Alignments can be filtered by various BAM flags
 | `hideForwardStrand`    | Hide all reads from the forward strand. Default: false                              |
 | `hideReverseStrand`    | Hide all reads from the reverse strand. Default: false                              |
 
-Note: `hideImproperPairs` was introduced in 1.16.0 to disambiguate from hideMissingMatepairs. The "read mapped in proper pair" flag can have a mate but it is simply classified as a bad alignment by the aligner, JBrowse displays these as lightly colored
+Note: `hideImproperPairs` was introduced in 1.16.0 to disambiguate from
+hideMissingMatepairs. The "read mapped in proper pair" flag can have a mate but
+it is simply classified as a bad alignment by the aligner, JBrowse displays
+these as lightly colored
 
 ### Coloring options
 
@@ -98,7 +116,10 @@ Note: `hideImproperPairs` was introduced in 1.16.0 to disambiguate from hideMiss
 | `colorBySize`               | Colors reads according to insert size. Default: false. Added in 1.16.0                                                                                                                         |
 | `colorByOrientationAndSize` | Colors reads according to paired end orientations. Default: false. Added in 1.16.0                                                                                                             |
 
-Note: `colorBySize`, `colorByOrientationAndSize` invoke insert size stats estimation, and only makes sense with paired read tracks. Many of these options are 1.16.0 and newer. See [paired reads](paired_reads.html) for more information.
+Note: `colorBySize`, `colorByOrientationAndSize` invoke insert size stats
+estimation, and only makes sense with paired read tracks. Many of these options
+are 1.16.0 and newer. See [paired reads](paired_reads.html) for more
+information.
 
 ### Other options
 
@@ -111,31 +132,45 @@ Note: `colorBySize`, `colorByOrientationAndSize` invoke insert size stats estima
 
 # Alignments2 coloring schemes
 
-Since JBrowse 1.11.3, there is a new coloring scheme for BAM files that allows for new coloring of paired end reads, such as a different coloring for unpaired reads and aberrant pairing split across chromosomes.
+Since JBrowse 1.11.3, there is a new coloring scheme for BAM files that allows
+for new coloring of paired end reads, such as a different coloring for unpaired
+reads and aberrant pairing split across chromosomes.
 
-The coloring styles that can be configured for the Alignments2 track are as follows
+The coloring styles that can be configured for the Alignments2 track are as
+follows
 
 | Option                              |
-| ----------------------------------- |
-| `style→color_fwd_strand`            | #EC8B8B (original red) |
-| `style→color_rev_strand`            | #8F8FD8 (original blue) |
-| `style→color_fwd_missing_mate`      | #D11919 (hard red) |
-| `style→color_rev_missing_mate`      | #1919D1 (hard blue) |
-| `style→color_fwd_strand_not_proper` | #ECC8C8 (light red) |
-| `style→color_rev_strand_not_proper` | #BEBED8 (light blue) |
-| `style→color_fwd_diff_chr`          | #000000 (black) |
-| `style→color_rev_diff_chr`          | #969696 (gray) |
+| ----------------------------------- | ------------------------------ |
+| `style→color_fwd_strand`            | #EC8B8B (original red)         |
+| `style→color_rev_strand`            | #8F8FD8 (original blue)        |
+| `style→color_fwd_missing_mate`      | #D11919 (hard red)             |
+| `style→color_rev_missing_mate`      | #1919D1 (hard blue)            |
+| `style→color_fwd_strand_not_proper` | #ECC8C8 (light red)            |
+| `style→color_rev_strand_not_proper` | #BEBED8 (light blue)           |
+| `style→color_fwd_diff_chr`          | #000000 (black)                |
+| `style→color_rev_diff_chr`          | #969696 (gray)                 |
 | `style→color_nostrand`              | #999999 (gray) Added in 1.11.6 |
 
-If this scheme is undesirable, the style-\>color variable can be overridden entirely as well, with a callback for example. Also see See [paired reads](paired_reads.html) for additional flags relavant to paired end reads.
+If this scheme is undesirable, the style-\>color variable can be overridden
+entirely as well, with a callback for example. Also see See
+[paired reads](paired_reads.html) for additional flags relavant to paired end
+reads.
 
 ## SNPCoverage
 
-Introduced in JBrowse 1.8.0, `SNPCoverage` tracks draw the coverage of alignment features along the genome, along with a graphical representation of base-mismatch (possible SNP) distribution, and tables showing frequencies for each mismatching base.
+Introduced in JBrowse 1.8.0, `SNPCoverage` tracks draw the coverage of alignment
+features along the genome, along with a graphical representation of
+base-mismatch (possible SNP) distribution, and tables showing frequencies for
+each mismatching base.
 
-Like the other alignment tracks, base mismatches are displayed based on the contents of the feature's `MD` field (containing a BAM MD mismatch string).
+Like the other alignment tracks, base mismatches are displayed based on the
+contents of the feature's `MD` field (containing a BAM MD mismatch string).
 
-**Note: Since the SNPCoverage track dynamically calculates coverage and putative SNPs directly from alignment data, it is not recommended for use with very dense feature data, such as deep-coverage BAM files.** For these types of files, it's recommended to pre-generate a BigWig file of the coverage and a VCF file of putative SNPs, and display those instead.
+**Note: Since the SNPCoverage track dynamically calculates coverage and putative
+SNPs directly from alignment data, it is not recommended for use with very dense
+feature data, such as deep-coverage BAM files.** For these types of files, it's
+recommended to pre-generate a BigWig file of the coverage and a VCF file of
+putative SNPs, and display those instead.
 
 ![800px|thumb|center|A SNPCoverage track with corresponding Alignments2 track.](assets/config/JBrowse_SNP_Coverage.png)
 
@@ -152,13 +187,20 @@ metadata.Description = SNP/Coverage view of volvox-sorted.bam, simulated 
 key = BAM - volvox-sorted SNPs/Coverage
 ```
 
-Note that `urlTemplate` will refer to a file relative to the "data" directory that you are using.
+Note that `urlTemplate` will refer to a file relative to the "data" directory
+that you are using.
 
 ## Alignments
 
-Introduced in JBrowse 1.7.0, `Alignments` tracks are an HTML-based track type for alignment display. They display everything that `Alignments2` do, and also can be configured with right-click menus and strand arrowheads.
+Introduced in JBrowse 1.7.0, `Alignments` tracks are an HTML-based track type
+for alignment display. They display everything that `Alignments2` do, and also
+can be configured with right-click menus and strand arrowheads.
 
-They display everything that `Alignments2` tracks do, plus they support the same configuration options as feature tracks, including advanced clicking behavior, feature modification callbacks, and so forth. The price of this additional capability is that `Alignments` tracks are **significantly slower** when used with dense data such as deep BAM alignments.
+They display everything that `Alignments2` tracks do, plus they support the same
+configuration options as feature tracks, including advanced clicking behavior,
+feature modification callbacks, and so forth. The price of this additional
+capability is that `Alignments` tracks are **significantly slower** when used
+with dense data such as deep BAM alignments.
 
 `Alignments2` is recommended over `Alignments` for most users.
 
@@ -190,14 +232,24 @@ They display everything that `Alignments2` tracks do, plus they support the same
 
 ## Apache Configuration Note
 
-If you are using the Apache web server, please be aware that the module `mime_magic` can cause BAM files to be served incorrectly. Usually, the error in the web developer console will be something like "Not a BAM file". Some packaged versions of Apache, particularly on Red Hat or CentOS-based systems, are configured with this module turned on by default. We recommend you deactivate this Apache module for the server or directory used to serve JBrowse files. If you do not want to deactivate this module for the entire server, try adding this line to your HTTPD config or .htaccess file:
+If you are using the Apache web server, please be aware that the module
+`mime_magic` can cause BAM files to be served incorrectly. Usually, the error in
+the web developer console will be something like "Not a BAM file". Some packaged
+versions of Apache, particularly on Red Hat or CentOS-based systems, are
+configured with this module turned on by default. We recommend you deactivate
+this Apache module for the server or directory used to serve JBrowse files. If
+you do not want to deactivate this module for the entire server, try adding this
+line to your HTTPD config or .htaccess file:
 
 `AddType application/octet-stream .bam .bami .bai`
 
-In some cases the problem can also manifest in VCF tabix for example, you may also need to use
+In some cases the problem can also manifest in VCF tabix for example, you may
+also need to use
 
     AddType application/octet-stream .gz
     AddType application/octet-stream .tbi
     AddEncoding dummy .gz .tbi
 
-Note that there may be some sideeffect related to downloading gz files from this, but it has been reported to fix jbrowse usage of tabix VCF. Let us know if you have other solutions
+Note that there may be some sideeffect related to downloading gz files from
+this, but it has been reported to fix jbrowse usage of tabix VCF. Let us know if
+you have other solutions

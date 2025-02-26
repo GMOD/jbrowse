@@ -5,15 +5,35 @@ title: SPARQL configuration
 
 # Data from a SPARQL Endpoint
 
-Starting with version 1.10.0, JBrowse can display feature or quantitative data directly from a SPARQL endpoint. The SPARQL data adaptor can be used with any of the JBrowse track types.
+Starting with version 1.10.0, JBrowse can display feature or quantitative data
+directly from a SPARQL endpoint. The SPARQL data adaptor can be used with any of
+the JBrowse track types.
 
-To display annotations from a SPARQL endpoint, first write a SPARQL query that fetches features for a given reference sequence region, given the reference sequence name and the start and end coordinates of the region of interest, with one feature returned per output row. JBrowse will run this query every time it fetches features for a certain region. The reference sequence name, start, and end, are interpolated into the query at every occurrance of "{ref}", "{start}", or "{end}", respectively. This is the same variable interpolation syntax used in other parts of the JBrowse configuration.
+To display annotations from a SPARQL endpoint, first write a SPARQL query that
+fetches features for a given reference sequence region, given the reference
+sequence name and the start and end coordinates of the region of interest, with
+one feature returned per output row. JBrowse will run this query every time it
+fetches features for a certain region. The reference sequence name, start, and
+end, are interpolated into the query at every occurrance of "{ref}", "{start}",
+or "{end}", respectively. This is the same variable interpolation syntax used in
+other parts of the JBrowse configuration.
 
-Queries used with JBrowse can have any number of output columns, but are required to have at least 4: ?start, ?end, ?strand, and ?uniqueID (usually just the URI of the feature). If the data includes subfeatures, a ?parentUniqueID column can be added to the SPARQL query, and features will be attached as subfeatures to any feature in the query with that ?uniqueID. Any number of additional columns can be added, as well. Their contents will just be attached to each feature as attributes, which will be visible in the default feature detail dialog. If available, it's a good idea to add a ?name column, which would be the feature's displayed name, and maybe a ?description column, which can be a longer text description of the feature.
+Queries used with JBrowse can have any number of output columns, but are
+required to have at least 4: ?start, ?end, ?strand, and ?uniqueID (usually just
+the URI of the feature). If the data includes subfeatures, a ?parentUniqueID
+column can be added to the SPARQL query, and features will be attached as
+subfeatures to any feature in the query with that ?uniqueID. Any number of
+additional columns can be added, as well. Their contents will just be attached
+to each feature as attributes, which will be visible in the default feature
+detail dialog. If available, it's a good idea to add a ?name column, which would
+be the feature's displayed name, and maybe a ?description column, which can be a
+longer text description of the feature.
 
 ## Example SPARQL Configuration
 
-The example configuration below displays complete gene models (with locations represented using [FALDO](https://github.com/JervenBolleman/FALDO)) contained in a SPARQL endpoint located at `/sparql` on the same server as JBrowse.
+The example configuration below displays complete gene models (with locations
+represented using [FALDO](https://github.com/JervenBolleman/FALDO)) contained in
+a SPARQL endpoint located at `/sparql` on the same server as JBrowse.
 
     [tracks.genes]
     label = genes
@@ -82,7 +102,11 @@ The example configuration below displays complete gene models (with locations re
 
 ## Variable Interpolation
 
-By default, only "{ref}", "{start}", and "{end}" are available for interpolating into your query. However, starting with JBrowse 1.10.3, you can add additional variables in the configuration by including a `variables` key containing additional values. For example, you could add an "{organism_uri}" in your queryTemplate that was set from the `variables` stanza, which would look like:
+By default, only "{ref}", "{start}", and "{end}" are available for interpolating
+into your query. However, starting with JBrowse 1.10.3, you can add additional
+variables in the configuration by including a `variables` key containing
+additional values. For example, you could add an "{organism_uri}" in your
+queryTemplate that was set from the `variables` stanza, which would look like:
 
 ```{.javascript}
 
@@ -100,4 +124,6 @@ By default, only "{ref}", "{start}", and "{end}" are available for interpolating
     }
 ```
 
-The variable interpolation can also be used to refer to functions that are defined in external files (see [Including external files and functions](#including-external-files-and-functions-in-tracklistjson "wikilink")).
+The variable interpolation can also be used to refer to functions that are
+defined in external files (see
+[Including external files and functions](#including-external-files-and-functions-in-tracklistjson 'wikilink')).

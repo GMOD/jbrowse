@@ -11,444 +11,444 @@
 .basic,
 .plus-basic,
 .minus-basic {
-    position: absolute;
-    cursor: pointer;
-    z-index: 10;
-    min-width: 1px;
+  position: absolute;
+  cursor: pointer;
+  z-index: 10;
+  min-width: 1px;
 }
 
 .basicSubfeature {
-    position: absolute;
-    cursor: pointer;
-    z-index: 12;
-    min-width: 1px;
+  position: absolute;
+  cursor: pointer;
+  z-index: 12;
+  min-width: 1px;
 }
 
 div.hist {
-    position: absolute;
-    z-index: 10;
+  position: absolute;
+  z-index: 10;
 
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -ms-box-sizing: border-box;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  -ms-box-sizing: border-box;
 }
 
 .feature,
 .plus-feature,
 .minus-feature {
-    position: absolute;
-    height: 7px;
-    background-repeat: repeat-x;
-    cursor: pointer;
-    min-width: 1px;
-    z-index: 10;
-    background-color: #2f4f4f;
+  position: absolute;
+  height: 7px;
+  background-repeat: repeat-x;
+  cursor: pointer;
+  min-width: 1px;
+  z-index: 10;
+  background-color: #2f4f4f;
 
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -ms-box-sizing: border-box;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  -ms-box-sizing: border-box;
 }
 
 .plus-feature {
-    background-image: url("../img/plus-chevron3.png");
+  background-image: url('../img/plus-chevron3.png');
 }
 .minus-feature {
-    background-image: url("../img/minus-chevron3.png");
+  background-image: url('../img/minus-chevron3.png');
 }
 
 .subfeature,
 .plus-subfeature,
 .minus-subfeature {
-    position: absolute;
-    background-color: #2f4f4f;
-    height: 7px;
-    min-width: 1px;
-    z-index: 12;
+  position: absolute;
+  background-color: #2f4f4f;
+  height: 7px;
+  min-width: 1px;
+  z-index: 12;
 
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -ms-box-sizing: border-box;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  -ms-box-sizing: border-box;
 }
 
 .alignment,
 .plus-alignment,
 .minus-alignment {
-    background-color: #ccc;
+  background-color: #ccc;
 
-    /* these should all 3 match */
-    height: 11px;
-    line-height: 11px;
-    font-size: 11px;
+  /* these should all 3 match */
+  height: 11px;
+  line-height: 11px;
+  font-size: 11px;
 }
 .plus-alignment {
-    background-color: #ec8b8b;
+  background-color: #ec8b8b;
 }
 .minus-alignment {
-    background-color: #898fd8;
+  background-color: #898fd8;
 }
 .alignment.missing_mate,
 .plus-alignment.missing_mate,
 .minus-alignment.missing_mate {
-    background-image: url("../img/red_crosshatch_bg.png");
+  background-image: url('../img/red_crosshatch_bg.png');
 }
 
 .alignment > .mismatch,
 .minus-alignment > .mismatch,
 .plus-alignment > .mismatch {
-    height: 100%;
+  height: 100%;
 }
 .alignment > .deletion,
 .minus-alignment > .deletion,
 .plus-alignment > .deletion {
-    background-color: black;
-    height: 100%;
+  background-color: black;
+  height: 100%;
 }
 .alignment > .deletion *,
 .plus-alignment > .deletion *,
 .minus-alignment > .deletion * {
-    color: white;
+  color: white;
 }
 .alignment > .insertion,
 .plus-alignment > .insertion,
 .minus-alignment > .insertion {
-    background-color: white;
-    color: black;
-    height: 100%;
+  background-color: white;
+  color: black;
+  height: 100%;
 }
 .alignment > .skip,
 .plus-alignment > .skip,
 .minus-alignment > .skip {
-    background: url("../img/dark_20x2.png") repeat-x 0 50% white;
-    height: 100%;
-    opacity: 0.7;
+  background: url('../img/dark_20x2.png') repeat-x 0 50% white;
+  height: 100%;
+  opacity: 0.7;
 }
 
 div.feature-hist {
-    background-color: blue;
-    border-color: #5858c4;
+  background-color: blue;
+  border-color: #5858c4;
 }
 
 .feature2,
 .plus-feature2,
 .minus-feature2 {
-    position: absolute;
-    height: 7px;
-    background-repeat: repeat-x;
-    cursor: pointer;
-    min-width: 1px;
-    z-index: 10;
-    background-color: #62d335;
+  position: absolute;
+  height: 7px;
+  background-repeat: repeat-x;
+  cursor: pointer;
+  min-width: 1px;
+  z-index: 10;
+  background-color: #62d335;
 }
 
 .Boolean-transparent {
-    opacity: 0.6;
+  opacity: 0.6;
 }
 
 div.feature2-hist {
-    background-color: #9f9;
-    border-color: #ada;
+  background-color: #9f9;
+  border-color: #ada;
 }
 
 .feature3,
 .plus-feature3,
 .minus-feature3 {
-    position: absolute;
-    height: 7px;
-    background-repeat: repeat-x;
-    cursor: pointer;
-    min-width: 1px;
-    z-index: 10;
-    background-color: goldenrod;
+  position: absolute;
+  height: 7px;
+  background-repeat: repeat-x;
+  cursor: pointer;
+  min-width: 1px;
+  z-index: 10;
+  background-color: goldenrod;
 }
 
 div.feature3-hist {
-    background-color: yellow;
-    border-color: black;
+  background-color: yellow;
+  border-color: black;
 }
 
 .feature4,
 .plus-feature4,
 .minus-feature4 {
-    position: absolute;
-    height: 11px;
-    background-repeat: repeat-x;
-    cursor: pointer;
-    min-width: 1px;
-    z-index: 10;
-    background: yellow;
+  position: absolute;
+  height: 11px;
+  background-repeat: repeat-x;
+  cursor: pointer;
+  min-width: 1px;
+  z-index: 10;
+  background: yellow;
 }
 
 div.feature4-hist {
-    background-color: yellow;
-    border-color: black;
+  background-color: yellow;
+  border-color: black;
 }
 
 .feature5,
 .plus-feature5,
 .minus-feature5 {
-    position: absolute;
-    height: 7px;
-    background-repeat: repeat-x;
-    cursor: pointer;
-    min-width: 1px;
-    z-index: 10;
-    background-color: blue;
+  position: absolute;
+  height: 7px;
+  background-repeat: repeat-x;
+  cursor: pointer;
+  min-width: 1px;
+  z-index: 10;
+  background-color: blue;
 }
 
 div.feature5-hist {
-    background-color: blue;
-    border-color: lightblue;
+  background-color: blue;
+  border-color: lightblue;
 }
 
 div.exon-hist {
-    background-color: #4b76e8;
-    border-color: #00f;
+  background-color: #4b76e8;
+  border-color: #00f;
 }
 
 .exon,
 .plus-exon,
 .minus-exon {
-    position: absolute;
-    height: 7px;
-    background-color: #4b76e8;
-    border-style: solid;
-    border-color: #00f;
-    border-width: 1px;
-    cursor: pointer;
-    z-index: 10;
+  position: absolute;
+  height: 7px;
+  background-color: #4b76e8;
+  border-style: solid;
+  border-color: #00f;
+  border-width: 1px;
+  cursor: pointer;
+  z-index: 10;
 }
 
 div.est-hist {
-    background-color: #ed9185;
-    border-color: #c33;
+  background-color: #ed9185;
+  border-color: #c33;
 }
 
 .est,
 .plus-est,
 .minus-est {
-    position: absolute;
-    height: 7px;
-    background-color: #ed9185;
+  position: absolute;
+  height: 7px;
+  background-color: #ed9185;
 }
 
 .dblhelix,
 .plus-dblhelix,
 .minus-dblhelix {
-    position: absolute;
-    height: 11px;
-    background-image: url("../img/dblhelix-red.png");
-    background-repeat: repeat-x;
-    min-width: 1px;
-    cursor: pointer;
-    z-index: 10;
+  position: absolute;
+  height: 11px;
+  background-image: url('../img/dblhelix-red.png');
+  background-repeat: repeat-x;
+  min-width: 1px;
+  cursor: pointer;
+  z-index: 10;
 }
 
 div.dblhelix-hist {
-    background-color: #fcc;
-    border-color: #daa;
+  background-color: #fcc;
+  border-color: #daa;
 }
 
 .plus-helix,
 .minus-helix {
-    position: absolute;
-    height: 11px;
-    background-image: url("../img/helix3-green.png");
-    background-repeat: repeat-x;
-    min-width: 1px;
-    cursor: pointer;
-    z-index: 10;
+  position: absolute;
+  height: 11px;
+  background-image: url('../img/helix3-green.png');
+  background-repeat: repeat-x;
+  min-width: 1px;
+  cursor: pointer;
+  z-index: 10;
 }
 
 div.helix-hist {
-    background-color: #cfc;
-    border-color: #ada;
+  background-color: #cfc;
+  border-color: #ada;
 }
 
 .loops,
 .minus-loops,
 .plus-loops {
-    position: absolute;
-    height: 13px;
-    background-image: url("../img/loops.png");
-    background-repeat: repeat-x;
-    cursor: pointer;
+  position: absolute;
+  height: 13px;
+  background-image: url('../img/loops.png');
+  background-repeat: repeat-x;
+  cursor: pointer;
 }
 
 .diamonds,
 .minus-diamonds,
 .plus-diamonds {
-    position: absolute;
-    height: 13px;
-    background-image: url("../img/glyph-diamond.png");
-    background-repeat: repeat-x;
-    cursor: pointer;
+  position: absolute;
+  height: 13px;
+  background-image: url('../img/glyph-diamond.png');
+  background-repeat: repeat-x;
+  cursor: pointer;
 }
 
 .plus-cds,
 .minus-cds {
-    position: absolute;
-    height: 13px;
-    background-repeat: repeat-x;
-    cursor: pointer;
-    min-width: 1px;
+  position: absolute;
+  height: 13px;
+  background-repeat: repeat-x;
+  cursor: pointer;
+  min-width: 1px;
 }
 
 .plus-cds_phase0 {
-    background-image: url("../img/plus-cds0.png");
+  background-image: url('../img/plus-cds0.png');
 }
 .plus-cds_phase1 {
-    background-image: url("../img/plus-cds1.png");
+  background-image: url('../img/plus-cds1.png');
 }
 .plus-cds_phase2 {
-    background-image: url("../img/plus-cds2.png");
+  background-image: url('../img/plus-cds2.png');
 }
 .minus-cds_phase0 {
-    background-image: url("../img/minus-cds0.png");
+  background-image: url('../img/minus-cds0.png');
 }
 .minus-cds_phase1 {
-    background-image: url("../img/minus-cds1.png");
+  background-image: url('../img/minus-cds1.png');
 }
 .minus-cds_phase2 {
-    background-image: url("../img/minus-cds2.png");
+  background-image: url('../img/minus-cds2.png');
 }
 
 div.cds-hist {
-    background-color: #fcc;
-    border-color: #daa;
+  background-color: #fcc;
+  border-color: #daa;
 }
 
 .topbracket {
-    position: absolute;
-    height: 8px;
-    border-style: solid solid none solid;
-    border-width: 2px;
-    border-color: orange;
-    cursor: pointer;
+  position: absolute;
+  height: 8px;
+  border-style: solid solid none solid;
+  border-width: 2px;
+  border-color: orange;
+  cursor: pointer;
 }
 
 .bottombracket {
-    position: absolute;
-    height: 8px;
-    border-style: none solid solid solid;
-    border-width: 2px;
-    border-color: green;
-    cursor: pointer;
+  position: absolute;
+  height: 8px;
+  border-style: none solid solid solid;
+  border-width: 2px;
+  border-color: green;
+  cursor: pointer;
 }
 
 .hourglass,
 .plus-hourglass,
 .minus-hourglass {
-    position: absolute;
-    height: 0px;
-    border-style: solid;
-    border-width: 6px 3px 6px 3px;
-    cursor: pointer;
+  position: absolute;
+  height: 0px;
+  border-style: solid;
+  border-width: 6px 3px 6px 3px;
+  cursor: pointer;
 }
 
 .triangle,
 .plus-triangle,
 .minus-triangle {
-    position: absolute;
-    height: 0px;
-    border-style: solid;
-    border-width: 6px 3px 0px 3px;
-    cursor: pointer;
+  position: absolute;
+  height: 0px;
+  border-style: solid;
+  border-width: 6px 3px 0px 3px;
+  cursor: pointer;
 }
 
 .hgred {
-    border-color: #f99 white #f99 white;
+  border-color: #f99 white #f99 white;
 }
 div.hgred-hist {
-    background-color: #daa;
-    border-color: #d44;
+  background-color: #daa;
+  border-color: #d44;
 }
 
 .hgblue {
-    border-color: #99f white #99f white;
+  border-color: #99f white #99f white;
 }
 div.hgblue-hist {
-    background-color: #aad;
-    border-color: #99f;
+  background-color: #aad;
+  border-color: #99f;
 }
 
 .ibeam,
 .plus-ibeam,
 .minus-ibeam {
-    position: absolute;
-    height: 2px;
-    background-color: blue;
-    border-style: solid;
-    border-width: 8px 4px 8px 4px;
-    border-color: white blue white blue;
-    cursor: pointer;
+  position: absolute;
+  height: 2px;
+  background-color: blue;
+  border-style: solid;
+  border-width: 8px 4px 8px 4px;
+  border-color: white blue white blue;
+  cursor: pointer;
 
-    box-sizing: content-box;
-    -moz-box-sizing: content-box;
-    -webkit-box-sizing: content-box;
-    -ms-box-sizing: content-box;
+  box-sizing: content-box;
+  -moz-box-sizing: content-box;
+  -webkit-box-sizing: content-box;
+  -ms-box-sizing: content-box;
 }
 
 div.transcript-hist {
-    background-color: #ddd;
-    border-color: #ff9185;
+  background-color: #ddd;
+  border-color: #ff9185;
 }
 
 .transcript,
 .plus-transcript,
 .minus-transcript {
-    position: absolute;
-    height: 11px;
-    background: url("../img/dark_20x2.png") repeat-x 0 4px white;
-    z-index: 6;
-    min-width: 1px;
-    cursor: pointer;
+  position: absolute;
+  height: 11px;
+  background: url('../img/dark_20x2.png') repeat-x 0 4px white;
+  z-index: 6;
+  min-width: 1px;
+  cursor: pointer;
 }
 
 .plus-transcript-arrowhead,
 .plus-arrowhead {
-    position: absolute;
-    width: 9px;
-    height: 5px;
-    background-image: url("../img/plus-arrowhead.png");
-    background-repeat: no-repeat;
-    z-index: 100;
+  position: absolute;
+  width: 9px;
+  height: 5px;
+  background-image: url('../img/plus-arrowhead.png');
+  background-repeat: no-repeat;
+  z-index: 100;
 }
 
 .minus-transcript-arrowhead,
 .minus-arrowhead {
-    position: absolute;
-    width: 9px;
-    height: 5px;
-    background-image: url("../img/minus-arrowhead.png");
-    background-repeat: no-repeat;
-    z-index: 100;
+  position: absolute;
+  width: 9px;
+  height: 5px;
+  background-image: url('../img/minus-arrowhead.png');
+  background-repeat: no-repeat;
+  z-index: 100;
 }
 
 /* introns are hidden by default */
 .plus-intron,
 .minus-intron {
-    display: none;
+  display: none;
 }
 /* can also set a class of 'hidden' to hide something */
 .hidden,
 .plus-hidden,
 .minus-hidden {
-    display: none;
+  display: none;
 }
 
 .plus-CDS,
 .plus-transcript-CDS,
 .minus-CDS,
 .minus-transcript-CDS {
-    position: absolute;
-    height: 11px;
-    background: #f09a9a;
-    cursor: pointer;
-    z-index: 10;
-    min-width: 1px;
+  position: absolute;
+  height: 11px;
+  background: #f09a9a;
+  cursor: pointer;
+  z-index: 10;
+  min-width: 1px;
 }
 
 .plus-exon,
@@ -459,150 +459,156 @@ div.transcript-hist {
 .minus-five_prime_UTR,
 .plus-three_prime_UTR,
 .minus-three_prime_UTR {
-    position: absolute;
-    height: 7px;
-    background-color: #b66;
-    border-style: solid;
-    border-color: #d88;
-    border-width: 2px 0px 2px 0px;
-    z-index: 8;
-    min-width: 1px;
-    cursor: pointer;
+  position: absolute;
+  height: 7px;
+  background-color: #b66;
+  border-style: solid;
+  border-color: #d88;
+  border-width: 2px 0px 2px 0px;
+  z-index: 8;
+  min-width: 1px;
+  cursor: pointer;
 }
 
 .generic_parent,
 .plus-generic_parent,
 .minus-generic_parent {
-    position: absolute;
-    height: 4px;
-    background-color: #aaa;
-    z-index: 6;
-    min-width: 1px;
-    cursor: pointer;
+  position: absolute;
+  height: 4px;
+  background-color: #aaa;
+  z-index: 6;
+  min-width: 1px;
+  cursor: pointer;
 }
 
 div.generic_parent-hist {
-    background-color: #ddd;
-    border-color: #555;
+  background-color: #ddd;
+  border-color: #555;
 }
 
 .match_part,
 .plus-match_part,
 .minus-match_part {
-    position: absolute;
-    height: 4px;
-    background-color: #66b;
-    border-style: solid;
-    border-color: #88d;
-    border-width: 2px 0px 2px 0px;
-    z-index: 8;
-    min-width: 1px;
-    cursor: pointer;
+  position: absolute;
+  height: 4px;
+  background-color: #66b;
+  border-style: solid;
+  border-color: #88d;
+  border-width: 2px 0px 2px 0px;
+  z-index: 8;
+  min-width: 1px;
+  cursor: pointer;
 }
 
 .generic_part_a,
 .plus-generic_part_a,
 .minus-generic_part_a {
-    position: absolute;
-    height: 4px;
-    background-color: #6b6;
-    border-style: solid;
-    border-color: #8d8;
-    border-width: 2px 0px 2px 0px;
-    z-index: 8;
-    min-width: 1px;
-    cursor: pointer;
+  position: absolute;
+  height: 4px;
+  background-color: #6b6;
+  border-style: solid;
+  border-color: #8d8;
+  border-width: 2px 0px 2px 0px;
+  z-index: 8;
+  min-width: 1px;
+  cursor: pointer;
 }
 
 /* floating score display for wiggle tracks */
 .wiggleValueDisplay {
-    border: 1px solid #aaa;
-    padding: 2px;
+  border: 1px solid #aaa;
+  padding: 2px;
 
-    -moz-box-shadow: 4px 4px 10px 2px rgba(80, 80, 80, 0.3);
-    -webkit-box-shadow: 4px 4px 10px 2px rgba(80, 80, 80, 0.3);
-    box-shadow: 4px 4px 10px 2px rgba(80, 80, 80, 0.3);
+  -moz-box-shadow: 4px 4px 10px 2px rgba(80, 80, 80, 0.3);
+  -webkit-box-shadow: 4px 4px 10px 2px rgba(80, 80, 80, 0.3);
+  box-shadow: 4px 4px 10px 2px rgba(80, 80, 80, 0.3);
 
-    &,
+  &,
+  * {
+    background: #fffef0;
+    font-family:
+      Courier New,
+      monospace;
+    font-weight: bold;
+    cursor: default;
+  }
+
+  table {
+    border-spacing: 0;
     * {
-        background: #fffef0;
-        font-family: Courier New, monospace;
-        font-weight: bold;
-        cursor: default;
+      border: none;
     }
-
-    table {
-        border-spacing: 0;
-        * {
-            border: none;
-        }
-    }
-    th,
-    td {
-        border: none;
-        padding: 0.2em 0.4em;
-    }
-    td.count,
-    td.pct {
-        text-align: right;
-    }
-    tr.total > td {
-        border-top: 1px solid #aaa;
-        font-weight: bold;
-    }
+  }
+  th,
+  td {
+    border: none;
+    padding: 0.2em 0.4em;
+  }
+  td.count,
+  td.pct {
+    text-align: right;
+  }
+  tr.total > td {
+    border-top: 1px solid #aaa;
+    font-weight: bold;
+  }
 }
 
 .wigglePositionIndicator {
-    background: #333;
-    border: none;
-    width: 1px;
-    cursor: default;
+  background: #333;
+  border: none;
+  width: 1px;
+  cursor: default;
 }
 
 .base {
-    color: black;
-    font-family: Courier New, monospace;
-    font-weight: bold;
-    text-shadow: white 0px 0px 1px;
+  color: black;
+  font-family:
+    Courier New,
+    monospace;
+  font-weight: bold;
+  text-shadow: white 0px 0px 1px;
 }
 
 /* colors for bases must be specified as hex or rgb/hsl strings, no named colors such as 'red' */
 .base_n {
-    background-color: #c6c6c6;
+  background-color: #c6c6c6;
 }
 .base_a {
-    background-color: #00bf00;
+  background-color: #00bf00;
 }
 .base_c {
-    background-color: #4747ff;
+  background-color: #4747ff;
 }
 .base_t {
-    background-color: #f00;
+  background-color: #f00;
 }
 .base_g {
-    background-color: #ffa500;
+  background-color: #ffa500;
 }
 .base_reference {
-    background-color: #bbb;
+  background-color: #bbb;
 }
 .base_deletion {
-    background-color: #999;
+  background-color: #999;
 }
 
 .sequence.nocolor .base {
-    background-color: #ddd;
+  background-color: #ddd;
 }
 
 /* added to document.body */
 .featureTooltip {
-    background: #fffef0;
-    border: 1px solid #aaa;
-    padding: 2px;
-    font-family: Courier New, monospace;
-    font-weight: bold;
-    cursor: default;
+  background: #fffef0;
+  border: 1px solid #aaa;
+  padding: 2px;
+  font-family:
+    Courier New,
+    monospace;
+  font-weight: bold;
+  cursor: default;
 
-    -moz-box-shadow: 4px 4px 10px 2px rgba(80, 80, 80, 0.3);
-    -webkit-box-shadow: 4px 4px 10px 2px rgba(80, 80, 80, 0.3);
-    box-shadow: 4px 4px 10px 2px rgba(80, 80, 80, 0.3);
+  -moz-box-shadow: 4px 4px 10px 2px rgba(80, 80, 80, 0.3);
+  -webkit-box-shadow: 4px 4px 10px 2px rgba(80, 80, 80, 0.3);
+  box-shadow: 4px 4px 10px 2px rgba(80, 80, 80, 0.3);
 }

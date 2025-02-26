@@ -2,8 +2,8 @@
   "description": "Yeast Example Database",
   "db_adaptor": "Bio::DB::SeqFeature::Store",
   "db_args": {
-      "-adaptor": "memory",
-      "-dir": "sample_data/raw/yeast_chr1+2"
+    "-adaptor": "memory",
+    "-dir": "sample_data/raw/yeast_chr1+2"
   },
   "TRACK DEFAULTS": {
     "class": "feature",

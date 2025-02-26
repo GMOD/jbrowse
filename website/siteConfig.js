@@ -1,34 +1,34 @@
-const {Plugin: Embed} = require('remarkable-embed');
+const { Plugin: Embed } = require('remarkable-embed')
 
 // Our custom remarkable plugin factory.
 const createVariableInjectionPlugin = variables => {
   // `let` binding used to initialize the `Embed` plugin only once for efficiency.
   // See `if` statement below.
-  let initializedPlugin;
+  let initializedPlugin
 
-  const embed = new Embed();
+  const embed = new Embed()
   embed.register({
     // Call the render method to process the corresponding variable with
     // the passed Remarkable instance.
     // -> the Markdown markup in the variable will be converted to HTML.
-    inject: key => initializedPlugin.render(variables[key])
-  });
+    inject: key => initializedPlugin.render(variables[key]),
+  })
 
   return (md, options) => {
     if (!initializedPlugin) {
       initializedPlugin = {
         render: md.render.bind(md),
-        hook: embed.hook(md, options)
-      };
+        hook: embed.hook(md, options),
+      }
     }
 
-    return initializedPlugin.hook;
-  };
-};
+    return initializedPlugin.hook
+  }
+}
 
 const v = {
-  "version": "1.16.12"
-};
+  version: '1.16.12',
+}
 const siteVariables = {
   version: v.version,
   setup_snip: [
@@ -38,19 +38,19 @@ const siteVariables = {
     '    cd /var/www/html',
     '    sudo chown `whoami` jbrowse',
     '    cd jbrowse',
-    '    ./setup.sh'
+    '    ./setup.sh',
   ].join('\n'),
   setup_alt: [
     `    git clone https://github.com/gmod/jbrowse`,
     `    cd jbrowse`,
     `    git checkout ${v.version}-release # or version of your choice`,
     `    ./setup.sh`,
-    `    npm run start # starts a express.js dev server on port 8082, alternatively move the entire jbrowse dir to /var/www/html as above`
+    `    npm run start # starts a express.js dev server on port 8082, alternatively move the entire jbrowse dir to /var/www/html as above`,
   ].join('\n'),
   download_snip: `https://github.com/GMOD/jbrowse/archive/${v.version}-release.tar.gz`,
   fasta_download_snip: [
     '    mkdir data',
-    `    curl -L https://jbrowse.org/code/JBrowse-${v.version}/docs/tutorial/data_files/volvox.fa > data/volvox.fa`
+    `    curl -L https://jbrowse.org/code/JBrowse-${v.version}/docs/tutorial/data_files/volvox.fa > data/volvox.fa`,
   ].join('\n'),
   gff3_download_snip: `   curl -L https://jbrowse.org/code/JBrowse-${v.version}/docs/tutorial/data_files/volvox.gff3 > data/volvox.gff3`,
   bam_download_snip: `    curl -L https://jbrowse.org/code/JBrowse-${v.version}/docs/tutorial/data_files/volvox-sorted.bam > data/volvox-sorted.bam`,
@@ -66,7 +66,7 @@ const siteVariables = {
     '    >',
     '    </iframe>',
     '  </div>',
-    '</div>'
+    '</div>',
   ].join('\n'),
   div_embed_snip: [
     '<div style="padding: 0 1em; margin: 1em 0; border: 1px solid black; background: blue; color: white">',
@@ -74,7 +74,7 @@ const siteVariables = {
     '  <div',
     '    class="jbrowse"',
     '    id="GenomeBrowser"',
-    '    data-config=\'',
+    "    data-config='",
     `      "baseUrl": "../code/JBrowse-${v.version}/",`,
     '      "dataRoot": "sample_data/json/volvox",',
     '      "show_nav": false,',
@@ -82,7 +82,7 @@ const siteVariables = {
     '      "show_overview": false,',
     '      "update_browser_title": false,',
     '      "updateBrowserURL": false',
-    '    \'',
+    "    '",
     '    style="height: 300px;width: 600px;padding: 0;margin-left: 5em;border: 1px solid #ccc"',
     '  >',
     '    <div id="LoadingScreen" style="padding: 50px;">',
@@ -92,9 +92,8 @@ const siteVariables = {
     '  </div>',
     '</div>',
     `<script type="text/javascript" src="../code/JBrowse-${v.version}/dist/main.bundle.js" charset="utf-8"></script>`,
-  ].join('\n')
-};
-
+  ].join('\n'),
+}
 
 const siteConfig = {
   title: 'JBrowse',
@@ -106,13 +105,13 @@ const siteConfig = {
   customDocsPath: 'docs/site',
 
   headerLinks: [
-    {blog: true, label: 'Blog'},
-    {doc: 'installation', label: 'Documentation'},
-    {page: 'demos', label: 'Demos'},
-    {page: 'developers', label: 'Developers'},
-    {page: 'contact', label: 'Contact'},
-    {page: 'references', label: 'References'},
-    {page: 'help', label: 'Help'}
+    { blog: true, label: 'Blog' },
+    { doc: 'installation', label: 'Documentation' },
+    { page: 'demos', label: 'Demos' },
+    { page: 'developers', label: 'Developers' },
+    { page: 'contact', label: 'Contact' },
+    { page: 'references', label: 'References' },
+    { page: 'help', label: 'Help' },
   ],
 
   footerIcon: 'img/jbrowse.png',
@@ -123,9 +122,7 @@ const siteConfig = {
     primaryColor: 'black',
     secondaryColor: 'green',
   },
-  markdownPlugins: [
-    createVariableInjectionPlugin(siteVariables)
-  ],
+  markdownPlugins: [createVariableInjectionPlugin(siteVariables)],
 
   copyright:
     'Copyright © ' +
@@ -141,7 +138,7 @@ const siteConfig = {
   onPageNav: 'separate',
   scripts: ['https://buttons.github.io/buttons.js'],
   blogSidebarCount: 'ALL',
-  latestVersion: siteVariables.version
-};
+  latestVersion: siteVariables.version,
+}
 
-module.exports = siteConfig;
+module.exports = siteConfig

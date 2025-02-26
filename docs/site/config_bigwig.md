@@ -3,13 +3,19 @@ id: bigwig
 title: Wiggle/BigWig Tracks
 ---
 
-JBrowse offers two available subtypes of Wiggle tracks, `Wiggle/XYPlot` and `Wiggle/Density`. The XYPlot wiggle track displays quantitative data as an x/y plot, and the Density displays the data as varying intensities of color.
+JBrowse offers two available subtypes of Wiggle tracks, `Wiggle/XYPlot` and
+`Wiggle/Density`. The XYPlot wiggle track displays quantitative data as an x/y
+plot, and the Density displays the data as varying intensities of color.
 
 ![915px|center|border|Wiggle tracks](http://gmod.org/mediawiki/images/7/71/Jbrowse_wiggle_tracks.png)
 
 ## Example BigWig-based Wiggle XY-Plot Track Configuration
 
-Here is an example track configuration stanza for a Wiggle XY-plot track displaying data directly from a [BigWig file](http://genome.ucsc.edu/FAQ/FAQformat.html#format6.1). Note that the URL in `urlTemplate` is relative to the directory where the configuration file is located.
+Here is an example track configuration stanza for a Wiggle XY-plot track
+displaying data directly from a
+[BigWig file](http://genome.ucsc.edu/FAQ/FAQformat.html#format6.1). Note that
+the URL in `urlTemplate` is relative to the directory where the configuration
+file is located.
 
 ```{.javascript}
       {
@@ -34,7 +40,13 @@ Here is an example track configuration stanza for a Wiggle XY-plot track display
 
 ## Example BigWig-based Wiggle Color Density Track Configuration
 
-Here is an example track configuration stanza for a Wiggle color-density track displaying data directly from a [BigWig file](http://genome.ucsc.edu/FAQ/FAQformat.html#format6.1). It will draw regions with data that is greater than the overall mean as progressively more intense blue, and data that is below the mean as progressively more intense red. Note that the URL in `urlTemplate` is relative to the directory where the configuration file is located.
+Here is an example track configuration stanza for a Wiggle color-density track
+displaying data directly from a
+[BigWig file](http://genome.ucsc.edu/FAQ/FAQformat.html#format6.1). It will draw
+regions with data that is greater than the overall mean as progressively more
+intense blue, and data that is below the mean as progressively more intense red.
+Note that the URL in `urlTemplate` is relative to the directory where the
+configuration file is located.
 
       {
          "label"         : "rnaseq",
@@ -76,4 +88,7 @@ Here is an example track configuration stanza for a Wiggle color-density track d
 
 ## BigWig File Compatibility
 
-At least one user has reported that BigWig files generated with older versions of Jim Kent's wigToBigWig tool are not compatible with JBrowse. If you encounter difficulties opening a BigWig file, try regenerating it with a more recent version of wigToBigWig, and reporting the problem to the mailing list.
+At least one user has reported that BigWig files generated with older versions
+of Jim Kent's wigToBigWig tool are not compatible with JBrowse. If you encounter
+difficulties opening a BigWig file, try regenerating it with a more recent
+version of wigToBigWig, and reporting the problem to the mailing list.

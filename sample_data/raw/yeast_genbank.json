@@ -1,8 +1,10 @@
 {
   "description": "S. cerevisiae Chromosome 1",
   "db_adaptor": "Bio::DB::SeqFeature::Store",
-  "db_args": { "-adaptor": "memory",
-               "-dsn": "sample_data/raw/yeast_gbk/NC_001133.gbk.gff" },
+  "db_args": {
+    "-adaptor": "memory",
+    "-dsn": "sample_data/raw/yeast_gbk/NC_001133.gbk.gff"
+  },
 
   "TRACK DEFAULTS": {
     "class": "feature",

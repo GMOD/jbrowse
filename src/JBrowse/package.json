@@ -1,23 +1,29 @@
 {
-    "name": "JBrowse",
-    "version": "1.16.12",
-    "copyright":"© 2007-2017 The Evolutionary Software Foundation",
-    "main": "main",
-    "dependencies": {
-        "dojo": "current",
-        "dijit": "current",
-        "dojox": "current",
-        "util": "current"
-    },
-    "description": "A modern client-side genome browser.",
-    "licenses": [
-        {
-            "type": "LGPL-2.1",
-            "url": "https://raw.github.com/GMOD/jbrowse/master/LICENSE"
-        }
-    ],
-    "bugs": "https://github.com/gmod/jbrowse/issues",
-    "keywords": ["JavaScript", "JBrowse", "Genome Browser", "Genomics", "Bioinformatics"],
-    "homepage": "http://jbrowse.org",
-    "dojoBuild": "JBrowse.profile.js"
+  "name": "JBrowse",
+  "version": "1.16.12",
+  "copyright": "© 2007-2017 The Evolutionary Software Foundation",
+  "main": "main",
+  "dependencies": {
+    "dojo": "current",
+    "dijit": "current",
+    "dojox": "current",
+    "util": "current"
+  },
+  "description": "A modern client-side genome browser.",
+  "licenses": [
+    {
+      "type": "LGPL-2.1",
+      "url": "https://raw.github.com/GMOD/jbrowse/master/LICENSE"
+    }
+  ],
+  "bugs": "https://github.com/gmod/jbrowse/issues",
+  "keywords": [
+    "JavaScript",
+    "JBrowse",
+    "Genome Browser",
+    "Genomics",
+    "Bioinformatics"
+  ],
+  "homepage": "http://jbrowse.org",
+  "dojoBuild": "JBrowse.profile.js"
 }

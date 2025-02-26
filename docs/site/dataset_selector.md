@@ -3,11 +3,19 @@ id: dataset_selector
 title: Dataset Selector
 ---
 
-Beginning in version 1.9.0, JBrowse supports an optional dropdown dataset selector that appears in the menu bar in the upper left corner of the JBrowse display. The selector displays a list of dataset names based on the `datasets` key in the JBrowse configuration. When the selector is changed, a page reload is triggered, with the browser navigating to the URL associated with the selected dataset.
+Beginning in version 1.9.0, JBrowse supports an optional dropdown dataset
+selector that appears in the menu bar in the upper left corner of the JBrowse
+display. The selector displays a list of dataset names based on the `datasets`
+key in the JBrowse configuration. When the selector is changed, a page reload is
+triggered, with the browser navigating to the URL associated with the selected
+dataset.
 
-To set which value of the dataset selector is currently selected, the configuration variable `dataset_id` should be set to the name of the corresponding entry in the `datasets` list.
+To set which value of the dataset selector is currently selected, the
+configuration variable `dataset_id` should be set to the name of the
+corresponding entry in the `datasets` list.
 
-The selector is only shown if **both** `datasets` and `dataset_id` are set in the configuration.
+The selector is only shown if **both** `datasets` and `dataset_id` are set in
+the configuration.
 
 ## Example Dataset Switching Configuration
 
@@ -27,7 +35,8 @@ url  = ?data=sample_data/json/yeast
 name = Yeast Example
 ```
 
-Then add the "dataset_id" to the tracks.conf file for your individual data directories
+Then add the "dataset_id" to the tracks.conf file for your individual data
+directories
 
 in `sample_data/json/volvox/tracks.conf`:
 
@@ -50,9 +59,13 @@ in `sample_data/json/yeast/tracks.conf`:
    dataset_id = yeast
 ```
 
-You can see that the dataset_id corresponds to whatever is inside the declaration, e.g. when it says [datasets.yeast], yeast is the ID.
+You can see that the dataset_id corresponds to whatever is inside the
+declaration, e.g. when it says [datasets.yeast], yeast is the ID.
 
-Note that it is also possible to put the "list of datasets" in a tracks.conf file instead of the jbrowse.conf file if you prefer to store all your configs in track specific directories. Then you just paste the same "list of datasets" in all your dataset directories.
+Note that it is also possible to put the "list of datasets" in a tracks.conf
+file instead of the jbrowse.conf file if you prefer to store all your configs in
+track specific directories. Then you just paste the same "list of datasets" in
+all your dataset directories.
 
 For example, having this code in tracks.conf
 
@@ -65,4 +78,7 @@ For example, having this code in tracks.conf
    name = Fish genome 2.0
 ```
 
-Will populate the dataset selector with Fish 1 and 2 and display the name of Fish 1 in the genome area. This is just in contrast to putting the datasets configuration in jbrowse.conf and the dataset_id in the individual data directories (e.g. all the datasets configs are copied to each data directory)
+Will populate the dataset selector with Fish 1 and 2 and display the name of
+Fish 1 in the genome area. This is just in contrast to putting the datasets
+configuration in jbrowse.conf and the dataset_id in the individual data
+directories (e.g. all the datasets configs are copied to each data directory)

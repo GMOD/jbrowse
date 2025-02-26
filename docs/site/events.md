@@ -3,9 +3,9 @@ id: events
 title: JBrowse Subscribe/Publish events
 ---
 
-There are two layers of events, ''internal'' ones used by JBrowse
-plugins and components to communicate among themselves, and
-''external'' ones used by other software to communicate with JBrowse.
+There are two layers of events, ''internal'' ones used by JBrowse plugins and
+components to communicate among themselves, and ''external'' ones used by other
+software to communicate with JBrowse.
 
     external  <->  controller  <->  views
 
@@ -23,28 +23,31 @@ plugins and components to communicate among themselves, and
 
 Internal events are named for where they originate.
 
-`/jbrowse/v1/v`: messages from views, mostly notifying other components
-of what logical commands the user is issuing through her actions with
-the view.
+`/jbrowse/v1/v`: messages from views, mostly notifying other components of what
+logical commands the user is issuing through her actions with the view.
 
-`/jbrowse/v1/c`: messages from controllers, such as requests to turn
-on certain tracks, highlight certain features, and so forth.
+`/jbrowse/v1/c`: messages from controllers, such as requests to turn on certain
+tracks, highlight certain features, and so forth.
 
 ## Milestone functions
 
-The previous section covered the afterMilestone function for waiting on certain tasks to be finished during initialization
+The previous section covered the afterMilestone function for waiting on certain
+tasks to be finished during initialization
 
 Other milestones include:
 
--   initPlugins - plugins loaded. note: plugins can be loaded before everything else is finished, so plugins may use these milestone functions in their own code
--   loadUserCSS - user CSS loaded
--   loadRefSeqs - reference sequence json or data is loaded
--   loadNames - names store loaded
--   initView - view initialized
--   loadConfig - configurations loaded
--   initTrackMetadata - track metadata loaded
--   createTrack - when track list finished initializing
--   completely initialized - all milestones passed. note the space in the milestone name
+- initPlugins - plugins loaded. note: plugins can be loaded before everything
+  else is finished, so plugins may use these milestone functions in their own
+  code
+- loadUserCSS - user CSS loaded
+- loadRefSeqs - reference sequence json or data is loaded
+- loadNames - names store loaded
+- initView - view initialized
+- loadConfig - configurations loaded
+- initTrackMetadata - track metadata loaded
+- createTrack - when track list finished initializing
+- completely initialized - all milestones passed. note the space in the
+  milestone name
 
 ## Publishing and Subscribing to JBrowse Events
 
@@ -55,8 +58,8 @@ generates an event, which can be latched onto with a callback that triggers a
 request for the server to BLAST that region against a database). In select
 cases, extensions can also publish events, as a way of forcing the UI into
 certain states or transitions (for example, events can be used in this way to
-force the browser to load a new track, in response to some other circumstance
-or notification).
+force the browser to load a new track, in response to some other circumstance or
+notification).
 
 When events are associated with tracks, the event names take the form
 `/jbrowse/v1/{type}/tracks/{trackEvent}`. The `{type}` is one of ‘`v`’, ‘`c`’,
@@ -75,16 +78,20 @@ When events are global, the event names take the form
 The DebugEvents plugin logs events to the console, and can be used to monitor
 events as they are triggered by user interactions with the browser.
 
-Note that you can also publish and subscribe to a JBrowse instance that is in
-an iframe. See
+Note that you can also publish and subscribe to a JBrowse instance that is in an
+iframe. See
 <http://gmod.org/wiki/JBrowse_FAQ#How_can_I_get_jbrowse_to_update_the_URL_of_a_parent_page_when_jbrowse_is_inside_of_an_iframe>
 for an example
 
 ### Examples of publish track events
 
-The Browser.js object is passed to your plugin as args.browser, or is also a global variable window.JBrowse. Henceforth, referred to as 'browser' in the code below
+The Browser.js object is passed to your plugin as args.browser, or is also a
+global variable window.JBrowse. Henceforth, referred to as 'browser' in the code
+below
 
-Use the replace event to replace a track config with a new one. You can change the track name or any other config about the track with this, except the store class. This will be discussed further below
+Use the replace event to replace a track config with a new one. You can change
+the track name or any other config about the track with this, except the store
+class. This will be discussed further below
 
     browser.publish('/jbrowse/v1/v/tracks/replace', [{ ...config json }]);
 
@@ -96,7 +103,10 @@ You can do operations like delete,hide,show,pin, and unpin tracks like this
     browser.publish('/jbrowse/v1/v/tracks/pin', [{ label: 'trackId' }]);
     browser.publish('/jbrowse/v1/v/tracks/unpin', [{ label: 'trackId' }]);
 
-Adding a new track is not so straightforward because it requires you to manually register the storeClass. The store, e.g. the data file, is registered separately from the track. Here is a code snippet that would add a BAM file to the browser dynamically
+Adding a new track is not so straightforward because it requires you to manually
+register the storeClass. The store, e.g. the data file, is registered separately
+from the track. Here is a code snippet that would add a BAM file to the browser
+dynamically
 
     var storeName = JBrowse.addStoreConfig(null, {
       browser: JBrowse,
@@ -108,7 +118,9 @@ Adding a new track is not so straightforward because it requires you to manually
       { label: "My track", store: storeName },
     ]);
 
-You can run this code in the development console at http://jbrowse.org/code/JBrowse-1.16.9/?data=sample_data/json/volvox and see this work
+You can run this code in the development console at
+http://jbrowse.org/code/JBrowse-1.16.9/?data=sample_data/json/volvox and see
+this work
 
 ### Examples of subscribe events
 
