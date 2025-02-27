@@ -126,7 +126,6 @@ define([], function () {
         // http://wiki.whatwg.org/wiki/Dynamic_Script_Execution_Order
         async: doc.createElement('script').async === true,
       }
-
       ;(env.webkit = /AppleWebKit\//.test(ua)) ||
         (env.ie = /MSIE/.test(ua)) ||
         (env.opera = /Opera/.test(ua)) ||

@@ -138,7 +138,6 @@ jasmine.HtmlReporter = function (_doc) {
 
   function focusedSpecName() {
     var specName
-
     ;(function memoizeFocusedSpec() {
       if (specName) {
         return
@@ -168,7 +167,6 @@ jasmine.HtmlReporter = function (_doc) {
         self.createDom('span', { className: 'title' }, 'Jasmine '),
         self.createDom('span', { className: 'version' }, version),
       )),
-
       (dom.symbolSummary = self.createDom('ul', {
         className: 'symbolSummary',
       })),

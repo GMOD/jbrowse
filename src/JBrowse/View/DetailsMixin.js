@@ -138,7 +138,6 @@ define([
       if (!lang.isArray(val) && val && val.values) {
         val = val.values
       }
-      console.log(val)
 
       // if this object has a 'fmtDetailFooValue' function, delegate to that
       var fieldSpecificFormatter
