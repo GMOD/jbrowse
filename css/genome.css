@@ -27,12 +27,24 @@
 @import url('./maker.css');
 
 /* base CSS environment, with dojo and some resetting */
-.jbrowse,
+.jbrowse {
+  color: black;
+  background: white;
+  font-size: 12px;
+  font-family:
+    Univers,
+    Trebuchet MS,
+    Helvetica,
+    Arial,
+    sans-serif;
+}
+
 .dijitDialog,
 .dijitMenu {
   color: black;
   background: white;
   font-size: 12px;
+  line-height: 17px;
   font-family:
     Univers,
     Trebuchet MS,
@@ -58,17 +70,5 @@
   }
   label {
     font-weight: inherit;
-  }
-}
-
-.dijitDialog {
-  line-height: 17px;
-}
-
-/* main application CSS styles */
-.jbrowse {
-  line-height: 1;
-  &.dijitDialog {
-    line-height: 17px;
   }
 }
