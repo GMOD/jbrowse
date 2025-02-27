@@ -5,11 +5,12 @@ const DojoWebpackPlugin = require('dojo-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 const CleanWebpackPlugin = require('clean-webpack-plugin')
+// PostCSS plugins
+const postcssPrefix = require('postcss-prefix-selector')
 
 const path = require('path')
-const glob = require('glob')
 const webpack = require('webpack')
-
+const NodePolyfillPlugin = require('node-polyfill-webpack-plugin')
 // if JBROWSE_BUILD_MIN env var is 1 or true, then we also minimize the JS
 // and forego generating source maps
 const DEBUG = ![1, '1', 'true'].includes(process.env.JBROWSE_BUILD_MIN)
@@ -21,6 +22,9 @@ var webpackConf = {
   },
   plugins: [
     new CleanWebpackPlugin(['dist']),
+    new NodePolyfillPlugin({
+      additionalAliases: ['process', 'punycode'],
+    }),
 
     new DojoWebpackPlugin({
       loaderConfig: require('./build/dojo-loader-config'),
@@ -63,7 +67,36 @@ var webpackConf = {
       },
       {
         test: /\.css$/i,
-        use: ['style-loader', 'css-loader'],
+        use: [
+          'style-loader',
+          'css-loader',
+          {
+            loader: 'postcss-loader',
+            options: {
+              postcssOptions: {
+                plugins: [
+                  [
+                    'postcss-prefix-selector',
+                    {
+                      prefix: '.jbrowse',
+                      exclude: ['.jbrowse', /^body$/],
+                      transform: function (prefix, selector, prefixedSelector) {
+                        if (selector.match(/^(html|body)/)) {
+                          return selector.replace(
+                            /^(html|body)/,
+                            '$1 ' + prefix,
+                          )
+                        } else {
+                          return prefixedSelector
+                        }
+                      },
+                    },
+                  ],
+                ],
+              },
+            },
+          },
+        ],
       },
       {
         test: /\.js$/,
