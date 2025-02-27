@@ -1,3 +1,4 @@
+
 /**
  * Dialog box that prompts the user to choose between several
  * different available locations to navigate to.
@@ -56,7 +57,8 @@ define([
           'div',
           {
             className: 'prompt',
-            innerHTML: this.prompt,
+            // eslint-disable-next-line xss/no-mixed-html
+            innerHTML: Util.escapeHTML(this.prompt),
           },
           container,
         )

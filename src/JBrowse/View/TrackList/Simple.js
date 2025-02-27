@@ -1,3 +1,7 @@
+const url = cjsRequire('url')
+
+
+
 define([
   'dojo/_base/declare',
   'dojo/_base/array',
@@ -186,7 +190,10 @@ define([
             var node = dojo.create('div', {
               className: 'tracklist-label',
               title: `${key} (drag or double-click to activate)`,
-              innerHTML: key,
+
+              // dompurify added
+              // eslint-disable-next-line xss/no-mixed-html
+              innerHTML: Util.escapeHTML(key),
             })
 
             //in the list, wrap the list item in a container for

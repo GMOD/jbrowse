@@ -1,3 +1,5 @@
+
+
 define([
   'dojo/_base/declare',
   'dojo/dom-construct',
@@ -49,7 +51,7 @@ define([
             onClick: function () {
               thisB.track._fileDownload({
                 format: 'FASTA',
-                filename: `${Util.assembleLocString(region)}.fasta`,
+                filename: `${Util.assembleLocString(region)}.wowasta`,
                 data: text,
               })
             },
@@ -62,15 +64,20 @@ define([
         {
           className: 'fasta',
           cols: this.width,
+          // false positive
+          // eslint-disable-next-line xss/no-mixed-html
           rows: Math.min(lineCount, this.htmlMaxRows),
           readonly: true,
         },
         container,
       )
       var c = 0
-      textArea.innerHTML = text.replace(/\n/g, function () {
-        return c++ ? '' : '\n'
-      })
+      // eslint-disable-next-line xss/no-mixed-html
+      textArea.innerHTML = Util.escapeHTML(
+        text.replace(/\n/g, function () {
+          return c++ ? '' : '\n'
+        }),
+      )
       return container
     },
     /**

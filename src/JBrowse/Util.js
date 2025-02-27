@@ -1,4 +1,5 @@
 const url = cjsRequire('url')
+const dompurify = cjsRequire('dompurify')
 
 /**
  * Miscellaneous utility functions.
@@ -7,7 +8,6 @@ define([
   'dojo/_base/array',
   'dojo/_base/lang',
   'dojo/Deferred',
-
   'dojox/lang/functional/object',
   'dojox/lang/functional/fold',
 ], function (array, lang, Deferred) {
@@ -33,14 +33,7 @@ define([
     },
 
     escapeHTML: function (str) {
-      if (str === null || str === undefined) {
-        return str
-      }
-      return str
-        .toString()
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
+      return dompurify.sanitize(str)
     },
 
     unescapeHTML: function (str) {

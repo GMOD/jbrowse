@@ -1,3 +1,4 @@
+import 'babel-polyfill'
 import '../../css/genome.css'
 
 require([

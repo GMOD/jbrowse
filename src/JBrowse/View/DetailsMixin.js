@@ -1,3 +1,4 @@
+
 /**
  * Mixin that provides generic functions for displaying nested data.
  */
@@ -35,7 +36,6 @@ define([
       f,
       class_,
       externalFieldMeta = {},
-      unsafe = false,
     ) {
       if (val === null || val === undefined) {
         return ''
@@ -108,9 +108,10 @@ define([
         'div',
         {
           className: 'field_container',
-          innerHTML: `<h2 class="field ${class_}"${titleAttr}>${
-            formatted_title
-          }</h2>`,
+          // eslint-disable-next-line xss/no-mixed-html
+          innerHTML: Util.escapeHTML(
+            `<h2 class="field ${class_}"${titleAttr}>${formatted_title}</h2>`,
+          ),
         },
         parentElement,
       )
@@ -120,30 +121,18 @@ define([
         fieldContainer,
       )
 
-      var count = this.renderDetailValue(
-        valueContainer,
-        title,
-        val,
-        f,
-        class_,
-        unsafe,
-      )
+      var count = this.renderDetailValue(valueContainer, title, val, f, class_)
       if (typeof count == 'number' && count > 4) {
-        query('h2', fieldContainer)[0].innerHTML =
-          `${formatted_title} (${count})`
+        // eslint-disable-next-line xss/no-mixed-html
+        query('h2', fieldContainer)[0].innerHTML = Util.escapeHTML(
+          `${formatted_title} (${count})`,
+        )
       }
 
       return fieldContainer
     },
 
-    renderDetailValue: function (
-      parent,
-      title,
-      val,
-      f,
-      class_,
-      unsafe = false,
-    ) {
+    renderDetailValue: function (parent, title, val, f, class_) {
       var thisB = this
 
       if (!lang.isArray(val) && val && val.values) {
@@ -165,7 +154,6 @@ define([
         (fieldSpecificFormatter = this.config[`fmtDetailValue_${title}`]) &&
         f
       ) {
-        unsafe = true
         val = fieldSpecificFormatter(val, f)
         if (!val) {
           val = ''
@@ -177,7 +165,6 @@ define([
         (fieldSpecificFormatter = this.config[`fmtMetaValue_${title}`]) &&
         !f
       ) {
-        unsafe = true
         val = fieldSpecificFormatter(val)
         if (val.length == 1) {
           val = val[0]
@@ -208,14 +195,14 @@ define([
               },
               parent,
             )
-            this.renderDetailValue(itemContainer, title, v, f, class_, unsafe)
+            this.renderDetailValue(itemContainer, title, v, f, class_)
             return itemContainer
           })
         } else {
           vals = array.map(
             val,
             function (v) {
-              return this.renderDetailValue(parent, title, v, f, class_, unsafe)
+              return this.renderDetailValue(parent, title, v, f, class_)
             },
             this,
           )
@@ -276,15 +263,7 @@ define([
           array.forEach(
             keys,
             function (k) {
-              return this.renderDetailField(
-                parent,
-                k,
-                val[k],
-                f,
-                class_,
-                {},
-                unsafe,
-              )
+              return this.renderDetailField(parent, k, val[k], f, class_, {})
             },
             this,
           )
@@ -298,8 +277,8 @@ define([
           className: `value ${
             val.length > 70 && val.indexOf(' ') == -1 ? 'long ' : ''
           }${class_}`,
-          innerHTML:
-            unsafe || this.config.unsafePopup ? val : Util.escapeHTML(val),
+          // eslint-disable-next-line xss/no-mixed-html
+          innerHTML: Util.escapeHTML(`${val}`),
         },
         parent,
       )

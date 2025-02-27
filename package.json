@@ -35,7 +35,9 @@
   "dependencies": {
     "@babel/core": "^7.26.9",
     "@babel/preset-env": "^7.26.9",
+    "babel-polyfill": "^6.26.0",
     "dompurify": "^3.2.4",
+    "eslint-plugin-xss": "^0.1.12",
     "express": "^4.15.4",
     "fs-extra": "^4.0.1",
     "node-fetch": "^2.2.0",

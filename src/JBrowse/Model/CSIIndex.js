@@ -182,9 +182,8 @@ define([
           for (
             var j = 0;
             j < chunks.length;
-            ++j
-          ) //if( min_off.compareTo( chunks[j].maxv ) < 0 )
-          {
+            ++j //if( min_off.compareTo( chunks[j].maxv ) < 0 )
+          ) {
             off[n_off++] = new Chunk(
               chunks[j].minv,
               chunks[j].maxv,

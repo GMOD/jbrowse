@@ -1,3 +1,5 @@
+
+
 define([
   'dojo/_base/declare',
   'dojo/_base/array',
@@ -99,6 +101,8 @@ define([
             var typeSelect = new Select({
               options: [
                 {
+                  // false positive
+                  // eslint-disable-next-line xss/no-mixed-html
                   label: '<span class="ghosted">file type?</span>',
                   value: null,
                 },
@@ -163,13 +167,23 @@ define([
               'td',
               {
                 width: '1%',
-                innerHTML: `<div class="${
-                  res.file ? 'dijitIconFile' : 'jbrowseIconLink'
-                }"></div>`,
+                // eslint-disable-next-line xss/no-mixed-html
+                innerHTML: Util.escapeHTML(
+                  `<div class="${
+                    res.file ? 'dijitIconFile' : 'jbrowseIconLink'
+                  }"/>`,
+                ),
               },
               tr,
             )
-            dojo.create('td', { innerHTML: name }, tr)
+            dojo.create(
+              'td',
+              {
+                // eslint-disable-next-line xss/no-mixed-html
+                innerHTML: Util.escapeHTML(name),
+              },
+              tr,
+            )
             dojo.create(
               'td',
               {
