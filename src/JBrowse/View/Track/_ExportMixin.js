@@ -421,7 +421,10 @@ define([
           disabled: !this._canExport(),
           action: 'bareDialog',
           content: this._exportDialogContent,
-          dialog: { id: 'exportDialog', className: 'export-dialog' },
+          dialog: {
+            id: 'exportDialog',
+            className: 'export-dialog',
+          },
         })
       }
 
@@ -429,7 +432,6 @@ define([
     },
 
     _canExportRegion: function (l) {
-      //console.log('can generic export?');
       if (!l) {
         return false
       }

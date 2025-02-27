@@ -1266,10 +1266,18 @@ define([
         function setContent(dialog, content) {
           if (typeof content.then == 'function') {
             content.then(function (c) {
-              dialog.set('content', dompurify.sanitize(c))
+              dialog.set(
+                'content',
+                typeof c === 'string' ? dompurify.sanitize(c) : c,
+              )
             })
           } else {
-            dialog.set('content', dompurify.sanitize(content))
+            dialog.set(
+              'content',
+              typeof content === 'string'
+                ? dompurify.sanitize(content)
+                : content,
+            )
           }
         }
 
