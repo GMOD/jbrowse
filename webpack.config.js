@@ -6,7 +6,6 @@ const CleanWebpackPlugin = require('clean-webpack-plugin')
 
 const path = require('path')
 const webpack = require('webpack')
-const NodePolyfillPlugin = require('node-polyfill-webpack-plugin')
 // if JBROWSE_BUILD_MIN env var is 1 or true, then we also minimize the JS
 // and forego generating source maps
 const DEBUG = ![1, '1', 'true'].includes(process.env.JBROWSE_BUILD_MIN)
@@ -18,10 +17,10 @@ var webpackConf = {
   },
   plugins: [
     new CleanWebpackPlugin(['dist']),
-    new NodePolyfillPlugin({
-      additionalAliases: ['process', 'punycode'],
+    new webpack.ProvidePlugin({
+      process: 'process/browser',
+      Buffer: ['buffer', 'Buffer'],
     }),
-
     new DojoWebpackPlugin({
       loaderConfig: require('./build/dojo-loader-config'),
       environment: {
@@ -118,6 +117,14 @@ var webpackConf = {
   },
   resolve: {
     symlinks: false,
+    fallback: {
+      zlib: require.resolve('browserify-zlib'),
+      path: require.resolve('path-browserify'),
+      stream: require.resolve('stream-browserify'),
+      assert: require.resolve('assert/'),
+      util: require.resolve('util/'),
+      vm: require.resolve('vm-browserify'),
+    },
   },
 }
 
