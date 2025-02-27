@@ -1,5 +1,3 @@
-
-
 define([
   'dojo/_base/declare',
   'dojo/dom-construct',

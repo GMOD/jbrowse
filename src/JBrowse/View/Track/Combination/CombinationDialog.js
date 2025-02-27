@@ -1,5 +1,3 @@
-
-
 define([
   'dojo/_base/declare',
   'dijit/Dialog',
@@ -7,7 +5,8 @@ define([
   'dijit/form/Button',
   'dojo/dom-construct',
   'JBrowse/Model/BinaryTreeNode',
-], function (declare, Dialog, RadioButton, Button, dom, TreeNode) {
+  'JBrowse/Util',
+], function (declare, Dialog, RadioButton, Button, dom, TreeNode, Util) {
   return declare(null, {
     // Produces a dialog box in which a user may enter settings for how they
     // would like to combine tracks in a Combination Track.

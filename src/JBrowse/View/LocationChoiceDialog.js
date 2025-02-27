@@ -1,4 +1,3 @@
-
 /**
  * Dialog box that prompts the user to choose between several
  * different available locations to navigate to.
@@ -12,6 +11,7 @@ define([
   'dijit/form/Button',
   'dijit/focus',
   'JBrowse/View/LocationList',
+  'JBrowse/Util',
 ], function (
   declare,
   dom,
@@ -20,6 +20,7 @@ define([
   dijitButton,
   dijitFocus,
   LocationListView,
+  Util,
 ) {
   return declare(null, {
     /**

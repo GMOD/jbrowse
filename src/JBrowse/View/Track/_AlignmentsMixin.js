@@ -1,4 +1,3 @@
-
 /**
  * Mixin with methods used for displaying alignments and their mismatches.
  */

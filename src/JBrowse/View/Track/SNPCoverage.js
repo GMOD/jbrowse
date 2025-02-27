@@ -1,5 +1,3 @@
-
-
 define([
   'dojo/_base/declare',
   'JBrowse/View/Track/Wiggle/XYPlot',

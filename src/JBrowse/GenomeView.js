@@ -1,6 +1,5 @@
 import normalizeWheel from 'normalize-wheel'
 
-
 define([
   'dojo/_base/declare',
   'dojo/_base/array',

@@ -1,5 +1,3 @@
-
-
 define([
   'dojo/_base/declare',
   'dojo/_base/array',
@@ -821,9 +819,7 @@ define([
                     ? thisFacetCounts[selectorNode.facetValue] || 0
                     : 0
                   // eslint-disable-next-line  xss/no-mixed-html
-                  countNode.innerHTML = Util.escapeHTML(
-                    Util.addCommas(count),
-                  )
+                  countNode.innerHTML = Util.escapeHTML(Util.addCommas(count))
                   if (count) {
                     dojo.removeClass(selectorNode, 'disabled')
                   } else {

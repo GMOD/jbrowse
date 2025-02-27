@@ -1,11 +1,10 @@
-
-
 define([
   'dojo/_base/declare',
   'dojo/_base/array',
   'dojo/dom-construct',
   'dijit/form/Select',
-], function (declare, array, dom, Select) {
+  'JBrowse/Util',
+], function (declare, array, dom, Select, Util) {
   return declare(null, {
     constructor: function (args) {
       this.dialog = args.dialog

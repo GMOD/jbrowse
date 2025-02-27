@@ -1,5 +1,3 @@
-
-
 define([
   'dojo/_base/declare',
   'dojo/_base/lang',
@@ -1274,9 +1272,7 @@ define([
           } else {
             dialog.set(
               'content',
-              typeof content === 'string'
-                ? Util.escapeHTML(content)
-                : content,
+              typeof content === 'string' ? Util.escapeHTML(content) : content,
             )
           }
         }

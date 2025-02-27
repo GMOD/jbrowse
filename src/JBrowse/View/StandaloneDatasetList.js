@@ -1,9 +1,7 @@
-
-
-define(['dojo/_base/declare', 'dijit/_WidgetBase'], function (
+define(['dojo/_base/declare', 'dijit/_WidgetBase', 'JBrowse/Util'], function (
   declare,
-
   _WidgetBase,
+  Util,
 ) {
   return declare(_WidgetBase, {
     baseClass: 'jbrowseStandaloneDatasetSelector',

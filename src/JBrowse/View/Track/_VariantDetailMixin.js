@@ -1,5 +1,3 @@
-
-
 /**
  * Mixin to provide a `defaultFeatureDetail` method that is optimized for
  * displaying variant data from VCF files.

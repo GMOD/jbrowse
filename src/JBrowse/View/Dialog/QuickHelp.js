@@ -1,9 +1,8 @@
-
-
-define(['dojo/_base/declare', 'JBrowse/View/InfoDialog'], function (
-  declare,
-  InfoDialog,
-) {
+define([
+  'dojo/_base/declare',
+  'JBrowse/View/InfoDialog',
+  'JBrowse/Util',
+], function (declare, InfoDialog, Util) {
   return declare(InfoDialog, {
     title: 'JBrowse Help',
 

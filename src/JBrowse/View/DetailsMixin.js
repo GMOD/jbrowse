@@ -1,4 +1,3 @@
-
 /**
  * Mixin that provides generic functions for displaying nested data.
  */
