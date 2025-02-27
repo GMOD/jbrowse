@@ -1,3 +1,4 @@
+import dompurify from 'dompurify'
 /**
  * Mixin with methods used for displaying alignments and their mismatches.
  */
@@ -36,6 +37,7 @@ define([
             .toLowerCase()}`,
           style: { width: '1000px' },
         })
+        // eslint-disable-next-line xss/no-mixed-html
         dojo.place('<div><h1>Paired read details</h1></div><br />', container)
         var flexContainer = dojo.create(
           'div',
@@ -77,17 +79,9 @@ define([
           .toLowerCase()}`,
         innerHTML: '',
       })
-      var fmt = dojo.hitch(this, function (name, value, feature, unsafe) {
+      var fmt = dojo.hitch(this, function (name, value, feature) {
         name = Util.ucFirst(name.replace(/_/g, ' '))
-        return this.renderDetailField(
-          container,
-          name,
-          value,
-          feature,
-          null,
-          {},
-          unsafe,
-        )
+        return this.renderDetailField(container, name, value, feature, null, {})
       })
 
       this._renderCoreDetails(track, f, div, container)
@@ -187,7 +181,6 @@ define([
           var colors = {}
           try {
             var styleSheets = this._getStyleSheets(document.styleSheets)
-            console.log({ styleSheets })
             array.forEach(styleSheets, function (sheet) {
               // avoid modifying cssRules for plugins which generates
               // SecurityException on Firefox
@@ -196,8 +189,7 @@ define([
                 return
               }
               array.forEach(classes, function (c) {
-                console.log({ c })
-                var match = /\.base_([^\s_]+)$/.exec(c.selectorText)
+                var match = /^\.base_([^\s_]+)$/.exec(c.selectorText)
                 if (match && match[1]) {
                   var base = match[1]
                   match = /\#[0-9a-f]{3,6}|(?:rgb|hsl)a?\([^\)]*\)/gi.exec(
@@ -318,8 +310,6 @@ define([
     },
 
     _renderTable: function (parentElement, track, feat, featDiv) {
-      var thisB = this
-
       var mismatches = track._getMismatches(feat)
       var seq = feat.get('seq')
       if (!seq) {
@@ -451,9 +441,13 @@ define([
           'div',
           {
             className: 'renderTable',
-            innerHTML: `<h2 class="sectiontitle">Matches</h2><div style=\"font-family: Courier; white-space: pre;\">${
-              ret_str
-            }</div>`,
+
+            // eslint-disable-next-line xss/no-mixed-html
+            innerHTML: dompurify.sanitize(
+              `<h2 class="sectiontitle">Matches</h2><div style=\"font-family: Courier; white-space: pre;\">${
+                ret_str
+              }</div>`,
+            ),
           },
           parentElement,
         )
@@ -462,13 +456,15 @@ define([
           'div',
           {
             className: 'renderTable',
-            innerHTML:
+            // eslint-disable-next-line xss/no-mixed-html
+            innerHTML: dompurify.sanitize(
               `${
                 '<h2 class="sectiontitle">Matches</h2><div style=\"font-family: Courier; white-space: pre;\">' +
                 'Query: '
               }${query_str}   <br>` +
-              `       ${align_str}   <br>` +
-              `Ref:   ${refer_str}   </div>`,
+                `       ${align_str}   <br>` +
+                `Ref:   ${refer_str}   </div>`,
+            ),
           },
           parentElement,
         )

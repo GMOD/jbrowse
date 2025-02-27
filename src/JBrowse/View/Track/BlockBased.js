@@ -1,3 +1,5 @@
+import dompurify from 'dompurify'
+
 define([
   'dojo/_base/declare',
   'dojo/_base/lang',
@@ -288,7 +290,8 @@ define([
 
         this.labelHTML = newHTML
         query('.track-label-text', this.label).forEach(function (n) {
-          n.innerHTML = newHTML
+          // eslint-disable-next-line xss/no-mixed-html
+          n.innerHTML = dompurify.sanitize(newHTML)
         })
         this.labelHeight = this.label.offsetHeight
       },
@@ -516,7 +519,9 @@ define([
           className: 'loading',
           innerHTML: '<div class="text">Loading</span>',
           title: 'Loading data...',
-          style: { visibility: 'hidden' },
+          style: {
+            visibility: 'hidden',
+          },
         })
         window.setTimeout(function () {
           msgDiv.style.visibility = 'visible'
@@ -597,13 +602,17 @@ define([
           'div',
           {
             className: 'error',
-            innerHTML: `<h2>Error</h2><div class="text">An error was encountered when displaying this track.</div>${
-              message
-                ? `<div class="codecaption">Diagnostic message</div><code>${
-                    message
-                  }</code>`
-                : ''
-            }`,
+
+            // eslint-disable-next-line xss/no-mixed-html
+            innerHTML: dompurify.sanitize(
+              `<h2>Error</h2><div class="text">An error was encountered when displaying this track.</div>${
+                message
+                  ? `<div class="codecaption">Diagnostic message</div><code>${
+                      message
+                    }</code>`
+                  : ''
+              }`,
+            ),
             title: 'An error occurred',
           },
           parent,
@@ -847,7 +856,6 @@ define([
 
           for (i = 0; i < numBlocks; i++) {
             if (this.blocks[i]) {
-              //if (!this.blocks[i].style) console.log(this.blocks);
               this.blocks[i].domNode.style.left = `${i * widthPct}%`
               this.blocks[i].domNode.style.width = `${widthPct}%`
             }
@@ -865,7 +873,8 @@ define([
           'div',
           {
             className: class_ || 'message',
-            innerHTML: message,
+            // eslint-disable-next-line xss/no-mixed-html
+            innerHTML: Util.escapeHTML(message),
           },
           block.domNode,
         )
@@ -981,7 +990,6 @@ define([
           var spec = track._processMenuSpec(dojo.clone(inputSpec), ctx)
           var url = spec.url || spec.href
           spec.url = url
-          var style = dojo.clone(spec.style || {})
 
           // try to understand the `action` setting
           spec.action =
@@ -1256,15 +1264,20 @@ define([
         var dialog
 
         function setContent(dialog, content) {
-          // content can be a promise or Deferred
           if (typeof content.then == 'function') {
             content.then(function (c) {
-              dialog.set('content', c)
+              dialog.set(
+                'content',
+                typeof c === 'string' ? dompurify.sanitize(c) : c,
+              )
             })
-          }
-          // or maybe it's just a regular object
-          else {
-            dialog.set('content', content)
+          } else {
+            dialog.set(
+              'content',
+              typeof content === 'string'
+                ? dompurify.sanitize(content)
+                : content,
+            )
           }
         }
 
@@ -1321,7 +1334,9 @@ define([
                 className: 'dialog-new-window',
                 title: 'open in new window',
                 onclick: dojo.hitch(dialog, 'hide'),
-                innerHTML: spec.url,
+
+                // eslint-disable-next-line xss/no-mixed-html
+                innerHTML: dompurify.sanitize(spec.url),
               },
               dialog.titleBar,
             )
@@ -1522,14 +1537,6 @@ define([
         this.postRenderHighlight(highlight)
 
         if (label) {
-          /*
-            //  vertical text, has bugs
-            if( trimLeft <= 0 ) {
-                domConstruct.create('div', { className:'verticaltext', style: { top: '50px', left: left+'%',transformOrigin: left+'%'+' top' }, innerHTML: label }, args.block.domNode);
-            }
-            if( trimRight <= 0 ) {
-                domConstruct.create('div', { className:'verticaltext', style: { top: '50px', left: left+width+'%',transformOrigin: left+width+'%'+' top' }, innerHTML: rlabel }, args.block.domNode);
-            }*/
           if (trimLeft <= 0) {
             var d1 = domConstruct.create(
               'div',
@@ -1540,13 +1547,14 @@ define([
                   zIndex: 1000,
                   left: `${left}%`,
                 },
-                innerHTML: label,
+                // eslint-disable-next-line xss/no-mixed-html
+                innerHTML: dompurify.sanitize(label),
               },
               args.block.domNode,
             )
           }
           if (trimRight <= 0) {
-            var d2 = domConstruct.create(
+            domConstruct.create(
               'div',
               {
                 className: 'horizontaltext',
@@ -1555,7 +1563,9 @@ define([
                   zIndex: 1000,
                   left: `${left + width}%`,
                 },
-                innerHTML: rlabel,
+
+                // eslint-disable-next-line xss/no-mixed-html
+                innerHTML: dompurify.sanitize(rlabel),
               },
               args.block.domNode,
             )

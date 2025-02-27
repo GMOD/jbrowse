@@ -437,8 +437,8 @@ define([
 
     welcomeScreen: function (container, error) {
       var thisB = this
+      // eslint-disable-next-line xss/no-mixed-html
       container.innerHTML = Welcome
-      console.log({ Welcome })
       var topPane = dojo.create(
         'div',
         { style: { overflow: 'hidden' } },
@@ -470,7 +470,9 @@ define([
           'div',
           {
             className: 'error',
-            innerHTML: error,
+
+            // eslint-disable-next-line xss/no-mixed-html
+            innerHTML: dompurify.sanitize(error),
           },
           errors_div,
         )
@@ -551,6 +553,7 @@ define([
           dojo.addClass(document.body, this.config.theme || 'tundra') //< tundra dijit theme
 
           if (!Util.isElectron()) {
+            // eslint-disable-next-line xss/no-mixed-html
             container.innerHTML = Welcome_old
             if (error) {
               var errors_div = dojo.byId('fatal_error_list')
@@ -789,27 +792,9 @@ define([
     },
 
     _loadCSS: function (css) {
+      console.log({ css })
       var deferred = new Deferred()
-      if (typeof css == 'string') {
-        // if it has '{' in it, it probably is not a URL, but is a string of
-        // CSS statements
-        if (css.indexOf('{') > -1) {
-          dojo.create(
-            'style',
-            {
-              'data-from': 'JBrowse Config',
-              type: 'text/css',
-              innerHTML: css,
-            },
-            document.head,
-          )
-          deferred.resolve(true)
-        }
-        // otherwise, it must be a URL
-        else {
-          css = { url: css }
-        }
-      }
+
       if (typeof css == 'object') {
         LazyLoad.css(css.url, function () {
           deferred.resolve(true)
@@ -933,7 +918,7 @@ define([
         var about = this.browserMeta()
         var aboutDialog = new InfoDialog({
           title: `About ${about.title}`,
-          content: about.description,
+          content: dompurify.sanitize(about.description),
           className: 'about-dialog',
         })
 
@@ -1033,6 +1018,7 @@ define([
                 'a',
                 {
                   className: 'powered_by',
+                  // eslint-disable-next-line xss/no-mixed-html
                   innerHTML: this.browserMeta().title,
                   title: 'powered by JBrowse',
                 },
@@ -1272,7 +1258,8 @@ define([
               'div',
               {
                 className: 'dataset-name',
-                innerHTML: datasetName,
+                // eslint-disable-next-line xss/no-mixed-html
+                innerHTML: dompurify.sanitize(datasetName),
                 title: 'name of current dataset',
                 style: {
                   display: datasetName ? 'inline-block' : 'none',
@@ -1846,12 +1833,14 @@ define([
       var verstring = this.version
 
       if (about.description) {
+        // eslint-disable-next-line xss/no-mixed-html
         about.description +=
           `${
             '<div class="powered_by">' +
             'Powered by <a target="_blank" href="http://jbrowse.org">JBrowse '
           }${verstring}</a>.` + `</div>`
       } else {
+        // eslint-disable-next-line xss/no-mixed-html
         about.description =
           `${
             '<div class="default_about">' + '  <img class="logo" src="'
@@ -2237,6 +2226,7 @@ define([
       })
 
       var analyticsScriptNode = document.createElement('script')
+      // eslint-disable-next-line xss/no-mixed-html
       analyticsScriptNode.innerHTML = analyticsScript
 
       document.getElementsByTagName('head')[0].appendChild(analyticsScriptNode)
@@ -2582,9 +2572,9 @@ define([
      */
     loadConfig: function () {
       return this._milestoneFunction('loadConfig', function (deferred) {
-        // check the config.dataRoot parameter before loading, unless allowCrossSiteDataRoot is on.
-        // this prevents an XSS attack served from a malicious server that has CORS enabled. thanks to @cmdcolin
-        // for noticing this.
+        // check the config.dataRoot parameter before loading, unless
+        // allowCrossSiteDataRoot is on. this prevents an XSS attack served
+        // from a malicious server that has CORS enabled
         if (
           this.config.dataRoot &&
           this.config.dataRoot !== 'data' &&
@@ -3909,8 +3899,10 @@ define([
       // create location box
       // if in config "locationBox": "separate", then the search box will be the location box.
       if (this.config.locationBox === 'separate') {
+        // eslint-disable-next-line xss/no-mixed-html
         this.locationInfoBox = domConstruct.place(
           "<div id='location-info'>location</div>",
+          // eslint-disable-next-line xss/no-mixed-html
           navbox,
         )
       }

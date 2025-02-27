@@ -1,5 +1,7 @@
 const url = cjsRequire('url')
 
+import dompurify from 'dompurify'
+
 /**
  * Miscellaneous utility functions.
  */
@@ -33,14 +35,7 @@ define([
     },
 
     escapeHTML: function (str) {
-      if (str === null || str === undefined) {
-        return str
-      }
-      return str
-        .toString()
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
+      return dompurify.sanitize(str)
     },
 
     unescapeHTML: function (str) {

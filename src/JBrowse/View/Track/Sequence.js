@@ -1,3 +1,5 @@
+import dompurify from 'dompurify'
+
 define([
   'dojo/_base/declare',
   'dojo/_base/array',
@@ -315,6 +317,8 @@ define([
 
           aminoAcidSpan.style.width = charWidth
           if (drawChars) {
+            // a single char shouldnt be xss'able...
+            // eslint-disable-next-line xss/no-mixed-html
             aminoAcidSpan.innerHTML = translated.charAt(i)
           }
           tr.appendChild(aminoAcidSpan)
@@ -341,6 +345,7 @@ define([
           base.className = `${baseClassDefault} base_${seq.charAt(i).toLowerCase()}`
           base.style.width = charWidth
           if (drawChars) {
+            // eslint-disable-next-line xss/no-mixed-html
             base.innerHTML = seq.charAt(i)
           }
           container.appendChild(base)

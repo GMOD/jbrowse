@@ -1,3 +1,5 @@
+import dompurify from 'dompurify'
+
 define([
   'dojo/_base/declare',
   'dojo/_base/lang',
@@ -14,8 +16,6 @@ define([
   'dojo/dnd/move',
   'dojo/dnd/Source',
   'dojo/dnd/Manager',
-  'JBrowse/Util',
-  'JBrowse/View/TrackConfigEditor',
   'JBrowse/View/Track/_ExportMixin',
 ], function (
   declare,
@@ -33,26 +33,25 @@ define([
   dndMove,
   dndSource,
   dndManager,
-  Util,
-  TrackConfigEditor,
   ExportMixin,
 ) {
   return declare([BlockBased, ExportMixin], {
     /**
-     * Creates a track with a drag-and-drop interface allowing users to drag other tracks into it.
-     * Users select (using a dialog) a way to combine these tracks, and they are combined.
-     * Certain tracks (e.g. HTMLFeatures tracks) may be combined set-theoretically (union, intersection,etc ),
-     * while others (e.g. BigWig tracks) may be combined quantitatively (add scores, subtract scores, etc...).
-     * If one of the tracks is a set-based track and the other is not, track masking operations may be applied.
+     * Creates a track with a drag-and-drop interface allowing users to drag
+     * other tracks into it. Users select (using a dialog) a way to combine
+     * these tracks, and they are combined. Certain tracks (e.g. HTMLFeatures
+     * tracks) may be combined set-theoretically (union, intersection,etc ),
+     * while others (e.g. BigWig tracks) may be combined quantitatively (add
+     * scores, subtract scores, etc...). If one of the tracks is a set-based
+     * track and the other is not, track masking operations may be applied.
      * @constructs
      */
     constructor: function (args) {
-      // The "default" track of each type is the one at
-      // index 0 of the resultsTypes array.
-      // Many different kinds of tracks can be added.
-      // Each is supported by a different store, and
-      // some can be rendered in several ways.
-      // The trackClasses object stores information about what can be done with each of these types.
+      // The "default" track of each type is the one at index 0 of the
+      // resultsTypes array. Many different kinds of tracks can be added. Each
+      // is supported by a different store, and some can be rendered in several
+      // ways. The trackClasses object stores information about what can be
+      // done with each of these types.
       this.trackClasses = {
         set: {
           resultsTypes: [
@@ -1103,8 +1102,9 @@ define([
               })
               content.push(formulaDiv)
               if (combTrack.opTree) {
-                formulaDiv.innerHTML = combTrack._generateTreeFormula(
-                  combTrack.opTree,
+                // eslint-disable-next-line xss/no-mixed-html
+                formulaDiv.innerHTML = dompurify.sanitize(
+                  combTrack._generateTreeFormula(combTrack.opTree),
                 )
               }
               formulaDialog.set('content', content)

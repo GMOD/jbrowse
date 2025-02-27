@@ -1,3 +1,5 @@
+import dompurify from 'dompurify'
+
 define([
   'dojo/_base/declare',
   'dijit/Dialog',
@@ -7,7 +9,8 @@ define([
   'JBrowse/Model/BinaryTreeNode',
 ], function (declare, Dialog, RadioButton, Button, dom, TreeNode) {
   return declare(null, {
-    // Produces a dialog box in which a user may enter settings for how they would like to combine tracks in a Combination Track.
+    // Produces a dialog box in which a user may enter settings for how they
+    // would like to combine tracks in a Combination Track.
     constructor: function (args) {
       this.newTrackKey = args.trackConfig ? args.trackConfig.key : args.key
       this.track = args.track
@@ -54,9 +57,13 @@ define([
       nodesToAdd.push(
         dom.create('div', {
           className: 'intro',
-          innerHTML: `Adding ${this.currType} track ${
-            this.newTrackKey
-          } to the combination.`,
+
+          // eslint-disable-next-line xss/no-mixed-html
+          innerHTML: dompurify.sanitize(
+            `Adding ${this.currType} track ${
+              this.newTrackKey
+            } to the combination.`,
+          ),
         }),
       )
 
@@ -78,7 +85,11 @@ define([
       })
       nodesToAdd.push(this.changingOpPanel)
 
-      nodesToAdd.push(dom.create('h2', { innerHTML: 'Combination formula' }))
+      nodesToAdd.push(
+        dom.create('h2', {
+          innerHTML: 'Combination formula',
+        }),
+      )
 
       this.formulaPreview = dom.create('div', {
         innerHTML: '(nothing currently selected)',
@@ -127,7 +138,15 @@ define([
               )
               if (numOpLists == 3) {
                 var text = ['Main', 'Mask', 'Display']
-                dom.create('h2', { innerHTML: text[i] }, opDiv)
+
+                dom.create(
+                  'h2',
+                  {
+                    // eslint-disable-next-line xss/no-mixed-html
+                    innerHTML: dompurify.sanitize(text[i]),
+                  },
+                  opDiv,
+                )
               }
 
               var whichOpSpan = dom.create(
@@ -269,8 +288,10 @@ define([
             thisB.opValue[offset] = this.value
             var operation = thisB._getOperation()
             thisB.previewTree = thisB._createPreviewTree(operation, store)
-            thisB.formulaPreview.innerHTML = thisB._generateTreeFormula(
-              thisB.previewTree,
+
+            // eslint-disable-next-line xss/no-mixed-html
+            thisB.formulaPreview.innerHTML = dompurify.sanitize(
+              thisB._generateTreeFormula(thisB.previewTree),
             )
           }
         })
@@ -321,8 +342,10 @@ define([
           thisB.whichArg[offset] = value === undefined ? this.value : value
           var operation = thisB._getOperation()
           thisB.previewTree = thisB._createPreviewTree(operation, store)
-          thisB.formulaPreview.innerHTML = thisB._generateTreeFormula(
-            thisB.previewTree,
+
+          // eslint-disable-next-line xss/no-mixed-html
+          thisB.formulaPreview.innerHTML = dompurify.sanitize(
+            thisB._generateTreeFormula(thisB.previewTree),
           )
         }
       }
@@ -535,9 +558,13 @@ define([
         value: value,
       })
       parent.appendChild(radioButton.domNode)
-      var radioButtonLabel = dom.create(
+      dom.create(
         'label',
-        { for: radioButton.id, innerHTML: label },
+        {
+          for: radioButton.id,
+          // eslint-disable-next-line xss/no-mixed-html
+          innerHTML: dompurify.sanitize(label),
+        },
         parent,
       )
       parent.appendChild(dom.create('br'))

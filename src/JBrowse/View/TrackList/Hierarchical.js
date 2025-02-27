@@ -1,3 +1,5 @@
+import dompurify from 'dompurify'
+
 define([
   'dojo/_base/declare',
   'dojo/_base/array',
@@ -78,17 +80,28 @@ define([
 
         var topPane = dom.create(
           'div',
-          { className: 'header' },
+          {
+            className: 'header',
+          },
           this.containerNode,
         )
         dom.create(
           'h2',
-          { className: 'title', innerHTML: 'Available Tracks' },
+          {
+            className: 'title',
+            innerHTML: 'Available Tracks',
+          },
           topPane,
         )
 
         this._makeTextFilterNodes(
-          dom.create('div', { className: 'textfilterContainer' }, topPane),
+          dom.create(
+            'div',
+            {
+              className: 'textfilterContainer',
+            },
+            topPane,
+          ),
         )
         this._updateTextFilterControl()
       },
@@ -217,9 +230,10 @@ define([
                     thisB.state,
                   )
                   var c = new TitlePane({
-                    title:
-                      `<span class="categoryName">${categoryName}</span>` +
-                      ` <span class="trackCount">0</span>`,
+                    // eslint-disable-next-line xss/no-mixed-html
+                    title: dompurify.sanitize(
+                      `<span class="categoryName">${categoryName}</span><span class="trackCount">0</span>`,
+                    ),
                     open: !isCollapsed,
                   })
                   // save our open/collapsed state in local storage

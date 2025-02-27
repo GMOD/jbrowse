@@ -1,3 +1,5 @@
+import dompurify from 'dompurify'
+
 define([
   'dojo/_base/declare',
   'dojo/_base/array',
@@ -277,9 +279,10 @@ define([
           'div',
           {
             className: 'faceted_tracksel_on_off tab',
-            innerHTML: `<img src="${this.browser.resolveUrl(
-              'img/left_arrow.png',
-            )}"><div>Select<br>tracks</div>`,
+            // eslint-disable-next-line xss/no-mixed-html
+            innerHTML: dompurify.sanitize(
+              `<img src="${this.browser.resolveUrl('img/left_arrow.png')}"><div>Select<br>tracks</div>`,
+            ),
           },
           this.containerElem,
         )
@@ -287,7 +290,9 @@ define([
           { design: 'headline', gutters: false },
           dojo.create(
             'div',
-            { className: 'mainContainer' },
+            {
+              className: 'mainContainer',
+            },
             this.containerElem,
           ),
         )
@@ -295,9 +300,11 @@ define([
         this.topPane = new dijit.layout.ContentPane({
           region: 'top',
           id: 'faceted_tracksel_top',
-          content:
+          // eslint-disable-next-line xss/no-mixed-html
+          content: dompurify.sanitize(
             '<div class="title">Select Tracks</div> ' +
-            '<div class="topLink" style="cursor: help"><a title="Track selector help">Help</a></div>',
+              '<div class="topLink" style="cursor: help"><a title="Track selector help">Help</a></div>',
+          ),
         })
         dojo
           .query(
@@ -310,23 +317,25 @@ define([
               refocus: false,
               draggable: false,
               title: 'Track Selection',
-              content:
+              // eslint-disable-next-line xss/no-mixed-html
+              content: dompurify.sanitize(
                 '<div class="main">' +
-                '<p>The JBrowse Faceted Track Selector makes it easy to search through' +
-                ' large numbers of available tracks to find exactly the ones you want.' +
-                ' You can incrementally filter the track display to narrow it down to' +
-                ' those your are interested in.  There are two types of filtering available,' +
-                ' which can be used together:' +
-                ' <b>filtering with data fields</b>, and free-form <b>filtering with text</b>.' +
-                '</p>' +
-                '  <dl><dt>Filtering with Data Fields</dt>' +
-                '  <dd>The left column of the display contains the available <b>data fields</b>.  Click on the data field name to expand it, and then select one or more values for that field.  This narrows the search to display only tracks that have one of those values for that field.  You can do this for any number of fields.<dd>' +
-                '  <dt>Filtering with Text</dt>' +
-                '  <dd>Type text in the "Contains text" box to filter for tracks whose data contains that text.  If you type multiple words, tracks are filtered such that they must contain all of those words, in any order.  Placing "quotation marks" around the text filters for tracks that contain that phrase exactly.  All text matching is case insensitive.</dd>' +
-                '  <dt>Activating Tracks</dt>' +
-                '  <dd>To activate and deactivate a track, click its check-box in the left-most column.  When the box contains a check mark, the track is activated.  You can also turn whole groups of tracks on and off using the check-box in the table heading.</dd>' +
-                '  </dl>' +
-                '</div>',
+                  '<p>The JBrowse Faceted Track Selector makes it easy to search through' +
+                  ' large numbers of available tracks to find exactly the ones you want.' +
+                  ' You can incrementally filter the track display to narrow it down to' +
+                  ' those your are interested in.  There are two types of filtering available,' +
+                  ' which can be used together:' +
+                  ' <b>filtering with data fields</b>, and free-form <b>filtering with text</b>.' +
+                  '</p>' +
+                  '  <dl><dt>Filtering with Data Fields</dt>' +
+                  '  <dd>The left column of the display contains the available <b>data fields</b>.  Click on the data field name to expand it, and then select one or more values for that field.  This narrows the search to display only tracks that have one of those values for that field.  You can do this for any number of fields.<dd>' +
+                  '  <dt>Filtering with Text</dt>' +
+                  '  <dd>Type text in the "Contains text" box to filter for tracks whose data contains that text.  If you type multiple words, tracks are filtered such that they must contain all of those words, in any order.  Placing "quotation marks" around the text filters for tracks that contain that phrase exactly.  All text matching is case insensitive.</dd>' +
+                  '  <dt>Activating Tracks</dt>' +
+                  '  <dd>To activate and deactivate a track, click its check-box in the left-most column.  When the box contains a check mark, the track is activated.  You can also turn whole groups of tracks on and off using the check-box in the table heading.</dd>' +
+                  '  </dl>' +
+                  '</div>',
+              ),
             })
             dojo.connect(helplink, 'onclick', this, function (evt) {
               helpdialog.show()
@@ -352,7 +361,10 @@ define([
         this.busyIndicator = dojo.create(
           'div',
           {
-            innerHTML: `<img src="${this.browser.resolveUrl('img/spinner.gif')}">`,
+            // eslint-disable-next-line xss/no-mixed-html
+            innerHTML: dompurify.sanitize(
+              `<img src="${this.browser.resolveUrl('img/spinner.gif')}">`,
+            ),
             className: 'busy_indicator',
           },
           this.containerElem,
@@ -365,16 +377,21 @@ define([
             content: [
               dojo.create('button', {
                 className: 'faceted_tracksel_on_off',
-                innerHTML: `<img src="${this.browser.resolveUrl(
-                  'img/left_arrow.png',
-                )}"> <div>Back to browser</div>`,
+                // eslint-disable-next-line xss/no-mixed-html
+                innerHTML: dompurify.sanitize(
+                  `<img src="${this.browser.resolveUrl(
+                    'img/left_arrow.png',
+                  )}"> <div>Back to browser</div>`,
+                ),
                 onclick: lang.hitch(this, 'hide'),
               }),
               dojo.create('button', {
                 className: 'clear_filters',
-                innerHTML:
+                // eslint-disable-next-line xss/no-mixed-html
+                innerHTML: dompurify.sanitize(
                   `<img src="${this.browser.resolveUrl('img/red_x.png')}">` +
-                  `<div>Clear All Filters</div>`,
+                    `<div>Clear All Filters</div>`,
+                ),
                 onclick: lang.hitch(this, function (evt) {
                   this._clearTextFilterControl()
                   this._clearAllFacetControls()
@@ -451,10 +468,6 @@ define([
           id: 'trackSelectGrid',
           store: this.trackDataStore,
           selectable: true,
-          escapeHTMLInData:
-            'escapeHTMLInData' in this.config
-              ? this.config.escapeHTMLInData
-              : false,
           noDataMessage: 'No tracks match the filtering criteria.',
           structure: [
             dojo.map(
@@ -554,7 +567,9 @@ define([
             className: 'textFilterControl',
             innerHTML: 'Contains text ',
             id: 'tracklist_textfilter',
-            style: { position: 'relative' },
+            style: {
+              position: 'relative',
+            },
           },
           parent,
         )
@@ -715,7 +730,9 @@ define([
         // make a selection control for the values of this facet
         var facetControl = dojo.create(
           'table',
-          { className: 'facetSelect' },
+          {
+            className: 'facetSelect',
+          },
           facetPane.containerNode,
         )
         // populate selector's options
@@ -727,7 +744,10 @@ define([
               'tr',
               {
                 className: 'facetValue',
-                innerHTML: `<td class="count"></td><td class="value">${val}</td>`,
+                // eslint-disable-next-line  xss/no-mixed-html
+                innerHTML: dompurify.sanitize(
+                  `<td class="count"></td><td class="value">${val}</td>`,
+                ),
                 onclick: function (evt) {
                   dojo.toggleClass(this, 'selected')
                   that._updateFacetControl(facetName)
@@ -788,7 +808,6 @@ define([
           dojof.keys(this.facetSelectors),
           function (facetName) {
             if (facetName == 'My Tracks') {
-              // || facetName == skipFacetName )
               return
             }
             var thisFacetCounts = this.trackDataStore.getFacetCounts(facetName)
@@ -801,7 +820,10 @@ define([
                   var count = thisFacetCounts
                     ? thisFacetCounts[selectorNode.facetValue] || 0
                     : 0
-                  countNode.innerHTML = Util.addCommas(count)
+                  // eslint-disable-next-line  xss/no-mixed-html
+                  countNode.innerHTML = dompurify.sanitize(
+                    Util.addCommas(count),
+                  )
                   if (count) {
                     dojo.removeClass(selectorNode, 'disabled')
                   } else {
@@ -981,9 +1003,12 @@ define([
         dojo
           .query('.matching_record_count', this.containerElem)
           .forEach(function (n) {
-            n.innerHTML = `${Util.addCommas(count)} ${
-              dojof.keys(this.query || {}).length ? 'matching ' : ''
-            }track${count == 1 ? '' : 's'}`
+            // eslint-disable-next-line  xss/no-mixed-html
+            n.innerHTML = dompurify.sanitize(
+              `${Util.addCommas(count)} ${
+                dojof.keys(this.query || {}).length ? 'matching ' : ''
+              }track${count == 1 ? '' : 's'}`,
+            )
           }, this)
       },
 
@@ -1071,7 +1096,11 @@ define([
           .animateProperty({
             node: this.containerElem,
             properties: {
-              left: { start: -95, end: 0, units: '%' },
+              left: {
+                start: -95,
+                end: 0,
+                units: '%',
+              },
             },
           })
           .play()
@@ -1089,7 +1118,11 @@ define([
           .animateProperty({
             node: this.containerElem,
             properties: {
-              left: { start: 0, end: -95, units: '%' },
+              left: {
+                start: 0,
+                end: -95,
+                units: '%',
+              },
             },
           })
           .play()

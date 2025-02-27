@@ -1,26 +1,14 @@
+import dompurify from 'dompurify'
+
 define([
   'dojo/_base/declare',
   'dojo/_base/array',
   'dojo/dom-construct',
-  'dijit/focus',
-  'dijit/form/TextBox',
   'JBrowse/View/Dialog/WithActionBar',
   'dojo/on',
   'dijit/form/Button',
-  'JBrowse/Model/Location',
   'JBrowse/Util',
-], function (
-  declare,
-  array,
-  dom,
-  focus,
-  dijitTextBox,
-  ActionBarDialog,
-  on,
-  Button,
-  Location,
-  Util,
-) {
+], function (declare, array, dom, ActionBarDialog, on, Button, Util) {
   return declare(
     ActionBarDialog,
 
@@ -111,7 +99,10 @@ define([
               return Util.replacePath(replace)
             })
             thisB.plugins.push(paths[0])
-            dojo.byId('plugins_list').innerHTML += `${paths}<br/>`
+            // eslint-disable-next-line xss/no-mixed-html
+            dojo.byId('plugins_list').innerHTML += dompurify.sanitize(
+              `${paths}<br/>`,
+            )
           }
         })
 
