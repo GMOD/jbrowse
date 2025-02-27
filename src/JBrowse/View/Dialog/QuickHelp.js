@@ -1,9 +1,8 @@
-import dompurify from 'dompurify'
-
-define(['dojo/_base/declare', 'JBrowse/View/InfoDialog'], function (
-  declare,
-  InfoDialog,
-) {
+define([
+  'dojo/_base/declare',
+  'JBrowse/View/InfoDialog',
+  'JBrowse/Util',
+], function (declare, InfoDialog, Util) {
   return declare(InfoDialog, {
     title: 'JBrowse Help',
 
@@ -13,7 +12,7 @@ define(['dojo/_base/declare', 'JBrowse/View/InfoDialog'], function (
 
       if (!args.content && !args.href) {
         // make a div containing our help text
-        this.content = dompurify.sanitize(this.defaultContent)
+        this.content = Util.escapeHTML(this.defaultContent)
       }
     },
 

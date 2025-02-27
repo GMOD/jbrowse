@@ -1,6 +1,7 @@
 const url = cjsRequire('url')
-
-import dompurify from 'dompurify'
+// has to be a cjsReequire and not an import or it adds a 'use strict' which
+// makes this.inherited not work
+const dompurify = cjsRequire('dompurify')
 
 /**
  * Miscellaneous utility functions.
@@ -9,7 +10,6 @@ define([
   'dojo/_base/array',
   'dojo/_base/lang',
   'dojo/Deferred',
-
   'dojox/lang/functional/object',
   'dojox/lang/functional/fold',
 ], function (array, lang, Deferred) {

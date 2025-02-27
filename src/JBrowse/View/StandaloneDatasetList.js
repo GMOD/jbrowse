@@ -1,9 +1,7 @@
-import dompurify from 'dompurify'
-
-define(['dojo/_base/declare', 'dijit/_WidgetBase'], function (
+define(['dojo/_base/declare', 'dijit/_WidgetBase', 'JBrowse/Util'], function (
   declare,
-
   _WidgetBase,
+  Util,
 ) {
   return declare(_WidgetBase, {
     baseClass: 'jbrowseStandaloneDatasetSelector',
@@ -24,7 +22,7 @@ define(['dojo/_base/declare', 'dijit/_WidgetBase'], function (
           var a = document.createElement('a')
           a.setAttribute('href', sppData.url)
           // eslint-disable-next-line xss/no-mixed-html
-          a.innerHTML = dompurify.sanitize(sppData.name)
+          a.innerHTML = Util.escapeHTML(sppData.name)
           li.appendChild(a)
           ul.appendChild(li)
         }

@@ -1,5 +1,3 @@
-import dompurify from 'dompurify'
-
 define([
   'dojo/_base/declare',
   'dojo/_base/lang',
@@ -17,6 +15,7 @@ define([
   'dojo/dnd/Source',
   'dojo/dnd/Manager',
   'JBrowse/View/Track/_ExportMixin',
+  'JBrowse/Util',
 ], function (
   declare,
   lang,
@@ -34,6 +33,7 @@ define([
   dndSource,
   dndManager,
   ExportMixin,
+  Util,
 ) {
   return declare([BlockBased, ExportMixin], {
     /**
@@ -1103,7 +1103,7 @@ define([
               content.push(formulaDiv)
               if (combTrack.opTree) {
                 // eslint-disable-next-line xss/no-mixed-html
-                formulaDiv.innerHTML = dompurify.sanitize(
+                formulaDiv.innerHTML = Util.escapeHTML(
                   combTrack._generateTreeFormula(combTrack.opTree),
                 )
               }

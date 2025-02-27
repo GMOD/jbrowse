@@ -4,6 +4,7 @@
     "plugin:xss/recommended"
   ],
   "plugins": [],
+  "root": true,
   "env": {
     "browser": true,
     "amd": true,

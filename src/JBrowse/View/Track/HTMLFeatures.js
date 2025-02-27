@@ -1,5 +1,3 @@
-import dompurify from 'dompurify'
-
 define([
   'dojo/_base/declare',
   'dojo/_base/lang',
@@ -1433,7 +1431,7 @@ define([
             {
               className: `feature-label${highlighted ? ' highlighted' : ''}`,
               // eslint-disable-next-line xss/no-mixed-html
-              innerHTML: dompurify.sanitize(
+              innerHTML: Util.escapeHTML(
                 (name ? `<div class="feature-name">${name}</div>` : '') +
                   (description
                     ? ` <div class="feature-description">${description}</div>`

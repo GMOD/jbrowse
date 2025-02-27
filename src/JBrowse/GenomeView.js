@@ -1,5 +1,4 @@
 import normalizeWheel from 'normalize-wheel'
-import dompurify from 'dompurify'
 
 define([
   'dojo/_base/declare',
@@ -246,7 +245,7 @@ define([
               hint == 'avatar'
                 ? dojo.create('div', {
                     // eslint-disable-next-line xss/no-mixed-html
-                    innerHTML: dompurify.sanitize(
+                    innerHTML: Util.escapeHTML(
                       trackConfig.key || trackConfig.label,
                     ),
                     className: 'track-label dragging',
@@ -1689,7 +1688,7 @@ define([
       var absfunc = args.xToBp || dojo.hitch(this, 'absXtoBp')
       //set text to BP location (adding 1 to convert from interbase)
       // eslint-disable-next-line xss/no-mixed-html
-      label.innerHTML = dompurify.sanitize(
+      label.innerHTML = Util.escapeHTML(
         Util.addCommas(Math.floor(absfunc(numX)) + 1),
       )
 

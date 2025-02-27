@@ -1,5 +1,3 @@
-import dompurify from 'dompurify'
-
 define([
   'dojo/_base/declare',
   'dojo/_base/array',
@@ -147,7 +145,7 @@ define([
           {
             for: regionButton.id,
             // eslint-disable-next-line xss/no-mixed-html
-            innerHTML: dompurify.sanitize(
+            innerHTML: Util.escapeHTML(
               `${r.description} - <span class="locString">${
                 locstring
               }</span> (${Util.humanReadableNumber(r.length)}${
@@ -194,7 +192,7 @@ define([
             {
               for: formatButton.id,
               // eslint-disable-next-line xss/no-mixed-html
-              innerHTML: dompurify.sanitize(fmt.label),
+              innerHTML: Util.escapeHTML(fmt.label),
             },
             formatFieldset,
           )

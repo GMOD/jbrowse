@@ -1,5 +1,3 @@
-import dompurify from 'dompurify'
-
 define([
   'dojo/_base/declare',
   'dojo/_base/array',
@@ -116,7 +114,7 @@ define([
 
         on(self.input, 'change', function (here) {
           // eslint-disable-next-line xss/no-mixed-html
-          dojo.byId('data_dir_list').innerHTML = dompurify.sanitize(
+          dojo.byId('data_dir_list').innerHTML = Util.escapeHTML(
             self.input.value,
           )
           thisB.datadir = self.input.value
@@ -127,7 +125,7 @@ define([
           // we are insensitive to changes in whitespace
           if (self.input.value != thisB.datadir && !thisB.localopened) {
             // eslint-disable-next-line xss/no-mixed-html
-            dojo.byId('data_dir_list').innerHTML = dompurify.sanitize(
+            dojo.byId('data_dir_list').innerHTML = Util.escapeHTML(
               self.input.value,
             )
             thisB.datadir = self.input.value
@@ -195,7 +193,7 @@ define([
             thisB.datadir = paths[0]
             thisB.localopened = true
             // eslint-disable-next-line xss/no-mixed-html
-            dojo.byId('data_dir_list').innerHTML = dompurify.sanitize(paths[0])
+            dojo.byId('data_dir_list').innerHTML = Util.escapeHTML(paths[0])
           }
         })
 

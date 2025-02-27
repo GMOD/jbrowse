@@ -1,7 +1,5 @@
 const url = cjsRequire('url')
 
-import dompurify from 'dompurify'
-
 import Welcome from './View/Resource/Welcome.html'
 import Welcome_old from './View/Resource/Welcome_old.html'
 
@@ -464,7 +462,6 @@ define([
       }
 
       if (error) {
-        console.log(error)
         var errors_div = dojo.byId('fatal_error_list')
         dojo.create(
           'div',
@@ -472,7 +469,7 @@ define([
             className: 'error',
 
             // eslint-disable-next-line xss/no-mixed-html
-            innerHTML: dompurify.sanitize(error),
+            innerHTML: Util.escapeHTML(error),
           },
           errors_div,
         )
@@ -530,7 +527,7 @@ define([
 
           error = dojoxHtmlEntities.encode(error)
         }
-        return dompurify.sanitize(error)
+        return Util.escapeHTML(error)
       }
 
       if (!this.renderedFatalErrors) {
@@ -792,7 +789,6 @@ define([
     },
 
     _loadCSS: function (css) {
-      console.log({ css })
       var deferred = new Deferred()
 
       if (typeof css == 'object') {
@@ -918,7 +914,7 @@ define([
         var about = this.browserMeta()
         var aboutDialog = new InfoDialog({
           title: `About ${about.title}`,
-          content: dompurify.sanitize(about.description),
+          content: Util.escapeHTML(about.description),
           className: 'about-dialog',
         })
 
@@ -1259,7 +1255,7 @@ define([
               {
                 className: 'dataset-name',
                 // eslint-disable-next-line xss/no-mixed-html
-                innerHTML: dompurify.sanitize(datasetName),
+                innerHTML: Util.escapeHTML(datasetName),
                 title: 'name of current dataset',
                 style: {
                   display: datasetName ? 'inline-block' : 'none',
@@ -3080,7 +3076,7 @@ define([
 
           new InfoDialog({
             title: 'Not found',
-            content: `Not found: <span class="locString">${dompurify.sanitize(
+            content: `Not found: <span class="locString">${Util.escapeHTML(
               loc,
             )}</span>`,
             className: 'notfound-dialog',
@@ -4039,7 +4035,6 @@ define([
                 end: ref.end,
                 length: ref.length,
               })
-              //console.log( locstring, locstring.length );
               return locstring.length
             }.call(this) ||
             20

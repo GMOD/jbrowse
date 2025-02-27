@@ -1,5 +1,3 @@
-import dompurify from 'dompurify'
-
 define([
   'dojo/_base/declare',
   'dojo/dom-construct',
@@ -56,7 +54,7 @@ define([
           {
             className: 'prompt',
             // eslint-disable-next-line xss/no-mixed-html
-            innerHTML: dompurify.sanitize(this.prompt),
+            innerHTML: Util.escapeHTML(this.prompt),
           },
           container,
         )

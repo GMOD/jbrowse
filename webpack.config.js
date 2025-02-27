@@ -1,15 +1,11 @@
 /* eslint-env node */
-require('babel-polyfill')
-
 const DojoWebpackPlugin = require('dojo-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 const CleanWebpackPlugin = require('clean-webpack-plugin')
 
 const path = require('path')
-const glob = require('glob')
 const webpack = require('webpack')
-
 // if JBROWSE_BUILD_MIN env var is 1 or true, then we also minimize the JS
 // and forego generating source maps
 const DEBUG = ![1, '1', 'true'].includes(process.env.JBROWSE_BUILD_MIN)
@@ -21,7 +17,10 @@ var webpackConf = {
   },
   plugins: [
     new CleanWebpackPlugin(['dist']),
-
+    new webpack.ProvidePlugin({
+      process: 'process/browser',
+      Buffer: ['buffer', 'Buffer'],
+    }),
     new DojoWebpackPlugin({
       loaderConfig: require('./build/dojo-loader-config'),
       environment: {
@@ -72,12 +71,7 @@ var webpackConf = {
         use: {
           loader: 'babel-loader',
           options: {
-            presets: ['es2015-without-strict'],
-            plugins: [
-              'transform-async-to-generator',
-              'transform-es2015-classes',
-            ],
-            cacheDirectory: true,
+            presets: [['@babel/preset-env', { modules: false }]],
           },
         },
       },
@@ -123,6 +117,14 @@ var webpackConf = {
   },
   resolve: {
     symlinks: false,
+    fallback: {
+      zlib: require.resolve('browserify-zlib'),
+      path: require.resolve('path-browserify'),
+      stream: require.resolve('stream-browserify'),
+      assert: require.resolve('assert/'),
+      util: require.resolve('util/'),
+      vm: require.resolve('vm-browserify'),
+    },
   },
 }
 

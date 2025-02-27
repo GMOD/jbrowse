@@ -1,5 +1,3 @@
-import dompurify from 'dompurify'
-
 define([
   'dojo/_base/declare',
   'dojo/_base/array',
@@ -171,7 +169,7 @@ define([
                           }%`,
                         },
                         // eslint-disable-next-line xss/no-mixed-html
-                        innerHTML: dompurify.sanitize(base),
+                        innerHTML: Util.escapeHTML(base),
                       },
                       overall,
                     )

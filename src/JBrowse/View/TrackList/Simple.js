@@ -1,20 +1,15 @@
 const url = cjsRequire('url')
 
-import dompurify from 'dompurify'
-
 define([
   'dojo/_base/declare',
   'dojo/_base/array',
   'dojo/_base/event',
   'dojo/keys',
   'dojo/on',
-  'dojo/dom-construct',
-  'dojo/dom-class',
   'dijit/layout/ContentPane',
   'dojo/dnd/Source',
   'dojo/fx/easing',
-  'dijit/form/TextBox',
-
+  'JBrowse/Util',
   './_TextFilterMixin',
 ], function (
   declare,
@@ -22,13 +17,10 @@ define([
   event,
   keys,
   on,
-  dom,
-  domClass,
   ContentPane,
   dndSource,
   animationEasing,
-  dijitTextBox,
-
+  Util,
   _TextFilterMixin,
 ) {
   return declare(
@@ -193,7 +185,7 @@ define([
 
               // dompurify added
               // eslint-disable-next-line xss/no-mixed-html
-              innerHTML: dompurify.sanitize(key),
+              innerHTML: Util.escapeHTML(key),
             })
 
             //in the list, wrap the list item in a container for
