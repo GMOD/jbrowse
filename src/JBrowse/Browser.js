@@ -472,7 +472,7 @@ define([
             className: 'error',
 
             // eslint-disable-next-line xss/no-mixed-html
-            innerHTML: error,
+            innerHTML: dompurify.sanitize(error),
           },
           errors_div,
         )
@@ -792,28 +792,9 @@ define([
     },
 
     _loadCSS: function (css) {
+      console.log({ css })
       var deferred = new Deferred()
-      if (typeof css == 'string') {
-        // if it has '{' in it, it probably is not a URL, but is a string of
-        // CSS statements
-        if (css.indexOf('{') > -1) {
-          dojo.create(
-            'style',
-            {
-              'data-from': 'JBrowse Config',
-              type: 'text/css',
-              // eslint-disable-next-line xss/no-mixed-html
-              innerHTML: css,
-            },
-            document.head,
-          )
-          deferred.resolve(true)
-        }
-        // otherwise, it must be a URL
-        else {
-          css = { url: css }
-        }
-      }
+
       if (typeof css == 'object') {
         LazyLoad.css(css.url, function () {
           deferred.resolve(true)
@@ -937,7 +918,7 @@ define([
         var about = this.browserMeta()
         var aboutDialog = new InfoDialog({
           title: `About ${about.title}`,
-          content: about.description,
+          content: dompurify.sanitize(about.description),
           className: 'about-dialog',
         })
 
@@ -1278,7 +1259,7 @@ define([
               {
                 className: 'dataset-name',
                 // eslint-disable-next-line xss/no-mixed-html
-                innerHTML: datasetName,
+                innerHTML: dompurify.sanitize(datasetName),
                 title: 'name of current dataset',
                 style: {
                   display: datasetName ? 'inline-block' : 'none',
@@ -2591,9 +2572,9 @@ define([
      */
     loadConfig: function () {
       return this._milestoneFunction('loadConfig', function (deferred) {
-        // check the config.dataRoot parameter before loading, unless allowCrossSiteDataRoot is on.
-        // this prevents an XSS attack served from a malicious server that has CORS enabled. thanks to @cmdcolin
-        // for noticing this.
+        // check the config.dataRoot parameter before loading, unless
+        // allowCrossSiteDataRoot is on. this prevents an XSS attack served
+        // from a malicious server that has CORS enabled
         if (
           this.config.dataRoot &&
           this.config.dataRoot !== 'data' &&
