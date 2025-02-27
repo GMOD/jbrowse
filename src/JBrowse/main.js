@@ -70,7 +70,9 @@ require([
         .getElementById(config.containerID)
         .getAttribute('data-config')
       if (elementConfig) {
-        if (!/^\s*{/.test(elementConfig)) elementConfig = `{${elementConfig}}`
+        if (!/^\s*{/.test(elementConfig)) {
+          elementConfig = `{${elementConfig}}`
+        }
         elementConfig = JSON.parse(elementConfig)
         config = Object.assign({}, config, elementConfig)
       }

@@ -21,7 +21,9 @@ define([
         args.track && args.track._canSaveFiles && args.track._canSaveFiles()
 
       // hook point
-      if (typeof this.initData === 'function') this.initData(args)
+      if (typeof this.initData === 'function') {
+        this.initData(args)
+      }
     },
     renderHTML: function (region, seq, parent) {
       var thisB = this
@@ -34,8 +36,9 @@ define([
         var thisB = this
 
         // hook point
-        if (typeof thisB.addButtons === 'function')
+        if (typeof thisB.addButtons === 'function') {
           thisB.addButtons(region, seq, toolbar)
+        }
 
         toolbar.addChild(
           new Button({
@@ -46,7 +49,7 @@ define([
             onClick: function () {
               thisB.track._fileDownload({
                 format: 'FASTA',
-                filename: Util.assembleLocString(region) + '.fasta',
+                filename: `${Util.assembleLocString(region)}.fasta`,
                 data: text,
               })
             },
@@ -77,21 +80,13 @@ define([
      * @returns {String} - fasta formated string
      */
     renderText: function (region, seq) {
-      return (
-        '>' +
-        region.ref +
-        ' ' +
-        Util.assembleLocString(region) +
-        (region.type ? ' class=' + region.type : '') +
-        ' length=' +
-        (region.end - region.start) +
-        '\n' +
-        this._wrap(seq, this.width)
-      )
+      return `>${region.ref} ${Util.assembleLocString(region)}${
+        region.type ? ` class=${region.type}` : ''
+      } length=${region.end - region.start}\n${this._wrap(seq, this.width)}`
     },
     _wrap: function (string, length) {
       length = length || this.width
-      return string.replace(new RegExp('(.{' + length + '})', 'g'), '$1\n')
+      return string.replace(new RegExp(`(.{${length}})`, 'g'), '$1\n')
     },
   })
 })

@@ -75,8 +75,9 @@ define([
       }
       var refname = query.ref
       // if they both regularize to the same thing, use this.refSeq.name since that is guaranteed to be from refseq store
-      if (!this.browser.compareReferenceNames(this.refSeq.name, refname))
+      if (!this.browser.compareReferenceNames(this.refSeq.name, refname)) {
         refname = this.refSeq.name
+      }
 
       this.twoBit.getSequence(refname, start, query.end).then(seq => {
         if (seq !== undefined) {

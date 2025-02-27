@@ -36,12 +36,18 @@ define([
 
     _parseInt: function (data) {
       array.forEach(['start', 'end', 'strand'], function (field) {
-        if (field in data) data[field] = parseInt(data[field])
+        if (field in data) {
+          data[field] = parseInt(data[field])
+        }
       })
-      if ('score' in data) data.score = parseFloat(data.score)
-      if ('subfeatures' in data)
-        for (var i = 0; i < data.subfeatures.length; i++)
+      if ('score' in data) {
+        data.score = parseFloat(data.score)
+      }
+      if ('subfeatures' in data) {
+        for (var i = 0; i < data.subfeatures.length; i++) {
           this._parseInt(data.subfeatures[i])
+        }
+      }
     },
 
     _makeFeature: function (data, parent) {

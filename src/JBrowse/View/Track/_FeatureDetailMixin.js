@@ -54,13 +54,15 @@ define([
         // find conf vars that set events, like `onClick`
         for (var key in this.config) {
           var handlerName = key.replace(/^on(?=[A-Z])/, '')
-          if (handlerName != key)
+          if (handlerName != key) {
             handlers[handlerName.toLowerCase()] = this.config[key]
+          }
         }
         // interpret handlers that are just strings to be URLs that should be opened
         for (key in handlers) {
-          if (typeof handlers[key] == 'string')
+          if (typeof handlers[key] == 'string') {
             handlers[key] = { url: handlers[key] }
+          }
         }
         return handlers
       }.call(this)
@@ -83,9 +85,9 @@ define([
       container =
         container ||
         dojo.create('div', {
-          className:
-            'detail feature-detail feature-detail-' +
-            track.name.replace(/\s+/g, '_').toLowerCase(),
+          className: `detail feature-detail feature-detail-${track.name
+            .replace(/\s+/g, '_')
+            .toLowerCase()}`,
           innerHTML: '',
         })
 
@@ -126,7 +128,7 @@ define([
         }),
         f,
       )
-      fmt('Length', Util.addCommas(f.get('end') - f.get('start')) + ' bp', f)
+      fmt('Length', `${Util.addCommas(f.get('end') - f.get('start'))} bp`, f)
     },
 
     // render any subfeatures this feature has
@@ -234,13 +236,13 @@ define([
         {
           className: 'field feature_sequence',
           innerHTML: 'Region sequence',
-          title:
-            'reference sequence underlying this ' +
-            (f.get('type') || 'feature'),
+          title: `reference sequence underlying this ${
+            f.get('type') || 'feature'
+          }`,
         },
         field_container,
       )
-      var valueContainerID = 'feature_sequence' + this._uniqID()
+      var valueContainerID = `feature_sequence${this._uniqID()}`
       var valueContainer = dojo.create(
         'div',
         {
@@ -252,10 +254,9 @@ define([
       )
       var maxSize = this.config.maxFeatureSizeForUnderlyingRefSeq
       if (maxSize < f.get('end') - f.get('start')) {
-        valueContainer.innerHTML =
-          'Not displaying underlying reference sequence, feature is longer than maximum of ' +
-          Util.humanReadableNumber(maxSize) +
-          'bp'
+        valueContainer.innerHTML = `Not displaying underlying reference sequence, feature is longer than maximum of ${Util.humanReadableNumber(
+          maxSize,
+        )}bp`
       } else {
         track.browser.getStore(
           'refseqs',
@@ -342,11 +343,9 @@ define([
             dojo.create(
               'div',
               {
-                className:
-                  'detail feature-detail subfeature-detail feature-detail-' +
-                  track.name +
-                  ' subfeature-detail-' +
-                  track.name,
+                className: `detail feature-detail subfeature-detail feature-detail-${
+                  track.name
+                } subfeature-detail-${track.name}`,
                 innerHTML: '',
               },
               subfeaturesContainer,

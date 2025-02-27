@@ -35,8 +35,9 @@ define([
 
       // make sure the baseUrl has a trailing slash
       this.baseUrl = args.baseUrl || this.config.baseUrl
-      if (this.baseUrl.charAt(this.baseUrl.length - 1) != '/')
-        this.baseUrl = this.baseUrl + '/'
+      if (this.baseUrl.charAt(this.baseUrl.length - 1) != '/') {
+        this.baseUrl = `${this.baseUrl}/`
+      }
 
       // enable feature density bin fetching if turned on
       if (
@@ -138,7 +139,9 @@ define([
         if (tilingComplete) {
           // touch all of the regions we processed in the cache,
           // cause we are going to use them
-          for (i--; i >= 0; i--) cache.touchRecord(regions[i].cacheRecord)
+          for (i--; i >= 0; i--) {
+            cache.touchRecord(regions[i].cacheRecord)
+          }
 
           return true
         }
@@ -149,12 +152,20 @@ define([
       function queriesMatch(q1, q2) {
         var keys = Util.dojof.keys(q1).concat(Util.dojof.keys(q2))
         for (var k in q1) {
-          if (k == 'start' || k == 'end') continue
-          if (q1[k] != q2[k]) return false
+          if (k == 'start' || k == 'end') {
+            continue
+          }
+          if (q1[k] != q2[k]) {
+            return false
+          }
         }
         for (var k in q2) {
-          if (k == 'start' || k == 'end') continue
-          if (q1[k] != q2[k]) return false
+          if (k == 'start' || k == 'end') {
+            continue
+          }
+          if (q1[k] != q2[k]) {
+            return false
+          }
         }
         return true
       }
@@ -164,8 +175,12 @@ define([
         cache.some(function (cacheRecord) {
           var cachedRequest = cacheRecord.value.request
           var cachedResponse = cacheRecord.value.response
-          if (cachedRequest.type != 'features' || !cachedResponse) return false
-          if (!queriesMatch(cachedRequest.query, query)) return false
+          if (cachedRequest.type != 'features' || !cachedResponse) {
+            return false
+          }
+          if (!queriesMatch(cachedRequest.query, query)) {
+            return false
+          }
           if (
             !(
               cachedRequest.query.end < query.start ||
@@ -178,8 +193,9 @@ define([
               end: cachedRequest.query.end,
               cacheRecord: cacheRecord,
             })
-            if (tilingIsComplete(relevantRegions, query.start, query.end))
+            if (tilingIsComplete(relevantRegions, query.start, query.end)) {
               return true
+            }
           }
           return false
         }, this)
@@ -207,8 +223,9 @@ define([
           array.forEach(region.features, function (feature) {
             if (!seen[feature.uniqueID]) {
               seen[feature.uniqueID] = true
-              if (!(feature.start > query.end || feature.end < query.start))
+              if (!(feature.start > query.end || feature.end < query.start)) {
                 featureData.push(feature)
+              }
             }
           })
         }
@@ -259,16 +276,20 @@ define([
     // HELPER METHODS
     _get: function (request, callback, errorCallback) {
       var thisB = this
-      if (this.config.noCache)
+      if (this.config.noCache) {
         dojoRequest(request.url, {
           method: 'GET',
           handleAs: 'json',
         }).then(callback, this._errorHandler(errorCallback))
-      else
+      } else {
         this._getCache().get(request, function (record, error) {
-          if (error) thisB._errorHandler(errorCallback)(error)
-          else callback(record.response)
+          if (error) {
+            thisB._errorHandler(errorCallback)(error)
+          } else {
+            callback(record.response)
+          }
         })
+      }
     },
 
     _getCache: function () {
@@ -276,7 +297,7 @@ define([
       return (
         this._cache ||
         (this._cache = new LRUCache({
-          name: 'REST data cache ' + this.name,
+          name: `REST data cache ${this.name}`,
           maxSize: 25000, // cache up to about 5MB of data (assuming about 200B per feature)
           sizeFunction: function (data) {
             return data.length || 1
@@ -314,12 +335,9 @@ define([
         var httpStatus = ((error || {}).response || {}).status
         if (httpStatus >= 400) {
           handler(
-            'HTTP ' +
-              httpStatus +
-              ' fetching ' +
-              error.response.url +
-              ' : ' +
-              error.response.text,
+            `HTTP ${httpStatus} fetching ${error.response.url} : ${
+              error.response.text
+            }`,
           )
         } else {
           handler(error)
@@ -340,13 +358,15 @@ define([
 
       if (query) {
         if (query.ref) {
-          url += '/' + query.ref
+          url += `/${query.ref}`
           query = lang.mixin({}, query)
           delete query.ref
         }
 
         query = ioquery.objectToQuery(query)
-        if (query) url += '?' + query
+        if (query) {
+          url += `?${query}`
+        }
       }
 
       return url
@@ -373,12 +393,18 @@ define([
 
     _parseInt: function (data) {
       array.forEach(['start', 'end', 'strand'], function (field) {
-        if (field in data) data[field] = parseInt(data[field])
+        if (field in data) {
+          data[field] = parseInt(data[field])
+        }
       })
-      if ('score' in data) data.score = parseFloat(data.score)
-      if ('subfeatures' in data)
-        for (var i = 0; i < data.subfeatures.length; i++)
+      if ('score' in data) {
+        data.score = parseFloat(data.score)
+      }
+      if ('subfeatures' in data) {
+        for (var i = 0; i < data.subfeatures.length; i++) {
           this._parseInt(data.subfeatures[i])
+        }
+      }
     },
 
     _makeFeature: function (data, parent) {

@@ -41,7 +41,7 @@ define([
             new XHRBlob(
               this.resolveUrl(
                 this.getConf('idxUrlTemplate', []) ||
-                  this.getConf('urlTemplate', []) + '.idx',
+                  `${this.getConf('urlTemplate', [])}.idx`,
               ),
             ),
           )
@@ -119,7 +119,9 @@ define([
                     error = new Errors.DataOverflow(error.message)
                   }
                   errorCallback(error)
-                } else console.error(error)
+                } else {
+                  console.error(error)
+                }
               })
           })
           .catch(errorCallback)

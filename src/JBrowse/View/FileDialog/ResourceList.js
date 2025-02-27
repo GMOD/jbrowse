@@ -22,8 +22,12 @@ define([
       this.onChange(
         array.map(this._resources || [], function (res) {
           var r = {}
-          if (res.file) r.file = res.file
-          if (res.url) r.url = res.url
+          if (res.file) {
+            r.file = res.file
+          }
+          if (res.url) {
+            r.url = res.url
+          }
           r.type = res.type.get('value')
           return r
         }),
@@ -159,10 +163,9 @@ define([
               'td',
               {
                 width: '1%',
-                innerHTML:
-                  '<div class="' +
-                  (res.file ? 'dijitIconFile' : 'jbrowseIconLink') +
-                  '"></div>',
+                innerHTML: `<div class="${
+                  res.file ? 'dijitIconFile' : 'jbrowseIconLink'
+                }"></div>`,
               },
               tr,
             )

@@ -17,9 +17,13 @@ define([
         // print the track definition
         this.print('track type=wiggle_0')
         if (this.track) {
-          if (this.track.name) this.print(' name="' + this.track.name + '"')
+          if (this.track.name) {
+            this.print(` name="${this.track.name}"`)
+          }
           var metadata = this.track.getMetadata()
-          if (metadata.key) this.print(' description="' + metadata.key + '"')
+          if (metadata.key) {
+            this.print(` description="${metadata.key}"`)
+          }
         }
         this.print('\n')
       },
@@ -29,13 +33,7 @@ define([
        * @private
        */
       _printStep: function (span, ref) {
-        this.print(
-          'variableStep' +
-            (ref ? ' chrom=' + ref : '') +
-            ' span=' +
-            span +
-            '\n',
-        )
+        this.print(`variableStep${ref ? ` chrom=${ref}` : ''} span=${span}\n`)
       },
 
       exportRegion: function (region, callback) {
@@ -51,7 +49,7 @@ define([
               curref = ref
               curspan = span
             }
-            this.print(f.get('start') + 1 + '\t' + f.get('score') + '\n')
+            this.print(`${f.get('start') + 1}\t${f.get('score')}\n`)
           }),
           dojo.hitch(this, function () {
             callback(this.output)

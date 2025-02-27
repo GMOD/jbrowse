@@ -36,12 +36,14 @@ define([
       if (singletonFileCount == 1 && singletonIndexCount == 1) {
         for (var indexName in singletonIndexes) {
           for (var fileName in singletonFiles) {
-            if (singletonIndexes[indexName][this.indexUrlConfKey])
+            if (singletonIndexes[indexName][this.indexUrlConfKey]) {
               singletonFiles[fileName][this.indexUrlConfKey] =
                 singletonIndexes[indexName][this.indexUrlConfKey]
-            if (singletonIndexes[indexName][this.indexConfKey])
+            }
+            if (singletonIndexes[indexName][this.indexConfKey]) {
               singletonFiles[fileName][this.indexConfKey] =
                 singletonIndexes[indexName][this.indexConfKey]
+            }
 
             delete configs[indexName]
           }

@@ -58,7 +58,9 @@ define([
 
     // look in the browser's track configuration for the track with the given label
     _findTrackConfig: function (trackLabel) {
-      if (!trackLabel) return null
+      if (!trackLabel) {
+        return null
+      }
 
       var track = null
       var i = array.some(this.browser.config.tracks, function (t) {
@@ -91,13 +93,14 @@ define([
       results = array.filter(results, function (i) {
         if (i.hitLimit) {
           hitLimit = i
-          if (!hitLimit.label)
+          if (!hitLimit.label) {
             hitLimit.label = hitLimit.name || 'too many matches'
+          }
           return false
         } else if (last && last.name == i.name) {
-          last.label =
-            last.name +
-            ' <span class="multipleLocations">multiple locations</span>'
+          last.label = `${
+            last.name
+          } <span class="multipleLocations">multiple locations</span>`
           if (last.multipleLocations) {
             last.multipleLocations.push(i.location)
           } else {
@@ -110,12 +113,14 @@ define([
         last.label =
           last.name +
           (last.location
-            ? ' <span class="locString">' + last.location + '</span>'
+            ? ` <span class="locString">${last.location}</span>`
             : '')
         return true
       })
 
-      if (hitLimit) results.push(hitLimit)
+      if (hitLimit) {
+        results.push(hitLimit)
+      }
 
       return QueryResults(results)
     },
@@ -129,7 +134,9 @@ define([
       // lowercase the name if the store is all-lowercase
       // wait for the ready signal to test for lower case keys
       await this.ready
-      if (this.meta.lowercase_keys) name = name.toLowerCase()
+      if (this.meta.lowercase_keys) {
+        name = name.toLowerCase()
+      }
 
       var trailingStar = /\*$/
       if (trailingStar.test(name)) {
@@ -149,7 +156,9 @@ define([
 
     get: function (id) {
       // lowercase the id if the store is all-lowercase
-      if (this.meta.lowercase_keys) id = id.toLowerCase()
+      if (this.meta.lowercase_keys) {
+        id = id.toLowerCase()
+      }
 
       return this._getEntry(id).then(function (bucket) {
         var nameRec = (bucket.exact || [])[0]

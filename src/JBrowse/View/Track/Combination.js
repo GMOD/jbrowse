@@ -142,7 +142,9 @@ define([
       }
 
       // Each store becomes associated with the name of a track that uses that store, so that users can read more easily.
-      if (!this.config.storeToKey) this.config.storeToKey = {}
+      if (!this.config.storeToKey) {
+        this.config.storeToKey = {}
+      }
 
       // Shows which track or store types qualify as set-based, quantitative, etc.
       this.supportedBy = {
@@ -261,7 +263,7 @@ define([
 
       var dragEndingEvents = ['DraggingOut', 'DndDrop', 'DndCancel']
 
-      for (var eventName in dragEndingEvents)
+      for (var eventName in dragEndingEvents) {
         on(thisB.dnd, dragEndingEvents[eventName], function () {
           if (thisB.currentDndSource) {
             // Makes sure that the dndSource isn't permanently set to CopyOnly
@@ -269,6 +271,7 @@ define([
           }
           this.currentlyOver = false
         })
+      }
 
       // Bug fixer
       dojo.subscribe(
@@ -351,7 +354,7 @@ define([
       if (!this.resultsDiv) {
         this.resultsDiv = dom.create('div')
         this.resultsDiv.className = 'track'
-        this.resultsDiv.id = this.name + '_resultsDiv'
+        this.resultsDiv.id = `${this.name}_resultsDiv`
         domClass.remove(this.div, 'empty')
       }
 
@@ -372,7 +375,7 @@ define([
           if (store) {
             d.resolve(store, true)
           } else {
-            d.reject('store ' + storeName + ' not found', true)
+            d.reject(`store ${storeName} not found`, true)
           }
         })
         return d.promise
@@ -461,7 +464,9 @@ define([
       when(
         this.lastDialogDone.shift(),
         dojo.hitch(this, function () {
-          if (this.preferencesDialog) this.preferencesDialog.destroyRecursive()
+          if (this.preferencesDialog) {
+            this.preferencesDialog.destroyRecursive()
+          }
           // Figure out which type of track (set, quant, etc) the user is adding
           this.currType =
             this.supportedBy[trackConfig.storeClass] ||
@@ -594,7 +599,9 @@ define([
 
     // Uses the current settings of the combination track to create a store
     _storeConfig: function (storeType) {
-      if (!storeType) storeType = this.storeType
+      if (!storeType) {
+        storeType = this.storeType
+      }
       var storeClass = this.trackClasses[storeType].store
       this.config.storeClass = storeClass
 
@@ -634,7 +641,9 @@ define([
             ].path
         }
       }
-      if (this.storeType != 'mask') return allTypes[0]
+      if (this.storeType != 'mask') {
+        return allTypes[0]
+      }
       return allTypes[this.storeToShow]
     },
 
@@ -682,14 +691,14 @@ define([
           // This will be what happens when the results track updates its height - makes necessary changes to
           // outer track's height and then passes up to the heightUpdate callback specified as a parameter to this object
           var resultsHeightUpdate = function (height) {
-            thisB.resultsDiv.style.height = height + 'px'
+            thisB.resultsDiv.style.height = `${height}px`
             thisB.heightResults = height
             thisB.height = height
             thisB.onlyRefreshOuter = true
             thisB.refresh()
             thisB.onlyRefreshOuter = false
             thisB.heightUpdate(thisB.height)
-            thisB.div.style.height = thisB.height + 'px'
+            thisB.div.style.height = `${thisB.height}px`
           }
 
           // setViewInfo on results track
@@ -735,7 +744,9 @@ define([
         // Loads the track class from the specified path
         dojo.global.require([trackClassName], function (tc) {
           trackClass = tc
-          if (trackClass) makeTrack()
+          if (trackClass) {
+            makeTrack()
+          }
         })
       }
     },
@@ -747,7 +758,7 @@ define([
         storeClass: this.store.config.type,
         feature: ['match'],
         key: 'Results',
-        label: this.name + '_results',
+        label: `${this.name}_results`,
         metadata: {
           description: 'This track was created from a combination track.',
         },
@@ -912,13 +923,15 @@ define([
       this.inherited(arguments)
       // Make sure the height of this track is right
       this.heightUpdate(this.height)
-      this.div.style.height = this.height + 'px'
+      this.div.style.height = `${this.height}px`
     },
 
     // If moveBlocks is called on this track, should be called on the results track as well
     moveBlocks: function (delta) {
       this.inherited(arguments)
-      if (this.resultsTrack) this.resultsTrack.moveBlocks(delta)
+      if (this.resultsTrack) {
+        this.resultsTrack.moveBlocks(delta)
+      }
     },
 
     // fillBlock in this renders all the relevant borders etc that surround the results track and let the user know
@@ -939,21 +952,28 @@ define([
     // endZoom is passed down to resultsTrack
     endZoom: function (destScale, destBlockBases) {
       this.clear() // Necessary?
-      if (this.resultsTrack) this.resultsTrack.endZoom()
+      if (this.resultsTrack) {
+        this.resultsTrack.endZoom()
+      }
     },
 
     //  updateStaticElements passed down to resultsTrack
     updateStaticElements: function (args) {
       this.inherited(arguments)
-      if (this.resultsTrack) this.resultsTrack.updateStaticElements(args)
+      if (this.resultsTrack) {
+        this.resultsTrack.updateStaticElements(args)
+      }
     },
 
     // When the results track can be shown in multiple different classes
     // (e.g. XYPlot or Density), this allows users to choose between them
     setClassIndex: function (index, type) {
-      if (!type) type = this._visible().which
-      if (type == 'mask' && this.displayStore)
+      if (!type) {
+        type = this._visible().which
+      }
+      if (type == 'mask' && this.displayStore) {
         type = this.supportedBy[this.displayStore.config.type]
+      }
       this.classIndex[type] = index
     },
 
@@ -972,8 +992,9 @@ define([
     // (e.g. XYPlot or Density), this tells us which one is currently
     // chosen
     getClassIndex: function (type) {
-      if (type == 'mask' && this.displayStore)
+      if (type == 'mask' && this.displayStore) {
         type = this.supportedBy[this.displayStore.config.type]
+      }
       return this.classIndex[type]
     },
 
@@ -1008,7 +1029,9 @@ define([
       var combTrack = this
 
       // If no tracks are added, we don't need to add any more options
-      if (!this.storeType) return o
+      if (!this.storeType) {
+        return o
+      }
 
       if (this.storeType == 'mask') {
         // If a masking track, enables users to toggle between viewing data, mask, and masked data
@@ -1018,7 +1041,7 @@ define([
             type: 'dijit/CheckedMenuItem',
             checked: combTrack.storeToShow == i,
             label: maskOrDisplay[i],
-            title: 'View ' + maskOrDisplay[i],
+            title: `View ${maskOrDisplay[i]}`,
             action: function () {
               combTrack.storeToShow = i
               combTrack.renderResultsTrack()
@@ -1046,7 +1069,7 @@ define([
           type: 'dijit/CheckedMenuItem',
           label: classes[i].name,
           checked: combTrack.classIndex[combTrack._visible().which] == i,
-          title: 'Display as ' + classes[i].name + ' track',
+          title: `Display as ${classes[i].name} track`,
           action: function () {
             combTrack.setClassIndex(i)
             delete combTrack.config.resultsTrack
@@ -1098,7 +1121,7 @@ define([
             type: 'dijit/CheckedMenuItem',
             checked: combTrack._visible().tree.get() == op,
             label: combTrack.inWords[op],
-            title: 'change operation of last track to ' + combTrack.inWords[op],
+            title: `change operation of last track to ${combTrack.inWords[op]}`,
             action: function () {
               if (combTrack.opTree) {
                 combTrack._visible().tree.set(op)
@@ -1125,29 +1148,21 @@ define([
         return '<span class="null">NULL</span>'
       }
       if (tree.isLeaf()) {
-        return (
-          '<span class="leaf' +
-          (tree.highlighted ? ' highlighted' : '') +
-          '">' +
-          (tree.get().name
+        return `<span class="leaf${tree.highlighted ? ' highlighted' : ''}">${
+          tree.get().name
             ? this.config.storeToKey[tree.get().name]
               ? this.config.storeToKey[tree.get().name]
               : tree.get().name
-            : tree.get()) +
-          '</span>'
-        )
+            : tree.get()
+        }</span>`
       }
-      return (
-        '<span class="tree">(' +
-        this._generateTreeFormula(tree.left()) +
-        ' <span class="op" title="' +
-        this.inWords[tree.get()] +
-        '">' +
-        tree.get() +
-        '</span> ' +
-        this._generateTreeFormula(tree.right()) +
-        ')</span>'
-      )
+      return `<span class="tree">(${this._generateTreeFormula(
+        tree.left(),
+      )} <span class="op" title="${
+        this.inWords[tree.get()]
+      }">${tree.get()}</span> ${this._generateTreeFormula(
+        tree.right(),
+      )})</span>`
     },
 
     _exportFormats: function () {
@@ -1160,10 +1175,17 @@ define([
       var newTree = {
         leaf: tree.leaf,
       }
-      if (tree.leftChild) newTree.leftChild = this.flatten(tree.leftChild)
-      if (tree.rightChild) newTree.rightChild = this.flatten(tree.rightChild)
-      if (tree.get().name) newTree.store = tree.get().name
-      else newTree.op = tree.get()
+      if (tree.leftChild) {
+        newTree.leftChild = this.flatten(tree.leftChild)
+      }
+      if (tree.rightChild) {
+        newTree.rightChild = this.flatten(tree.rightChild)
+      }
+      if (tree.get().name) {
+        newTree.store = tree.get().name
+      } else {
+        newTree.op = tree.get()
+      }
       return newTree
     },
 

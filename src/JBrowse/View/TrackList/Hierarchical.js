@@ -145,13 +145,15 @@ define([
               .join('/'),
           )
         for (var i = 0; i < arr.length; i++) {
-          lang.setObject('collapsed.' + arr[i], true, this.state)
+          lang.setObject(`collapsed.${arr[i]}`, true, this.state)
         }
         this._saveState()
 
         this.get('trackMetaData').fetch({
           onItem: function (i) {
-            if (i.conf) tracks.push(i)
+            if (i.conf) {
+              tracks.push(i)
+            }
           },
           onComplete: () => {
             // make a pane at the top to hold uncategorized tracks
@@ -210,22 +212,20 @@ define([
                 obj.categories[categoryName] ||
                 (obj.categories[categoryName] = function () {
                   var isCollapsed = lang.getObject(
-                    'collapsed.' + categoryPath,
+                    `collapsed.${categoryPath}`,
                     false,
                     thisB.state,
                   )
                   var c = new TitlePane({
                     title:
-                      '<span class="categoryName">' +
-                      categoryName +
-                      '</span>' +
-                      ' <span class="trackCount">0</span>',
+                      `<span class="categoryName">${categoryName}</span>` +
+                      ` <span class="trackCount">0</span>`,
                     open: !isCollapsed,
                   })
                   // save our open/collapsed state in local storage
                   c.watch('open', function (attr, oldval, newval) {
                     lang.setObject(
-                      'collapsed.' + categoryPath,
+                      `collapsed.${categoryPath}`,
                       !newval,
                       thisB.state,
                     )
@@ -277,8 +277,9 @@ define([
             }
 
             // hook point
-            if (typeof thisB.extendCheckbox === 'function')
+            if (typeof thisB.extendCheckbox === 'function') {
               var checkBoxProps = thisB.extendCheckbox(checkBoxProps, trackConf)
+            }
 
             var checkbox = dom.create('input', checkBoxProps, labelNode)
             var trackLabel = trackConf.label
@@ -310,7 +311,7 @@ define([
       // called when item checkbox is clicked.
       itemClick: function (checkbox, trackConf) {
         this.browser.publish(
-          '/jbrowse/v1/v/tracks/' + (checkbox.checked ? 'show' : 'hide'),
+          `/jbrowse/v1/v/tracks/${checkbox.checked ? 'show' : 'hide'}`,
           [trackConf],
         )
       },
@@ -349,9 +350,7 @@ define([
             .get('title')
             .replace(
               />\s*\d+\s*</,
-              '>' +
-                query('label.shown', category.pane.containerNode).length +
-                '<',
+              `>${query('label.shown', category.pane.containerNode).length}<`,
             ),
         )
       },
@@ -359,7 +358,9 @@ define([
       // update the titles of the given category and its parents
       _updateTitles: function (category) {
         this._updateTitle(category)
-        if (category.parent) this._updateTitles(category.parent)
+        if (category.parent) {
+          this._updateTitles(category.parent)
+        }
       },
 
       _findTrack: function _findTrack(trackLabel, callback, r) {
@@ -370,7 +371,9 @@ define([
             callback(category.tracks[trackLabel], category)
             return true
           } else {
-            if (this._findTrack(trackLabel, callback, category)) return true
+            if (this._findTrack(trackLabel, callback, category)) {
+              return true
+            }
           }
         }
         return false

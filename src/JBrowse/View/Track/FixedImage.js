@@ -36,21 +36,25 @@ define([
       ) {
         var handler = dojo.hitch(this, function () {
           this.imageHeight = img.height
-          img.style.height = img.height + 'px'
-          img.style.width = 100 * (img.baseWidth / blockWidth) + '%'
+          img.style.height = `${img.height}px`
+          img.style.width = `${100 * (img.baseWidth / blockWidth)}%`
           this.heightUpdate(img.height, blockIndex)
-          if (composeCallback) composeCallback()
+          if (composeCallback) {
+            composeCallback()
+          }
           return true
         })
 
-        if (has('ie'))
+        if (has('ie')) {
           // in IE, have to delay calling it for a (arbitrary) 1/4
           // second because the image's height is not always
           // available when the onload event fires.  >:-{
           return function () {
             window.setTimeout(handler, 250)
           }
-        else return handler
+        } else {
+          return handler
+        }
       },
 
       fillBlock: function (args) {
@@ -72,8 +76,7 @@ define([
                 im.className = 'image-track'
                 if (!(im.parentNode && im.parentNode.parentNode)) {
                   im.style.position = 'absolute'
-                  im.style.left =
-                    100 * ((im.startBase - leftBase) / blockWidth) + '%'
+                  im.style.left = `${100 * ((im.startBase - leftBase) / blockWidth)}%`
                   switch (this.config.align) {
                     case 'top':
                       im.style.top = '0px'
@@ -81,7 +84,7 @@ define([
                     case 'bottom':
                     /* fall through */
                     default:
-                      im.style.bottom = this.trackPadding + 'px'
+                      im.style.bottom = `${this.trackPadding}px`
                       break
                   }
                   block.domNode.appendChild(im)
@@ -94,12 +97,14 @@ define([
                   blockIndex,
                   blockWidth,
                 )
-                if (im.complete)
+                if (im.complete) {
                   // just call the handler ourselves if the image is already loaded
                   loadhandler()
-                else
-                  // otherwise schedule it
+                }
+                // otherwise schedule it
+                else {
                   im.onload = loadhandler
+                }
               },
               this,
             )
@@ -117,7 +122,9 @@ define([
       },
 
       startZoom: function (destScale, destStart, destEnd) {
-        if (this.empty) return
+        if (this.empty) {
+          return
+        }
       },
 
       endZoom: function (destScale, destBlockBases) {
@@ -135,7 +142,9 @@ define([
         containerStart,
         containerEnd,
       ) {
-        if (!(sourceBlock && destBlock)) return
+        if (!(sourceBlock && destBlock)) {
+          return
+        }
 
         var children = sourceBlock.domNode.childNodes
         var destLeft = destBlock.startBase
@@ -150,8 +159,7 @@ define([
               im.startBase + im.baseWidth > destLeft
             ) {
               //move image from sourceBlock to destBlock
-              im.style.left =
-                100 * ((im.startBase - destLeft) / (destRight - destLeft)) + '%'
+              im.style.left = `${100 * ((im.startBase - destLeft) / (destRight - destLeft))}%`
               destBlock.domNode.appendChild(im)
             }
           }

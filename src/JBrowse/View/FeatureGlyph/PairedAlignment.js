@@ -8,13 +8,14 @@ define([
 ], function (declare, array, lang, Alignment, AlignmentColoring, Util) {
   return declare(Alignment, {
     clearFeat(context, fRect) {
-      if (this.track.displayMode != 'collapsed')
+      if (this.track.displayMode != 'collapsed') {
         context.clearRect(
           Math.floor(fRect.l),
           fRect.t,
           Math.ceil(fRect.w),
           fRect.h,
         )
+      }
     },
     renderFeature(context, fRect) {
       const f = fRect.f
@@ -253,7 +254,7 @@ define([
               } else if (scale >= 10) {
                 context.fillStyle = 'white'
                 context.fillText(
-                  mismatch.base1 + '/' + mismatch.base2,
+                  `${mismatch.base1}/${mismatch.base2}`,
                   mRect.l + (mRect.w - charSize.w * 2) / 2 + 1,
                   mRect.t + mRect.h / 2,
                 )

@@ -23,11 +23,13 @@ define([
      */
     constructor: function (args) {
       let dataBlob
-      if (args.blob) dataBlob = new BlobFilehandleWrapper(args.blob)
-      else if (args.urlTemplate)
+      if (args.blob) {
+        dataBlob = new BlobFilehandleWrapper(args.blob)
+      } else if (args.urlTemplate) {
         dataBlob = new BlobFilehandleWrapper(
           new XHRBlob(this.resolveUrl(args.urlTemplate)),
         )
+      }
 
       this.source = dataBlob.toString()
       this.data = dataBlob
@@ -78,7 +80,7 @@ define([
         }
       this.data.readFile().then(data => {
         if (!data.length) {
-          failCallback('Could not read file ' + this.source)
+          failCallback(`Could not read file ${this.source}`)
         }
         const chroms = data.toString('utf8')
         chroms.split('\n').forEach(line => {

@@ -34,7 +34,9 @@ define([
           blockWidth,
           dojo.hitch(this, function () {
             this.makeWiggleYScale()
-            if (composeCallback) composeCallback()
+            if (composeCallback) {
+              composeCallback()
+            }
           }),
         ])
       },
@@ -42,11 +44,12 @@ define([
       makeWiggleYScale: function () {
         var thisB = this
         this.store.getGlobalStats(function (stats) {
-          if (!thisB.yscale)
+          if (!thisB.yscale) {
             thisB.makeYScale({
               min: stats.scoreMin,
               max: stats.scoreMax,
             })
+          }
         })
       },
     },

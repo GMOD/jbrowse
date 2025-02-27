@@ -125,14 +125,18 @@ define([
       delete c.store
 
       // put a style in there if there isn't already one, for convenience
-      if (!c.style) c.style = {}
-      if (!c.metadata) c.metadata = {}
+      if (!c.style) {
+        c.style = {}
+      }
+      if (!c.metadata) {
+        c.metadata = {}
+      }
 
       return JSON.stringify(c, undefined, 2)
     },
 
     _reportError: function (error) {
-      this.errorReportArea.innerHTML = '<div class="error">' + error + '</div>'
+      this.errorReportArea.innerHTML = `<div class="error">${error}</div>`
       this.applyButton.set('disabled', true)
     },
     _clearErrors: function () {
@@ -148,7 +152,9 @@ define([
       } catch (e) {
         this._reportError(e)
       }
-      if (newconf) newconf.store = this.trackConfig.store
+      if (newconf) {
+        newconf.store = this.trackConfig.store
+      }
       return newconf
     },
   })

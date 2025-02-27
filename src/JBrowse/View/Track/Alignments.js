@@ -52,7 +52,9 @@ define([
         containerEnd,
       ) {
         var featDiv = this.inherited(arguments)
-        if (!featDiv) return null
+        if (!featDiv) {
+          return null
+        }
 
         var displayStart = Math.max(feature.get('start'), containerStart)
         var displayEnd = Math.min(feature.get('end'), containerEnd)
@@ -72,8 +74,9 @@ define([
         if (
           feature.get('multi_segment_template') &&
           !feature.get('multi_segment_all_aligned')
-        )
+        ) {
           featDiv.className += ' missing_mate'
+        }
 
         return featDiv
       },
@@ -114,7 +117,9 @@ define([
 
               // if the feature has been truncated to where it doesn't cover
               // this mismatch anymore, just skip this mismatch
-              if (end <= displayStart || start >= displayEnd) return
+              if (end <= displayStart || start >= displayEnd) {
+                return
+              }
 
               var base = mismatch.base
               var mDisplayStart = Math.max(start, displayStart)
@@ -123,14 +128,13 @@ define([
               var overall = dojo.create(
                 'span',
                 {
-                  className: mismatch.type + ' base_' + base.toLowerCase(),
+                  className: `${mismatch.type} base_${base.toLowerCase()}`,
                   style: {
                     position: 'absolute',
-                    left:
-                      (100 * (mDisplayStart - displayStart)) / featLength + '%',
+                    left: `${(100 * (mDisplayStart - displayStart)) / featLength}%`,
                     width:
                       scale * mDisplayWidth > 1
-                        ? (100 * mDisplayWidth) / featLength + '%'
+                        ? `${(100 * mDisplayWidth) / featLength}%`
                         : '1px',
                   },
                 },
@@ -138,7 +142,9 @@ define([
               )
 
               // give the mismatch a mouseover if not drawing a character with the mismatch base
-              if (!drawChars) overall.title = base
+              if (!drawChars) {
+                overall.title = base
+              }
 
               if (drawChars && mismatch.length <= 20) {
                 for (var i = 0; i < mismatch.length; i++) {
@@ -150,14 +156,14 @@ define([
                     dojo.create(
                       'span',
                       {
-                        className: 'base base_' + base.toLowerCase(),
+                        className: `base base_${base.toLowerCase()}`,
                         style: {
                           position: 'absolute',
-                          width: scale + 'px',
-                          left:
+                          width: `${scale}px`,
+                          left: `${
                             ((basePosition - mDisplayStart) / mDisplayWidth) *
-                              100 +
-                            '%',
+                            100
+                          }%`,
                         },
                         innerHTML: base,
                       },
@@ -177,8 +183,9 @@ define([
        *      in pixels, of the characters being used for sequences
        */
       getCharacterMeasurements: function () {
-        if (!this._measurements)
+        if (!this._measurements) {
           this._measurements = this._measureSequenceCharacterSize(this.div)
+        }
         return this._measurements
       },
 

@@ -34,7 +34,9 @@ class LayoutRow {
   }
 
   getItemAt(x) {
-    if (this.allFilled) return this.allFilled
+    if (this.allFilled) {
+      return this.allFilled
+    }
     // return (
     //     this.min !== undefined &&
     //     x >= this.min &&
@@ -42,9 +44,15 @@ class LayoutRow {
     //     this.bits[x - this.min]
     // )
 
-    if (this.min === undefined) return undefined
-    if (x < this.min) return undefined
-    if (x >= this.max) return undefined
+    if (this.min === undefined) {
+      return undefined
+    }
+    if (x < this.min) {
+      return undefined
+    }
+    if (x >= this.max) {
+      return undefined
+    }
     const offset = x - this.offset
     // if (offset < 0)
     //     debugger
@@ -54,16 +62,26 @@ class LayoutRow {
   }
 
   isRangeClear(left, right) {
-    if (this.allFilled) return false
+    if (this.allFilled) {
+      return false
+    }
 
-    if (this.min === undefined) return true
+    if (this.min === undefined) {
+      return true
+    }
 
-    if (right <= this.min || left >= this.max) return true
+    if (right <= this.min || left >= this.max) {
+      return true
+    }
 
     // TODO: check right and middle before looping
     const maxX = Math.min(this.max, right)
     let x = Math.max(this.min, left)
-    for (; x < right && x < maxX; x += 1) if (this.getItemAt(x)) return false
+    for (; x < right && x < maxX; x += 1) {
+      if (this.getItemAt(x)) {
+        return false
+      }
+    }
 
     return true
   }
@@ -141,8 +159,12 @@ class LayoutRow {
       this.bits[x] = data
     }
 
-    if (left < this.min) this.min = left
-    if (right > this.max) this.max = right
+    if (left < this.min) {
+      this.min = left
+    }
+    if (right > this.max) {
+      this.max = right
+    }
     //// this.log(`added ${leftX} - ${rightX}`)
   }
 
@@ -150,13 +172,19 @@ class LayoutRow {
    *  Given a range of interbase coordinates, deletes all data dealing with that range
    */
   discardRange(left, right) {
-    if (this.allFilled) return // allFilled is irrevocable currently
+    if (this.allFilled) {
+      return
+    } // allFilled is irrevocable currently
 
     // if we have no data, do nothing
-    if (!this.bits) return
+    if (!this.bits) {
+      return
+    }
 
     // if doesn't overlap at all, do nothing
-    if (right <= this.min || left >= this.max) return
+    if (right <= this.min || left >= this.max) {
+      return
+    }
 
     // if completely encloses range, discard everything
     if (left <= this.min && right >= this.max) {
@@ -269,7 +297,9 @@ define(['dojo/_base/declare'], declare =>
       // if we have already laid it out, return its layout
       if (id in this.rectangles) {
         const storedRec = this.rectangles[id]
-        if (storedRec.top === null) return null
+        if (storedRec.top === null) {
+          return null
+        }
 
         // add it to the bitmap again, since that bitmap range may have been discarded
         this._addRectToBitmap(storedRec, data)
@@ -282,12 +312,16 @@ define(['dojo/_base/declare'], declare =>
 
       const midX = Math.floor((pLeft + pRight) / 2)
       const rectangle = { id, l: pLeft, r: pRight, mX: midX, h: pHeight }
-      if (data) rectangle.data = data
+      if (data) {
+        rectangle.data = data
+      }
 
       const maxTop = this.maxHeight - pHeight
       let top = 0
       for (; top <= maxTop; top += 1) {
-        if (!this._collides(rectangle, top)) break
+        if (!this._collides(rectangle, top)) {
+          break
+        }
       }
 
       if (top > maxTop) {
@@ -305,7 +339,9 @@ define(['dojo/_base/declare'], declare =>
     },
 
     _collides(rect, top) {
-      if (this.displayMode === 'collapsed') return false
+      if (this.displayMode === 'collapsed') {
+        return false
+      }
 
       const bitmap = this.bitmap
       // var mY = top + rect.h/2; // Y midpoint: ( top+height  + top ) / 2
@@ -336,7 +372,9 @@ define(['dojo/_base/declare'], declare =>
     },
 
     _addRectToBitmap(rect, data) {
-      if (rect.top === null) return
+      if (rect.top === null) {
+        return
+      }
 
       data = data || true
       const bitmap = this.bitmap
@@ -370,7 +408,9 @@ define(['dojo/_base/declare'], declare =>
       const bitmap = this.bitmap
       for (let y = 0; y < bitmap.length; y += 1) {
         const row = bitmap[y]
-        if (row) row.discardRange(pLeft, pRight)
+        if (row) {
+          row.discardRange(pLeft, pRight)
+        }
       }
     },
 
@@ -381,7 +421,9 @@ define(['dojo/_base/declare'], declare =>
     getByCoord(x, y) {
       const pY = Math.floor(y / this.pitchY)
       const row = this.bitmap[pY]
-      if (!row) return undefined
+      if (!row) {
+        return undefined
+      }
       const pX = Math.floor(x / this.pitchX)
       return row.getItemAt(pX)
     },

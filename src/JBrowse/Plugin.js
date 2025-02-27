@@ -11,7 +11,7 @@ define(['dojo/_base/declare', 'JBrowse/Component'], function (
 
     _defaultConfig: function () {
       return {
-        baseUrl: '/plugins/' + this.name,
+        baseUrl: `/plugins/${this.name}`,
       }
     },
   })

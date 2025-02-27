@@ -24,7 +24,7 @@ require([
             features.done = true
           },
           function (e) {
-            console.error(e.stack || '' + e)
+            console.error(e.stack || `${e}`)
           },
         )
 
@@ -68,7 +68,7 @@ require([
             features.done = true
           },
           function (e) {
-            console.error(e.stack || '' + e)
+            console.error(e.stack || `${e}`)
           },
         )
 

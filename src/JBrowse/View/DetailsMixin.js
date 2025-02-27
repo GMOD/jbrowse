@@ -37,15 +37,17 @@ define([
       externalFieldMeta = {},
       unsafe = false,
     ) {
-      if (val === null || val === undefined) return ''
+      if (val === null || val === undefined) {
+        return ''
+      }
 
       // if this object has a 'fmtDetailFooField' function, delegate to that
       var fieldSpecificFormatter
       if (
-        (fieldSpecificFormatter =
-          this['fmtDetail' + Util.ucFirst(title) + 'Field'])
-      )
+        (fieldSpecificFormatter = this[`fmtDetail${Util.ucFirst(title)}Field`])
+      ) {
         return fieldSpecificFormatter.apply(this, arguments)
+      }
 
       // otherwise, use default formatting
 
@@ -54,17 +56,21 @@ define([
       var formatted_title = title
       // if this object has a config value 'fmtDetailField_Foo' function, apply it to field title
       if (
-        (fieldSpecificFormatter = this.config['fmtDetailField_' + title]) &&
+        (fieldSpecificFormatter = this.config[`fmtDetailField_${title}`]) &&
         f
       ) {
         formatted_title = fieldSpecificFormatter(title, f)
-        if (!formatted_title) return '' // if the callback returns null, remove field from dialog
+        if (!formatted_title) {
+          return ''
+        } // if the callback returns null, remove field from dialog
       } else if (
-        (fieldSpecificFormatter = this.config['fmtMetaField_' + title]) &&
+        (fieldSpecificFormatter = this.config[`fmtMetaField_${title}`]) &&
         !f
       ) {
         formatted_title = fieldSpecificFormatter(title)
-        if (!formatted_title) return '' // if the callback returns null, remove field from dialog
+        if (!formatted_title) {
+          return ''
+        } // if the callback returns null, remove field from dialog
       }
 
       // special case for values that include metadata about their
@@ -76,7 +82,9 @@ define([
       if (typeof val == 'object' && !Array.isArray(val) && 'values' in val) {
         fieldMeta = (val.meta || {}).description || (val.meta || {}).Description
         // join the description if it is an array
-        if (lang.isArray(fieldMeta)) fieldMeta = fieldMeta.join(', ')
+        if (lang.isArray(fieldMeta)) {
+          fieldMeta = fieldMeta.join(', ')
+        }
 
         val = val.values
       } else {
@@ -85,35 +93,30 @@ define([
 
       if (
         (fieldSpecificFormatter =
-          this.config['fmtDetailDescription_' + title]) &&
+          this.config[`fmtDetailDescription_${title}`]) &&
         f
       ) {
         fieldMeta = fieldSpecificFormatter(fieldMeta)
       } else if (
-        (fieldSpecificFormatter = this.config['fmtMetaDescription_' + title]) &&
+        (fieldSpecificFormatter = this.config[`fmtMetaDescription_${title}`]) &&
         !f
       ) {
         fieldMeta = fieldSpecificFormatter(fieldMeta)
       }
-      var titleAttr = fieldMeta ? ' title="' + fieldMeta + '"' : ''
+      var titleAttr = fieldMeta ? ` title="${fieldMeta}"` : ''
       var fieldContainer = domConstruct.create(
         'div',
         {
           className: 'field_container',
-          innerHTML:
-            '<h2 class="field ' +
-            class_ +
-            '"' +
-            titleAttr +
-            '>' +
-            formatted_title +
-            '</h2>',
+          innerHTML: `<h2 class="field ${class_}"${titleAttr}>${
+            formatted_title
+          }</h2>`,
         },
         parentElement,
       )
       var valueContainer = domConstruct.create(
         'div',
-        { className: 'value_container ' + class_ },
+        { className: `value_container ${class_}` },
         fieldContainer,
       )
 
@@ -127,7 +130,7 @@ define([
       )
       if (typeof count == 'number' && count > 4) {
         query('h2', fieldContainer)[0].innerHTML =
-          formatted_title + ' (' + count + ')'
+          `${formatted_title} (${count})`
       }
 
       return fieldContainer
@@ -143,42 +146,56 @@ define([
     ) {
       var thisB = this
 
-      if (!lang.isArray(val) && val && val.values) val = val.values
+      if (!lang.isArray(val) && val && val.values) {
+        val = val.values
+      }
 
       // if this object has a 'fmtDetailFooValue' function, delegate to that
       var fieldSpecificFormatter
       if (
-        (fieldSpecificFormatter =
-          this['fmtDetail' + Util.ucFirst(title) + 'Value'])
-      )
+        (fieldSpecificFormatter = this[`fmtDetail${Util.ucFirst(title)}Value`])
+      ) {
         return fieldSpecificFormatter.apply(this, arguments)
+      }
 
       // otherwise, use default formatting
 
       // if this object has a config value 'fmtDetailValue_Foo' function, apply it to val
       if (
-        (fieldSpecificFormatter = this.config['fmtDetailValue_' + title]) &&
+        (fieldSpecificFormatter = this.config[`fmtDetailValue_${title}`]) &&
         f
       ) {
         unsafe = true
         val = fieldSpecificFormatter(val, f)
-        if (!val) val = ''
-        if (val.length == 1) val = val[0] // avoid recursion when an array of length 1 is returned
+        if (!val) {
+          val = ''
+        }
+        if (val.length == 1) {
+          val = val[0]
+        } // avoid recursion when an array of length 1 is returned
       } else if (
-        (fieldSpecificFormatter = this.config['fmtMetaValue_' + title]) &&
+        (fieldSpecificFormatter = this.config[`fmtMetaValue_${title}`]) &&
         !f
       ) {
         unsafe = true
         val = fieldSpecificFormatter(val)
-        if (val.length == 1) val = val[0]
+        if (val.length == 1) {
+          val = val[0]
+        }
       }
 
       var valType = typeof val
-      if (valType == 'object' && val === null) val = ''
-      if (typeof val.toHTML == 'function') val = val.toHTML()
-      if (valType == 'boolean') val = val ? 'yes' : 'no'
-      else if (valType == 'undefined' || val === null) return 0
-      else if (lang.isArray(val)) {
+      if (valType == 'object' && val === null) {
+        val = ''
+      }
+      if (typeof val.toHTML == 'function') {
+        val = val.toHTML()
+      }
+      if (valType == 'boolean') {
+        val = val ? 'yes' : 'no'
+      } else if (valType == 'undefined' || val === null) {
+        return 0
+      } else if (lang.isArray(val)) {
         var vals
         if (val.length > 0 && lang.isObject(val[0])) {
           parent.style.width = '90%'
@@ -186,7 +203,7 @@ define([
             const itemContainer = domConstruct.create(
               'div',
               {
-                className: 'value_container ' + class_,
+                className: `value_container ${class_}`,
                 style: { width: '100%' },
               },
               parent,
@@ -203,8 +220,12 @@ define([
             this,
           )
         }
-        if (vals.length > 1) domClass.add(parent, 'multi_value')
-        if (vals.length > 10) domClass.add(parent, 'big')
+        if (vals.length > 1) {
+          domClass.add(parent, 'multi_value')
+        }
+        if (vals.length > 10) {
+          domClass.add(parent, 'big')
+        }
         return vals.length
       } else if (valType == 'object') {
         var keys = Util.dojof.keys(val).sort()
@@ -216,7 +237,9 @@ define([
             f,
             // iterator
             function () {
-              if (!keys.length) return null
+              if (!keys.length) {
+                return null
+              }
               var k = keys.shift()
               var value = val[k]
 
@@ -234,7 +257,9 @@ define([
             },
             {
               descriptions: (function () {
-                if (!keys.length) return {}
+                if (!keys.length) {
+                  return {}
+                }
 
                 var subValue = val[keys[0]]
                 var descriptions = {}
@@ -270,10 +295,9 @@ define([
       domConstruct.create(
         'div',
         {
-          className:
-            'value ' +
-            (val.length > 70 && val.indexOf(' ') == -1 ? 'long ' : '') +
-            class_,
+          className: `value ${
+            val.length > 70 && val.indexOf(' ') == -1 ? 'long ' : ''
+          }${class_}`,
           innerHTML:
             unsafe || this.config.unsafePopup ? val : Util.escapeHTML(val),
         },
@@ -288,9 +312,13 @@ define([
       var item
       var descriptions = attrs.descriptions || {}
       var cellRenderers = attrs.renderCell || {}
-      while ((item = iterator())) rows.push(item)
+      while ((item = iterator())) {
+        rows.push(item)
+      }
 
-      if (!rows.length) return document.createElement('span')
+      if (!rows.length) {
+        return document.createElement('span')
+      }
 
       function defaultRenderCell(field, value, node, options) {
         thisB.renderDetailValue(node, '', value, f, '')
@@ -304,7 +332,9 @@ define([
             field: field,
             renderCell: cellRenderers[field] || defaultRenderCell,
             renderHeaderCell: function (contentNode) {
-              if (descriptions[field]) contentNode.title = descriptions[field]
+              if (descriptions[field]) {
+                contentNode.title = descriptions[field]
+              }
               contentNode.appendChild(
                 document.createTextNode(column.label || column.field),
               )
@@ -329,14 +359,19 @@ define([
     },
 
     _valToString: function (val) {
-      if (!val) return ''
+      if (!val) {
+        return ''
+      }
       if (lang.isArray(val)) {
         return array.map(val, lang.hitch(this, '_valToString')).join(' ')
       } else if (typeof val == 'object') {
-        if ('values' in val) return this._valToString(val.values)
-        else return JSON.stringify(val)
+        if ('values' in val) {
+          return this._valToString(val.values)
+        } else {
+          return JSON.stringify(val)
+        }
       }
-      return '' + val
+      return `${val}`
     },
   })
 })

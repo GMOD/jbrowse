@@ -22,11 +22,13 @@ define(['dojo/_base/declare', 'dijit/Destroyable', 'JBrowse/Util'], function (
     },
 
     toString: function () {
-      return this.startBase + '..' + this.endBase
+      return `${this.startBase}..${this.endBase}`
     },
 
     destroy: function () {
-      if (this.domNode) Util.removeAttribute(this.domNode, 'block')
+      if (this.domNode) {
+        Util.removeAttribute(this.domNode, 'block')
+      }
       this.inherited(arguments)
     },
   })

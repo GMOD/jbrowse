@@ -24,7 +24,7 @@ define([
       var thisB = this
 
       var op = 'equals'
-      var name = '' + query.name
+      var name = `${query.name}`
       if (/\*$/.test(name)) {
         name = name.replace(/\*$/, '')
         op = 'startswith'
@@ -32,7 +32,7 @@ define([
       var myquery = {}
       myquery[op] = name
 
-      return xhr(thisB.url + '?' + ioQuery.objectToQuery(myquery), {
+      return xhr(`${thisB.url}?${ioQuery.objectToQuery(myquery)}`, {
         handleAs: 'json',
       }).then(
         function (data) {
@@ -41,16 +41,9 @@ define([
             dat.label =
               dat.name +
               (dat.location
-                ? '<span class="locString">' +
-                  dat.location.ref +
-                  ':' +
-                  dat.location.start +
-                  '..' +
-                  dat.location.end +
-                  ' (' +
-                  dat.name +
-                  ')' +
-                  '</span>'
+                ? `<span class="locString">${dat.location.ref}:${
+                    dat.location.start
+                  }..${dat.location.end} (${dat.name})` + `</span>`
                 : '')
           }
           return QueryResults(data)

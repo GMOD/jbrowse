@@ -65,7 +65,9 @@ define([
               var scaling = new Scale(this.config, stats)
 
               // bump minDisplayed to 0 if it is within 0.5% of it
-              if (Math.abs(scaling.min / scaling.max) < 0.005) scaling.min = 0
+              if (Math.abs(scaling.min / scaling.max) < 0.005) {
+                scaling.min = 0
+              }
 
               // update our track y-scale to reflect it
               this.makeYScale({
@@ -126,7 +128,9 @@ define([
         dojo.forEach(
           pixels,
           function (p, i) {
-            if (!p) return
+            if (!p) {
+              return
+            }
             var score = toY(p['score'])
             var f = p['feat']
 
@@ -267,8 +271,8 @@ define([
                   )
                   context.font = '12px sans-serif'
                   if (plusminus > 0) {
-                    context.fillText('+' + label, 2, varTop)
-                    context.fillText('-' + label, 2, varTop + varHeight)
+                    context.fillText(`+${label}`, 2, varTop)
+                    context.fillText(`-${label}`, 2, varTop + varHeight)
                   } else {
                     context.fillText(label, 2, varTop)
                   }
@@ -289,7 +293,7 @@ define([
                       maxColor,
                       (i + 1) / bandPositions.length,
                     ).toCss(true),
-                    pos + 'σ',
+                    `${pos}σ`,
                   )
                 })
                 drawVarianceBand(0, 'rgba(255,255,0,0.7)', 'mean')

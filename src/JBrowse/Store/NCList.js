@@ -70,14 +70,19 @@ After
     var myIntervals = intervals
     //sort by OL
     myIntervals.sort(function (a, b) {
-      if (start(a) != start(b)) return start(a) - start(b)
-      else return end(b) - end(a)
+      if (start(a) != start(b)) {
+        return start(a) - start(b)
+      } else {
+        return end(b) - end(a)
+      }
     })
     var sublistStack = []
     var curList = []
     this.topList = curList
     curList.push(myIntervals[0])
-    if (myIntervals.length == 1) return
+    if (myIntervals.length == 1) {
+      return
+    }
     var curInterval, topSublist
     for (var i = 1, len = myIntervals.length; i < len; i++) {
       curInterval = myIntervals[i]
@@ -116,14 +121,20 @@ After
 
     while (high - low > 1) {
       mid = (low + high) >>> 1
-      if (getter(arr[mid]) >= item) high = mid
-      else low = mid
+      if (getter(arr[mid]) >= item) {
+        high = mid
+      } else {
+        low = mid
+      }
     }
 
     //if we're iterating rightward, return the high index;
     //if leftward, the low index
-    if (getter === this.end) return high
-    else return low
+    if (getter === this.end) {
+      return high
+    } else {
+      return low
+    }
   }
   NCList.prototype._readChunkItems = function (chunk, callback) {
     request
@@ -144,8 +155,11 @@ After
           callback(sublist)
         },
         function (error) {
-          if (error.response.status != 404) callback(null, error)
-          else callback()
+          if (error.response.status != 404) {
+            callback(null, error)
+          } else {
+            callback()
+          }
         },
       )
   }
@@ -215,7 +229,7 @@ After
 
       // if this node has a contained sublist, process that too
       var sublist = getSublist(arr[i])
-      if (sublist)
+      if (sublist) {
         promises.push(
           this.iterHelper(
             sublist,
@@ -228,6 +242,7 @@ After
             path.concat(i),
           ),
         )
+      }
       i += inc
     }
 
@@ -261,14 +276,18 @@ After
     var binWidth = (to - from) / numBins
     var start = this.start
     var end = this.end
-    for (var i = 0; i < numBins; i++) result[i] = 0
+    for (var i = 0; i < numBins; i++) {
+      result[i] = 0
+    }
     this.iterate(
       from,
       to,
       function (feat) {
         var firstBin = Math.max(0, ((start(feat) - from) / binWidth) | 0)
         var lastBin = Math.min(numBins, ((end(feat) - from) / binWidth) | 0)
-        for (var bin = firstBin; bin <= lastBin; bin++) result[bin]++
+        for (var bin = firstBin; bin <= lastBin; bin++) {
+          result[bin]++
+        }
       },
       function () {
         callback(result)

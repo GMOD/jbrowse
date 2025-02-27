@@ -11,7 +11,9 @@ define([
         var basename = Util.basename(
           resource.file ? resource.file.name : resource.url ? resource.url : '',
         )
-        if (!basename) return false
+        if (!basename) {
+          return false
+        }
 
         // go through the configs and see if there is one for an index that seems to match
         for (var n in configs) {
@@ -23,7 +25,7 @@ define([
                 c[index.indexConfKey]
                   ? c[index.indexConfKey].url || c[index.indexConfKey].blob.name
                   : c[index.indexUrlConfKey],
-                index.indexExtensionMap || '.' + index.indexExtension,
+                index.indexExtensionMap || `.${index.indexExtension}`,
               ) == basename
             ) {
               // it's a match, put it in
@@ -35,7 +37,7 @@ define([
         // go through again and look for index files that don't have the base extension in them
         basename = Util.basename(
           basename,
-          this.fileExtensionMap || '.' + this.fileExtension,
+          this.fileExtensionMap || `.${this.fileExtension}`,
         )
         for (var n in configs) {
           var c = configs[n]
@@ -46,7 +48,7 @@ define([
                 c[index.indexConfKey]
                   ? c[index.indexConfKey].url || c[index.indexConfKey].blob.name
                   : c[index.indexUrlConfKey],
-                index.indexExtensionMap || '.' + index.indexExtension,
+                index.indexExtensionMap || `.${index.indexExtension}`,
               ) == basename
             ) {
               // it's a match, put it in
@@ -57,7 +59,7 @@ define([
         }
 
         // otherwise make a new store config for it
-        var newName = this.name + '_' + basename + '_' + uniqCounter++
+        var newName = `${this.name}_${basename}_${uniqCounter++}`
         configs[newName] = {
           type: this.storeType,
           name: newName,
@@ -76,9 +78,11 @@ define([
                 : resource.url
                   ? resource.url
                   : '',
-              index.indexExtensionMap || '.' + index.indexExtension,
+              index.indexExtensionMap || `.${index.indexExtension}`,
             )
-            if (!basename) return false
+            if (!basename) {
+              return false
+            }
 
             // go through the configs and look for data files that match like zee.bam -> zee.bam.bai
             for (var n in configs) {
@@ -103,7 +107,7 @@ define([
                   c[this.fileConfKey]
                     ? c[this.fileConfKey].url || c[this.fileConfKey].blob.name
                     : c[this.fileUrlConfKey],
-                  this.fileExtensionMap || '.' + this.fileExtension,
+                  this.fileExtensionMap || `.${this.fileExtension}`,
                 ) == basename
               ) {
                 // it's a match, put it in
@@ -113,15 +117,10 @@ define([
             }
 
             // otherwise make a new store
-            var newName =
-              this.name +
-              '_' +
-              Util.basename(
-                basename,
-                this.fileExtensionMap || '.' + this.fileExtension,
-              ) +
-              '_' +
-              uniqCounter++
+            var newName = `${this.name}_${Util.basename(
+              basename,
+              this.fileExtensionMap || `.${this.fileExtension}`,
+            )}_${uniqCounter++}`
             configs[newName] = {
               name: newName,
               type: this.storeType,
@@ -173,12 +172,14 @@ define([
           for (var fileName in singletonFiles) {
             for (const m in this.indexTypes) {
               const index = this.indexTypes[m]
-              if (singletonIndexes[indexName][index.indexUrlConfKey])
+              if (singletonIndexes[indexName][index.indexUrlConfKey]) {
                 singletonFiles[fileName][index.indexUrlConfKey] =
                   singletonIndexes[indexName][index.indexUrlConfKey]
-              if (singletonIndexes[indexName][index.indexConfKey])
+              }
+              if (singletonIndexes[indexName][index.indexConfKey]) {
                 singletonFiles[fileName][index.indexConfKey] =
                   singletonIndexes[indexName][index.indexConfKey]
+              }
 
               delete configs[indexName]
             }
@@ -194,7 +195,9 @@ define([
 
       // delete any remaining singleton Files, unless they are URLs
       for (var fileName in singletonFiles) {
-        if (!configs[fileName][this.fileUrlConfKey]) delete configs[fileName]
+        if (!configs[fileName][this.fileUrlConfKey]) {
+          delete configs[fileName]
+        }
       }
     },
 
@@ -204,7 +207,9 @@ define([
         : resource.url
           ? new XHRBlob(resource.url)
           : null
-      if (!r) throw 'unknown resource type'
+      if (!r) {
+        throw 'unknown resource type'
+      }
       return r
     },
 

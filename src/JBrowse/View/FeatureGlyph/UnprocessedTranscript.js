@@ -29,8 +29,9 @@ define([
         overallHeight,
         parentFeature,
         function (feat, attr) {
-          if (attr == 'color')
+          if (attr == 'color') {
             return style(parentFeature, 'unprocessedTranscriptColor')
+          }
           return style(feat, attr)
         },
       ])

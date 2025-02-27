@@ -32,7 +32,7 @@ define(['JBrowse/Util'], function (Util) {
       }
     },
     toString: function () {
-      return '' + this.block + ':' + this.offset
+      return `${this.block}:${this.offset}`
     },
     compareTo: function (b) {
       return this.block - b.block || this.offset - b.offset

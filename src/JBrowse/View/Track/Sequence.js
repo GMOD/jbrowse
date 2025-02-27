@@ -119,8 +119,9 @@ define([
               args.finishCallback()
             },
             function (error) {
-              if (args.errorCallback) args.errorCallback(error)
-              else {
+              if (args.errorCallback) {
+                args.errorCallback(error)
+              } else {
                 console.error(error)
                 args.finishCallback()
               }
@@ -163,7 +164,7 @@ define([
               scale,
             )
             frameDiv[frame] = translatedDiv
-            domClass.add(translatedDiv, 'frame' + frame)
+            domClass.add(translatedDiv, `frame${frame}`)
           }
           for (var i = 2; i >= 0; i--) {
             block.domNode.appendChild(frameDiv[i])
@@ -174,24 +175,25 @@ define([
         var charSize = this.getCharacterMeasurements('sequence')
         var bigTiles = scale > charSize.w + 4 // whether to add .big styles to the base tiles
         var seqNode
-        if (this.config.showReverseStrand || this.config.showForwardStrand)
+        if (this.config.showReverseStrand || this.config.showForwardStrand) {
           seqNode = dom.create(
             'table',
             {
-              className:
-                'sequence' +
-                (bigTiles ? ' big' : '') +
-                (this.config.showColor ? '' : ' nocolor'),
+              className: `sequence${
+                bigTiles ? ' big' : ''
+              }${this.config.showColor ? '' : ' nocolor'}`,
               style: { width: '100%' },
             },
             block.domNode,
           )
+        }
 
         // add a table for the forward strand
-        if (this.config.showForwardStrand)
+        if (this.config.showForwardStrand) {
           seqNode.appendChild(
             this._renderSeqTr(blockStart, blockEnd, blockSeq, scale),
           )
+        }
 
         // and one for the reverse strand
         if (this.config.showReverseStrand) {
@@ -219,7 +221,7 @@ define([
                 true,
               )
               frameDiv[frame] = translatedDiv
-              domClass.add(translatedDiv, 'frame' + frame)
+              domClass.add(translatedDiv, `frame${frame}`)
             }
             for (var i = 0; i < 3; i++) {
               block.domNode.appendChild(frameDiv[i])
@@ -273,25 +275,27 @@ define([
         var table = dom.create(
           'table',
           {
-            className:
-              'translatedSequence offset' + offset + (bigTiles ? ' big' : ''),
+            className: `translatedSequence offset${offset}${bigTiles ? ' big' : ''}`,
             style: {
-              width: charWidth * translated.length + '%',
+              width: `${charWidth * translated.length}%`,
             },
           },
           container,
         )
         var tr = dom.create('tr', {}, table)
 
-        table.style.left =
-          (reverse
+        table.style.left = `${
+          reverse
             ? 100 - charWidth * (translated.length + offset / 3)
-            : (charWidth * offset) / 3) + '%'
+            : (charWidth * offset) / 3
+        }%`
 
-        charWidth = 100 / translated.length + '%'
+        charWidth = `${100 / translated.length}%`
 
         var drawChars = scale >= charSize.w
-        if (drawChars) table.className += ' big'
+        if (drawChars) {
+          table.className += ' big'
+        }
 
         for (var i = 0; i < translated.length; i++) {
           var aminoAcidSpan = document.createElement('td')
@@ -299,8 +303,7 @@ define([
           originalCodon = reverse
             ? originalCodon.split('').reverse().join('')
             : originalCodon
-          aminoAcidSpan.className =
-            'aminoAcid aminoAcid_' + translated.charAt(i).toLowerCase()
+          aminoAcidSpan.className = `aminoAcid aminoAcid_${translated.charAt(i).toLowerCase()}`
 
           // However, if it's known to be a start/stop, apply those CSS classes instead.
           if (this._codonStarts.indexOf(originalCodon.toUpperCase()) != -1) {
@@ -327,16 +330,15 @@ define([
       _renderSeqTr: function (start, end, seq, scale) {
         var charSize = this.getCharacterMeasurements('sequence')
         var container = document.createElement('tr')
-        var charWidth = 100 / (end - start) + '%'
+        var charWidth = `${100 / (end - start)}%`
         var drawChars = scale >= charSize.w
         var baseClassDefault = 'base'
         if (this.config.seqType === 'protein') {
-          baseClassDefault += ' aaScheme_' + this.config.proteinColorScheme
+          baseClassDefault += ` aaScheme_${this.config.proteinColorScheme}`
         }
         for (var i = 0; i < seq.length; i++) {
           var base = document.createElement('td')
-          base.className =
-            baseClassDefault + ' base_' + seq.charAt(i).toLowerCase()
+          base.className = `${baseClassDefault} base_${seq.charAt(i).toLowerCase()}`
           base.style.width = charWidth
           if (drawChars) {
             base.innerHTML = seq.charAt(i)

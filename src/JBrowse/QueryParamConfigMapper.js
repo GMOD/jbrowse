@@ -21,11 +21,11 @@ define([
       var returnObject = dotObject.dot(input)
       var returnString
       Object.keys(returnObject).forEach(function (key) {
-        var stringEntry = key + '=' + returnObject[key]
+        var stringEntry = `${key}=${returnObject[key]}`
         if (!returnString) {
           returnString = stringEntry
         } else {
-          returnString += '&' + stringEntry
+          returnString += `&${stringEntry}`
         }
       })
 
@@ -33,7 +33,9 @@ define([
     },
 
     generateJsonFromKeyArray: function (inputJson, keyArray, keyDepth, value) {
-      if (!keyArray || keyArray.length == keyDepth) return
+      if (!keyArray || keyArray.length == keyDepth) {
+        return
+      }
 
       var firstKey = keyArray[keyDepth - 1]
       // set value if the last one
@@ -82,7 +84,7 @@ define([
           queryNameArray = queryParam.split('\.')
           propertyName = queryNameArray.slice(1).join('.')
           dotObject.str(
-            'stores.' + propertyName,
+            `stores.${propertyName}`,
             queryParams[queryParam],
             config,
           )

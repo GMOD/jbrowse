@@ -327,7 +327,7 @@ define(['dojo/_base/declare', 'dojo/_base/array'], function (declare, array) {
       // uniqify the mismatches
       var seen = {}
       mismatches = array.filter(mismatches, function (m) {
-        var key = m.type + ',' + m.start + ',' + m.length
+        var key = `${m.type},${m.start},${m.length}`
         var s = seen[key]
         seen[key] = true
         return !s
@@ -358,7 +358,7 @@ define(['dojo/_base/declare', 'dojo/_base/array'], function (declare, array) {
           mismatches.push({
             start: refPos,
             type: 'insertion',
-            base: '' + data.length,
+            base: `${data.length}`,
             length: data.length,
           })
         } else if (code === 'N') {
@@ -375,7 +375,7 @@ define(['dojo/_base/declare', 'dojo/_base/array'], function (declare, array) {
           mismatches.push({
             start: refPos,
             type: 'softclip',
-            base: 'S' + len,
+            base: `S${len}`,
             cliplen: len,
             length: 1,
           })
@@ -387,7 +387,7 @@ define(['dojo/_base/declare', 'dojo/_base/array'], function (declare, array) {
           mismatches.push({
             start: refPos,
             type: 'hardclip',
-            base: 'H' + len,
+            base: `H${len}`,
             cliplen: len,
             length: 1,
           })
@@ -428,22 +428,25 @@ define(['dojo/_base/declare', 'dojo/_base/array'], function (declare, array) {
       for (let i = 0; i < ops.length; i += 2) {
         var len = +ops[i]
         var op = ops[i + 1]
-        if (op == 'D')
+        if (op == 'D') {
           mismatches.push({
             start: currOffset,
             type: 'deletion',
             base: '*',
             length: len,
           })
-        else if (op == 'N')
+        } else if (op == 'N') {
           mismatches.push({
             start: currOffset,
             type: 'skip',
             base: 'N',
             length: len,
           })
+        }
 
-        if (op != 'I' && op != 'S' && op != 'H') currOffset += len
+        if (op != 'I' && op != 'S' && op != 'H') {
+          currOffset += len
+        }
       }
       return mismatches
     },

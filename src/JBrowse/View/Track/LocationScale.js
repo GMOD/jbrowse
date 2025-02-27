@@ -48,8 +48,7 @@ define([
 
         // give the position label a negative left offset in ex's to
         // more-or-less center it over the left boundary of the block
-        posLabel.style.left =
-          '-' + Number(numtext.length) / 1.7 + labelOffset + 'ex'
+        posLabel.style.left = `-${Number(numtext.length) / 1.7}${labelOffset}ex`
 
         posLabel.appendChild(document.createTextNode(numtext))
         block.domNode.appendChild(posLabel)
@@ -73,7 +72,9 @@ define([
         var width = viewArgs.rightBase - left + 1
         var scale = viewArgs.scale
         for (var mod = 1000000; mod > 0; mod /= 10) {
-          if ((left % mod) * scale <= 3) return left - (left % mod)
+          if ((left % mod) * scale <= 3) {
+            return left - (left % mod)
+          }
         }
         return left
       },

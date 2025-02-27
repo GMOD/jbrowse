@@ -28,13 +28,17 @@ define(['dojo/_base/lang', 'JBrowse/Util', 'JBrowse/Digest/Crc32'], function (
 
     constructor: function (config, stats) {
       var needStats = this.needStats(config)
-      if (needStats && !stats)
+      if (needStats && !stats) {
         throw 'No stats object provided, cannot calculate scale'
+      }
 
       if (needStats && stats.scoreMin == stats.scoreMax) {
         stats = lang.mixin({}, stats)
-        if (stats.scoreMin < 0) stats.scoreMax = 0
-        else stats.scoreMin = 0
+        if (stats.scoreMin < 0) {
+          stats.scoreMax = 0
+        } else {
+          stats.scoreMin = 0
+        }
       }
 
       // if either autoscale or scale is set to z_score, the other one should default to z_score
@@ -174,7 +178,9 @@ define(['dojo/_base/lang', 'JBrowse/Util', 'JBrowse/Digest/Crc32'], function (
      * Standard comparison function, compare this scale to another one.
      */
     compare: function (b) {
-      if (!b) return 1
+      if (!b) {
+        return 1
+      }
 
       var a = this
       return (

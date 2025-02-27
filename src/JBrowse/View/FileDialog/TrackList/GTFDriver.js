@@ -13,16 +13,20 @@ define([
         var basename = Util.basename(
           resource.file ? resource.file.name : resource.url ? resource.url : '',
         )
-        if (!basename) return false
+        if (!basename) {
+          return false
+        }
 
-        var newName = 'GTF_' + basename + '_' + uniqCounter++
+        var newName = `GTF_${basename}_${uniqCounter++}`
         configs[newName] = {
           type: this.storeType,
           blob: this._makeBlob(resource),
           name: newName,
         }
         return true
-      } else return false
+      } else {
+        return false
+      }
     },
 
     // try to merge any singleton BAM and BAI stores.  currently can only do this if there is one of each
@@ -34,7 +38,9 @@ define([
         : resource.url
           ? new XHRBlob(resource.url)
           : null
-      if (!r) throw 'unknown resource type'
+      if (!r) {
+        throw 'unknown resource type'
+      }
       return r
     },
 

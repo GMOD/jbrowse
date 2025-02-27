@@ -91,7 +91,7 @@ require(['dojo/_base/lang', 'JBrowse/Store/SeqFeature/REST'], function (
         })
       })
 
-      if (!config.noCache)
+      if (!config.noCache) {
         // this test does not work under noCache because the backend is not dynamic
         it('supports feature_range_cache', function () {
           var withRangeCache = new RESTStore({
@@ -150,6 +150,7 @@ require(['dojo/_base/lang', 'JBrowse/Store/SeqFeature/REST'], function (
             )
           })
         })
+      }
 
       it('supports feature histograms if implemented', function () {
         expect(store.getRegionFeatureDensities).toBeFalsy()

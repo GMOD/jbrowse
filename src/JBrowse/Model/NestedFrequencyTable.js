@@ -7,7 +7,9 @@ define(['JBrowse/Util'], function (Util) {
   var NestedFrequencyTable = Util.fastDeclare({
     constructor: function (initialData) {
       this._categories = {}
-      if (initialData) dojo.mixin(this._categories, initialData)
+      if (initialData) {
+        dojo.mixin(this._categories, initialData)
+      }
     },
 
     // get the sum of all the category counts
@@ -23,25 +25,37 @@ define(['JBrowse/Util'], function (Util) {
 
     // decrement the count for the given category
     decrement: function (slotName, amount) {
-      if (!amount) amount = 1
+      if (!amount) {
+        amount = 1
+      }
 
-      if (!slotName) slotName = 'default'
-      else slotName = slotName.toString()
+      if (!slotName) {
+        slotName = 'default'
+      } else {
+        slotName = slotName.toString()
+      }
 
-      if (this._categories[slotName])
+      if (this._categories[slotName]) {
         return (this._categories[slotName] = Math.max(
           0,
           this._categories[slotName] - amount,
         ))
-      else return 0
+      } else {
+        return 0
+      }
     },
 
     // increment the count for the given category
     increment: function (slotName, amount) {
-      if (!amount) amount = 1
+      if (!amount) {
+        amount = 1
+      }
 
-      if (!slotName) slotName = 'default'
-      else slotName = slotName.toString()
+      if (!slotName) {
+        slotName = 'default'
+      } else {
+        slotName = slotName.toString()
+      }
       return (this._categories[slotName] =
         (this._categories[slotName] || 0) + amount)
     },
@@ -54,20 +68,27 @@ define(['JBrowse/Util'], function (Util) {
 
     // get a given category as a frequency table
     getNested: function (path) {
-      if (typeof path == 'string') path = path.split('/')
+      if (typeof path == 'string') {
+        path = path.split('/')
+      }
 
-      if (!path.length) return this
+      if (!path.length) {
+        return this
+      }
 
       var slotName = path[0].toString()
       var slot = this._categories[slotName]
-      if (!slot || !slot._categories)
+      if (!slot || !slot._categories) {
         slot = this._categories[slotName] = new NestedFrequencyTable(
           slot ? { default: slot + 0 } : {},
         )
+      }
 
       if (path.length > 1) {
         return slot.getNested(path.slice(1))
-      } else return slot
+      } else {
+        return slot
+      }
     },
 
     // returns array of category names that are present

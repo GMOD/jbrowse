@@ -17,7 +17,7 @@ require(['JBrowse/ConfigAdaptor/conf'], function (gbrowseConfigAdaptor) {
             gbConfig = c
           },
           function (error) {
-            console.error(error.stack || '' + error)
+            console.error(error.stack || `${error}`)
           },
         )
 

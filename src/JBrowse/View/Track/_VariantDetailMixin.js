@@ -34,7 +34,7 @@ define([
       container =
         container ||
         domConstruct.create('div', {
-          className: 'detail feature-detail feature-detail-' + track.name,
+          className: `detail feature-detail feature-detail-${track.name}`,
           innerHTML: '',
         })
 
@@ -60,11 +60,15 @@ define([
     _renderGenotypes: function (parentElement, track, f) {
       var thisB = this
       var genotypes = f.get('genotypes')
-      if (!genotypes) return
+      if (!genotypes) {
+        return
+      }
 
       var keys = Util.dojof.keys(genotypes).sort()
       var gCount = keys.length
-      if (!gCount) return
+      if (!gCount) {
+        return
+      }
 
       var alt = (f.get('alternative_alleles') || {}).values
 
@@ -72,7 +76,7 @@ define([
         'div',
         {
           className: 'genotypes',
-          innerHTML: '<h2 class="sectiontitle">Genotypes (' + gCount + ')</h2>',
+          innerHTML: `<h2 class="sectiontitle">Genotypes (${gCount})</h2>`,
         },
         parentElement,
       )
@@ -92,7 +96,9 @@ define([
           f,
           // iterator
           function () {
-            if (!keys.length) return null
+            if (!keys.length) {
+              return null
+            }
             var k = keys.shift()
             var value = genotypes[k]
             var item = { id: k }
@@ -110,7 +116,9 @@ define([
           },
           {
             descriptions: (function () {
-              if (!keys.length) return {}
+              if (!keys.length) {
+                return {}
+              }
 
               var subValue = genotypes[keys[0]]
               var descriptions = {}
@@ -151,11 +159,14 @@ define([
     _mungeGenotypeVal: function (values, alt, underlyingRefSeq) {
       // handle the GT field specially, translating the genotype indexes into the actual ALT strings
       let value_parse
-      if (values == null) value_parse = '.'
-      else value_parse = values[0]
+      if (values == null) {
+        value_parse = '.'
+      } else {
+        value_parse = values[0]
+      }
 
       var splitter = (value_parse.match(/[\|\/]/g) || [])[0] // only accept | and / splitters since . can mean no call
-      var refseq = underlyingRefSeq ? 'ref (' + underlyingRefSeq + ')' : 'ref'
+      var refseq = underlyingRefSeq ? `ref (${underlyingRefSeq})` : 'ref'
       values = array
         .map(
           splitter ? value_parse.split(splitter) : value_parse,
@@ -165,22 +176,28 @@ define([
               return 'no-call'
             } else if (gtIndex == 0) {
               return refseq
-            } else return alt ? alt[gtIndex - 1] : gtIndex
+            } else {
+              return alt ? alt[gtIndex - 1] : gtIndex
+            }
           },
         )
-        .join(' ' + splitter + ' ')
+        .join(` ${splitter} `)
       return values
     },
 
     _renderGenotypeSummary: function (parentElement, genotypes, alt) {
-      if (!genotypes) return
+      if (!genotypes) {
+        return
+      }
 
       var counts = new NestedFrequencyTable()
       for (var gname in genotypes) {
         if (genotypes.hasOwnProperty(gname)) {
           // increment the appropriate count
           var gtVals = (genotypes[gname].GT || {}).values
-          if (gtVals == null) gtVals = ['.']
+          if (gtVals == null) {
+            gtVals = ['.']
+          }
           var gt = gtVals[0].split(/\||\//)
           if (lang.isArray(gt)) {
             // if all zero, non-variant/hom-ref
@@ -203,11 +220,13 @@ define([
                 return g == gt[0]
               })
             ) {
-              if (alt)
+              if (alt) {
                 counts
                   .getNested('variant/homozygous')
-                  .increment(alt[parseInt(gt[0]) - 1] + ' variant')
-              else counts.getNested('variant').increment('homozygous')
+                  .increment(`${alt[parseInt(gt[0]) - 1]} variant`)
+              } else {
+                counts.getNested('variant').increment('homozygous')
+              }
             } else {
               counts.getNested('variant').increment('heterozygous')
             }
@@ -216,7 +235,9 @@ define([
       }
 
       var total = counts.total()
-      if (!total) return
+      if (!total) {
+        return
+      }
 
       var valueContainer = domConstruct.create(
         'div',
@@ -233,7 +254,7 @@ define([
           domConstruct.create(
             'td',
             {
-              className: 'category level_' + level,
+              className: `category level_${level}`,
               innerHTML: categoryName,
             },
             tr,
@@ -243,7 +264,7 @@ define([
             domConstruct.create(
               'td',
               {
-                className: 'count level_' + level,
+                className: `count level_${level}`,
                 innerHTML: thisTotal,
               },
               tr,
@@ -251,8 +272,8 @@ define([
             domConstruct.create(
               'td',
               {
-                className: 'pct level_' + level,
-                innerHTML: Math.round((thisTotal / total) * 10000) / 100 + '%',
+                className: `pct level_${level}`,
+                innerHTML: `${Math.round((thisTotal / total) * 10000) / 100}%`,
               },
               tr,
             )
@@ -261,7 +282,7 @@ define([
             domConstruct.create(
               'td',
               {
-                className: 'count level_' + level,
+                className: `count level_${level}`,
                 innerHTML: count,
               },
               tr,
@@ -269,8 +290,8 @@ define([
             domConstruct.create(
               'td',
               {
-                className: 'pct level_' + level,
-                innerHTML: Math.round((count / total) * 10000) / 100 + '%',
+                className: `pct level_${level}`,
+                innerHTML: `${Math.round((count / total) * 10000) / 100}%`,
               },
               tr,
             )
@@ -305,8 +326,11 @@ define([
         this.store.getParser().then(parser => parser.getMetadata()),
         this.inherited(arguments),
       ]).then(function (results) {
-        if (results[0]) return thisB._makeVCFFilters.apply(thisB, results)
-        else return results[1]
+        if (results[0]) {
+          return thisB._makeVCFFilters.apply(thisB, results)
+        } else {
+          return results[1]
+        }
       })
     },
 
@@ -345,13 +369,15 @@ define([
       })
       if (vcfMetadata.FILTER) {
         for (var filterName in vcfMetadata.FILTER) {
-          filters[filterName + '_hide'] = function (filterName, filterSpec) {
+          filters[`${filterName}_hide`] = function (filterName, filterSpec) {
             return {
-              desc: 'Hide sites passing filter "' + filterName + '"',
-              title: filterName + ': ' + filterSpec.description,
+              desc: `Hide sites passing filter "${filterName}"`,
+              title: `${filterName}: ${filterSpec.description}`,
               func: makeFilterFilter(function (f) {
                 var fs = f.values || f
-                if (!fs[0]) return true
+                if (!fs[0]) {
+                  return true
+                }
 
                 return !array.some(fs, function (fname) {
                   return fname == filterName
@@ -361,13 +387,15 @@ define([
           }.call(this, filterName, vcfMetadata.FILTER[filterName])
         }
         for (var filterName in vcfMetadata.FILTER) {
-          filters[filterName + '_include'] = function (filterName, filterSpec) {
+          filters[`${filterName}_include`] = function (filterName, filterSpec) {
             return {
-              desc: 'Include sites passing filter "' + filterName + '"',
-              title: filterName + ': ' + filterSpec.description,
+              desc: `Include sites passing filter "${filterName}"`,
+              title: `${filterName}: ${filterSpec.description}`,
               func: makeFilterFilter(function (f) {
                 var fs = f.values || f
-                if (!fs[0]) return true
+                if (!fs[0]) {
+                  return true
+                }
 
                 return array.some(fs, function (fname) {
                   return fname == filterName
@@ -392,8 +420,11 @@ define([
         var withAdditional = Util.uniq(
           menuItems.concat(Util.dojof.keys(filters)),
         )
-        if (withAdditional.length > menuItems.length) menuItems = withAdditional
-        else menuItems.pop() //< pop off the separator since we have no additional ones
+        if (withAdditional.length > menuItems.length) {
+          menuItems = withAdditional
+        } else {
+          menuItems.pop()
+        } //< pop off the separator since we have no additional ones
 
         return track._makeFeatureFilterTrackMenuItems(menuItems, filters)
       })

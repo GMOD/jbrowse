@@ -13,8 +13,10 @@ define([
      */
     makeFeatureLabel: function (feature, fRect, text) {
       var text = text || this.getFeatureLabel(feature)
-      if (!text) return null
-      text = '' + text
+      if (!text) {
+        return null
+      }
+      text = `${text}`
       var font = this.getStyle(feature, 'textFont')
       var l = fRect
         ? this.makeBottomOrTopLabel(text, font, fRect)
@@ -30,8 +32,10 @@ define([
      */
     makeFeatureDescriptionLabel: function (feature, fRect, text) {
       var text = text || this.getFeatureDescription(feature)
-      if (!text) return null
-      text = '' + text
+      if (!text) {
+        return null
+      }
+      text = `${text}`
       var font = this.getStyle(feature, 'text2Font')
       var l = fRect
         ? this.makeBottomOrTopLabel(text, font, fRect)
@@ -45,7 +49,9 @@ define([
      * respecting maxFeatureGlyphExpansion.
      */
     makeSideLabel: function (text, font, fRect) {
-      if (!text) return null
+      if (!text) {
+        return null
+      }
 
       var dims = this.measureFont(font)
       var excessCharacters = Math.round(
@@ -53,8 +59,9 @@ define([
           this.track.getConf('maxFeatureGlyphExpansion')) /
           dims.w,
       )
-      if (excessCharacters > 0)
-        text = text.slice(0, text.length - excessCharacters - 1) + '…'
+      if (excessCharacters > 0) {
+        text = `${text.slice(0, text.length - excessCharacters - 1)}…`
+      }
 
       return {
         text: text,
@@ -70,7 +77,9 @@ define([
      * respecting maxFeatureGlyphExpansion.
      */
     makeBottomOrTopLabel: function (text, font, fRect) {
-      if (!text) return null
+      if (!text) {
+        return null
+      }
 
       var dims = this.measureFont(font)
       var excessCharacters = Math.round(
@@ -79,8 +88,9 @@ define([
           this.track.getConf('maxFeatureGlyphExpansion')) /
           dims.w,
       )
-      if (excessCharacters > 0)
-        text = text.slice(0, text.length - excessCharacters - 1) + '…'
+      if (excessCharacters > 0) {
+        text = `${text.slice(0, text.length - excessCharacters - 1)}…`
+      }
 
       return {
         text: text,
@@ -96,7 +106,9 @@ define([
      * not respecting maxFeatureGlyphExpansion or the width of the fRect.
      */
     makePopupLabel: function (text, font) {
-      if (!text) return null
+      if (!text) {
+        return null
+      }
       var dims = this.measureFont(font)
       return {
         text: text,

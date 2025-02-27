@@ -27,7 +27,9 @@ define([
   }
 
   Ruler.prototype.render_to = function (target_div) {
-    if (typeof target_div == 'string') target_div = dojo.byId(target_div)
+    if (typeof target_div == 'string') {
+      target_div = dojo.byId(target_div)
+    }
 
     var target_dims = dojo.position(target_div)
 
@@ -44,7 +46,7 @@ define([
           left: '-9px',
           bottom: '-9px',
           width: '10px',
-          height: target_dims.h + 18 + 'px',
+          height: `${target_dims.h + 18}px`,
         },
       },
       target_div,
@@ -81,7 +83,7 @@ define([
 
       this.scaler = chart1.axes.y.scaler
     } catch (x) {
-      console.error(x + '')
+      console.error(`${x}`)
       console.error(
         'Failed to draw Ruler with SVG, your browser may not support the necessary technology.',
       )

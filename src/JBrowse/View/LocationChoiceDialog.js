@@ -94,7 +94,7 @@ define([
           {
             className: 'locationList',
             style: {
-              maxHeight: 0.5 * this.browser.container.offsetHeight + 'px',
+              maxHeight: `${0.5 * this.browser.container.offsetHeight}px`,
             },
           },
           container,

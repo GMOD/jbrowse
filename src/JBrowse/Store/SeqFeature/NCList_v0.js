@@ -20,11 +20,15 @@ define([
       constructor: function (args) {
         this.fields = {}
         this.track = new Deferred()
-        if (args.track) this.track.resolve(args.track)
+        if (args.track) {
+          this.track.resolve(args.track)
+        }
       },
 
       setTrack: function (t) {
-        if (!this.track.isFulfilled()) this.track.resolve(t)
+        if (!this.track.isFulfilled()) {
+          this.track.resolve(t)
+        }
       },
 
       /**
@@ -75,10 +79,13 @@ define([
                 'clientConfig',
               ],
               function (varname) {
-                if (!track.config.style) track.config.style = {}
+                if (!track.config.style) {
+                  track.config.style = {}
+                }
                 var dest_varname = renameVar[varname] || varname
-                if (varname in trackInfo)
+                if (varname in trackInfo) {
                   track.config.style[dest_varname] = trackInfo[varname]
+                }
               },
               this,
             )
@@ -162,13 +169,19 @@ define([
           subfieldOrder = data.subfieldOrder,
           get = function (fieldname) {
             var f = fields[fieldname]
-            if (f >= 0) return this[f]
-            else return undefined
+            if (f >= 0) {
+              return this[f]
+            } else {
+              return undefined
+            }
           },
           subget = function (fieldname) {
             var f = subFields[fieldname]
-            if (f >= 0) return this[f]
-            else return undefined
+            if (f >= 0) {
+              return this[f]
+            } else {
+              return undefined
+            }
           },
           tags = function () {
             return fieldOrder

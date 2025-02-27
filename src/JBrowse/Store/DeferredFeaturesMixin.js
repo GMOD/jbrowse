@@ -17,7 +17,9 @@ define(['dojo/_base/declare', 'dojo/Deferred'], function (declare, Deferred) {
      * queued until the Deferred is resolved.
      */
     _deferFeatures: function () {
-      if (!this._deferred) this._deferred = {}
+      if (!this._deferred) {
+        this._deferred = {}
+      }
       this._deferred.features = new Deferred()
     },
 

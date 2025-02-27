@@ -276,14 +276,16 @@ define([
           end: fmax,
         }
 
-        for (var k in opts) data[k] = opts[k]
+        for (var k in opts) {
+          data[k] = opts[k]
+        }
 
         var id = data.id
         delete data.id
 
         var f = new SimpleFeature({
           data: data,
-          id: id ? id : data.start + '_' + data.end + '_' + data.score,
+          id: id ? id : `${data.start}_${data.end}_${data.score}`,
         })
 
         this.features.push(f)
@@ -362,7 +364,7 @@ define([
             this.maybeCreateFeature(start, end, { score: score })
           }
         } else {
-          dlog('Currently not handling bwgType=' + blockType)
+          dlog(`Currently not handling bwgType=${blockType}`)
         }
       },
 
@@ -437,9 +439,12 @@ define([
             } else if (autoField._requestWorkerCache.isArray) {
               // parse array values
               columnVal = columnVal.split(',')
-              if (columnVal[columnVal.length - 1] === '') columnVal.pop()
-              if (autoField._requestWorkerCache.arrayIsNumeric)
+              if (columnVal[columnVal.length - 1] === '') {
+                columnVal.pop()
+              }
+              if (autoField._requestWorkerCache.arrayIsNumeric) {
                 columnVal = columnVal.map(str => Number(str))
+              }
             }
 
             featureData[snakeCase(autoField.name)] = columnVal
@@ -497,7 +502,7 @@ define([
               } else if (thisB.window.bwg.type == 'bigbed') {
                 thisB.parseBigBedBlock(data, offset)
               } else {
-                dlog("Don't know what to do with " + thisB.window.bwg.type)
+                dlog(`Don't know what to do with ${thisB.window.bwg.type}`)
               }
             })
           })

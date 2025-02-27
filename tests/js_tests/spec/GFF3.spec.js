@@ -52,7 +52,6 @@ require([
           ).toEqual(6)
         })
       }).call()
-
       ;(function () {
         var features = []
         var done
@@ -80,7 +79,6 @@ require([
           // expect( features[191].get('subfeatures')[0].get('subfeatures').length ).toEqual( 6 );
         })
       }).call()
-
       ;(function () {
         var features = []
         var done

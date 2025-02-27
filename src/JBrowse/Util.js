@@ -20,7 +20,7 @@ define([
       nStr += ''
       var x = nStr.split('.')
       var x1 = x[0]
-      var x2 = x.length > 1 ? '.' + x[1] : ''
+      var x2 = x.length > 1 ? `.${x[1]}` : ''
       var rgx = /(\d+)(\d{3})/
       while (rgx.test(x1)) {
         x1 = x1.replace(rgx, '$1' + ',' + '$2')
@@ -65,10 +65,16 @@ define([
     },
 
     isRightButton: function (e) {
-      if (!e) var e = window.event
-      if (e.which) return e.which == 3
-      else if (e.button) return e.button == 2
-      else return false
+      if (!e) {
+        var e = window.event
+      }
+      if (e.which) {
+        return e.which == 3
+      } else if (e.button) {
+        return e.button == 2
+      } else {
+        return false
+      }
     },
 
     getViewportWidth: function () {
@@ -123,11 +129,16 @@ define([
         varname = varname.replace(/\s+/g, '') // remove all whitespace
         var fill = lang.getObject(varname, false, fillWith)
         if (fill !== undefined) {
-          if (typeof fill == 'function') return fill(varname)
-          else return fill
+          if (typeof fill == 'function') {
+            return fill(varname)
+          } else {
+            return fill
+          }
         } else if (fillWith.callback) {
           var v = fillWith.callback.call(this, varname)
-          if (v !== undefined) return v
+          if (v !== undefined) {
+            return v
+          }
         }
         return match
       })
@@ -154,7 +165,9 @@ define([
           errorCallback()
         } else if ('loading' == stateObj.state) {
           stateObj.successCallbacks.push(successCallback)
-          if (errorCallback) stateObj.errorCallbacks.push(errorCallback)
+          if (errorCallback) {
+            stateObj.errorCallbacks.push(errorCallback)
+          }
         }
       } else {
         stateObj.state = 'loading'
@@ -166,13 +179,17 @@ define([
           stateObj.state = 'loaded'
           stateObj.data = o
           var cbs = stateObj.successCallbacks
-          for (var c = 0; c < cbs.length; c++) cbs[c](o)
+          for (var c = 0; c < cbs.length; c++) {
+            cbs[c](o)
+          }
         }
         args.error = function (error) {
-          console.error('' + error)
+          console.error(`${error}`)
           stateObj.state = 'error'
           var cbs = stateObj.errorCallbacks
-          for (var c = 0; c < cbs.length; c++) cbs[c]()
+          for (var c = 0; c < cbs.length; c++) {
+            cbs[c]()
+          }
         }
 
         dojo.xhrGet(args)
@@ -217,7 +234,7 @@ define([
         suffix = 'K'
       }
 
-      return (num.toFixed(2) + ' ' + suffix)
+      return `${num.toFixed(2)} ${suffix}`
         .replace(/0+ /, ' ')
         .replace(/\. /, ' ')
     },
@@ -231,7 +248,9 @@ define([
     resolveUrl: function (baseUrl, relativeUrl) {
       if (this.isElectron()) {
         // url.resolve does not correctly resolve absolute file urls
-        if (relativeUrl.substr(0, 8) === 'file:///') return relativeUrl
+        if (relativeUrl.substr(0, 8) === 'file:///') {
+          return relativeUrl
+        }
       }
       return url.resolve(baseUrl, relativeUrl)
     },
@@ -244,7 +263,7 @@ define([
         // check the loaded modules for success
         for (var i = 0; i < modules.length; i++) {
           if (!{ object: true, function: true }[typeof modules[i]]) {
-            d.reject('could not load ' + paths[i] + ': ' + modules[i])
+            d.reject(`could not load ${paths[i]}: ${modules[i]}`)
             return
           }
         }
@@ -260,7 +279,9 @@ define([
     },
 
     parseLocString: function (locstring) {
-      if (typeof locstring != 'string') return null
+      if (typeof locstring != 'string') {
+        return null
+      }
       locstring = locstring.trim()
 
       var location = {}
@@ -358,15 +379,19 @@ define([
     },
 
     basename: function (str, suffixList) {
-      if (!str || !str.match) return undefined
+      if (!str || !str.match) {
+        return undefined
+      }
       var m = str.match(/[\/\\]([^\/\\]+)[\/\/\/]*$/)
       var bn = m ? m[1] || undefined : str
       if (bn && suffixList) {
-        if (!(suffixList instanceof Array)) suffixList = [suffixList]
+        if (!(suffixList instanceof Array)) {
+          suffixList = [suffixList]
+        }
         suffixList = array.map(suffixList, function (s) {
           return s.replace(/([\.\?\+])/g, '\\$1')
         })
-        bn = bn.replace(new RegExp(suffixList.join('|') + '$', 'i'), '')
+        bn = bn.replace(new RegExp(`${suffixList.join('|')}$`, 'i'), '')
       }
       return bn
     },
@@ -394,25 +419,33 @@ define([
       //finally assemble our string
       if ('ref' in location) {
         s += location.ref
-        if (location.start || location.end) s += ':'
+        if (location.start || location.end) {
+          s += ':'
+        }
       }
       if ('start' in location) {
         s += (Math.round(location.start) + 1).toFixed(0).toLocaleString()
-        if ('end' in location) s += '..'
+        if ('end' in location) {
+          s += '..'
+        }
       }
-      if ('end' in location)
+      if ('end' in location) {
         s += Math.round(location.end).toFixed(0).toLocaleString()
+      }
 
-      if ('strand' in location)
+      if ('strand' in location) {
         s +=
           {
             1: ' (+ strand)',
             '-1': ' (- strand)',
             0: ' (no strand)',
           }[location.strand || ''] || ''
+      }
 
       // add on any extra stuff if it was passed in
-      if (useExtra && 'extra' in loc_in) s += loc_in.extra
+      if (useExtra && 'extra' in loc_in) {
+        s += loc_in.extra
+      }
 
       return s
     },
@@ -484,7 +517,7 @@ define([
     assembleLocStringWithLength: function (def) {
       var locString = Util.assembleLocString(def)
       var length = def.length || def.end - def.start
-      return locString + ' (' + Util.humanReadableNumber(length) + 'b)'
+      return `${locString} (${Util.humanReadableNumber(length)}b)`
     },
 
     // given a possible reference sequence name and an object as { 'foo':
@@ -494,15 +527,17 @@ define([
     // if none matched.
     matchRefSeqName: function (name, refseqs) {
       for (var ref in refseqs) {
-        if (!refseqs.hasOwnProperty(ref)) continue
+        if (!refseqs.hasOwnProperty(ref)) {
+          continue
+        }
 
         var ucname = name.toUpperCase()
         var ucref = ref.toUpperCase()
 
         if (
           ucname == ucref ||
-          'CHR' + ucname == ucref ||
-          ucname == 'CHR' + ucref
+          `CHR${ucname}` == ucref ||
+          ucname == `CHR${ucref}`
         ) {
           return refseqs[ref]
         }
@@ -520,14 +555,18 @@ define([
         var args = arguments
         window.setTimeout(function () {
           var f = func
-          if (typeof f == 'string') f = context[f]
+          if (typeof f == 'string') {
+            f = context[f]
+          }
           f.apply(context, args)
         }, 1)
       }
     },
 
     ucFirst: function (str) {
-      if (typeof str != 'string') return undefined
+      if (typeof str != 'string') {
+        return undefined
+      }
       return str.charAt(0).toUpperCase() + str.slice(1)
     },
 
@@ -542,13 +581,15 @@ define([
       normalizer =
         normalizer ||
         function (t) {
-          return '' + t
+          return `${t}`
         }
       var result = [],
         seen = {}
       dojo.forEach(stuff, function (thing) {
         var norm = normalizer(thing)
-        if (!seen[normalizer(thing)]) result.push(thing)
+        if (!seen[normalizer(thing)]) {
+          result.push(thing)
+        }
         seen[norm] = true
       })
       return result
@@ -575,7 +616,9 @@ define([
       try {
         delete domNode[attrName]
       } catch (e) {
-        if (domNode.removeAttribute) domNode.removeAttribute(attrName)
+        if (domNode.removeAttribute) {
+          domNode.removeAttribute(attrName)
+        }
       }
     },
     // Return resolution, accounting for config possibly specifying that highres is disabled
@@ -623,8 +666,11 @@ define([
         val = val.toLowerCase()
         if (val == 'true') {
           return true
-        } else if (val == 'false') return false
-        else return parseInt(val)
+        } else if (val == 'false') {
+          return false
+        } else {
+          return parseInt(val)
+        }
       } else if (typeof val == 'boolean') {
         return val
       } else if (typeof val == 'number') {

@@ -9,8 +9,9 @@ define([
     constructor: function () {
       // if showMismatches is false, stub out this object's
       // _drawMismatches to be a no-op
-      if (!this.config.style.showMismatches)
+      if (!this.config.style.showMismatches) {
         this._drawMismatches = function () {}
+      }
     },
 
     _defaultConfig: function () {
@@ -54,14 +55,15 @@ define([
       //     draw only skips and deletions (the mismatches that
       //     might be large enough to see)
       if (fRect.w > 2) {
-        if (fRect.viewInfo.scale > 0.2)
+        if (fRect.viewInfo.scale > 0.2) {
           this._drawMismatches(context, fRect, this._getMismatches(fRect.f))
-        else
+        } else {
           this._drawMismatches(
             context,
             fRect,
             this._getSkipsAndDeletions(fRect.f),
           )
+        }
       }
     },
 
@@ -111,7 +113,7 @@ define([
             if (mRect.w >= charSize.w && mRect.h >= charSize.h - 3) {
               context.font = this.config.style.mismatchFont
               context.fillText(
-                '(' + mismatch.base + ')',
+                `(${mismatch.base})`,
                 mRect.l + 2,
                 mRect.t + mRect.h / 2,
               )
@@ -127,7 +129,7 @@ define([
             if (mRect.w >= charSize.w && mRect.h >= charSize.h - 3) {
               context.font = this.config.style.mismatchFont
               context.fillText(
-                '(' + mismatch.base + ')',
+                `(${mismatch.base})`,
                 mRect.l + 2,
                 mRect.t + mRect.h / 2,
               )

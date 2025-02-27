@@ -71,8 +71,9 @@ define([
         if (error) {
           if (error.isInstanceOf && error.isInstanceOf(Errors.DataOverflow)) {
             console.log(
-              'Store statistics found chunkSizeLimit error, using empty: ' +
-                (this.source || this.name),
+              `Store statistics found chunkSizeLimit error, using empty: ${
+                this.source || this.name
+              }`,
             )
             deferred.resolve({
               featureDensity: 0,
@@ -88,16 +89,13 @@ define([
             interval * 2 > refLen ||
             error
           ) {
-            console.log(
-              'Store statistics: ' + (this.source || this.name),
-              stats,
-            )
+            console.log(`Store statistics: ${this.source || this.name}`, stats)
             deferred.resolve(stats)
           } else if (new Date() - startTime < timeout) {
             statsFromInterval.call(this, interval * 2, maybeRecordStats)
           } else {
             console.log(
-              'Store statistics timed out: ' + (this.source || this.name),
+              `Store statistics timed out: ${this.source || this.name}`,
             )
             deferred.resolve({
               featureDensity: 0,

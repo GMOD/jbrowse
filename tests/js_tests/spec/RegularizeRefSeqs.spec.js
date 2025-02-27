@@ -63,13 +63,13 @@ require(['dojo/_base/array', 'JBrowse/Browser'], function (array, Browser) {
     ]
 
     array.forEach(testCases, function (testCase) {
-      it('works for ' + testCase[0], function () {
+      it(`works for ${testCase[0]}`, function () {
         expect(b.regularizeReferenceName(testCase[0])).toEqual(testCase[1])
       })
     })
 
     array.forEach(testCases, function (testCase) {
-      it('double regularizing works for ' + testCase[1], function () {
+      it(`double regularizing works for ${testCase[1]}`, function () {
         expect(b.regularizeReferenceName(testCase[1])).toEqual(testCase[1])
       })
     })

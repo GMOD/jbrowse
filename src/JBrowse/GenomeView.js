@@ -191,7 +191,7 @@ define([
 
       var scaleTrackDiv = document.createElement('div')
       scaleTrackDiv.className = 'track static_track rubberBandAvailable'
-      scaleTrackDiv.style.height = this.posHeight + 'px'
+      scaleTrackDiv.style.height = `${this.posHeight}px`
       scaleTrackDiv.id = 'static_track'
 
       this.scaleTrackDiv = scaleTrackDiv
@@ -412,15 +412,13 @@ define([
           ? -this.staticTrack.div.offsetHeight
           : 0
         var trackPaneHeight = newDims.height + heightAdjust
-        this.verticalScrollBar.container.style.height =
+        this.verticalScrollBar.container.style.height = `${
           trackPaneHeight -
-          (this.pinUnderlay
-            ? this.pinUnderlay.offsetHeight + heightAdjust
-            : 0) +
-          'px'
+          (this.pinUnderlay ? this.pinUnderlay.offsetHeight + heightAdjust : 0)
+        }px`
         var markerHeight = (newDims.height / (this.containerHeight || 1)) * 100
         this.verticalScrollBar.positionMarker.style.height =
-          markerHeight > 0.5 ? markerHeight + '%' : '1px'
+          markerHeight > 0.5 ? `${markerHeight}%` : '1px'
         if (newDims.height / (this.containerHeight || 1) > 0.98) {
           this.verticalScrollBar.container.style.display = 'none'
           this.verticalScrollBar.visible = false
@@ -431,9 +429,10 @@ define([
       }
 
       if (typeof newDims.y == 'number' || typeof newDims.height == 'number') {
-        this.verticalScrollBar.positionMarker.style.top =
-          (((newDims.y || this.getY() || 0) / (this.containerHeight || 1)) *
-            100 || 0) + '%'
+        this.verticalScrollBar.positionMarker.style.top = `${
+          ((newDims.y || this.getY() || 0) / (this.containerHeight || 1)) *
+            100 || 0
+        }%`
       }
     },
 
@@ -468,11 +467,12 @@ define([
       this.setX(this.getX() + offset)
 
       var thisB = this
-      if (!this._keySlideTimeout)
+      if (!this._keySlideTimeout) {
         this._keySlideTimeout = window.setTimeout(function () {
           thisB.afterSlide()
           delete thisB._keySlideTimeout
         }, 300)
+      }
     },
 
     /**
@@ -573,31 +573,35 @@ define([
               ),
 
               dojo.connect(document.body, 'onkeyup', this, function (evt) {
-                if (evt.keyCode == dojo.keys.SHIFT)
+                if (evt.keyCode == dojo.keys.SHIFT) {
                   // shift
                   this.behaviorManager.swapBehaviors(
                     'shiftMouse',
                     'normalMouse',
                   )
+                }
               }),
               dojo.connect(window, 'blur', this, function (evt) {
                 // Simulate releasing shift if user switches tabs with ctrl+shift+tab
                 this.behaviorManager.swapBehaviors('shiftMouse', 'normalMouse')
               }),
               dojo.connect(document.body, 'onkeydown', this, function (evt) {
-                if (evt.keyCode == dojo.keys.SHIFT)
+                if (evt.keyCode == dojo.keys.SHIFT) {
                   // shift
                   this.behaviorManager.swapBehaviors(
                     'normalMouse',
                     'shiftMouse',
                   )
+                }
               }),
 
               // scroll the view around in response to keyboard arrow keys
               dojo.connect(document.body, 'onkeypress', this, function (evt) {
                 // if some digit widget is focused, don't move the
                 // genome view with arrow keys
-                if (dijitFocus.curNode) return
+                if (dijitFocus.curNode) {
+                  return
+                }
 
                 var that = this
                 if (
@@ -605,7 +609,9 @@ define([
                   evt.keyCode == dojo.keys.RIGHT_ARROW
                 ) {
                   var offset = evt.keyCode == dojo.keys.LEFT_ARROW ? -40 : 40
-                  if (evt.shiftKey) offset *= 5
+                  if (evt.shiftKey) {
+                    offset *= 5
+                  }
                   this.keySlideX(offset)
                 } else if (
                   evt.keyCode == dojo.keys.DOWN_ARROW ||
@@ -786,7 +792,9 @@ define([
               dojo.connect(document.body, 'mousemove', this, 'rubberMove'),
               dojo.connect(document.body, 'mouseout', this, 'rubberCancel'),
               dojo.connect(window, 'onkeydown', this, function (e) {
-                if (e.keyCode !== dojo.keys.SHIFT) this.rubberCancel(e)
+                if (e.keyCode !== dojo.keys.SHIFT) {
+                  this.rubberCancel(e)
+                }
               }),
             ]
           },
@@ -812,7 +820,9 @@ define([
     },
 
     scrollBarClickScroll: function (event) {
-      if (!event) event = window.event
+      if (!event) {
+        event = window.event
+      }
 
       var containerHeight = parseInt(
         this.verticalScrollBar.container.style.height,
@@ -824,14 +834,19 @@ define([
       )
       var trackContainerHeight = this.trackContainer.clientHeight
       var absY = this.getY() * (trackContainerHeight / containerHeight)
-      if (absY > event.clientY) this.setY(this.getY() - 300)
-      else if (absY + markerHeight < event.clientY) this.setY(this.getY() + 300)
+      if (absY > event.clientY) {
+        this.setY(this.getY() - 300)
+      } else if (absY + markerHeight < event.clientY) {
+        this.setY(this.getY() + 300)
+      }
 
       //the timeout is so that we don't have to run showVisibleBlocks
       //for every scroll wheel click (we just wait until so many ms
       //after the last one).
 
-      if (this.wheelScrollTimeout) window.clearTimeout(this.wheelScrollTimeout)
+      if (this.wheelScrollTimeout) {
+        window.clearTimeout(this.wheelScrollTimeout)
+      }
 
       // 100 milliseconds since the last scroll event is an arbitrary
       // cutoff for deciding when the user is done scrolling
@@ -851,7 +866,9 @@ define([
     },
 
     wheelScroll: function (event) {
-      if (!event) event = window.event
+      if (!event) {
+        event = window.event
+      }
 
       let { pixelX: x, pixelY: y } = normalizeWheel(event)
 
@@ -875,7 +892,9 @@ define([
       //the timeout is so that we don't have to run showVisibleBlocks
       //for every scroll wheel click (we just wait until so many ms
       //after the last one).
-      if (this.wheelScrollTimeout) window.clearTimeout(this.wheelScrollTimeout)
+      if (this.wheelScrollTimeout) {
+        window.clearTimeout(this.wheelScrollTimeout)
+      }
 
       // 100 milliseconds since the last scroll event is an arbitrary
       // cutoff for deciding when the user is done scrolling
@@ -892,8 +911,9 @@ define([
       )
 
       // allow event to bubble out of iframe for example
-      if (didScroll || this.browser.config.alwaysStopScrollBubble)
+      if (didScroll || this.browser.config.alwaysStopScrollBubble) {
         dojo.stopEvent(event)
+      }
     },
 
     getX: function () {
@@ -1011,15 +1031,22 @@ define([
     },
 
     doubleClickZoom: function (event) {
-      if (this._noDoubleClick) return
-      if (this.dragging) return
-      if ('animation' in this) return
+      if (this._noDoubleClick) {
+        return
+      }
+      if (this.dragging) {
+        return
+      }
+      if ('animation' in this) {
+        return
+      }
 
       // if we have a timeout in flight from a scaleClicked click,
       // cancel it, cause it looks now like the user has actually
       // double-clicked
-      if (this.scaleClickedTimeout)
+      if (this.scaleClickedTimeout) {
         window.clearTimeout(this.scaleClickedTimeout)
+      }
 
       var zoomLoc =
         (event.pageX - dojo.position(this.elem, true).x) / this.getWidth()
@@ -1041,7 +1068,9 @@ define([
           this.animation.stop()
         }
       }
-      if (Util.isRightButton(event)) return 0
+      if (Util.isRightButton(event)) {
+        return 0
+      }
       dojo.stopEvent(event)
       return 1
     },
@@ -1051,7 +1080,9 @@ define([
      * element of the genomeview.
      */
     startMouseDragScroll: function (event) {
-      if (!this._beforeMouseDrag(event)) return
+      if (!this._beforeMouseDrag(event)) {
+        return
+      }
 
       this.behaviorManager.applyBehaviors('mouseDragScrolling')
 
@@ -1064,7 +1095,9 @@ define([
      * scroll bar element of the genomeview.
      */
     startVerticalMouseDragScroll: function (event) {
-      if (!this._beforeMouseDrag(event)) return // not sure what this is for.
+      if (!this._beforeMouseDrag(event)) {
+        return
+      } // not sure what this is for.
 
       this.behaviorManager.applyBehaviors('verticalMouseDragScrolling')
 
@@ -1073,7 +1106,9 @@ define([
     },
 
     startMouseHighlight: function (absToBp, container, scaleDiv, event) {
-      if (!this._beforeMouseDrag(event)) return
+      if (!this._beforeMouseDrag(event)) {
+        return
+      }
 
       this.behaviorManager.applyBehaviors('mouseRubberBanding')
 
@@ -1106,7 +1141,9 @@ define([
      * @param {Event} event the mouse event that's starting the zoom
      */
     startRubberZoom: function (absToBp, container, scaleDiv, event) {
-      if (!this._beforeMouseDrag(event)) return
+      if (!this._beforeMouseDrag(event)) {
+        return
+      }
 
       this.behaviorManager.applyBehaviors('mouseRubberBanding')
 
@@ -1130,7 +1167,9 @@ define([
       this.behaviorManager.removeBehaviors('mouseRubberBanding')
       this.hideRubberHighlight()
       this.clearBasePairLabels()
-      if (event) dojo.stopEvent(event)
+      if (event) {
+        dojo.stopEvent(event)
+      }
       delete this.rubberbanding
     },
 
@@ -1194,15 +1233,15 @@ define([
           text.appendChild(document.createTextNode(this.rubberbanding.message))
           main.appendChild(text)
           text.style.position = 'relative'
-          text.style.top = 50 - container_coords.y + 'px'
+          text.style.top = `${50 - container_coords.y}px`
 
           container.appendChild(main)
           return main
         }.call(this)
 
       h.style.visibility = 'visible'
-      h.style.left = Math.min(start.x, end.x) - container_coords.x + 'px'
-      h.style.width = Math.abs(end.x - start.x) + 'px'
+      h.style.left = `${Math.min(start.x, end.x) - container_coords.x}px`
+      h.style.width = `${Math.abs(end.x - start.x)}px`
 
       // draw basepair-position labels for the start and end of the highlight
       this.drawBasePairLabel({
@@ -1300,7 +1339,9 @@ define([
 
     /* moves the view by (distance times the width of the view) pixels */
     slide: function (distance) {
-      if (this.animation) this.animation.stop()
+      if (this.animation) {
+        this.animation.stop()
+      }
       this.trimVertical()
       // slide for an amount of time that's a function of the distance being
       // traveled plus an arbitrary extra 200 milliseconds so that
@@ -1314,21 +1355,32 @@ define([
     },
 
     setLocation: function (refseq, startbp, endbp) {
-      if (startbp === undefined) startbp = this.minVisible()
-      if (endbp === undefined) endbp = this.maxVisible()
+      if (startbp === undefined) {
+        startbp = this.minVisible()
+      }
+      if (endbp === undefined) {
+        endbp = this.maxVisible()
+      }
       if (typeof refseq == 'string') {
         // if a string was passed, need to get the refseq object for it
         refseq = this.browser.getRefSeq(refseq)
       }
-      if (!refseq) refseq = this.ref
+      if (!refseq) {
+        refseq = this.ref
+      }
 
-      if (startbp < refseq.start || startbp > refseq.end) startbp = refseq.start
-      if (endbp < refseq.start || endbp > refseq.end) endbp = refseq.end
+      if (startbp < refseq.start || startbp > refseq.end) {
+        startbp = refseq.start
+      }
+      if (endbp < refseq.start || endbp > refseq.end) {
+        endbp = refseq.end
+      }
 
       function removeTrack(track) {
         delete thisB.desiredTracks[track.name]
-        if (track.div && track.div.parentNode)
+        if (track.div && track.div.parentNode) {
           track.div.parentNode.removeChild(track.div)
+        }
       }
 
       if (this.ref !== refseq) {
@@ -1405,10 +1457,8 @@ define([
     },
 
     instantZoomUpdate: function () {
-      this.scrollContainer.style.width =
-        this.stripeCount * this.stripeWidth + 'px'
-      this.zoomContainer.style.width =
-        this.stripeCount * this.stripeWidth + 'px'
+      this.scrollContainer.style.width = `${this.stripeCount * this.stripeWidth}px`
+      this.zoomContainer.style.width = `${this.stripeCount * this.stripeWidth}px`
       this.maxOffset =
         this.bpToPx(this.ref.end) - this.stripeCount * this.stripeWidth
       this.maxLeft = this.bpToPx(this.ref.end + 1) - this.getWidth()
@@ -1437,7 +1487,9 @@ define([
         var center = startbp + halfWidth
         if (base >= startbp - halfWidth && base <= endbp + halfWidth) {
           //we're moving somewhere nearby, so move smoothly
-          if (this.animation) this.animation.stop()
+          if (this.animation) {
+            this.animation.stop()
+          }
           var distance = (center - base) * this.pxPerBp
           this.trimVertical()
           // slide for an amount of time that's a function of the
@@ -1466,8 +1518,11 @@ define([
 
       // if we are less than one pixel from the beginning of the ref
       // seq, just say we are at the beginning.
-      if (mv < this.pxToBp(1)) return 0
-      else return Math.round(mv)
+      if (mv < this.pxToBp(1)) {
+        return 0
+      } else {
+        return Math.round(mv)
+      }
     },
 
     /**
@@ -1481,8 +1536,11 @@ define([
       )
       // if we are less than one pixel from the end of the ref
       // seq, just say we are at the end.
-      if (mv > this.ref.end - this.pxToBp(1)) return this.ref.end - scrollbar
-      else return Math.round(mv) - scrollbar
+      if (mv > this.ref.end - this.pxToBp(1)) {
+        return this.ref.end - scrollbar
+      } else {
+        return Math.round(mv) - scrollbar
+      }
     },
 
     showFine: function () {
@@ -1527,16 +1585,18 @@ define([
      * Event handler fired when mouse is over the scale bar.
      */
     scaleMouseOver: function (evt) {
-      if (!this.rubberbanding)
+      if (!this.rubberbanding) {
         this.drawVerticalPositionLine(this.scaleTrackDiv, evt)
+      }
     },
 
     /**
      * Event handler fired when mouse moves over the scale bar.
      */
     scaleMouseMove: function (evt) {
-      if (!this.rubberbanding)
+      if (!this.rubberbanding) {
         this.drawVerticalPositionLine(this.scaleTrackDiv, evt)
+      }
     },
 
     /**
@@ -1552,7 +1612,9 @@ define([
      *  we are not rubberbanding
      */
     maybeDrawVerticalPositionLine: function (evt) {
-      if (this.rubberbanding) return
+      if (this.rubberbanding) {
+        return
+      }
       this.drawVerticalPositionLine(this.scaleTrackDiv, evt)
     },
 
@@ -1575,9 +1637,9 @@ define([
 
       var line = this.verticalPositionLine
       line.style.display = 'block' //make line visible
-      line.style.left = numX + 'px' //set location on screen
+      line.style.left = `${numX}px` //set location on screen
       var scaleTrackPos = dojo.position(this.scaleTrackDiv)
-      line.style.top = scaleTrackPos.y + 'px'
+      line.style.top = `${scaleTrackPos.y}px`
 
       this.drawBasePairLabel({
         name: 'single',
@@ -1607,10 +1669,9 @@ define([
         this.basePairLabels[name] = dojo.create(
           'div',
           {
-            className:
-              'basePairLabel' + (args.className ? ' ' + args.className : ''),
+            className: `basePairLabel${args.className ? ` ${args.className}` : ''}`,
             style: {
-              top: scaleTrackPos.y + scaleTrackPos.h - 3 + 'px',
+              top: `${scaleTrackPos.y + scaleTrackPos.h - 3}px`,
             },
           },
           this.browser.container,
@@ -1632,9 +1693,9 @@ define([
 
       // 15 pixels on either side of the label
       if (window.innerWidth - numX > 8 + label.offsetWidth) {
-        label.style.left = numX + offset + 'px' //set location on screen to the right
+        label.style.left = `${numX + offset}px` //set location on screen to the right
       } else {
-        label.style.left = numX + 1 - offset - label.offsetWidth + 'px' //set location on screen to the left
+        label.style.left = `${numX + 1 - offset - label.offsetWidth}px` //set location on screen to the left
       }
     },
 
@@ -1642,8 +1703,9 @@ define([
      * Turn off the basepair-position line if it is being displayed.
      */
     clearVerticalPositionLine: function () {
-      if (this.verticalPositionLine)
+      if (this.verticalPositionLine) {
         this.verticalPositionLine.style.display = 'none'
+      }
     },
 
     /**
@@ -1652,7 +1714,9 @@ define([
     clearBasePairLabels: function () {
       for (var name in this.basePairLabels) {
         var label = this.basePairLabels[name]
-        if (label.parentNode) label.parentNode.removeChild(label)
+        if (label.parentNode) {
+          label.parentNode.removeChild(label)
+        }
       }
       this.basePairLabels = {}
     },
@@ -1722,16 +1786,10 @@ define([
       )
 
       this.locationThumb.style.cssText =
-        'height: ' +
-        (this.overviewBox.h - 4) +
-        'px; ' +
-        'left: ' +
-        trapLeft +
-        'px; ' +
-        'width: ' +
-        (trapRight - trapLeft) +
-        'px;' +
-        'z-index: 20'
+        `height: ${this.overviewBox.h - 4}px; ` +
+        `left: ${trapLeft}px; ` +
+        `width: ${trapRight - trapLeft}px;` +
+        `z-index: 20`
     },
 
     checkY: function (y) {
@@ -1845,8 +1903,11 @@ define([
       this.zoomLevels = []
       for (var i = 0; i < desiredZoomLevels.length; i++) {
         var zlevel = desiredZoomLevels[i]
-        if (zlevel < this.maxPxPerBp) this.zoomLevels.push(zlevel)
-        else break // once get to zoom level >= maxPxPerBp, quit
+        if (zlevel < this.maxPxPerBp) {
+          this.zoomLevels.push(zlevel)
+        } else {
+          break
+        } // once get to zoom level >= maxPxPerBp, quit
       }
       this.zoomLevels.push(this.maxPxPerBp)
 
@@ -1865,7 +1926,9 @@ define([
         this.regularStripe * (this.zoomLevels[0] / this.zoomLevels[1])
 
       this.curZoom = 0
-      while (this.pxPerBp > this.zoomLevels[this.curZoom]) this.curZoom++
+      while (this.pxPerBp > this.zoomLevels[this.curZoom]) {
+        this.curZoom++
+      }
       this.maxLeft = this.bpToPx(this.ref.end + 1) - this.getWidth()
 
       delete this.stripePercent
@@ -1900,20 +1963,20 @@ define([
 
       if (!this.stripePercent) {
         console.warn(
-          'stripeWidth too small: ' + this.stripeWidth + ', ' + this.getWidth(),
+          `stripeWidth too small: ${this.stripeWidth}, ${this.getWidth()}`,
         )
         this.stripePercent = 1
       }
 
       var oldX
       var oldStripeCount = this.stripeCount
-      if (oldStripeCount) oldX = this.getX()
+      if (oldStripeCount) {
+        oldX = this.getX()
+      }
       this.stripeCount = Math.round(100 / this.stripePercent)
 
-      this.scrollContainer.style.width =
-        this.stripeCount * this.stripeWidth + 'px'
-      this.zoomContainer.style.width =
-        this.stripeCount * this.stripeWidth + 'px'
+      this.scrollContainer.style.width = `${this.stripeCount * this.stripeWidth}px`
+      this.zoomContainer.style.width = `${this.stripeCount * this.stripeWidth}px`
 
       var blockDelta
       if (oldStripeCount && oldStripeCount != this.stripeCount) {
@@ -1938,16 +2001,17 @@ define([
               this.getHeight(),
             )
           : this.getHeight()
-      this.scrollContainer.style.height = newHeight + 'px'
+      this.scrollContainer.style.height = `${newHeight}px`
       this.containerHeight = newHeight
 
       var refLength = this.ref.end - this.ref.start
-      if (refLength < 0)
+      if (refLength < 0) {
         throw new Error(
-          'reference sequence ' +
-            this.ref.name +
-            ' has an invalid start coordinate, it is greater than its end coordinate.',
+          `reference sequence ${
+            this.ref.name
+          } has an invalid start coordinate, it is greater than its end coordinate.`,
         )
+      }
 
       var posSize = document.createElement('div')
       posSize.className = 'overview-pos'
@@ -1969,8 +2033,12 @@ define([
         this.overviewStripeBases =
           (Math.pow(n % 3, 2) + 1) * Math.pow(10, Math.floor(n / 3))
         this.overviewStripes = Math.ceil(refLength / this.overviewStripeBases)
-        if (this.overviewBox.w / this.overviewStripes > minStripe) break
-        if (this.overviewStripes < 2) break
+        if (this.overviewBox.w / this.overviewStripes > minStripe) {
+          break
+        }
+        if (this.overviewStripes < 2) {
+          break
+        }
       }
 
       // update our overview tracks
@@ -2016,8 +2084,9 @@ define([
     overviewTrackIterate: function (callback) {
       var overviewTrack = this.overview.firstChild
       do {
-        if (overviewTrack && overviewTrack.track)
+        if (overviewTrack && overviewTrack.track) {
           callback.call(this, overviewTrack.track, this)
+        }
       } while (overviewTrack && (overviewTrack = overviewTrack.nextSibling))
     },
 
@@ -2025,9 +2094,9 @@ define([
       var overviewHeight = 0
       this.overviewTrackIterate(function (track, view) {
         overviewHeight += track.height
-        track.div.style.height = track.height + 'px'
+        track.div.style.height = `${track.height}px`
       })
-      this.overview.style.height = overviewHeight + 'px'
+      this.overview.style.height = `${overviewHeight}px`
       this.overviewBox = dojo.marginBox(this.overview)
     },
 
@@ -2037,8 +2106,8 @@ define([
       var overviewStripePct = 100 / (refLength / this.overviewStripeBases)
       var trackDiv = document.createElement('div')
       trackDiv.className = 'track'
-      trackDiv.style.height = this.overviewBox.h + 'px'
-      trackDiv.id = 'overviewtrack_' + track.name
+      trackDiv.style.height = `${this.overviewBox.h}px`
+      trackDiv.id = `overviewtrack_${track.name}`
       trackDiv.track = track
       var view = this
       var heightUpdate = function (height) {
@@ -2061,7 +2130,9 @@ define([
     },
 
     trimVertical: function (y) {
-      if (y === undefined) y = this.getY()
+      if (y === undefined) {
+        y = this.getY()
+      }
       var trackBottom
       var trackTop = this.topSpace
       var bottom = y + this.getHeight()
@@ -2098,12 +2169,20 @@ define([
     },
 
     zoomIn: function (e, zoomLoc, steps) {
-      if (this.animation) return
+      if (this.animation) {
+        return
+      }
       this._unsetPosBeforeZoom()
-      if (zoomLoc === undefined) zoomLoc = 0.5
-      if (steps === undefined) steps = 1
+      if (zoomLoc === undefined) {
+        zoomLoc = 0.5
+      }
+      if (steps === undefined) {
+        steps = 1
+      }
       steps = Math.min(steps, this.zoomLevels.length - 1 - this.curZoom)
-      if (0 == steps && this.pxPerBp == this.zoomLevels[this.curZoom]) return
+      if (0 == steps && this.pxPerBp == this.zoomLevels[this.curZoom]) {
+        return
+      }
 
       this.showWait()
       var pos = this.getPosition()
@@ -2115,12 +2194,13 @@ define([
       this.pxPerBp = this.zoomLevels[this.curZoom]
       this.maxLeft = this.bpToPx(this.ref.end + 1) - this.getWidth()
 
-      for (var track = 0; track < this.tracks.length; track++)
+      for (var track = 0; track < this.tracks.length; track++) {
         this.tracks[track].startZoom(
           this.pxPerBp,
           fixedBp - (zoomLoc * this.getWidth()) / this.pxPerBp,
           fixedBp + ((1 - zoomLoc) * this.getWidth()) / this.pxPerBp,
         )
+      }
       //YAHOO.log("centerBp: " + centerBp + "; estimated post-zoom start base: " + (centerBp - ((zoomLoc * this.getWidth()) / this.pxPerBp)) + ", end base: " + (centerBp + (((1 - zoomLoc) * this.getWidth()) / this.pxPerBp)));
 
       // Zooms take an arbitrary 700 milliseconds, which feels about right
@@ -2139,7 +2219,9 @@ define([
 
     /** WebApollo support for zooming directly to base level, and later restoring previous zoom level before zooming to base */
     zoomToBaseLevel: function (e, pos) {
-      if (this.animation) return
+      if (this.animation) {
+        return
+      }
       //   if (this.zoomLevels[this.curZoom] === this.charWidth)  {  console.log("already zoomed to base level"); return; }
       // if at max zoomLevel then already zoomed to bases, so then no-op
       var baseZoomIndex = this.zoomLevels.length - 1
@@ -2161,12 +2243,13 @@ define([
 
       this.maxLeft = this.pxPerBp * this.ref.end - this.getWidth()
 
-      for (var track = 0; track < this.tracks.length; track++)
+      for (var track = 0; track < this.tracks.length; track++) {
         this.tracks[track].startZoom(
           this.pxPerBp,
           fixedBp - (zoomLoc * this.getWidth()) / this.pxPerBp,
           fixedBp + ((1 - zoomLoc) * this.getWidth()) / this.pxPerBp,
         )
+      }
       //YAHOO.log("centerBp: " + centerBp + "; estimated post-zoom start base: " + (centerBp - ((zoomLoc * this.getWidth()) / this.pxPerBp)) + ", end base: " + (centerBp + (((1 - zoomLoc) * this.getWidth()) / this.pxPerBp)));
       new Zoomer(
         relativeScale,
@@ -2180,16 +2263,24 @@ define([
     },
 
     zoomOut: function (e, zoomLoc, steps) {
-      if (this.animation) return
+      if (this.animation) {
+        return
+      }
       this._unsetPosBeforeZoom()
-      if (steps === undefined) steps = 1
+      if (steps === undefined) {
+        steps = 1
+      }
       steps = Math.min(steps, this.curZoom)
-      if (0 == steps) return
+      if (0 == steps) {
+        return
+      }
 
       this.showWait()
       var pos = this.getPosition()
       this.trimVertical(pos.y)
-      if (zoomLoc === undefined) zoomLoc = 0.5
+      if (zoomLoc === undefined) {
+        zoomLoc = 0.5
+      }
       var scale = this.zoomLevels[this.curZoom - steps] / this.pxPerBp
       var edgeDist =
         this.bpToPx(this.ref.end) - (this.offset + pos.x + this.getWidth())
@@ -2208,12 +2299,13 @@ define([
       this.curZoom -= steps
       this.pxPerBp = this.zoomLevels[this.curZoom]
 
-      for (var track = 0; track < this.tracks.length; track++)
+      for (var track = 0; track < this.tracks.length; track++) {
         this.tracks[track].startZoom(
           this.pxPerBp,
           fixedBp - (zoomLoc * this.getWidth()) / this.pxPerBp,
           fixedBp + ((1 - zoomLoc) * this.getWidth()) / this.pxPerBp,
         )
+      }
 
       //YAHOO.log("centerBp: " + centerBp + "; estimated post-zoom start base: " + (centerBp - ((zoomLoc * this.getWidth()) / this.pxPerBp)) + ", end base: " + (centerBp + (((1 - zoomLoc) * this.getWidth()) / this.pxPerBp)));
       this.minLeft = this.pxPerBp * this.ref.start
@@ -2299,10 +2391,8 @@ define([
       var centerPx = this.bpToPx(fixedBp) - zoomLoc * eWidth + eWidth / 2
       // stripeWidth: pixels per block
       this.stripeWidth = this.stripeWidthForZoom(this.curZoom)
-      this.scrollContainer.style.width =
-        this.stripeCount * this.stripeWidth + 'px'
-      this.zoomContainer.style.width =
-        this.stripeCount * this.stripeWidth + 'px'
+      this.scrollContainer.style.width = `${this.stripeCount * this.stripeWidth}px`
+      this.zoomContainer.style.width = `${this.stripeCount * this.stripeWidth}px`
       var centerStripe = Math.round(centerPx / this.stripeWidth)
       var firstStripe = (centerStripe - this.stripeCount / 2) | 0
       this.offset = firstStripe * this.stripeWidth
@@ -2341,12 +2431,16 @@ define([
       //stripes end up in the same place.
 
       var dStripes = (dx / this.stripeWidth) | 0
-      if (0 == dStripes) return
+      if (0 == dStripes) {
+        return
+      }
       var changedStripes = Math.abs(dStripes)
 
       var newOffset = this.offset - dStripes * this.stripeWidth
 
-      if (this.offset == newOffset) return
+      if (this.offset == newOffset) {
+        return
+      }
       this.offset = newOffset
 
       this.trackIterate(function (track) {
@@ -2361,9 +2455,13 @@ define([
 
     trackHeightUpdate: function (trackName, height) {
       var y = this.getY()
-      if (!(trackName in this.trackIndices)) return
+      if (!(trackName in this.trackIndices)) {
+        return
+      }
       var track = this.trackIndices[trackName]
-      if (Math.abs(height - this.trackHeights[track]) < 1) return
+      if (Math.abs(height - this.trackHeights[track]) < 1) {
+        return
+      }
 
       //console.log("trackHeightUpdate: " + trackName + " " + this.trackHeights[track] + " -> " + height);
       // if the bottom of this track is a above the halfway point,
@@ -2379,7 +2477,7 @@ define([
       }
       this.trackHeights[track] = height
       this.tracks[track].div.style.height =
-        height + this.config.trackPadding + 'px'
+        `${height + this.config.trackPadding}px`
 
       this.layoutTracks()
 
@@ -2395,11 +2493,15 @@ define([
       endX,
       finishCallback,
     ) {
-      if (pos === undefined) pos = this.getPosition()
-      if (startX === undefined)
+      if (pos === undefined) {
+        pos = this.getPosition()
+      }
+      if (startX === undefined) {
         startX = pos.x - this.drawMargin * this.getWidth()
-      if (endX === undefined)
+      }
+      if (endX === undefined) {
         endX = pos.x + (1 + this.drawMargin) * this.getWidth()
+      }
       var leftVisible = Math.max(0, (startX / this.stripeWidth) | 0)
       var rightVisible = Math.min(
         this.stripeCount - 1,
@@ -2418,7 +2520,9 @@ define([
       )
 
       // Track update will be carried after the maxVisible has a value
-      if (!this.maxVisible()) return
+      if (!this.maxVisible()) {
+        return
+      }
 
       let showingPromises = []
       this.overviewTrackIterate(function (track, view) {
@@ -2464,7 +2568,9 @@ define([
       this.browser.publish('/jbrowse/v1/n/tracks/redraw')
 
       const after = () => {
-        if (finishCallback) finishCallback()
+        if (finishCallback) {
+          finishCallback()
+        }
         this.browser.publish('/jbrowse/v1/n/tracks/redrawFinished')
       }
       Promise.all(showingPromises).then(after, after)
@@ -2487,7 +2593,9 @@ define([
         },
         this,
       )
-      if (!needed.length) return
+      if (!needed.length) {
+        return
+      }
       array.forEach(
         trackConfigs,
         function (ret) {
@@ -2526,13 +2634,17 @@ define([
           array.forEach(
             listNode.children,
             function (item) {
-              if (done) return
+              if (done) {
+                return
+              }
 
               var track = item.track
               if (track && track.config.label == conf.label) {
                 done = 1
                 this.trackDndWidget.delItem(item.id)
-                if (item && item.parentNode) item.parentNode.removeChild(item)
+                if (item && item.parentNode) {
+                  item.parentNode.removeChild(item)
+                }
               } else {
                 anchor = item
               }
@@ -2548,7 +2660,9 @@ define([
         this,
       )
 
-      if (trackConfigs.length) this.updateTrackList()
+      if (trackConfigs.length) {
+        this.updateTrackList()
+      }
     },
 
     /**
@@ -2564,7 +2678,9 @@ define([
         },
         this,
       )
-      if (!displayed.length) return
+      if (!displayed.length) {
+        return
+      }
       array.forEach(
         trackConfigs,
         function (ret) {
@@ -2582,7 +2698,9 @@ define([
             if (conf.label === obj.data.label) {
               this.trackDndWidget.delItem(id)
               var item = dojo.byId(id)
-              if (item && item.parentNode) item.parentNode.removeChild(item)
+              if (item && item.parentNode) {
+                item.parentNode.removeChild(item)
+              }
             }
           }, this)
         },
@@ -2657,7 +2775,9 @@ define([
     renderTrack: function (/**Object*/ trackConfig) {
       var thisB = this
 
-      if (!trackConfig) return null
+      if (!trackConfig) {
+        return null
+      }
 
       // just return its div if this track is already on
       var existingTrack
@@ -2682,10 +2802,10 @@ define([
       var trackDiv = dojo.create('div', {
         className: [
           'track',
-          cssName('track_' + trackConfig.type),
-          cssName('track_' + trackName),
+          cssName(`track_${trackConfig.type}`),
+          cssName(`track_${trackName}`),
         ].join(' '),
-        id: 'track_' + trackName,
+        id: `track_${trackName}`,
       })
       trackDiv.trackName = trackName
 
@@ -2711,7 +2831,9 @@ define([
           store: store,
           browser: this.browser,
         })
-        if (typeof store.setTrack == 'function') store.setTrack(track)
+        if (typeof store.setTrack == 'function') {
+          store.setTrack(track)
+        }
 
         trackDiv.track = track
 
@@ -2746,11 +2868,12 @@ define([
       // parallel and have whichever one completes last do the actual
       // track making.
 
-      if (!trackConfig.store)
+      if (!trackConfig.store) {
         console.warn(
-          'configuration for track ' + trackConfig.label + ' has no store set',
+          `configuration for track ${trackConfig.label} has no store set`,
           trackConfig,
         )
+      }
 
       // get the store
       this.browser.getStore(trackConfig.store, function (s) {
@@ -2761,7 +2884,7 @@ define([
           thisB.browser.getTrackTypes().trackTypeDefaults[store.config.type]
         dojo.global.require([trackType], function (class_) {
           if (typeof class_ === 'string') {
-            console.error('Failed to load module: ' + trackConfig.type)
+            console.error(`Failed to load module: ${trackConfig.type}`)
             return
           }
           trackClass = class_
@@ -2783,7 +2906,9 @@ define([
       if (state === 1) {
         if (this.focusTrack !== null) {
           // if already in focus, don't do anything
-          if (this.focusTrack == track) return
+          if (this.focusTrack == track) {
+            return
+          }
 
           thisB.browser.publish('/jbrowse/v1/n/tracks/unfocus', this.focusTrack)
           this.focusTrack = null
@@ -2804,10 +2929,12 @@ define([
 
     trackIterate: function (callback) {
       var i
-      for (i = 0; i < this.uiTracks.length; i++)
+      for (i = 0; i < this.uiTracks.length; i++) {
         callback.call(this, this.uiTracks[i], this)
-      for (i = 0; i < this.tracks.length; i++)
+      }
+      for (i = 0; i < this.tracks.length; i++) {
         callback.call(this, this.tracks[i], this)
+      }
     },
 
     /* this function must be called whenever tracks in the GenomeView
@@ -2822,7 +2949,9 @@ define([
       var containerChild = this.trackContainer.firstChild
       do {
         // this test excludes UI tracks, whose divs don't have a track property
-        if (containerChild.track) tracks.push(containerChild.track)
+        if (containerChild.track) {
+          tracks.push(containerChild.track)
+        }
       } while ((containerChild = containerChild.nextSibling))
 
       // sort so that the pinned tracks come first.  also, sorting is
@@ -2842,15 +2971,16 @@ define([
 
       // create or destroy the pinned-track underlay as needed
       if (tracks[0] && tracks[0].isPinned()) {
-        if (!this.pinUnderlay)
+        if (!this.pinUnderlay) {
           this.pinUnderlay = domConstruct.create(
             'div',
             {
               className: 'pin_underlay',
-              style: 'top: ' + this.topSpace,
+              style: `top: ${this.topSpace}`,
             },
             this.trackContainer,
           )
+        }
         if (!this.pinGridlinesTrack) {
           var gridTrackDiv = domConstruct.create(
             'div',
@@ -2949,30 +3079,31 @@ define([
           lastTop = nextTop
 
           if (track.isPinned()) {
-            track.div.style.top = nextTop + 'px'
+            track.div.style.top = `${nextTop}px`
             lastWasPinned = true
           } else {
-            track.div.style.top =
-              nextTop - this.y + (lastWasPinned ? 15 : 0) + 'px'
+            track.div.style.top = `${nextTop - this.y + (lastWasPinned ? 15 : 0)}px`
             lastWasPinned = false
           }
 
           if (track.shown) {
             nextTop += this.trackHeights[i] + this.config.trackPadding
-            if (track.isPinned()) pinnedHeight = nextTop
+            if (track.isPinned()) {
+              pinnedHeight = nextTop
+            }
           }
         },
         this,
       )
       if (pinnedHeight && this.pinUnderlay) {
-        this.pinUnderlay.style.height = pinnedHeight + 'px'
+        this.pinUnderlay.style.height = `${pinnedHeight}px`
       }
 
       this.containerHeight = Math.max(
         nextTop || 0,
         Math.min(this.getY(), lastTop) + this.getHeight(),
       )
-      this.scrollContainer.style.height = this.containerHeight + 'px'
+      this.scrollContainer.style.height = `${this.containerHeight}px`
     },
   })
 })
