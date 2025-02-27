@@ -1,4 +1,6 @@
 const url = cjsRequire('url')
+// has to be a cjsReequire and not an import or it adds a 'use strict' which
+// makes this.inherited not work
 const dompurify = cjsRequire('dompurify')
 
 /**
