@@ -2,6 +2,9 @@ const url = cjsRequire('url')
 
 import dompurify from 'dompurify'
 
+import Welcome from './View/Resource/Welcome.html'
+import Welcome_old from './View/Resource/Welcome_old.html'
+
 import packagejson from './package.json'
 define([
   'dojo/_base/declare',
@@ -434,64 +437,52 @@ define([
 
     welcomeScreen: function (container, error) {
       var thisB = this
-      require(['dojo/text!JBrowse/View/Resource/Welcome.html'], function (
-        Welcome,
-      ) {
-        // eslint-disable-next-line xss/no-mixed-html
-        container.innerHTML = dompurify.sanitize(Welcome)
-        var topPane = dojo.create(
+      container.innerHTML = Welcome
+      console.log({ Welcome })
+      var topPane = dojo.create(
+        'div',
+        { style: { overflow: 'hidden' } },
+        thisB.container,
+      )
+      dojo.byId('welcome').innerHTML =
+        `Welcome! To get started with <i>JBrowse-${
+          thisB.version
+        }</i>, select a sequence file or an existing data directory`
+
+      on(dojo.byId('newOpen'), 'click', dojo.hitch(thisB, 'openFastaElectron'))
+      on(dojo.byId('newOpenDirectory'), 'click', function () {
+        new OpenDirectoryDialog({
+          browser: thisB,
+          setCallback: dojo.hitch(thisB, 'openDirectoryElectron'),
+        }).show()
+      })
+
+      try {
+        thisB.loadSessions()
+      } catch (e) {
+        console.error(e)
+      }
+
+      if (error) {
+        console.log(error)
+        var errors_div = dojo.byId('fatal_error_list')
+        dojo.create(
           'div',
-          { style: { overflow: 'hidden' } },
-          thisB.container,
+          {
+            className: 'error',
+            innerHTML: error,
+          },
+          errors_div,
         )
+      }
 
-        // eslint-disable-next-line xss/no-mixed-html
-        dojo.byId('welcome').innerHTML = dompurify.sanitize(
-          `Welcome! To get started with <i>JBrowse-${
-            thisB.version
-          }</i>, select a sequence file or an existing data directory`,
-        )
-
-        on(
-          dojo.byId('newOpen'),
-          'click',
-          dojo.hitch(thisB, 'openFastaElectron'),
-        )
-        on(dojo.byId('newOpenDirectory'), 'click', function () {
-          new OpenDirectoryDialog({
-            browser: thisB,
-            setCallback: dojo.hitch(thisB, 'openDirectoryElectron'),
-          }).show()
-        })
-
+      request(
+        thisB.resolveUrl('sample_data/json/volvox/successfully_run'),
+      ).then(function () {
         try {
-          thisB.loadSessions()
-        } catch (e) {
-          console.error(e)
-        }
-
-        if (error) {
-          console.log(error)
-          var errors_div = dojo.byId('fatal_error_list')
-          dojo.create(
-            'div',
-            {
-              className: 'error',
-              // eslint-disable-next-line xss/no-mixed-html
-              innerHTML: dompurify.sanitize(error),
-            },
-            errors_div,
-          )
-        }
-
-        request(
-          thisB.resolveUrl('sample_data/json/volvox/successfully_run'),
-        ).then(function () {
-          try {
-            document.getElementById('volvox_data_placeholder').innerHTML =
-              'The example dataset is also available. View <a href="?data=sample_data/json/volvox">Volvox test data here</a>.'
-          } catch (e) {}
-        })
+          document.getElementById('volvox_data_placeholder').innerHTML =
+            'The example dataset is also available. View <a href="?data=sample_data/json/volvox">Volvox test data here</a>.'
+        } catch (e) {}
       })
     },
 
@@ -560,30 +551,25 @@ define([
           dojo.addClass(document.body, this.config.theme || 'tundra') //< tundra dijit theme
 
           if (!Util.isElectron()) {
-            require([
-              'dojo/text!JBrowse/View/Resource/Welcome_old.html',
-            ], function (Welcome_old) {
-              // eslint-disable-next-line xss/no-mixed-html
-              container.innerHTML = dompurify.sanitize(Welcome_old)
-              if (error) {
-                var errors_div = dojo.byId('fatal_error_list')
-                dojo.create(
-                  'div',
-                  {
-                    className: 'error',
-                    innerHTML: `${formatError(error)}`,
-                  },
-                  errors_div,
-                )
-              }
-              request(
-                thisB.resolveUrl('sample_data/json/volvox/successfully_run'),
-              ).then(function () {
-                try {
-                  dojo.byId('volvox_data_placeholder').innerHTML =
-                    'However, it appears you have successfully run <code>./setup.sh</code>, so you can see the <a href="?data=sample_data/json/volvox">Volvox test data here</a>.'
-                } catch (e) {}
-              })
+            container.innerHTML = Welcome_old
+            if (error) {
+              var errors_div = dojo.byId('fatal_error_list')
+              dojo.create(
+                'div',
+                {
+                  className: 'error',
+                  innerHTML: `${formatError(error)}`,
+                },
+                errors_div,
+              )
+            }
+            request(
+              thisB.resolveUrl('sample_data/json/volvox/successfully_run'),
+            ).then(function () {
+              try {
+                dojo.byId('volvox_data_placeholder').innerHTML =
+                  'However, it appears you have successfully run <code>./setup.sh</code>, so you can see the <a href="?data=sample_data/json/volvox">Volvox test data here</a>.'
+              } catch (e) {}
             })
           } else {
             this.welcomeScreen(container, formatError(error))
@@ -654,8 +640,7 @@ define([
         dojo.create(
           'td',
           {
-            // eslint-disable-next-line xss/no-mixed-html
-            innerHTML: dompurify(`<a href="${url}">${session.session}</a>`),
+            innerHTML: `<a href="${url}">${session.session}</a>`,
           },
           tr,
         )
@@ -805,7 +790,26 @@ define([
 
     _loadCSS: function (css) {
       var deferred = new Deferred()
-
+      if (typeof css == 'string') {
+        // if it has '{' in it, it probably is not a URL, but is a string of
+        // CSS statements
+        if (css.indexOf('{') > -1) {
+          dojo.create(
+            'style',
+            {
+              'data-from': 'JBrowse Config',
+              type: 'text/css',
+              innerHTML: css,
+            },
+            document.head,
+          )
+          deferred.resolve(true)
+        }
+        // otherwise, it must be a URL
+        else {
+          css = { url: css }
+        }
+      }
       if (typeof css == 'object') {
         LazyLoad.css(css.url, function () {
           deferred.resolve(true)
@@ -928,8 +932,8 @@ define([
 
         var about = this.browserMeta()
         var aboutDialog = new InfoDialog({
-          title: dompurify.sanitize(`About ${about.title}`),
-          content: dompurify.sanitize(about.description),
+          title: `About ${about.title}`,
+          content: about.description,
           className: 'about-dialog',
         })
 
@@ -1029,8 +1033,7 @@ define([
                 'a',
                 {
                   className: 'powered_by',
-                  // eslint-disable-next-line xss/no-mixed-html
-                  innerHTML: dompurify.sanitize(this.browserMeta().title),
+                  innerHTML: this.browserMeta().title,
                   title: 'powered by JBrowse',
                 },
                 menuBar,
@@ -1269,8 +1272,7 @@ define([
               'div',
               {
                 className: 'dataset-name',
-                // eslint-disable-next-line xss/no-mixed-html
-                innerHTML: dompurify.sanitize(datasetName),
+                innerHTML: datasetName,
                 title: 'name of current dataset',
                 style: {
                   display: datasetName ? 'inline-block' : 'none',
@@ -1844,14 +1846,12 @@ define([
       var verstring = this.version
 
       if (about.description) {
-        // eslint-disable-next-line xss/no-mixed-html
         about.description +=
           `${
             '<div class="powered_by">' +
             'Powered by <a target="_blank" href="http://jbrowse.org">JBrowse '
           }${verstring}</a>.` + `</div>`
       } else {
-        // eslint-disable-next-line xss/no-mixed-html
         about.description =
           `${
             '<div class="default_about">' + '  <img class="logo" src="'
@@ -2044,13 +2044,9 @@ define([
             args = dojo.mixin(
               {
                 className: menuName,
-
-                // eslint-disable-next-line xss/no-mixed-html
-                innerHTML: dompurify.sanitize(
-                  `<span class="icon"></span> ${
-                    args.text || Util.ucFirst(menuName)
-                  }`,
-                ),
+                innerHTML: `<span class="icon"></span> ${
+                  args.text || Util.ucFirst(menuName)
+                }`,
                 dropDown: menu,
                 id: `dropdownbutton_${menuName}`,
               },
@@ -2183,12 +2179,12 @@ define([
 
     // phones home to google analytics
     _reportGoogleUsageStats: function (stats) {
+      var thisB = this
       // jbrowse.org account always
       var jbrowseUser = 'UA-7115575-2'
       var accounts = [jbrowseUser]
 
-      // add any custom Google Analytics accounts from config (comma-separated
-      // or array)
+      // add any custom Google Analytics accounts from config (comma-separated or array)
       if (this.config.googleAnalytics) {
         var userAccounts = this.config.googleAnalytics.accounts
         if (accounts && !lang.isArray(userAccounts)) {
@@ -2208,8 +2204,7 @@ define([
 
       // set up users
       accounts.forEach(function (user, trackerNum) {
-        // if we're adding jbrowse.org user, also include new dimension
-        // references (replacing ga.js custom variables)
+        // if we're adding jbrowse.org user, also include new dimension references (replacing ga.js custom variables)
         if (user == jbrowseUser) {
           analyticsScript += `ga('create', '${user}', 'auto', 'jbrowseTracker');`
         } else {
@@ -2225,6 +2220,7 @@ define([
           var gaData = {}
           var googleDimensions =
             'tracks-count refSeqs-count refSeqs-avgLen ver loadTime electron plugins'
+          var googleMetrics = 'loadTime'
 
           googleDimensions.split(/\s+/).forEach(function (key, index) {
             gaData[`dimension${index + 1}`] = stats[key]
@@ -2241,8 +2237,6 @@ define([
       })
 
       var analyticsScriptNode = document.createElement('script')
-      // this is NOT dompurify'd but a quick audit did not reveal alarm
-      // eslint-disable-next-line xss/no-mixed-html
       analyticsScriptNode.innerHTML = analyticsScript
 
       document.getElementsByTagName('head')[0].appendChild(analyticsScriptNode)
@@ -3704,10 +3698,7 @@ define([
       var align = 'center'
       var navbox = dojo.create(
         'div',
-        {
-          id: 'navbox',
-          style: { 'text-align': align },
-        },
+        { id: 'navbox', style: { 'text-align': align } },
         parent,
       )
 
@@ -3729,6 +3720,7 @@ define([
       navbox.appendChild(document.createTextNode(four_nbsp))
 
       var moveLeft = document.createElement('img')
+      //moveLeft.type = "image";
       moveLeft.src = this.resolveUrl('img/Empty.png')
       moveLeft.id = 'moveLeft'
       moveLeft.className = 'icon nav'
@@ -3917,10 +3909,8 @@ define([
       // create location box
       // if in config "locationBox": "separate", then the search box will be the location box.
       if (this.config.locationBox === 'separate') {
-        // eslint-disable-next-line xss/no-mixed-html
         this.locationInfoBox = domConstruct.place(
           "<div id='location-info'>location</div>",
-          // eslint-disable-next-line xss/no-mixed-html
           navbox,
         )
       }
