@@ -260,10 +260,37 @@ return declare( SeqFeatureStore,
                                     || /no-cache/.test(get.response.getHeader('Pragma'));
                                 callback({ response: data, request: request }, null, {nocache: nocacheResponse});
                             },
-                            thisB._errorHandler( lang.partial( callback, null ) )
+                            thisB._errorHandler_retry( lang.partial( callback, null ), request, callback, dojoRequest)
                         );
                     }
                 }));
+    },
+
+    // Make a retry logic
+    _errorHandler_retry: function( handler, request, callback, dojoRequest) {
+        handler = handler || function(e) {
+            console.error( e, e.stack );
+            throw e;
+        };
+        return dojo.hitch( this, function( error ) {
+            var httpStatus = ((error||{}).response||{}).status;
+            console.log("Failed to get ", request.url, 'status', httpStatus);
+            
+            var get = dojoRequest( request.url, { method: 'GET', handleAs: 'json' },
+                true // work around dojo/request bug
+            );
+
+            get.then(
+                function(data) {
+                    console.log('Url retried! ' + request.url + ' Status:' + get.response.status);
+                    var nocacheResponse = /no-cache/.test(get.response.getHeader('Cache-Control'))
+                        || /no-cache/.test(get.response.getHeader('Pragma'));
+                    callback({ response: data, request: request }, null, {nocache: nocacheResponse});
+                },
+                thisB._errorHandler( lang.partial( callback, null ))
+            );
+
+        });
     },
 
     _errorHandler: function( handler ) {
