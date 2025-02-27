@@ -1,12 +1,8 @@
 /* eslint-env node */
-require('babel-polyfill')
-
 const DojoWebpackPlugin = require('dojo-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 const CleanWebpackPlugin = require('clean-webpack-plugin')
-// PostCSS plugins
-const postcssPrefix = require('postcss-prefix-selector')
 
 const path = require('path')
 const webpack = require('webpack')
@@ -67,36 +63,7 @@ var webpackConf = {
       },
       {
         test: /\.css$/i,
-        use: [
-          'style-loader',
-          'css-loader',
-          {
-            loader: 'postcss-loader',
-            options: {
-              postcssOptions: {
-                plugins: [
-                  [
-                    'postcss-prefix-selector',
-                    {
-                      prefix: '.jbrowse',
-                      exclude: ['.jbrowse', /^body$/],
-                      transform: function (prefix, selector, prefixedSelector) {
-                        if (selector.match(/^(html|body)/)) {
-                          return selector.replace(
-                            /^(html|body)/,
-                            '$1 ' + prefix,
-                          )
-                        } else {
-                          return prefixedSelector
-                        }
-                      },
-                    },
-                  ],
-                ],
-              },
-            },
-          },
-        ],
+        use: ['style-loader', 'css-loader'],
       },
       {
         test: /\.js$/,
@@ -105,12 +72,7 @@ var webpackConf = {
         use: {
           loader: 'babel-loader',
           options: {
-            presets: ['es2015-without-strict'],
-            plugins: [
-              'transform-async-to-generator',
-              'transform-es2015-classes',
-            ],
-            cacheDirectory: true,
+            presets: [['@babel/preset-env', { modules: false }]],
           },
         },
       },
