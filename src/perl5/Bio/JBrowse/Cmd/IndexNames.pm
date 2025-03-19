@@ -19,6 +19,9 @@ use File::Path ();
 use File::Temp ();
 use List::Util ();
 
+# -d and -w are aware of ACLs in run() function below
+use filetest 'access';
+
 use GenomeDB ();
 use Bio::GFF3::LowLevel qw/gff3_parse_feature/;
 use Bio::JBrowse::HashStore ();
