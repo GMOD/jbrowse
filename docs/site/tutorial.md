@@ -52,7 +52,7 @@ With genometools, it has added validation checking mechanisms that are helpful
 
 With normal GNU sort you can try something like this
 
-    (grep ^"#" data/volvox.gff3; grep -v ^"#" data/volvox.gff3 | grep -v "^$" | grep "\t" | sort -k1,1 -k4,4n) > data/volvox.sorted.gff3
+    (grep ^"#" data/volvox.gff3; grep -v ^"#" data/volvox.gff3 | grep -v "^$" | sort -k1,1 -k4,4n) > data/volvox.sorted.gff3
 
 If you are running on a custom dataset instead of this volvox one, then you should be confident that your GFF is properly formatted to use the GNU sort, otherwise try `brew install genometools` and use the genometools sort
 
