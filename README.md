@@ -2,16 +2,21 @@
 
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v1.4%20adopted-ff69b4.svg)](CODE_OF_CONDUCT.md)
 
-Note: most of our current development is on JBrowse 2, see our github repo here
-https://github.com/gmod/jbrowse-components
+## Note: most of our current development is on JBrowse 2
 
-We will still continue to make bug fix and maintenance releases of JBrowse 1 but
-most development is on JBrowse 2
+See
 
-Note: if you are using plugins with a dev version of JBrowse or installing from
-GitHub, you may need to use node <=14 (e.g. node >=15 may fail) due to node-sass
+- https://github.com/gmod/jbrowse-components
+- https://jbrowse.org/jb2
+
+## Note: If you are using plugins or installing from GitHub
+
+You may need to use node <=14 (e.g. node >=15 may fail) due to node-sass
 not compiling on newer node versions easily. See
 https://github.com/GMOD/jbrowse/pull/1607 for details
+
+2025 update: The latest master branch on GitHub removed node-sass so 
+can be built with newer versions of node.js e.g. node 22 (not node 23 yet though)
 
 # Installing JBrowse
 
