@@ -11,12 +11,14 @@ See
 
 ## Note: If you are using plugins or installing from GitHub
 
-You may need to use node <=14 (e.g. node >=15 may fail) due to node-sass
-not compiling on newer node versions easily. See
+You may need to use node <=14 (e.g. node >=15 may fail) due to node-sass not
+compiling on newer node versions easily. See
 https://github.com/GMOD/jbrowse/pull/1607 for details
 
-2025 update: The latest master branch on GitHub removed node-sass so 
-can be built with newer versions of node.js e.g. node 22 (not node 23 yet though)
+2025 update: The latest master branch on GitHub removed node-sass so can be
+built with newer versions of node.js e.g. node 22 (not node 23 yet though). You
+may need to run `export NODE_OPTIONS=--openssl-legacy-provider` before
+`./setup.sh` however
 
 # Installing JBrowse
 
