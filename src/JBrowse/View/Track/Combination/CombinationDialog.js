@@ -1,5 +1,3 @@
-import dompurify from 'dompurify'
-
 define([
   'dojo/_base/declare',
   'dijit/Dialog',
@@ -7,7 +5,8 @@ define([
   'dijit/form/Button',
   'dojo/dom-construct',
   'JBrowse/Model/BinaryTreeNode',
-], function (declare, Dialog, RadioButton, Button, dom, TreeNode) {
+  'JBrowse/Util',
+], function (declare, Dialog, RadioButton, Button, dom, TreeNode, Util) {
   return declare(null, {
     // Produces a dialog box in which a user may enter settings for how they
     // would like to combine tracks in a Combination Track.
@@ -59,7 +58,7 @@ define([
           className: 'intro',
 
           // eslint-disable-next-line xss/no-mixed-html
-          innerHTML: dompurify.sanitize(
+          innerHTML: Util.escapeHTML(
             `Adding ${this.currType} track ${
               this.newTrackKey
             } to the combination.`,
@@ -143,7 +142,7 @@ define([
                   'h2',
                   {
                     // eslint-disable-next-line xss/no-mixed-html
-                    innerHTML: dompurify.sanitize(text[i]),
+                    innerHTML: Util.escapeHTML(text[i]),
                   },
                   opDiv,
                 )
@@ -290,7 +289,7 @@ define([
             thisB.previewTree = thisB._createPreviewTree(operation, store)
 
             // eslint-disable-next-line xss/no-mixed-html
-            thisB.formulaPreview.innerHTML = dompurify.sanitize(
+            thisB.formulaPreview.innerHTML = Util.escapeHTML(
               thisB._generateTreeFormula(thisB.previewTree),
             )
           }
@@ -344,7 +343,7 @@ define([
           thisB.previewTree = thisB._createPreviewTree(operation, store)
 
           // eslint-disable-next-line xss/no-mixed-html
-          thisB.formulaPreview.innerHTML = dompurify.sanitize(
+          thisB.formulaPreview.innerHTML = Util.escapeHTML(
             thisB._generateTreeFormula(thisB.previewTree),
           )
         }
@@ -563,7 +562,7 @@ define([
         {
           for: radioButton.id,
           // eslint-disable-next-line xss/no-mixed-html
-          innerHTML: dompurify.sanitize(label),
+          innerHTML: Util.escapeHTML(label),
         },
         parent,
       )

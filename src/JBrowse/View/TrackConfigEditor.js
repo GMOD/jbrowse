@@ -1,5 +1,3 @@
-import dompurify from 'dompurify'
-
 /**
  * Pops up a dialog to edit the configuration of a single track.
  */
@@ -10,7 +8,8 @@ define([
   'dojo/dom-construct',
   'dijit/Dialog',
   'dijit/form/Button',
-], function (declare, aspect, JSON, dom, Dialog, Button) {
+  'JBrowse/Util',
+], function (declare, aspect, JSON, dom, Dialog, Button, Util) {
   return declare(null, {
     constructor: function (trackConfig) {
       this.trackConfig = trackConfig
@@ -137,7 +136,7 @@ define([
 
     _reportError: function (error) {
       // eslint-disable-next-line xss/no-mixed-html
-      this.errorReportArea.innerHTML = dompurify.sanitize(
+      this.errorReportArea.innerHTML = Util.escapeHTML(
         `<div class="error">${error}</div>`,
       )
       this.applyButton.set('disabled', true)

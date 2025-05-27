@@ -1,5 +1,3 @@
-import dompurify from 'dompurify'
-
 define([
   'dojo/_base/declare',
   'dojo/dom-construct',
@@ -73,7 +71,7 @@ define([
       )
       var c = 0
       // eslint-disable-next-line xss/no-mixed-html
-      textArea.innerHTML = dompurify.sanitize(
+      textArea.innerHTML = Util.escapeHTML(
         text.replace(/\n/g, function () {
           return c++ ? '' : '\n'
         }),

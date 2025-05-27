@@ -1,5 +1,3 @@
-import dompurify from 'dompurify'
-
 define([
   'dojo/_base/declare',
   'dojo/_base/array',
@@ -680,14 +678,14 @@ define([
         // numbers parsed out of BigWig files
 
         // eslint-disable-next-line xss/no-mixed-html
-        scoreDisplay.innerHTML = dompurify.sanitize(
+        scoreDisplay.innerHTML = Util.escapeHTML(
           parseFloat(score.toPrecision(6)),
         )
         return true
       } else if (score && typeof score['score'] == 'number') {
         // "score" may be an object.
         // eslint-disable-next-line xss/no-mixed-html
-        scoreDisplay.innerHTML = dompurify.sanitize(
+        scoreDisplay.innerHTML = Util.escapeHTML(
           parseFloat(score['score'].toPrecision(6)),
         )
         return true

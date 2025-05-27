@@ -1,5 +1,3 @@
-import dompurify from 'dompurify'
-
 define([
   'dojo/_base/declare',
   'dojo/_base/array',
@@ -280,7 +278,7 @@ define([
           {
             className: 'faceted_tracksel_on_off tab',
             // eslint-disable-next-line xss/no-mixed-html
-            innerHTML: dompurify.sanitize(
+            innerHTML: Util.escapeHTML(
               `<img src="${this.browser.resolveUrl('img/left_arrow.png')}"><div>Select<br>tracks</div>`,
             ),
           },
@@ -301,7 +299,7 @@ define([
           region: 'top',
           id: 'faceted_tracksel_top',
           // eslint-disable-next-line xss/no-mixed-html
-          content: dompurify.sanitize(
+          content: Util.escapeHTML(
             '<div class="title">Select Tracks</div> ' +
               '<div class="topLink" style="cursor: help"><a title="Track selector help">Help</a></div>',
           ),
@@ -318,7 +316,7 @@ define([
               draggable: false,
               title: 'Track Selection',
               // eslint-disable-next-line xss/no-mixed-html
-              content: dompurify.sanitize(
+              content: Util.escapeHTML(
                 '<div class="main">' +
                   '<p>The JBrowse Faceted Track Selector makes it easy to search through' +
                   ' large numbers of available tracks to find exactly the ones you want.' +
@@ -362,7 +360,7 @@ define([
           'div',
           {
             // eslint-disable-next-line xss/no-mixed-html
-            innerHTML: dompurify.sanitize(
+            innerHTML: Util.escapeHTML(
               `<img src="${this.browser.resolveUrl('img/spinner.gif')}">`,
             ),
             className: 'busy_indicator',
@@ -378,7 +376,7 @@ define([
               dojo.create('button', {
                 className: 'faceted_tracksel_on_off',
                 // eslint-disable-next-line xss/no-mixed-html
-                innerHTML: dompurify.sanitize(
+                innerHTML: Util.escapeHTML(
                   `<img src="${this.browser.resolveUrl(
                     'img/left_arrow.png',
                   )}"> <div>Back to browser</div>`,
@@ -388,7 +386,7 @@ define([
               dojo.create('button', {
                 className: 'clear_filters',
                 // eslint-disable-next-line xss/no-mixed-html
-                innerHTML: dompurify.sanitize(
+                innerHTML: Util.escapeHTML(
                   `<img src="${this.browser.resolveUrl('img/red_x.png')}">` +
                     `<div>Clear All Filters</div>`,
                 ),
@@ -745,7 +743,7 @@ define([
               {
                 className: 'facetValue',
                 // eslint-disable-next-line  xss/no-mixed-html
-                innerHTML: dompurify.sanitize(
+                innerHTML: Util.escapeHTML(
                   `<td class="count"></td><td class="value">${val}</td>`,
                 ),
                 onclick: function (evt) {
@@ -821,9 +819,7 @@ define([
                     ? thisFacetCounts[selectorNode.facetValue] || 0
                     : 0
                   // eslint-disable-next-line  xss/no-mixed-html
-                  countNode.innerHTML = dompurify.sanitize(
-                    Util.addCommas(count),
-                  )
+                  countNode.innerHTML = Util.escapeHTML(Util.addCommas(count))
                   if (count) {
                     dojo.removeClass(selectorNode, 'disabled')
                   } else {
@@ -1004,7 +1000,7 @@ define([
           .query('.matching_record_count', this.containerElem)
           .forEach(function (n) {
             // eslint-disable-next-line  xss/no-mixed-html
-            n.innerHTML = dompurify.sanitize(
+            n.innerHTML = Util.escapeHTML(
               `${Util.addCommas(count)} ${
                 dojof.keys(this.query || {}).length ? 'matching ' : ''
               }track${count == 1 ? '' : 's'}`,

@@ -1,4 +1,3 @@
-import dompurify from 'dompurify'
 /**
  * Mixin that provides generic functions for displaying nested data.
  */
@@ -109,7 +108,7 @@ define([
         {
           className: 'field_container',
           // eslint-disable-next-line xss/no-mixed-html
-          innerHTML: dompurify.sanitize(
+          innerHTML: Util.escapeHTML(
             `<h2 class="field ${class_}"${titleAttr}>${formatted_title}</h2>`,
           ),
         },
@@ -124,7 +123,7 @@ define([
       var count = this.renderDetailValue(valueContainer, title, val, f, class_)
       if (typeof count == 'number' && count > 4) {
         // eslint-disable-next-line xss/no-mixed-html
-        query('h2', fieldContainer)[0].innerHTML = dompurify.sanitize(
+        query('h2', fieldContainer)[0].innerHTML = Util.escapeHTML(
           `${formatted_title} (${count})`,
         )
       }

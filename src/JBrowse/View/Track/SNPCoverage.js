@@ -1,5 +1,3 @@
-import dompurify from 'dompurify'
-
 define([
   'dojo/_base/declare',
   'JBrowse/View/Track/Wiggle/XYPlot',
@@ -374,14 +372,14 @@ define([
           total,
         )}</td><td class="pct">&nbsp;</td><td class="subdist">&nbsp;</td></tr>`
         // eslint-disable-next-line xss/no-mixed-html
-        scoreDisplay.innerHTML = dompurify.sanitize(
+        scoreDisplay.innerHTML = Util.escapeHTML(
           `<table>${scoreSummary}</table>`,
         )
 
         return true
       } else {
         // eslint-disable-next-line xss/no-mixed-html
-        scoreDisplay.innerHTML = dompurify.sanitize(
+        scoreDisplay.innerHTML = Util.escapeHTML(
           `<table><tr><td>Total</td><td class="count">${fmtNum(
             score,
           )}</td></tr></table>`,

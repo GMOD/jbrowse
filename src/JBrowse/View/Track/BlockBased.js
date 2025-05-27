@@ -1,5 +1,3 @@
-import dompurify from 'dompurify'
-
 define([
   'dojo/_base/declare',
   'dojo/_base/lang',
@@ -291,7 +289,7 @@ define([
         this.labelHTML = newHTML
         query('.track-label-text', this.label).forEach(function (n) {
           // eslint-disable-next-line xss/no-mixed-html
-          n.innerHTML = dompurify.sanitize(newHTML)
+          n.innerHTML = Util.escapeHTML(newHTML)
         })
         this.labelHeight = this.label.offsetHeight
       },
@@ -604,7 +602,7 @@ define([
             className: 'error',
 
             // eslint-disable-next-line xss/no-mixed-html
-            innerHTML: dompurify.sanitize(
+            innerHTML: Util.escapeHTML(
               `<h2>Error</h2><div class="text">An error was encountered when displaying this track.</div>${
                 message
                   ? `<div class="codecaption">Diagnostic message</div><code>${
@@ -1268,15 +1266,13 @@ define([
             content.then(function (c) {
               dialog.set(
                 'content',
-                typeof c === 'string' ? dompurify.sanitize(c) : c,
+                typeof c === 'string' ? Util.escapeHTML(c) : c,
               )
             })
           } else {
             dialog.set(
               'content',
-              typeof content === 'string'
-                ? dompurify.sanitize(content)
-                : content,
+              typeof content === 'string' ? Util.escapeHTML(content) : content,
             )
           }
         }
@@ -1336,7 +1332,7 @@ define([
                 onclick: dojo.hitch(dialog, 'hide'),
 
                 // eslint-disable-next-line xss/no-mixed-html
-                innerHTML: dompurify.sanitize(spec.url),
+                innerHTML: Util.escapeHTML(spec.url),
               },
               dialog.titleBar,
             )
@@ -1548,7 +1544,7 @@ define([
                   left: `${left}%`,
                 },
                 // eslint-disable-next-line xss/no-mixed-html
-                innerHTML: dompurify.sanitize(label),
+                innerHTML: Util.escapeHTML(label),
               },
               args.block.domNode,
             )
@@ -1565,7 +1561,7 @@ define([
                 },
 
                 // eslint-disable-next-line xss/no-mixed-html
-                innerHTML: dompurify.sanitize(rlabel),
+                innerHTML: Util.escapeHTML(rlabel),
               },
               args.block.domNode,
             )

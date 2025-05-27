@@ -1,11 +1,10 @@
-import dompurify from 'dompurify'
-
 define([
   'dojo/_base/declare',
   'dojo/_base/array',
   'dojo/dom-construct',
   'dijit/form/Select',
-], function (declare, array, dom, Select) {
+  'JBrowse/Util',
+], function (declare, array, dom, Select, Util) {
   return declare(null, {
     constructor: function (args) {
       this.dialog = args.dialog
@@ -168,7 +167,7 @@ define([
               {
                 width: '1%',
                 // eslint-disable-next-line xss/no-mixed-html
-                innerHTML: dompurify.sanitize(
+                innerHTML: Util.escapeHTML(
                   `<div class="${
                     res.file ? 'dijitIconFile' : 'jbrowseIconLink'
                   }"/>`,
@@ -180,7 +179,7 @@ define([
               'td',
               {
                 // eslint-disable-next-line xss/no-mixed-html
-                innerHTML: dompurify.sanitize(name),
+                innerHTML: Util.escapeHTML(name),
               },
               tr,
             )

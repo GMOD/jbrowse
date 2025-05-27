@@ -1,5 +1,3 @@
-import dompurify from 'dompurify'
-
 /**
  * Mixin to provide a `defaultFeatureDetail` method that is optimized for
  * displaying variant data from VCF files.
@@ -258,7 +256,7 @@ define([
             {
               className: `category level_${level}`,
               // eslint-disable-next-line xss/no-mixed-html
-              innerHTML: dompurify.sanitize(categoryName),
+              innerHTML: Util.escapeHTML(categoryName),
             },
             tr,
           )
@@ -269,7 +267,7 @@ define([
               {
                 className: `count level_${level}`,
                 // eslint-disable-next-line xss/no-mixed-html
-                innerHTML: dompurify.sanitize(thisTotal),
+                innerHTML: Util.escapeHTML(thisTotal),
               },
               tr,
             )
@@ -289,7 +287,7 @@ define([
                 className: `count level_${level}`,
 
                 // eslint-disable-next-line xss/no-mixed-html
-                innerHTML: dompurify.sanitize(count),
+                innerHTML: Util.escapeHTML(count),
               },
               tr,
             )
@@ -319,7 +317,7 @@ define([
           className: 'count total',
 
           // eslint-disable-next-line xss/no-mixed-html
-          innerHTML: dompurify.sanitize(total),
+          innerHTML: Util.escapeHTML(total),
         },
         totalTR,
       )

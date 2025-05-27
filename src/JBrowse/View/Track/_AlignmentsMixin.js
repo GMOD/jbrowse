@@ -1,4 +1,3 @@
-import dompurify from 'dompurify'
 /**
  * Mixin with methods used for displaying alignments and their mismatches.
  */
@@ -443,7 +442,7 @@ define([
             className: 'renderTable',
 
             // eslint-disable-next-line xss/no-mixed-html
-            innerHTML: dompurify.sanitize(
+            innerHTML: Util.escapeHTML(
               `<h2 class="sectiontitle">Matches</h2><div style=\"font-family: Courier; white-space: pre;\">${
                 ret_str
               }</div>`,
@@ -457,7 +456,7 @@ define([
           {
             className: 'renderTable',
             // eslint-disable-next-line xss/no-mixed-html
-            innerHTML: dompurify.sanitize(
+            innerHTML: Util.escapeHTML(
               `${
                 '<h2 class="sectiontitle">Matches</h2><div style=\"font-family: Courier; white-space: pre;\">' +
                 'Query: '

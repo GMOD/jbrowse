@@ -1,5 +1,3 @@
-import dompurify from 'dompurify'
-
 define([
   'dojo/_base/declare',
   'dojo/_base/array',
@@ -100,7 +98,7 @@ define([
             })
             thisB.plugins.push(paths[0])
             // eslint-disable-next-line xss/no-mixed-html
-            dojo.byId('plugins_list').innerHTML += dompurify.sanitize(
+            dojo.byId('plugins_list').innerHTML += Util.escapeHTML(
               `${paths}<br/>`,
             )
           }
