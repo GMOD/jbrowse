@@ -21,7 +21,7 @@ jobs:
         run: |
           npm install -g yarn
 
-      - uses: LizardByte/setup-python-action@master
+      - uses: LizardByte/actions/actions/setup_python@master
         with:
           python-version: '2.7'
 
