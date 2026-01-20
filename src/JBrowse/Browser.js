@@ -2179,7 +2179,13 @@ define([
         if (accounts && !lang.isArray(userAccounts)) {
           userAccounts = userAccounts.replace(/^\s*|\s*$/, '').split(/\s*,\s*/)
         }
-        accounts.push.apply(accounts, userAccounts)
+        // validate GA account IDs to prevent script injection (UA-XXXXX-X or G-XXXXXXXXXX format)
+        var gaPattern = /^(UA-\d+-\d+|G-[A-Z0-9]+)$/i
+        for (var i = 0; i < userAccounts.length; i++) {
+          if (gaPattern.test(userAccounts[i])) {
+            accounts.push(userAccounts[i])
+          }
+        }
       }
 
       var analyticsScript =

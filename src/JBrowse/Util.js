@@ -38,6 +38,43 @@ define([
       return dompurify.sanitize(str)
     },
 
+    isSafeUrl: function (url) {
+      if (!url || typeof url !== 'string') {
+        return false
+      }
+      var trimmed = url.trim().toLowerCase()
+      // block dangerous URL schemes
+      if (
+        trimmed.startsWith('javascript:') ||
+        trimmed.startsWith('data:') ||
+        trimmed.startsWith('vbscript:')
+      ) {
+        return false
+      }
+      return true
+    },
+
+    sanitizeCss: function (css) {
+      if (!css || typeof css !== 'string') {
+        return ''
+      }
+      // remove dangerous CSS patterns: url(), expression(), @import, behavior, -moz-binding
+      return css
+        .replace(/url\s*\([^)]*\)/gi, '')
+        .replace(/expression\s*\([^)]*\)/gi, '')
+        .replace(/@import[^;]*/gi, '')
+        .replace(/behavior\s*:[^;]*/gi, '')
+        .replace(/-moz-binding\s*:[^;]*/gi, '')
+    },
+
+    sanitizeClassName: function (className) {
+      if (!className || typeof className !== 'string') {
+        return ''
+      }
+      // only allow alphanumeric, hyphens, underscores, and spaces (for multiple classes)
+      return className.replace(/[^a-zA-Z0-9_\- ]/g, '')
+    },
+
     unescapeHTML: function (str) {
       return str
         .toString()

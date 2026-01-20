@@ -1117,11 +1117,10 @@ define([
         var glyphBox
         heightTest = document.createElement('div')
         //cover all the bases: stranded or not, phase or not
-        heightTest.className = `feature ${this.config.style.className} plus-${
-          this.config.style.className
-        } plus-${this.config.style.className}1`
+        var safeClassName = Util.sanitizeClassName(this.config.style.className)
+        heightTest.className = `feature ${safeClassName} plus-${safeClassName} plus-${safeClassName}1`
         if (this.config.style.featureCss) {
-          heightTest.style.cssText = this.config.style.featureCss
+          heightTest.style.cssText = Util.sanitizeCss(this.config.style.featureCss)
         }
         heightTest.style.visibility = 'hidden'
         if (Util.is_ie6) {
@@ -1338,7 +1337,9 @@ define([
         dojo.addClass(featDiv, 'feature')
         var className = this.config.style.className
         if (className == '{type}') {
-          className = feature.get('type')
+          className = Util.sanitizeClassName(feature.get('type'))
+        } else {
+          className = Util.sanitizeClassName(className)
         }
         var strand = feature.get('strand')
         switch (strand) {
@@ -1386,7 +1387,7 @@ define([
           `left:${(100 * (displayStart - block.startBase)) / blockWidth}%;` +
           `top:${top}px;` +
           ` width:${featwidth}%;${
-            this.config.style.featureCss ? this.config.style.featureCss : ''
+            this.config.style.featureCss ? Util.sanitizeCss(this.config.style.featureCss) : ''
           }`
 
         // Store the containerStart/End so we can resolve the truncation
@@ -1398,16 +1399,17 @@ define([
           var ah = document.createElement('div')
           var featwidth_px = (featwidth / 100) * blockWidth * scale
 
+          var safeArrowClass = Util.sanitizeClassName(this.config.style.arrowheadClass)
           switch (strand) {
             case 1:
             case '+':
-              ah.className = `plus-${this.config.style.arrowheadClass}`
+              ah.className = `plus-${safeArrowClass}`
               ah.style.cssText = `right: ${-this.plusArrowWidth}px`
               featDiv.appendChild(ah)
               break
             case -1:
             case '-':
-              ah.className = `minus-${this.config.style.arrowheadClass}`
+              ah.className = `minus-${safeArrowClass}`
               ah.style.cssText = `left: ${-this.minusArrowWidth}px`
               featDiv.appendChild(ah)
               break

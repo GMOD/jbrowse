@@ -1015,9 +1015,13 @@ define([
             }[`${spec.action}`.toLowerCase()]
 
             if (spec.action == 'newWindow') {
-              window.open(url, '_blank')
+              if (Util.isSafeUrl(url)) {
+                window.open(url, '_blank')
+              }
             } else if (spec.action == 'navigateTo') {
-              window.location = url
+              if (Util.isSafeUrl(url)) {
+                window.location = url
+              }
             } else if (
               spec.action in
               {
@@ -1321,11 +1325,11 @@ define([
             width: iframeDims.w,
             height: iframeDims.h,
             style: { border: 'none' },
-            src: spec.url,
+            src: Util.isSafeUrl(spec.url) ? spec.url : 'about:blank',
           })
 
           dialog.set('content', iframe)
-          if (!spec.hideIframeDialogUrl) {
+          if (!spec.hideIframeDialogUrl && Util.isSafeUrl(spec.url)) {
             dojo.create(
               'a',
               {

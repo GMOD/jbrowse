@@ -27,7 +27,10 @@ define([
         return arguments[0]
       }
       try {
-        eval(`arguments[0]=${arguments[0]};`)
+        // use Function constructor instead of eval for slightly better isolation
+        // note: this still executes untrusted code, but doesn't have access to local scope
+        var fn = new Function(`return (${arguments[0]});`)
+        return fn()
       } catch (e) {
         console.error(`${e} parsing config callback '${arguments[0]}'`)
       }
