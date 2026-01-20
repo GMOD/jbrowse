@@ -12,9 +12,9 @@
     "test-electron": "ava --timeout=60s tests/electron_tests",
     "test-perl": "prove -Isrc/perl5 -j8 -lr tests/perl_tests/",
     "test-selenium": "SELENIUM_BROWSER=firefox JBROWSE_URL='http://localhost:8082/index.html' nosetests --verbose tests/selenium_tests/",
-    "start": "utils/jb_run.js -p 8082",
-    "watch": "webpack -w",
-    "build": "webpack",
+    "dev": "node build/run-webpack.js webpack-dev-server",
+    "start": "node build/run-webpack.js webpack-dev-server",
+    "build": "node build/run-webpack.js webpack",
     "build-electron": "electron-packager . JBrowse --overwrite --icon=browser/icons/jbrowse",
     "hint": "npm run lint",
     "lint": "eslint src/JBrowse tests/js_tests/spec"
@@ -42,6 +42,9 @@
     "object-hash": "^1.3.1",
     "optimist": "^0.6.1",
     "shelljs": "^0.7.8"
+  },
+  "resolutions": {
+    "minimatch": "^3.0.4"
   },
   "devDependencies": {
     "@gmod/bam": "^1.1.6",
@@ -95,6 +98,7 @@
     "util-deprecate": "^1.0.2",
     "webpack": "^4.26.1",
     "webpack-cli": "^3.1.2",
+    "webpack-dev-server": "^3.11.3",
     "whatwg-fetch": "^2.0.4",
     "yarn": "^1.22.22"
   }

@@ -1,0 +1,3 @@
+define({
+	goodby: 'Auf Wiedersehen'
+});

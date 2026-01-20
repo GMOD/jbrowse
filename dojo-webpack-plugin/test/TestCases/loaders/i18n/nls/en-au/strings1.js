@@ -1,0 +1,3 @@
+define({
+	hello: 'G\'day'
+});

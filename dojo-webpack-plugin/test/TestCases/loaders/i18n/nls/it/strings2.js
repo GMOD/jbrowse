@@ -1,0 +1,3 @@
+define({
+	goodby: 'Bene da'
+});

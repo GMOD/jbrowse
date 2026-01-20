@@ -1,7 +1,7 @@
 /* eslint-env node */
 require('babel-polyfill')
 
-const DojoWebpackPlugin = require('dojo-webpack-plugin')
+const DojoWebpackPlugin = require('./dojo-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 const CleanWebpackPlugin = require('clean-webpack-plugin')
@@ -130,6 +130,19 @@ if (DEBUG) {
   webpackConf.mode = 'development'
   webpackConf.entry.run_jasmine = 'tests/js_tests/main.js'
   webpackConf.plugins.push(new webpack.optimize.AggressiveMergingPlugin())
+  webpackConf.devServer = {
+    port: 8082,
+    contentBase: __dirname,
+    publicPath: '/dist/',
+    before(app) {
+      app.use((req, res, next) => {
+        if (/\.(txt|json|g)z$/.test(req.url) && !req.headers.range) {
+          res.setHeader('Content-Encoding', 'gzip')
+        }
+        next()
+      })
+    },
+  }
 } else {
   webpackConf.mode = 'production'
   webpackConf.plugins.push(new UglifyJsPlugin())
