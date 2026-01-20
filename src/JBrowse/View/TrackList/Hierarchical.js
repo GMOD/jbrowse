@@ -307,7 +307,7 @@ define([
               'span',
               {
                 className: 'key',
-                innerHTML: trackConf.key || trackConf.label,
+                innerHTML: dompurify.sanitize(trackConf.key || trackConf.label),
               },
               labelNode,
             )
