@@ -1,0 +1,37 @@
+{
+  "parserOptions": {
+    "sourceType": "module",
+  },
+  "env": {
+    "browser": true,
+    "amd": true,
+    "node": false,
+    "es6": false,
+  },
+  "rules": {
+    # "camelcase": 2,
+    "comma-dangle": 2,
+    "no-dupe-args": 2,
+    "no-dupe-keys": 2,
+    "no-mixed-spaces-and-tabs": [2, "smart-tabs"],
+    "no-shadow": 2,
+    "no-trailing-spaces": 2,
+    "no-undef": 2,
+    "semi": 2,
+    "no-debugger": "error",
+    # Helps ensure we don't require unused modules.
+    "no-unused-vars": [2, {
+       "args": "all",
+       "argsIgnorePattern": "^(e|err|error)$|__$",
+    }],
+    # Prevents usage of things before they're defined (except for hoisted function declarations).
+    "no-use-before-define": [2, "nofunc"]
+  },
+  "plugins": [
+    "es5"
+  ],
+  "extends": [
+    "plugin:es5/no-es2015",
+    "plugin:es5/no-es2016"
+  ]
+}
