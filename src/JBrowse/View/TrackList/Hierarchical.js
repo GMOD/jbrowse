@@ -1,5 +1,3 @@
-import dompurify from 'dompurify'
-
 define([
   'dojo/_base/declare',
   'dojo/_base/array',
@@ -231,7 +229,7 @@ define([
                   )
                   var c = new TitlePane({
                     // eslint-disable-next-line xss/no-mixed-html
-                    title: dompurify.sanitize(
+                    title: Util.escapeHTML(
                       `<span class="categoryName">${categoryName}</span><span class="trackCount">0</span>`,
                     ),
                     open: !isCollapsed,
@@ -307,7 +305,7 @@ define([
               'span',
               {
                 className: 'key',
-                innerHTML: dompurify.sanitize(trackConf.key || trackConf.label),
+                innerHTML: Util.escapeHTML(trackConf.key || trackConf.label),
               },
               labelNode,
             )
