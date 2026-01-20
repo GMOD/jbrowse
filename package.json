@@ -43,6 +43,9 @@
     "optimist": "^0.6.1",
     "shelljs": "^0.7.8"
   },
+  "resolutions": {
+    "minimatch": "^3.0.4"
+  },
   "devDependencies": {
     "@gmod/bam": "^1.1.6",
     "@gmod/cram": "^1.5.9",

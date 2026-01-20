@@ -305,6 +305,8 @@ define([
               'span',
               {
                 className: 'key',
+
+                // eslint-disable-next-line xss/no-mixed-html
                 innerHTML: Util.escapeHTML(trackConf.key || trackConf.label),
               },
               labelNode,
