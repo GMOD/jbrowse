@@ -1,9 +1,8 @@
-define([
-           'dojo/_base/declare',
-           './_MultiIndexedFileDriver'
-       ],
-       function( declare, MultiIndexedFileDriver ) {
-return declare( MultiIndexedFileDriver,  {
+define(['dojo/_base/declare', './_MultiIndexedFileDriver'], function (
+  declare,
+  MultiIndexedFileDriver,
+) {
+  return declare(MultiIndexedFileDriver, {
     name: 'BAM',
     storeType: 'JBrowse/Store/SeqFeature/BAM',
 
@@ -11,15 +10,17 @@ return declare( MultiIndexedFileDriver,  {
     fileConfKey: 'bam',
     fileUrlConfKey: 'urlTemplate',
 
-    indexTypes: [{
+    indexTypes: [
+      {
         indexExtension: 'bam.bai',
         indexConfKey: 'bai',
-        indexUrlConfKey: 'baiUrlTemplate'
-    }, {
+        indexUrlConfKey: 'baiUrlTemplate',
+      },
+      {
         indexExtension: 'bam.csi',
         indexConfKey: 'csi',
-        indexUrlConfKey: 'csiUrlTemplate'
-    }]
-});
-
-});
+        indexUrlConfKey: 'csiUrlTemplate',
+      },
+    ],
+  })
+})

@@ -1,17 +1,10 @@
-define([
-
-    'dojo/_base/declare',
-    'JBrowse/Plugin'
-],
-   function (
-    declare,
-    JBrowsePlugin
+define(['dojo/_base/declare', 'JBrowse/Plugin'], function (
+  declare,
+  JBrowsePlugin,
 ) {
-       return declare(JBrowsePlugin, {
-           constructor: function (args) {
-               console.log('NeatCanvasFeatures initialized');
-           }
-       });
-   });
-
-
+  return declare(JBrowsePlugin, {
+    constructor: function (args) {
+      console.log('NeatCanvasFeatures initialized')
+    },
+  })
+})

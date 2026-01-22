@@ -5,19 +5,40 @@ title: Track Selectors
 
 JBrowse supports three track selectors by default currently:
 
--   JBrowse/View/TrackList/Hierarchical - a checkbox oriented track selector with hierarchical categories (default)
--   JBrowse/View/TrackList/Faceted - a grid oriented track selector with rich metadata displayed in a spreadsheet style
--   JBrowse/View/TrackList/Simple - track selector with "a drag and drop tracks into the view" oriented mode of operation, considered "legacy" by now :)
+- JBrowse/View/TrackList/Hierarchical - a checkbox oriented track selector with
+  hierarchical categories (default)
+- JBrowse/View/TrackList/Faceted - a grid oriented track selector with rich
+  metadata displayed in a spreadsheet style
+- JBrowse/View/TrackList/Simple - track selector with "a drag and drop tracks
+  into the view" oriented mode of operation, considered "legacy" by now :)
 
 ## Faceted Track Selector
 
-Starting with version 1.4.0, JBrowse has an optional "faceted" track selector designed for sites with hundreds or even thousands of tracks in a single JBrowse instance. This track selector allows users to interactively search for the tracks they are interested in based on the metadata for each track.
+Starting with version 1.4.0, JBrowse has an optional "faceted" track selector
+designed for sites with hundreds or even thousands of tracks in a single JBrowse
+instance. This track selector allows users to interactively search for the
+tracks they are interested in based on the metadata for each track.
 
-An example of a faceted track selector in action with about 1,800 tracks can be seen [here](http://jbrowse.org/code/JBrowse-1.4.0-full/index.html?data=sample_data/json/modencode). This is an example installation containing a snapshot of modENCODE track metadata. Note that the track data and reference sequences in this example are not real (they are actually all just copies of the same volvox test track), this is just an example of the faceted track selector in action.
+An example of a faceted track selector in action with about 1,800 tracks can be
+seen
+[here](http://jbrowse.org/code/JBrowse-1.4.0-full/index.html?data=sample_data/json/modencode).
+This is an example installation containing a snapshot of modENCODE track
+metadata. Note that the track data and reference sequences in this example are
+not real (they are actually all just copies of the same volvox test track), this
+is just an example of the faceted track selector in action.
 
-The `Faceted` track selector takes all sources of track metadata, aggregates them, and makes the tracks searchable using this metadata. By default, tracks only have a few default metadata facets that come from the track configuration itself. After initially turning on the faceted track selector, most users will want to add their own metadata for the tracks: see [Defining Track Metadata](#defining-track-metadata "wikilink") below. To enable the faceted track selector in the JBrowse configuration, set `trackSelector→type` to `Faceted`.
+The `Faceted` track selector takes all sources of track metadata, aggregates
+them, and makes the tracks searchable using this metadata. By default, tracks
+only have a few default metadata facets that come from the track configuration
+itself. After initially turning on the faceted track selector, most users will
+want to add their own metadata for the tracks: see
+[Defining Track Metadata](#defining-track-metadata 'wikilink') below. To enable
+the faceted track selector in the JBrowse configuration, set
+`trackSelector→type` to `Faceted`.
 
-There are some other configuration variables that can be used to customize the display of the track selector. Most users will want to set both of these variables to customize the columns and facets shown in the track selector.
+There are some other configuration variables that can be used to customize the
+display of the track selector. Most users will want to set both of these
+variables to customize the columns and facets shown in the track selector.
 
 | Option                            | Value                                                                                                                                                                                                                                                    |
 | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -31,7 +52,9 @@ There are some other configuration variables that can be used to customize the d
 
 ## Example Faceted Track Selector Configuration
 
-To use the Faceted track selector, you might add something like this to jbrowse_conf.json (or trackList.json, but store it outside the "tracks": [] section)
+To use the Faceted track selector, you might add something like this to
+jbrowse_conf.json (or trackList.json, but store it outside the "tracks": []
+section)
 
     "trackSelector": {
         "type": "Faceted",
@@ -51,11 +74,23 @@ To use the Faceted track selector, you might add something like this to jbrowse_
 
 ## Hierarchical Track Selector
 
-Starting with version 1.11.0, JBrowse uses a "Hierarchical" track selector by default that is designed to allow grouping of tracks and easy checkbox selection choices. The Hierarchical track selector is like the old Simple track selector (which was the default), except it pays attention to the “category” key in a track’s metadata, and if it is present, it organizes the tracks into nested, collapsible panes based on that. Also, instead of the drag-and-drop paradigm used by the Simple track selector, the Hierarchical track selector turns tracks on and off by just checking and unchecking the box next to each track. For more information, see [1](http://jbrowse.org/jbrowse-1-11-0/)
+Starting with version 1.11.0, JBrowse uses a "Hierarchical" track selector by
+default that is designed to allow grouping of tracks and easy checkbox selection
+choices. The Hierarchical track selector is like the old Simple track selector
+(which was the default), except it pays attention to the “category” key in a
+track’s metadata, and if it is present, it organizes the tracks into nested,
+collapsible panes based on that. Also, instead of the drag-and-drop paradigm
+used by the Simple track selector, the Hierarchical track selector turns tracks
+on and off by just checking and unchecking the box next to each track. For more
+information, see [1](http://jbrowse.org/jbrowse-1-11-0/)
 
-To assign categories and subcategories to your tracks, set category or metadata.category attributes on each configured tracks in your trackList.json. Starting in JBrowse 1.11.5, the category can also be read from a trackMetadata.csv category columns.
+To assign categories and subcategories to your tracks, set category or
+metadata.category attributes on each configured tracks in your trackList.json.
+Starting in JBrowse 1.11.5, the category can also be read from a
+trackMetadata.csv category columns.
 
-There are some other configuration variables that can be used to customize the display of the Hierarchical track selector.
+There are some other configuration variables that can be used to customize the
+display of the Hierarchical track selector.
 
 | Option                              | Value                                                                                                                                                                                                                                                                                                                                                           |
 | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

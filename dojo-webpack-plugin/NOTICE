@@ -1,0 +1,21 @@
+OpenNTF dojo-webpack-plugin
+Copyright IBM Corp. 2017 All Rights Reserved.
+
+This product includes software contributed to
+OpenNTF Alliance (http://www.OpenNTF.org/)
+
+This product is licensed under the terms of the Apache 2.0 license.
+
+The product includes third party code that has been modified and adapted from the following files, originating in the Webpack project and licensed under the MIT License - http://www.opensource.org/licenses/mit-license.php:
+https://github.com/webpack/webpack/blob/v1.14.0/lib/dependencies/AMDDefineDependencyParserPlugin.js
+https://github.com/webpack/webpack/blob/v1.14.0/lib/dependencies/ModuleDependencyTemplateAsRequireId.js
+https://github.com/webpack/webpack/blob/v1.14.0/lib/dependencies/AMDRequireArrayDependency.js
+https://github.com/webpack/webpack/blob/v1.14.0/lib/dependencies/AMDRequireDependenciesBlockParserPlugin.js
+https://github.com/webpack/webpack/blob/v1.14.0/lib/dependencies/CommonJsRequireDependencyParserPlugin.js
+https://github.com/webpack/webpack/blob/v3.6.0/test/ConfigTestCases.test.js	(test only)
+https://github.com/webpack/webpack/blob/v3.6.0/test/checkArrayExpectation.js (test only)
+https://github.com/webpack/webpack/blob/v3.6.0/lib/node/NodeMainTemplatePlugin.js (test only)
+https"//github.com/webpack/webpack/blob/v3.6.0/lib/JsonpMainTemplatePlugin.js (test only)
+
+The product includes third party code that has been modified and adapted from the following file, originating in the Dojo Util project, and licensed under the Dojo License - http://dojotoolkit.org/license:
+https://github.com/dojo/util/blob/1.10/build/transforms/writeDojo.js

@@ -1,0 +1,5 @@
+define({
+	root: ({
+    hello: 'Hello'
+  })
+});

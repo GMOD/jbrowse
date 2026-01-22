@@ -3,7 +3,11 @@ id: global_options
 title: Global configuration options
 ---
 
-JBrowse supports some other configuration variables that customize the overall behavior of the browser. Each of these variables goes in the top level of JSON configuration files (i.e. jbrowse_conf.json), or in a `[general]` section in textual configuration files (i.e. jbrowse.conf), or outside of the "tracks" section in a trackList.json or tracks.conf.
+JBrowse supports some other configuration variables that customize the overall
+behavior of the browser. Each of these variables goes in the top level of JSON
+configuration files (i.e. jbrowse_conf.json), or in a `[general]` section in
+textual configuration files (i.e. jbrowse.conf), or outside of the "tracks"
+section in a trackList.json or tracks.conf.
 
 | Option                         | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |

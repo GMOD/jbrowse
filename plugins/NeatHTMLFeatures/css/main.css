@@ -4,31 +4,29 @@ Created on : Aug 5, 2015
 Author     : EY
 */
 .jbrowse .jb-intron {
-    position: absolute;
-    top: 0px !important;
+  position: absolute;
+  top: 0px !important;
 }
 .jbrowse div.gray-center-30pct {
-    background-color: transparent;
+  background-color: transparent;
 }
 .jbrowse div.annot-render {
-    background-color: transparent;
+  background-color: transparent;
 }
 .jbrowse div.neat-subfeature {
-    height: 100%;
-    top: 0px;
-    border-width: 0px;
+  height: 100%;
+  top: 0px;
+  border-width: 0px;
 }
 .jbrowse div.neat-UTR {
-    background-color: white;
-    height: 100%;
-    top: 0px;
-    margin-top: 0px;
+  background-color: white;
+  height: 100%;
+  top: 0px;
+  margin-top: 0px;
 }
 
 .jbrowse polyline.neat-intron {
-    stroke: black;
-    fill: none;
-    stroke-width: 5;
+  stroke: black;
+  fill: none;
+  stroke-width: 5;
 }
-
-

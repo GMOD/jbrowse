@@ -1,0 +1,62 @@
+{
+  "name": "dojo-webpack-plugin",
+  "version": "2.8.13",
+  "author": "Chuck Dumont",
+  "description": "Supports using webpack with Dojo 1.x applications",
+  "scripts": {
+    "lint": "eslint . --ext .json --ext .md --ext .js",
+    "pretest": "npm run clean:test && npm run lint && node buildDojo/build.js node_modules/dojo/dojo.js test/js && node buildDojo/build.js node_modules/dojo/dojo.js test/js/noconfig {\\\"dojo-config-api\\\":0}",
+    "test": "nyc node_modules/mocha/bin/mocha",
+    "nopretest": "mocha",
+    "travis:test": "npm run -s test",
+    "cover": "clean:cover && nyc report --reporter=html",
+    "coveralls": "nyc report --reporter=text-lcov | coveralls",
+    "clean:test": "rimraf test/js .nyc_output"
+  },
+  "dependencies": {
+    "loader-utils": "1.1.0",
+    "node-stringify": "0.2.1",
+    "raw-loader": "0.5.1",
+    "tmp": "0.0.30",
+    "webpack-plugin-compat": "1.0.3"
+  },
+  "peerDependencies": {
+    "webpack": ">= 2.2.0 < 4.0.0 || >= 4.2.0",
+    "webpack-sources": ">=1.0.1"
+  },
+  "license": "(MIT OR Apache-2.0)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OpenNTF/dojo-webpack-plugin.git"
+  },
+  "devDependencies": {
+    "clone-deep": "^3.0.1",
+    "coveralls": "^3.0.5",
+    "dojo": "1.16.0",
+    "dojo-util": "1.16.0",
+    "eslint": "^5.16.0",
+    "eslint-plugin-es5": "^1.4.1",
+    "eslint-plugin-json": "^1.4.0",
+    "eslint-plugin-markdown": "^1.0.0",
+    "fs-extra": "^4.0.2",
+    "mocha": "^5.2.0",
+    "mocha-lcov-reporter": "^1.3.0",
+    "nyc": "^14.1.1",
+    "proxyquire": "^1.8.0",
+    "rimraf": "^2.6.3",
+    "should": "^13.2.3",
+    "webpack": "4.28.4"
+  },
+  "nyc": {
+    "reporter": [
+      "text-summary"
+    ],
+    "exclude": [
+      "index.js",
+      "lib/compat.js",
+      "runtime/**",
+      "test/**",
+      "buildDojo/**"
+    ]
+  }
+}

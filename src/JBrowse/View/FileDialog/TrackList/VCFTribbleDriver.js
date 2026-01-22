@@ -1,9 +1,8 @@
-define([
-           'dojo/_base/declare',
-           './_IndexedFileDriver'
-       ],
-       function( declare, IndexedFileDriver ) {
-return declare( IndexedFileDriver,  {
+define(['dojo/_base/declare', './_IndexedFileDriver'], function (
+  declare,
+  IndexedFileDriver,
+) {
+  return declare(IndexedFileDriver, {
     name: 'VCF+IDX',
     storeType: 'JBrowse/Store/SeqFeature/VCFTribble',
 
@@ -13,7 +12,6 @@ return declare( IndexedFileDriver,  {
 
     indexExtension: 'idx',
     indexConfKey: 'idx',
-    indexUrlConfKey: 'idxUrlTemplate'
-});
-
-});
+    indexUrlConfKey: 'idxUrlTemplate',
+  })
+})

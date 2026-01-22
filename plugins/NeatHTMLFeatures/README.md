@@ -1,10 +1,9 @@
 # NeatHTMLFeatures
 
-This plugin is designed to draw intron hats to features and subfeatures of HTMLFeatures tracks.
+This plugin is designed to draw intron hats to features and subfeatures of
+HTMLFeatures tracks.
 
 ![](img/example.png?raw=true)
-
-
 
 ### Install / Activate:
 
@@ -14,9 +13,7 @@ Add the plugin declaration to the config file as follows
         "NeatHTMLFeatures"
     ],
 
-
 See http://gmod.org/wiki/JBrowse_FAQ#How_do_I_install_a_plugin for more details
-
 
 ### Configuration
 
@@ -26,7 +23,6 @@ See http://gmod.org/wiki/JBrowse_FAQ#How_do_I_install_a_plugin for more details
         "urlTemplate" : "tracks/ReadingFrame/{refseq}/trackData.json"
         "storeClass": "JBrowse/Store/SeqFeature/NCList"
     }
-
 
 ### Note
 
