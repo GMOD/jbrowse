@@ -119,10 +119,17 @@ jobs:
             JBrowse-*.zip
             website/build/jbrowse/
 
+      - name: Extract release notes for this version
+        if: startsWith(github.ref, 'refs/tags/') && matrix.perl == '5.26'
+        run: |
+          awk '/^# Release / {n++; next} n==1' release-notes.md > release-body.md
+
       - name: Release to GitHub
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/') && matrix.perl == '5.26'
         with:
+          name: JBrowse ${{ env.RELEASE_VERSION }}
+          body_path: release-body.md
           files: JBrowse-*.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
