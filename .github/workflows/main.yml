@@ -134,35 +134,40 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Publish to npm
-        if: startsWith(github.ref, 'refs/tags/') && matrix.perl == '5.26'
-        run: |
-          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
-          npm publish
-
-      - name: Deploy to S3 (release)
-        if:
-          startsWith(github.ref, 'refs/tags/') && matrix.perl == '5.26' &&
-          contains(github.event.head_commit.message, '[update docs]')
-        uses: jakejarvis/s3-sync-action@master
-        with:
-          args: --acl public-read --cache-control "max-age=1800"
-        env:
-          AWS_S3_BUCKET: jbrowse.org
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
-          SOURCE_DIR: JBrowse-${{ env.RELEASE_VERSION }}
-          DEST_DIR: code/JBrowse-${{ env.RELEASE_VERSION }}
-
-      - name: Deploy website to S3
-        if:
-          matrix.perl == '5.26' && contains(github.event.head_commit.message,
-          '[update docs]')
-        uses: jakejarvis/s3-sync-action@master
-        with:
-          args: --acl public-read --cache-control "max-age=1800"
-        env:
-          AWS_S3_BUCKET: jbrowse.org
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
-          SOURCE_DIR: website/build/jbrowse/
+      # npm publishing and the jbrowse.org S3 deploys are disabled: npm publish
+      # has been broken since ~1.16.6, and because it ran before the S3 steps its
+      # failure was skipping them anyway. Distribution is via GitHub releases +
+      # GitHub Pages. Uncomment to revive (needs a fresh NPM_TOKEN / AWS creds).
+      #
+      # - name: Publish to npm
+      #   if: startsWith(github.ref, 'refs/tags/') && matrix.perl == '5.26'
+      #   run: |
+      #     echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+      #     npm publish
+      #
+      # - name: Deploy to S3 (release)
+      #   if:
+      #     startsWith(github.ref, 'refs/tags/') && matrix.perl == '5.26' &&
+      #     contains(github.event.head_commit.message, '[update docs]')
+      #   uses: jakejarvis/s3-sync-action@master
+      #   with:
+      #     args: --acl public-read --cache-control "max-age=1800"
+      #   env:
+      #     AWS_S3_BUCKET: jbrowse.org
+      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+      #     SOURCE_DIR: JBrowse-${{ env.RELEASE_VERSION }}
+      #     DEST_DIR: code/JBrowse-${{ env.RELEASE_VERSION }}
+      #
+      # - name: Deploy website to S3
+      #   if:
+      #     matrix.perl == '5.26' && contains(github.event.head_commit.message,
+      #     '[update docs]')
+      #   uses: jakejarvis/s3-sync-action@master
+      #   with:
+      #     args: --acl public-read --cache-control "max-age=1800"
+      #   env:
+      #     AWS_S3_BUCKET: jbrowse.org
+      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+      #     SOURCE_DIR: website/build/jbrowse/
