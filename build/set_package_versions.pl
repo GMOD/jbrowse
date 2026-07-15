@@ -22,7 +22,7 @@ for my $filename (@ARGV) {
         <$f>
     };
 
-    $text =~ s/"version"\s*:\s*"[^"]+"/"version": "$release"/
+    $text =~ s/(["']?version["']?\s*:\s*)(["'])[^"']*\2/$1$2$release$2/
         or die "failed to insert version info $filename";
 
     open my $f, '>', $filename or die "$! writing $filename";
