@@ -1,3 +1,20 @@
+{{$NEXT}}
+
+## Bug fixes
+
+- Fix reflected XSS in the `&addTracks=` URL parameter (pull #1670)
+
+- Apply DOMPurify proactively to innerHTML manipulation to harden against XSS
+  (pull #1660)
+
+- Restore alignments track coloring after the SASS to CSS change (pull #1661)
+
+## Build
+
+- Convert SASS to plain CSS and remove the node-sass build requirement, which
+  fixes installing and building from source on current Node and Yarn (pull
+  #1658)
+
 # Release 1.16.12 2025-02-26 04:20:44 UTC
 
 ## Bug fixes
