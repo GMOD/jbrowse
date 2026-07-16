@@ -1,5 +1,15 @@
 {{$NEXT}}
 
+## Developer
+
+- Add the `watch` script that README and the FAQ have always told developers to
+  run. `yarn watch` / `npm run watch` did not actually exist in package.json
+
+- Drop stale README advice: node-sass has been gone since 1.17.0, so the "use
+  node <=14" warning no longer applies, and the build now sets
+  `--openssl-legacy-provider` itself on node 17+ rather than asking you to
+  export `NODE_OPTIONS` by hand
+
 
 # Release 1.17.1     2026-07-16 16:13:47 UTC
 
