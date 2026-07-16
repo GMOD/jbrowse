@@ -1,5 +1,13 @@
 {{$NEXT}}
 
+## Build
+
+- Stop `setup.sh` from corrupting `yarn.lock` before yarn reads it. Its
+  `npm install yarn` step ran in the project root, and npm 7+ rewrites an
+  existing `yarn.lock` into its own dialect, which yarn 1 cannot parse, so a
+  fresh `./setup.sh` failed with `SyntaxError: Invalid value type` (issue
+  #1675)
+
 
 # Release 1.17.0     2026-07-15 18:10:23 UTC
 

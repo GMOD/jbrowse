@@ -62,6 +62,23 @@ check_node() {
   echo "Node $NODE_VERSION installed at $node_executable with npm $NPM_VERSION"
 }
 
+# npm 7+ keeps an existing yarn.lock "up to date" by rewriting it in npm's own
+# dialect, whose multi-hash integrity lines yarn 1 cannot parse. setup.sh used to
+# run a bare `npm install yarn` here, corrupting the lockfile in place, so repair
+# clones that already ran it (issue #1675). yarn never emits a space inside an
+# integrity value, so that space is an unambiguous signature of the rewrite.
+repair_yarn_lock() {
+  if grep -qE '^  integrity .+ .+' yarn.lock; then
+    log_echo "yarn.lock has been rewritten by npm into a form yarn cannot parse; restoring it (issue #1675)."
+    git checkout -- yarn.lock || true
+    if grep -qE '^  integrity .+ .+' yarn.lock; then
+      echo "ERROR: could not restore a usable yarn.lock. Restore it from a clean copy of JBrowse and run setup.sh again."
+      return 1
+    fi
+    log_echo "Restored yarn.lock."
+  fi
+}
+
 # we are starting a new setup. clear the log file
 rm -f setup.log
 
@@ -128,7 +145,10 @@ if [ -f "src/JBrowse/Browser.js" ]; then
   (
     set -e
     check_node
-    [[ -f node_modules/.bin/yarn ]] || npm install yarn
+    repair_yarn_lock
+    # --no-save --no-package-lock: keep npm from rewriting yarn.lock into its
+    # own dialect, which yarn 1 cannot parse
+    [[ -f node_modules/.bin/yarn ]] || npm install --no-save --no-package-lock yarn
     node_modules/.bin/yarn install
     JBROWSE_BUILD_MIN=$JBROWSE_BUILD_MIN node_modules/.bin/yarn build
   ) >>setup.log 2>&1
