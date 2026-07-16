@@ -15,6 +15,7 @@
     "dev": "node build/run-webpack.js webpack-dev-server",
     "start": "node build/run-webpack.js webpack-dev-server",
     "build": "node build/run-webpack.js webpack",
+    "watch": "node build/run-webpack.js webpack --watch",
     "build-electron": "electron-packager . JBrowse --overwrite --icon=browser/icons/jbrowse",
     "hint": "npm run lint",
     "lint": "eslint src/JBrowse tests/js_tests/spec"
