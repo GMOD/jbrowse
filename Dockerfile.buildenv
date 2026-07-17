@@ -1,0 +1,31 @@
+# pre-JBrowse build env
+
+# This container is intended to make building JBrowse easier.  To use this
+# container, first build it:
+#
+#    docker build -t prejbrowse -f ./Dockerfile.buildenv
+#
+# Then in the container that actually builds JBrowse, have it start with
+#
+#    FROM prejbrowse:latest
+#
+# ##TODO: update after this is on Docker Hub)
+# (i.e., using the name from the previous build command). A current (Feb 2020)
+# example of a Dockerfile that does this is at
+#
+#    (add link to https://github.com/alliance-genome/agr_jbrowse_container/blob/release-3.0.0/Dockerfile when it's ready
+#
+# 
+
+FROM nginx:latest as build
+ENV DEBIAN_FRONTEND noninteractive
+
+RUN mkdir -p /usr/share/man/man1 /usr/share/man/man7
+
+RUN apt-get -qq update --fix-missing
+RUN apt-get --no-install-recommends -y install wget curl software-properties-common git build-essential zlib1g-dev libpng-dev perl-doc ca-certificates
+
+RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
+
+RUN apt-get -y install nodejs
+
